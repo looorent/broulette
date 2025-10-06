@@ -6,9 +6,14 @@ Here are the source of data I plan to pull to get the most complete source of re
 * OpenStreetMap (OSM) / Overpass API
 * API Store :  https://api.store/belgium-api/fedict-api/food-andamp-drink-api
 
-
-
-
 ## Restaurant that are not found
 
 Bistrot Blaise
+
+## Scraper
+
+The scraper scripts are written in Javascript.
+On Windows, we use nvm-windows to manage node versions:
+```
+winget install -e --id CoreyButler.NVMforWindows
+```
