@@ -1,4 +1,4 @@
-const fs = require('fs');
+import fs from "fs";
 
 const filePath = "../../doc/overpass/20251003_overpass_belgium.json";
 

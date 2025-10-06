@@ -1,0 +1,24 @@
+{
+  "name": "broulette-scraper",
+  "version": "1.0.0",
+  "description": "Scraper scripts to populate BiteRoulette data",
+  "homepage": "https://github.com/looorent/broulette#readme",
+  "bugs": {
+    "url": "https://github.com/looorent/broulette/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/looorent/broulette.git"
+  },
+  "license": "ISC",
+  "author": "Lorent Lempereur",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "countNumberOfRestaurantsInOverpass": "node count_number_of_restaurants_in_overpass.js"
+  },
+  "dependencies": {
+    "@googlemaps/places": "2.1.0"
+  }
+}
