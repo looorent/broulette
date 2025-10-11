@@ -13,15 +13,14 @@
   "license": "ISC",
   "author": "Lorent Lempereur",
   "type": "module",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "countNumberOfRestaurantsInOverpass": "node count_number_of_restaurants_in_overpass.js",
-    "start": "node index.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
-    "@googlemaps/places": "2.1.0",
-    "pino": "10.0.0"
+    "@googlemaps/places": "2.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
