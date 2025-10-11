@@ -12,19 +12,25 @@
   },
   "license": "ISC",
   "author": "Lorent Lempereur",
+  "main": "src/index.ts",
   "type": "module",
-  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "countNumberOfRestaurantsInOverpass": "node count_number_of_restaurants_in_overpass.js",
-    "start": "node src/index.js"
+    "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=esm",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@googlemaps/places": "2.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
+    "@types/node": "^24.7.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.0",
+    "@typescript-eslint/parser": "^8.46.0",
+    "esbuild": "0.25.10",
     "eslint": "^9.37.0",
-    "globals": "^16.4.0"
+    "globals": "^16.4.0",
+    "typescript": "^5.9.3"
   }
 }
