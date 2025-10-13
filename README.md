@@ -17,3 +17,5 @@ On Windows, we use nvm-windows to manage node versions:
 ```
 winget install -e --id CoreyButler.NVMforWindows
 ```
+
+The environment variables can be placed in a `.env` file foir development purposes.

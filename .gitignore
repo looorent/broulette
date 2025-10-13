@@ -2,3 +2,4 @@ node_modules
 dist
 /scraper/output
 !/scraper/output/.gitkeep
+.env

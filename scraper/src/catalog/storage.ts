@@ -58,7 +58,9 @@ function parseCatalogRestaurantsFromStorage(json: any): Restaurant | undefined {
     if (json) {
         return new Restaurant(
             json.id,
-            parseOverpassRestaurantFromStorage(json.overpassRestaurant)
+            parseOverpassRestaurantFromStorage(json.overpassRestaurant),
+            json.googleRestaurant,
+            json.googleRestaurants
         );
     } else {
         return undefined;

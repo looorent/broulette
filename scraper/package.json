@@ -15,7 +15,7 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=esm",
+    "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=esm --external:@googlemaps/places --external:@grpc/grpc-js --external:google-gax --external:google-proto-files --external:protobufjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .ts",
     "start": "node dist/index.js"
@@ -28,9 +28,12 @@
     "@types/node": "^24.7.1",
     "@typescript-eslint/eslint-plugin": "^8.46.0",
     "@typescript-eslint/parser": "^8.46.0",
+    "dotenv": "17.2.3",
+    "dotenv-cli": "10.0.0",
     "esbuild": "0.25.10",
     "eslint": "^9.37.0",
     "globals": "^16.4.0",
+    "ts-node": "10.9.2",
     "typescript": "^5.9.3"
   }
 }
