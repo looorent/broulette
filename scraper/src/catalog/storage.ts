@@ -81,7 +81,7 @@ export function readCatalogFromStorage(folderPath: string): Catalog {
         console.log(`Reading restaurants from storage at '${folderPath}'. File does not exist. Start from scratch.`);
         return Catalog.empty();
     } else {
-        const catalog = parseCatalogFromStorage(readFileSync(filePath, "utf-8"));
+        const catalog = parseCatalogFromStorage(JSON.parse(readFileSync(filePath, "utf-8")));
         if (catalog) {
             console.log(`Reading restaurants from storage at '${folderPath}'. Done. ${catalog.numberOfRestaurants} restaurants found in version ${catalog.version}.`);
             return catalog;

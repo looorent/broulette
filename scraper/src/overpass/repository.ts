@@ -46,7 +46,7 @@ function parseResponse(body: any, durationInMs: number): OverpassResponse | unde
 }
 
 export async function fetchAllRestaurantsInCountry(countryCodeInIso3166: string, timeoutInSeconds: number): Promise<OverpassResponse | undefined> {
-    console.info(`Fetching all OSM restaurants in country '${countryCodeInIso3166}'...`);
+    console.info(`[OSM] Fetching all OSM restaurants in country '${countryCodeInIso3166}'...`);
     const query = createQueryToListAllRestaurantsInCountry(countryCodeInIso3166, timeoutInSeconds);
     const start = Date.now();
     const response = await fetch(
@@ -63,7 +63,7 @@ export async function fetchAllRestaurantsInCountry(countryCodeInIso3166: string,
     const durationInMs = Date.now() - start;
 
     if (response.ok) {
-        console.info(`Fetching all OSM restaurants in country '${countryCodeInIso3166}': done in ${durationInMs} ms.`);
+        console.info(`[OSM] Fetching all OSM restaurants in country '${countryCodeInIso3166}': done in ${durationInMs} ms.`);
         const body = await response.json() as any;
         if (body) {
             return parseResponse(body, durationInMs);

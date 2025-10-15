@@ -4,17 +4,18 @@ import { GoogleExceedsNumberOfCallsError } from "./google/error";
 import { GoogleRestaurantRepository } from "./google/repository";
 import { OsmError } from "./overpass/error";
 import { fetchAllRestaurantsWithRetriesInCountry } from "./overpass/repository";
-import "dotenv/config";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const COUNTRY_IN_ISO_3166: string = process.env["COUNTRY_IN_ISO_3166"] || "BE";
-const OVERPASS_TIMEOUT: number = parseInt(process.env["COUNTRY_IN_ISO_3166"] || "180");
+const OVERPASS_TIMEOUT: number = parseInt(process.env["OVERPASS_TIMEOUT"] || "180");
 const OUTPUT_FOLDER: string = process.env["OUTPUT_FOLDER"] || "./output";
 
 const GOOGLE_PLACE_API_KEY = process.env["GOOGLE_PLACE_API_KEY"];
 const GOOGLE_PLACE_MAX_NUMBER_OF_CALLS: number = parseInt(process.env["GOOGLE_PLACE_MAX_NUMBER_OF_CALLS"] || "100");
 
 const GOOGLE_PLACE_RADIUS_IN_METER: number = parseInt(process.env["GOOGLE_PLACE_RADIUS_IN_METER"] || "50");
-const GOOGLE_PLACE_MAXIMUM_NUMBER_OF_CALLS: number = parseInt(process.env["GOOGLE_PLACE_MAXIMUM_NUMBER_OF_CALLS"] || "100");
+const GOOGLE_PLACE_MAXIMUM_NUMBER_OF_PLACE_PER_SEARCH: number = parseInt(process.env["GOOGLE_PLACE_MAXIMUM_NUMBER_OF_PLACE_PER_SEARCH"] || "1");
 
 async function addOrUpdateOverpassRestaurantsIn(catalog: Catalog): Promise<Catalog> {
     try {
@@ -33,21 +34,31 @@ async function addOrUpdateOverpassRestaurantsIn(catalog: Catalog): Promise<Catal
 }
 
 async function addGoogleRestaurantsIn(catalog: Catalog): Promise<Catalog> {
-    if (GOOGLE_PLACE_API_KEY) {    
+    if (GOOGLE_PLACE_API_KEY) {
+        console.log(`[Google Place] There is a key available to contact Google ${GOOGLE_PLACE_MAX_NUMBER_OF_CALLS} times to find the matching restaurants. Processing...`);
         const client = new GoogleRestaurantRepository(GOOGLE_PLACE_API_KEY, GOOGLE_PLACE_MAX_NUMBER_OF_CALLS);
         let stopped = false;
-        let updatedCatalog = catalog;
-        for (let index = 0; index < catalog.restaurants.length && !stopped; index++) {
-            const restaurant = catalog.restaurants[index]!;
-            if (!restaurant.hasGoogleRestaurant() && restaurant.overpassRestaurant) {
+        let updatedCatalog = catalog.clone();
+        for (let index = 0; index < updatedCatalog.restaurants.length && !stopped; index++) {
+            const restaurant = updatedCatalog.restaurants[index]!;
+            if (!restaurant.hasGoogleRestaurant() && restaurant.hasOverpassName()) {
+                const searchText = restaurant.overpassRestaurant!.createSearchableText()
+                console.debug(`[Google Place] Finding Google Place for the restaurant '${restaurant.id}' with the search text '${searchText}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude})...`);
                 try {
-                    const googleRestaurants = await client.findRestaurants(restaurant.overpassRestaurant.latitude, restaurant.overpassRestaurant.longitude, GOOGLE_PLACE_RADIUS_IN_METER, GOOGLE_PLACE_MAXIMUM_NUMBER_OF_CALLS);
-                    updatedCatalog.mergeWithGooglePlace(restaurant.id, googleRestaurants);
+                    let googleRestaurants = await client.findRestaurantsByText(searchText, restaurant.overpassRestaurant!.latitude, restaurant.overpassRestaurant!.longitude, GOOGLE_PLACE_RADIUS_IN_METER, GOOGLE_PLACE_MAXIMUM_NUMBER_OF_PLACE_PER_SEARCH);
+                    if (googleRestaurants.length <= 0) {
+                        console.debug(`[Google Place] Finding Google Place for the restaurant '${restaurant.id}' failed with the search text '${searchText}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude}).  Trying the search 'nearby'...`);
+                        googleRestaurants = await client.findRestaurantsWithCoordinates(restaurant.overpassRestaurant!.latitude, restaurant.overpassRestaurant!.longitude, GOOGLE_PLACE_RADIUS_IN_METER, GOOGLE_PLACE_MAXIMUM_NUMBER_OF_PLACE_PER_SEARCH);
+                    }
+                    
+                    
+                    console.debug(`[Google Place] Finding Google Place for the restaurant '${restaurant.id}' with the name '${restaurant.overpassRestaurant!.name}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude}): ${googleRestaurants.length} places found.`);
+                    updatedCatalog = updatedCatalog.mergeWithGooglePlace(restaurant.id, googleRestaurants);
                 } catch (e) {
                     if (e instanceof GoogleExceedsNumberOfCallsError) {
-                        console.log("Maximum number of calls to Google Places exceeds the limit. Stop this part of the process to avoid paying too much.");
+                        console.log("[Google Place] Maximum number of calls to Google Places exceeds the limit. Stop this part of the process to avoid paying too much.");
                     } else {
-                        console.error("An error occurred when calling google place API. Stop this part of the process.", e)
+                        console.error("[Google Place] An error occurred when calling google place API. Stop this part of the process.", e)
                     }
                     stopped = true;
                 }
@@ -55,7 +66,7 @@ async function addGoogleRestaurantsIn(catalog: Catalog): Promise<Catalog> {
         }
         return updatedCatalog;
     } else {
-        console.error("There is no environment variable named 'GOOGLE_PLACE_API_KEY' to contact the API of Google Place.")
+        console.error("[Google Place] There is no environment variable named 'GOOGLE_PLACE_API_KEY' to contact the API of Google Place.")
         return catalog;
     }
 }
@@ -71,7 +82,9 @@ async function main() {
 
     // other sources? tripadvisor? (todo)
 
-    return writeCatalogToStorage(catalog, OUTPUT_FOLDER);
+    catalog = writeCatalogToStorage(catalog, OUTPUT_FOLDER);
+
+    return catalog.printHighlights();
 }
 
 main();

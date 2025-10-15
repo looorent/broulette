@@ -13,15 +13,15 @@
   "license": "ISC",
   "author": "Lorent Lempereur",
   "main": "src/index.ts",
-  "type": "module",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=esm --external:@googlemaps/places --external:@grpc/grpc-js --external:google-gax --external:google-proto-files --external:protobufjs",
+    "build": "esbuild src/index.ts --bundle --sourcemap --platform=node --outdir=dist --external:@googlemaps/places --external:@grpc/grpc-js --external:google-gax --external:google-proto-files --external:protobufjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .ts",
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@googlemaps/places": "2.1.0"
+    "@googlemaps/places": "2.1.0",
+    "cmpstr": "3.0.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",

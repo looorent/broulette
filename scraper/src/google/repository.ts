@@ -49,14 +49,16 @@ const RESTAURANT_TYPES: string[] = [
     "vietnamese_restaurant"
 ]
 
+const FIELDS_FILTER = "*";
+
 export class GoogleRestaurantRepository {
     private numberOfCalls: number = 0;
     constructor(private readonly apiKey: string,
         private readonly maximumNumberOfCalls: number // to avoid a big invoice
     ) { }
 
-    async findRestaurants(latitude: number, longitude: number, radiusInMeters: number, maximumNumberOfResultsToQuery: number): Promise<GoogleRestaurant[]> {
-        if (this.numberOfCalls <= this.maximumNumberOfCalls) {
+    async findRestaurantsWithCoordinates(latitude: number, longitude: number, radiusInMeters: number, maximumNumberOfResultsToQuery: number): Promise<GoogleRestaurant[]> {
+        if (this.numberOfCalls > this.maximumNumberOfCalls) {
             throw new GoogleExceedsNumberOfCallsError(this.maximumNumberOfCalls, this.numberOfCalls);
         } else {
             this.numberOfCalls++;
@@ -79,12 +81,49 @@ export class GoogleRestaurantRepository {
                     maxResultCount: maximumNumberOfResultsToQuery
                 }, {
                 otherArgs: {
+                    retry: 3, // TODO Lorent check the use of this retry counter
                     headers: {
-                        "X-Goog-FieldMask": "*"
-                    },
-                },
-            }))?.[0];
+                        "X-Goog-FieldMask": FIELDS_FILTER
+                    }
+                }
+            }
+            ))?.[0];
 
+            return response?.places?.map(convertGooglePlaceToRestaurant)?.filter(Boolean).map(restaurant => restaurant!) || [];
+        }
+    }
+
+    async findRestaurantsByText(searchableText: string, latitude: number, longitude: number, radiusInMeters: number, maximumNumberOfResultsToQuery: number): Promise<GoogleRestaurant[]> {
+        if (this.numberOfCalls > this.maximumNumberOfCalls) {
+            throw new GoogleExceedsNumberOfCallsError(this.maximumNumberOfCalls, this.numberOfCalls);
+        } else {
+            this.numberOfCalls++;
+            const placesClient = new PlacesClient({
+                apiKey: this.apiKey
+            });
+
+            const response = (await placesClient.searchText(
+                {
+                    rankPreference: "RELEVANCE",
+                    locationBias: {
+                        circle: {
+                            center: {
+                                latitude: latitude,
+                                longitude: longitude
+                            },
+                            radius: radiusInMeters
+                        }
+                    },
+                    textQuery: searchableText
+                }, {
+                    maxResults: maximumNumberOfResultsToQuery,
+                    otherArgs: {
+                        headers: {
+                            "X-Goog-FieldMask": FIELDS_FILTER
+                        }
+                    }
+                }
+            ))?.[0];
             return response?.places?.map(convertGooglePlaceToRestaurant)?.filter(Boolean).map(restaurant => restaurant!) || [];
         }
     }

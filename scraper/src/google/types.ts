@@ -40,4 +40,47 @@ export class GoogleRestaurant {
     readonly shortFormattedAddress: string,
     readonly photos: protos.google.maps.places.v1.IPhoto[],
     readonly raw: any) { }
+
+    clone(): GoogleRestaurant {
+      return new GoogleRestaurant(
+        this.id,
+        this.name,
+        this.types,
+        this.nationalPhoneNumber,
+        this.internationalPhoneNumber,
+        this.formattedAddress,
+        this.addressComponents,
+        this.location,
+        this.viewport,
+        this.rating,
+        this.googleMapsUri,
+        this.websiteUri,
+        this.regularOpeningHours,
+        this.utcOffsetMinutes,
+        this.adrFormatAddress,
+        this.businessStatus,
+        this.priceLevel,
+        this.userRatingCount,
+        this.iconMaskBaseUri,
+        this.iconBackgroundColor,
+        this.displayName,
+        this.primaryTypeDisplayName,
+        this.takeout,
+        this.delivery,
+        this.dineIn,
+        this.reservable,
+        this.servesBreakfast,
+        this.servesLunch,
+        this.servesDinner,
+        this.servesBeer,
+        this.servesWine,
+        this.servesBrunch,
+        this.servesVegetarianFood,
+        this.currentOpeningHours,
+        this.primaryType,
+        this.shortFormattedAddress,
+        this.photos,
+        this.raw
+      );
+    }
 }

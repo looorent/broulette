@@ -19,3 +19,8 @@ winget install -e --id CoreyButler.NVMforWindows
 ```
 
 The environment variables can be placed in a `.env` file foir development purposes.
+
+
+## Open questions
+
+* Should we bundle the external lmibraries or not.
