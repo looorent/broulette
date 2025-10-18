@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join, resolve } from "path";
 import { OverpassResponse, OverpassRestaurant } from "../overpass/types";
 import { Catalog, Restaurant } from "./catalog";
+import { GoogleRestaurant } from "../google/types";
 
 const LATEST_FILE_NAME = process.env["LATEST_FILE_NAME"] || "latest.json";
 
@@ -54,13 +55,61 @@ function parseOverpassRestaurantFromStorage(json: any): OverpassRestaurant | und
     }
 }
 
+function parseGoogleRestaurantFromStorage(json: any): GoogleRestaurant | undefined {
+    if (json) {
+        return new GoogleRestaurant(
+            json.id,
+            json.name,
+            json.types,
+            json.nationalPhoneNumber,
+            json.internationalPhoneNumber,
+            json.formattedAddress,
+            json.addressComponents,
+            json.location,
+            json.viewport,
+            json.rating,
+            json.googleMapsUri,
+            json.websiteUri,
+            json.regularOpeningHours,
+            json.utcOffsetMinutes,
+            json.adrFormatAddress,
+            json.businessStatus,
+            json.priceLevel,
+            json.userRatingCount,
+            json.iconMaskBaseUri,
+            json.iconBackgroundColor,
+            json.displayName,
+            json.primaryTypeDisplayName,
+            json.takeout,
+            json.delivery,
+            json.dineIn,
+            json.reservable,
+            json.servesBreakfast,
+            json.servesLunch,
+            json.servesDinner,
+            json.servesBeer,
+            json.servesWine,
+            json.servesBrunch,
+            json.servesVegetarianFood,
+            json.currentOpeningHours,
+            json.primaryType,
+            json.shortFormattedAddress,
+            json.photos,
+            json.raw
+        );
+    } else {
+        return undefined;
+    }
+}
+
 function parseCatalogRestaurantsFromStorage(json: any): Restaurant | undefined {
     if (json) {
         return new Restaurant(
             json.id,
             parseOverpassRestaurantFromStorage(json.overpassRestaurant),
-            json.googleRestaurant,
-            json.googleRestaurants
+            parseGoogleRestaurantFromStorage(json.googleRestaurant),
+            json.googleRestaurants?.map(parseGoogleRestaurantFromStorage),
+            json.searchedOnGoogleAt ? new Date(json.searchedOnGoogleAt) : undefined
         );
     } else {
         return undefined;

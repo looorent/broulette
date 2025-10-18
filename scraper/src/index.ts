@@ -38,11 +38,12 @@ async function addGoogleRestaurantsIn(catalog: Catalog): Promise<Catalog> {
         console.log(`[Google Place] There is a key available to contact Google ${GOOGLE_PLACE_MAX_NUMBER_OF_CALLS} times to find the matching restaurants. Processing...`);
         const client = new GoogleRestaurantRepository(GOOGLE_PLACE_API_KEY, GOOGLE_PLACE_MAX_NUMBER_OF_CALLS);
         let stopped = false;
+        const now = new Date();
         let updatedCatalog = catalog.clone();
         for (let index = 0; index < updatedCatalog.restaurants.length && !stopped; index++) {
             const restaurant = updatedCatalog.restaurants[index]!;
-            if (!restaurant.hasGoogleRestaurant() && restaurant.hasOverpassName()) {
-                const searchText = restaurant.overpassRestaurant!.createSearchableText()
+            if (restaurant.hasOverpassName() && !restaurant.hasBeenSearchedWithGoogleInTheLastMonth(now)) {
+                const searchText = restaurant.overpassRestaurant!.createSearchableText();
                 console.debug(`[Google Place] Finding Google Place for the restaurant '${restaurant.id}' with the search text '${searchText}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude})...`);
                 try {
                     let googleRestaurants = await client.findRestaurantsByText(searchText, restaurant.overpassRestaurant!.latitude, restaurant.overpassRestaurant!.longitude, GOOGLE_PLACE_RADIUS_IN_METER, GOOGLE_PLACE_MAXIMUM_NUMBER_OF_PLACE_PER_SEARCH);

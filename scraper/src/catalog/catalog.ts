@@ -4,12 +4,20 @@ import { GoogleRestaurant } from "../google/types";
 import { reportRestaurantsMatchedWithGoogle, reportRestaurantsWithoutOverpassName } from "../report/printer";
 import { CmpStr } from "cmpstr";
 
+function daysBetween(date: Date, otherDate: Date): number {
+  const msInDay = 24 * 60 * 60 * 1000;
+  return Math.floor(Math.abs(otherDate.getTime() - date.getTime()) / msInDay);
+}
+
+
 export class Restaurant {
   constructor(
     readonly id: string,
     readonly overpassRestaurant: OverpassRestaurant | undefined,
     readonly googleRestaurant: GoogleRestaurant | undefined,
-    readonly googleRestaurantsFoundNearby: GoogleRestaurant[] | undefined) { }
+    readonly googleRestaurantsFoundNearby: GoogleRestaurant[] | undefined,
+    readonly searchedOnGoogleAt: Date | undefined // undefined means "never searched"
+  ) { }
 
   compareTo(other: Restaurant): number {
     return this.id?.localeCompare(other?.id);
@@ -24,7 +32,8 @@ export class Restaurant {
       this.id,
       overpassRestaurant || this.overpassRestaurant || undefined,
       this.googleRestaurant,
-      this.googleRestaurantsFoundNearby
+      this.googleRestaurantsFoundNearby,
+      this.searchedOnGoogleAt
     );
   }
 
@@ -34,7 +43,8 @@ export class Restaurant {
       this.id,
       this.overpassRestaurant,
       bestRestaurant,
-      googleRestaurants
+      googleRestaurants,
+      bestRestaurant ? new Date() : undefined
     );
   }
 
@@ -46,12 +56,21 @@ export class Restaurant {
     return (this.overpassRestaurant?.name?.length || 0) > 0;
   }
 
+  hasAlreadyBeenSearchedWithGoogle(): boolean {
+    return this.searchedOnGoogleAt !== undefined && this.searchedOnGoogleAt !== null;
+  }
+
+  hasBeenSearchedWithGoogleInTheLastMonth(now: Date) : boolean {
+    return this.hasAlreadyBeenSearchedWithGoogle() && daysBetween(this.searchedOnGoogleAt!, now) < 30;
+  }
+
   clone(): Restaurant {
     return new Restaurant(
       this.id,
       this.overpassRestaurant?.clone(),
       this.googleRestaurant?.clone(),
-      this.googleRestaurantsFoundNearby?.filter(Boolean)?.map(restaurant => restaurant?.clone())
+      this.googleRestaurantsFoundNearby?.filter(Boolean)?.map(restaurant => restaurant?.clone()),
+      this.searchedOnGoogleAt
     );
   }
 }
@@ -132,7 +151,7 @@ function completeCatalogWithOverpassRestaurants(existingRestaurants: Restaurant[
   const missingOverpassRestaurants = overpassRestaurants?.filter(overpassRestaurant => !restaurants.some(restaurant => restaurant.hasOverpassId(overpassRestaurant.id))) || [];
   return [
     ...restaurants.map(restaurant => restaurant.withOverpassRestaurant(overpassRestaurants.filter(Boolean).find(overpassRestaurant => restaurant.hasOverpassId(overpassRestaurant.id)) || undefined)),
-    ...missingOverpassRestaurants.map(missingOverpassRestaurant => new Restaurant(randomUUID(), missingOverpassRestaurant, undefined, undefined))
+    ...missingOverpassRestaurants.map(missingOverpassRestaurant => createRestaurantFromOverpass(missingOverpassRestaurant))
   ];
 }
 
@@ -155,3 +174,8 @@ function findTheClosestRestaurant(restaurants: GoogleRestaurant[], name: string)
     }
   }
 }
+
+function createRestaurantFromOverpass(overpassRestaurant: OverpassRestaurant): Restaurant {
+  return new Restaurant(randomUUID(), overpassRestaurant, undefined, undefined, undefined);
+}
+
