@@ -1,5 +1,15 @@
 import { protos } from "@googlemaps/places";
 
+export class GoogleRestaurantIdentifier {
+  constructor(
+    readonly id: string
+  ) {}
+
+  clone(): GoogleRestaurantIdentifier {
+    return new GoogleRestaurantIdentifier(this.id);
+  }
+}
+
 export class GoogleRestaurant {
   constructor(
     readonly id: string,
@@ -82,5 +92,9 @@ export class GoogleRestaurant {
         this.photos,
         this.raw
       );
+    }
+
+    toGoogleRestaurantIdentifier(): GoogleRestaurantIdentifier {
+      return new GoogleRestaurantIdentifier(this.id);
     }
 }

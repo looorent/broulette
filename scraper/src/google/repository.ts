@@ -1,5 +1,5 @@
 import { PlacesClient } from "@googlemaps/places";
-import { GoogleRestaurant } from "./types";
+import { GoogleRestaurant, GoogleRestaurantIdentifier } from "./types";
 import { protos } from "@googlemaps/places";
 import { GoogleExceedsNumberOfCallsError } from "./error";
 
@@ -49,7 +49,8 @@ const RESTAURANT_TYPES: string[] = [
     "vietnamese_restaurant"
 ]
 
-const FIELDS_FILTER = "*";
+const COMPLETE_FIELDS_FILTER = "*";
+const ID_FIELDS_FILTER = "places.id";
 
 export class GoogleRestaurantRepository {
     private numberOfCalls: number = 0;
@@ -57,7 +58,21 @@ export class GoogleRestaurantRepository {
         private readonly maximumNumberOfCalls: number // to avoid a big invoice
     ) { }
 
-    async findRestaurantsWithCoordinates(latitude: number, longitude: number, radiusInMeters: number, maximumNumberOfResultsToQuery: number): Promise<GoogleRestaurant[]> {
+    async findRestaurantIdentifierNearby(latitude: number, longitude: number, radiusInMeters: number): Promise<GoogleRestaurantIdentifier | undefined> {
+        const places = await this.findPlacesNearby(latitude, longitude, radiusInMeters, 1, ID_FIELDS_FILTER);
+        if (places?.length > 0) {
+            return convertGooglePlaceToRestaurantIdentifier(places[0]!);
+        } else {
+            return undefined;
+        }
+    }
+
+    async findRestaurantsNearby(latitude: number, longitude: number, radiusInMeters: number, maximumNumberOfResultsToQuery: number): Promise<GoogleRestaurant[]> {
+        return (await this.findPlacesNearby(latitude, longitude, radiusInMeters, maximumNumberOfResultsToQuery, COMPLETE_FIELDS_FILTER))
+            .map(convertGooglePlaceToRestaurant)?.filter(Boolean).map(restaurant => restaurant!) || [];
+    }
+
+    private async findPlacesNearby(latitude: number, longitude: number, radiusInMeters: number, maximumNumberOfResultsToQuery: number, fieldMask: string): Promise<protos.google.maps.places.v1.IPlace[]> {
         if (this.numberOfCalls > this.maximumNumberOfCalls) {
             throw new GoogleExceedsNumberOfCallsError(this.maximumNumberOfCalls, this.numberOfCalls);
         } else {
@@ -66,7 +81,7 @@ export class GoogleRestaurantRepository {
                 apiKey: this.apiKey
             });
 
-            const response = (await placesClient.searchNearby(
+            const response = await placesClient.searchNearby(
                 {
                     includedTypes: RESTAURANT_TYPES,
                     locationRestriction: {
@@ -83,17 +98,30 @@ export class GoogleRestaurantRepository {
                 otherArgs: {
                     retry: 3, // TODO Lorent check the use of this retry counter
                     headers: {
-                        "X-Goog-FieldMask": FIELDS_FILTER
+                        "X-Goog-FieldMask": fieldMask
                     }
                 }
             }
-            ))?.[0];
+            );
+            return response?.[0]?.places || [];
+        }
+    }
 
-            return response?.places?.map(convertGooglePlaceToRestaurant)?.filter(Boolean).map(restaurant => restaurant!) || [];
+    async findRestaurantIdentifierByText(searchableText: string, latitude: number, longitude: number, radiusInMeters: number): Promise<GoogleRestaurantIdentifier | undefined> {
+        const places = await this.findPlacesByText(searchableText, latitude, longitude, radiusInMeters, 1, ID_FIELDS_FILTER);
+        if (places?.length > 0) {
+            return convertGooglePlaceToRestaurantIdentifier(places[0]!);
+        } else {
+            return undefined;
         }
     }
 
     async findRestaurantsByText(searchableText: string, latitude: number, longitude: number, radiusInMeters: number, maximumNumberOfResultsToQuery: number): Promise<GoogleRestaurant[]> {
+        return (await this.findPlacesByText(searchableText, latitude, longitude, radiusInMeters, maximumNumberOfResultsToQuery, COMPLETE_FIELDS_FILTER))
+            .map(convertGooglePlaceToRestaurant)?.filter(Boolean).map(restaurant => restaurant!) || [];
+    }
+
+    private async findPlacesByText(searchableText: string, latitude: number, longitude: number, radiusInMeters: number, maximumNumberOfResultsToQuery: number, fieldMask: string): Promise<protos.google.maps.places.v1.IPlace[]> {
         if (this.numberOfCalls > this.maximumNumberOfCalls) {
             throw new GoogleExceedsNumberOfCallsError(this.maximumNumberOfCalls, this.numberOfCalls);
         } else {
@@ -102,7 +130,7 @@ export class GoogleRestaurantRepository {
                 apiKey: this.apiKey
             });
 
-            const response = (await placesClient.searchText(
+            const response = await placesClient.searchText(
                 {
                     rankPreference: "RELEVANCE",
                     locationBias: {
@@ -119,13 +147,59 @@ export class GoogleRestaurantRepository {
                     maxResults: maximumNumberOfResultsToQuery,
                     otherArgs: {
                         headers: {
-                            "X-Goog-FieldMask": FIELDS_FILTER
+                            "X-Goog-FieldMask": fieldMask
                         }
                     }
                 }
-            ))?.[0];
-            return response?.places?.map(convertGooglePlaceToRestaurant)?.filter(Boolean).map(restaurant => restaurant!) || [];
+            );
+            return response?.[0]?.places || [];
         }
+    }
+
+    async findRestaurantByPlaceId(placeId: string): Promise<GoogleRestaurant | undefined> {
+        if (placeId) {
+            if (this.numberOfCalls > this.maximumNumberOfCalls) {
+                throw new GoogleExceedsNumberOfCallsError(this.maximumNumberOfCalls, this.numberOfCalls);
+            } else {
+                this.numberOfCalls++;
+                const placesClient = new PlacesClient({
+                    apiKey: this.apiKey
+                });
+
+                const response = await placesClient.getPlace(
+                    {
+                        name: `places/${placeId}`
+                    }, {
+                        maxRetries: 3,
+                        otherArgs: {
+                            headers: {
+                                "X-Goog-FieldMask": COMPLETE_FIELDS_FILTER
+                            }
+                        }
+                    }
+                );
+
+                const place = response[0];
+                if (place) {
+                    return convertGooglePlaceToRestaurant(place);
+                } else {
+                    return undefined;
+                }
+            }
+        } else {
+            return undefined;
+        }
+    }
+
+}
+
+function convertGooglePlaceToRestaurantIdentifier(place: protos.google.maps.places.v1.IPlace): GoogleRestaurantIdentifier | undefined {
+    if (place) {
+        return new GoogleRestaurantIdentifier(
+            place.id!
+        );
+    } else {
+        return undefined;
     }
 }
 

@@ -1,10 +1,10 @@
+import * as dotenv from "dotenv";
 import { Catalog } from "./catalog/catalog";
 import { readCatalogFromStorage, writeCatalogToStorage } from "./catalog/storage";
 import { GoogleExceedsNumberOfCallsError } from "./google/error";
 import { GoogleRestaurantRepository } from "./google/repository";
 import { OsmError } from "./overpass/error";
 import { fetchAllRestaurantsWithRetriesInCountry } from "./overpass/repository";
-import * as dotenv from "dotenv";
 dotenv.config();
 
 const COUNTRY_IN_ISO_3166: string = process.env["COUNTRY_IN_ISO_3166"] || "BE";
@@ -16,6 +16,8 @@ const GOOGLE_PLACE_MAX_NUMBER_OF_CALLS: number = parseInt(process.env["GOOGLE_PL
 
 const GOOGLE_PLACE_RADIUS_IN_METER: number = parseInt(process.env["GOOGLE_PLACE_RADIUS_IN_METER"] || "50");
 const GOOGLE_PLACE_MAXIMUM_NUMBER_OF_PLACE_PER_SEARCH: number = parseInt(process.env["GOOGLE_PLACE_MAXIMUM_NUMBER_OF_PLACE_PER_SEARCH"] || "1");
+
+const GOOGLE_PLACE_LOAD_ID_ONLY: boolean = (process.env["GOOGLE_PLACE_LOAD_ID_ONLY"] ?? "true").trim().toLowerCase() === "true";
 
 async function addOrUpdateOverpassRestaurantsIn(catalog: Catalog): Promise<Catalog> {
     try {
@@ -44,17 +46,26 @@ async function addGoogleRestaurantsIn(catalog: Catalog): Promise<Catalog> {
             const restaurant = updatedCatalog.restaurants[index]!;
             if (restaurant.hasOverpassName() && !restaurant.hasBeenSearchedWithGoogleInTheLastMonth(now)) {
                 const searchText = restaurant.overpassRestaurant!.createSearchableText();
-                console.debug(`[Google Place] Finding Google Place for the restaurant '${restaurant.id}' with the search text '${searchText}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude})...`);
                 try {
-                    let googleRestaurants = await client.findRestaurantsByText(searchText, restaurant.overpassRestaurant!.latitude, restaurant.overpassRestaurant!.longitude, GOOGLE_PLACE_RADIUS_IN_METER, GOOGLE_PLACE_MAXIMUM_NUMBER_OF_PLACE_PER_SEARCH);
-                    if (googleRestaurants.length <= 0) {
-                        console.debug(`[Google Place] Finding Google Place for the restaurant '${restaurant.id}' failed with the search text '${searchText}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude}).  Trying the search 'nearby'...`);
-                        googleRestaurants = await client.findRestaurantsWithCoordinates(restaurant.overpassRestaurant!.latitude, restaurant.overpassRestaurant!.longitude, GOOGLE_PLACE_RADIUS_IN_METER, GOOGLE_PLACE_MAXIMUM_NUMBER_OF_PLACE_PER_SEARCH);
+                    if (GOOGLE_PLACE_LOAD_ID_ONLY) {
+                        console.debug(`[Google Place] Finding Google Place ID for the restaurant '${restaurant.id}' with the search text '${searchText}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude})...`);
+                        let googleRestaurantId = await client.findRestaurantIdentifierByText(searchText, restaurant.overpassRestaurant!.latitude, restaurant.overpassRestaurant!.longitude, GOOGLE_PLACE_RADIUS_IN_METER);
+                        if (!googleRestaurantId) {
+                            console.debug(`[Google Place] Finding Google Place ID for the restaurant '${restaurant.id}' failed with the search text '${searchText}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude}).  Trying the search 'nearby'...`);
+                            googleRestaurantId = await client.findRestaurantIdentifierNearby(restaurant.overpassRestaurant!.latitude, restaurant.overpassRestaurant!.longitude, GOOGLE_PLACE_RADIUS_IN_METER);
+                        }
+                        console.debug(`[Google Place] Finding Google Place ID for the restaurant '${restaurant.id}' with the name '${restaurant.overpassRestaurant!.name}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude}): ${googleRestaurantId?.id || "Not found"}`);
+                        updatedCatalog = updatedCatalog.mergeWithGooglePlaceIdentifier(restaurant.id, googleRestaurantId);
+                    } else {
+                        console.debug(`[Google Place] Finding Google Place for the restaurant '${restaurant.id}' with the search text '${searchText}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude})...`);
+                        let googleRestaurants = await client.findRestaurantsByText(searchText, restaurant.overpassRestaurant!.latitude, restaurant.overpassRestaurant!.longitude, GOOGLE_PLACE_RADIUS_IN_METER, GOOGLE_PLACE_MAXIMUM_NUMBER_OF_PLACE_PER_SEARCH);
+                        if (googleRestaurants.length <= 0) {
+                            console.debug(`[Google Place] Finding Google Place for the restaurant '${restaurant.id}' failed with the search text '${searchText}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude}).  Trying the search 'nearby'...`);
+                            googleRestaurants = await client.findRestaurantsNearby(restaurant.overpassRestaurant!.latitude, restaurant.overpassRestaurant!.longitude, GOOGLE_PLACE_RADIUS_IN_METER, GOOGLE_PLACE_MAXIMUM_NUMBER_OF_PLACE_PER_SEARCH);
+                        }
+                        console.debug(`[Google Place] Finding Google Place for the restaurant '${restaurant.id}' with the name '${restaurant.overpassRestaurant!.name}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude}): ${googleRestaurants.length} places found.`);
+                        updatedCatalog = updatedCatalog.mergeWithGooglePlace(restaurant.id, googleRestaurants);
                     }
-                    
-                    
-                    console.debug(`[Google Place] Finding Google Place for the restaurant '${restaurant.id}' with the name '${restaurant.overpassRestaurant!.name}' located at (${restaurant.overpassRestaurant!.latitude}, ${restaurant.overpassRestaurant!.longitude}): ${googleRestaurants.length} places found.`);
-                    updatedCatalog = updatedCatalog.mergeWithGooglePlace(restaurant.id, googleRestaurants);
                 } catch (e) {
                     if (e instanceof GoogleExceedsNumberOfCallsError) {
                         console.log("[Google Place] Maximum number of calls to Google Places exceeds the limit. Stop this part of the process to avoid paying too much.");
