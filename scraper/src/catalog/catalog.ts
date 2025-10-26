@@ -58,7 +58,7 @@ export class Restaurant {
       this.googleRestaurant,
       this.googleRestaurantsFoundNearby,
       googleIdentifier,
-      this.searchedOnGoogleAt
+      googleIdentifier ? new Date() : this.searchedOnGoogleAt
     );
   }
 
