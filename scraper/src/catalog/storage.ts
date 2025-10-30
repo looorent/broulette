@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join, resolve } from "path";
 import { OverpassResponse, OverpassRestaurant } from "../overpass/types";
 import { Catalog, Restaurant } from "./catalog";
-import { GoogleRestaurant, GoogleRestaurantIdentifier } from "../google/types";
+import { GoogleRestaurant, GoogleRestaurantSearchResult } from "../google/types";
 
 const LATEST_FILE_NAME = process.env["LATEST_FILE_NAME"] || "latest.json";
 
@@ -55,14 +55,6 @@ function parseOverpassRestaurantFromStorage(json: any): OverpassRestaurant | und
     }
 }
 
-function parseGoogleRestaurantIdentifierFromStorage(json: any): GoogleRestaurantIdentifier | undefined {
-    if (json) {
-        return new GoogleRestaurantIdentifier(json.id);
-    } else {
-        return undefined;
-    }                    
-}
-
 function parseGoogleRestaurantFromStorage(json: any): GoogleRestaurant | undefined {
     if (json) {
         return new GoogleRestaurant(
@@ -110,15 +102,26 @@ function parseGoogleRestaurantFromStorage(json: any): GoogleRestaurant | undefin
     }
 }
 
+
+function parseCatalogGoogleSearchFromStorage(json: any): GoogleRestaurantSearchResult | undefined {
+    if (json) {
+        return new GoogleRestaurantSearchResult(
+            json.placeId,
+            parseGoogleRestaurantFromStorage(json.place),
+            json.placesFoundNearby?.map(parseGoogleRestaurantFromStorage),
+            json.searchedAt ? new Date(json.searchedAt) : new Date()
+        );
+    } else {
+        return undefined;
+    }
+}
+
 function parseCatalogRestaurantsFromStorage(json: any): Restaurant | undefined {
     if (json) {
         return new Restaurant(
             json.id,
             parseOverpassRestaurantFromStorage(json.overpassRestaurant),
-            parseGoogleRestaurantFromStorage(json.googleRestaurant),
-            json.googleRestaurants?.map(parseGoogleRestaurantFromStorage),
-            parseGoogleRestaurantIdentifierFromStorage(json.googleIdentifier),
-            json.searchedOnGoogleAt ? new Date(json.searchedOnGoogleAt) : undefined
+            parseCatalogGoogleSearchFromStorage(json.google)
         );
     } else {
         return undefined;

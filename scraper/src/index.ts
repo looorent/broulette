@@ -70,7 +70,6 @@ async function addGoogleRestaurantsIn(catalog: Catalog): Promise<Catalog> {
                     if (e instanceof GoogleExceedsNumberOfCallsError) {
                         console.log("[Google Place] Maximum number of calls to Google Places exceeds the limit. Stop this part of the process to avoid paying too much.");
                     } else {
-                        // TODO Lorent this occurs too often, handle it better by retrying the call (maybe use the circuit breaker?)
                         console.error("[Google Place] An error occurred when calling google place API. Stop this part of the process.", e)
                     }
                     stopped = true;

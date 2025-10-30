@@ -1,5 +1,5 @@
 import { PlacesClient } from "@googlemaps/places";
-import { GoogleRestaurant, GoogleRestaurantIdentifier } from "./types";
+import { GoogleRestaurant } from "./types";
 import { protos } from "@googlemaps/places";
 import { GoogleExceedsNumberOfCallsError } from "./error";
 
@@ -58,10 +58,10 @@ export class GoogleRestaurantRepository {
         private readonly maximumNumberOfCalls: number // to avoid a big invoice
     ) { }
 
-    async findRestaurantIdentifierNearby(latitude: number, longitude: number, radiusInMeters: number): Promise<GoogleRestaurantIdentifier | undefined> {
+    async findRestaurantIdentifierNearby(latitude: number, longitude: number, radiusInMeters: number): Promise<string | undefined> {
         const places = await this.findPlacesNearby(latitude, longitude, radiusInMeters, 1, ID_FIELDS_FILTER);
         if (places?.length > 0) {
-            return convertGooglePlaceToRestaurantIdentifier(places[0]!);
+            return places[0]!.id!;
         } else {
             return undefined;
         }
@@ -107,10 +107,10 @@ export class GoogleRestaurantRepository {
         }
     }
 
-    async findRestaurantIdentifierByText(searchableText: string, latitude: number, longitude: number, radiusInMeters: number): Promise<GoogleRestaurantIdentifier | undefined> {
+    async findRestaurantIdentifierByText(searchableText: string, latitude: number, longitude: number, radiusInMeters: number): Promise<string | undefined> {
         const places = await this.findPlacesByText(searchableText, latitude, longitude, radiusInMeters, 1, ID_FIELDS_FILTER);
         if (places?.length > 0) {
-            return convertGooglePlaceToRestaurantIdentifier(places[0]!);
+            return places[0]!.id!;
         } else {
             return undefined;
         }
@@ -191,16 +191,6 @@ export class GoogleRestaurantRepository {
         }
     }
 
-}
-
-function convertGooglePlaceToRestaurantIdentifier(place: protos.google.maps.places.v1.IPlace): GoogleRestaurantIdentifier | undefined {
-    if (place) {
-        return new GoogleRestaurantIdentifier(
-            place.id!
-        );
-    } else {
-        return undefined;
-    }
 }
 
 function convertGooglePlaceToRestaurant(place: protos.google.maps.places.v1.IPlace): GoogleRestaurant | undefined {

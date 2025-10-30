@@ -12,8 +12,8 @@ export function reportRestaurantsWithoutOverpassName(catalog: Catalog): Catalog 
 }
 
 export function reportRestaurantsMatchedWithGoogle(catalog: Catalog): Catalog {
-    const matches = catalog.restaurants.filter(restaurant => restaurant.hasGoogleRestaurantId());
-    const mismatches = catalog.restaurants.filter(restaurant => !restaurant.hasGoogleRestaurantId());
+    const matches = catalog.restaurants.filter(restaurant => restaurant.google?.placeId);
+    const mismatches = catalog.restaurants.filter(restaurant => !restaurant.google?.placeId);
 
     console.info(`[Highlight] ${matches.length} restaurants have been matched with Google`);
     if (mismatches.length > 0) {
@@ -24,9 +24,9 @@ export function reportRestaurantsMatchedWithGoogle(catalog: Catalog): Catalog {
 }
 
 export function reportRestaurantsMatchedWithGoogleWithoutTheDetails(catalog: Catalog): Catalog {
-    const matches = catalog.restaurants.filter(restaurant => restaurant.hasGoogleRestaurantId());
+    const matches = catalog.restaurants.filter(restaurant => restaurant.google?.placeId);
 
-    const restaurantsWithIdOnly = matches.filter(restaurant => !restaurant.hasGoogleRestaurant());
+    const restaurantsWithIdOnly = matches.filter(restaurant => !restaurant.google?.place);
 
     if (restaurantsWithIdOnly.length > 0) {
         console.warn(`[Highlight] ${restaurantsWithIdOnly.length} restaurants have been matched with Google but their details has not been loaded yet (for cost reasons).`);

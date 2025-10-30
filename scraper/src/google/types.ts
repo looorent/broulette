@@ -1,12 +1,38 @@
 import { protos } from "@googlemaps/places";
 
-export class GoogleRestaurantIdentifier {
+export class GoogleRestaurantSearchResult {
+  static fromPlaceDetail(placeDetail: GoogleRestaurant | undefined, placesFoundNearby: GoogleRestaurant[] | undefined): GoogleRestaurantSearchResult {
+    return new GoogleRestaurantSearchResult(
+      placeDetail?.id,
+      placeDetail,
+      placesFoundNearby,
+      new Date()
+    );
+  }
+
+  static fromPlaceId(placeId: string): GoogleRestaurantSearchResult {
+    return new GoogleRestaurantSearchResult(
+      placeId,
+      undefined,
+      undefined,
+      new Date()
+    );
+  }
+
   constructor(
-    readonly id: string
+    readonly placeId: string | undefined,
+    readonly place: GoogleRestaurant | undefined,
+    readonly placesFoundNearby: GoogleRestaurant[] | undefined,
+    readonly searchedAt: Date
   ) {}
 
-  clone(): GoogleRestaurantIdentifier {
-    return new GoogleRestaurantIdentifier(this.id);
+  clone(): GoogleRestaurantSearchResult {
+    return new GoogleRestaurantSearchResult(
+      this.placeId,
+      this.place?.clone() || undefined,
+      this.placesFoundNearby?.filter(Boolean)?.map((place) => place.clone()) || undefined,
+      new Date(this.searchedAt.getTime())
+    );
   }
 }
 
@@ -92,9 +118,5 @@ export class GoogleRestaurant {
         this.photos,
         this.raw
       );
-    }
-
-    toGoogleRestaurantIdentifier(): GoogleRestaurantIdentifier {
-      return new GoogleRestaurantIdentifier(this.id);
     }
 }
