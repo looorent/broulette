@@ -3,6 +3,7 @@ import { join, resolve } from "path";
 import { OverpassResponse, OverpassRestaurant } from "../overpass/types";
 import { Catalog, Restaurant } from "./catalog";
 import { GoogleRestaurant, GoogleRestaurantSearchResult } from "../google/types";
+import { TripAdvisorLocation, TripAdvisorLocationSearchResult, TripAdvisorSearchResult } from "../tripadvisor/types";
 
 const LATEST_FILE_NAME = process.env["LATEST_FILE_NAME"] || "latest.json";
 
@@ -108,7 +109,19 @@ function parseCatalogGoogleSearchFromStorage(json: any): GoogleRestaurantSearchR
         return new GoogleRestaurantSearchResult(
             json.placeId,
             parseGoogleRestaurantFromStorage(json.place),
-            json.placesFoundNearby?.map(parseGoogleRestaurantFromStorage),
+            json.searchedAt ? new Date(json.searchedAt) : new Date()
+        );
+    } else {
+        return undefined;
+    }
+}
+
+function parseCatalogTripAdvisorSearchFromStorage(json: any): TripAdvisorSearchResult | undefined {
+    if (json) {
+        return new TripAdvisorSearchResult(
+            json.locationId,
+            parseTripAdvisorLocationFromStorage(json.location),
+            json.locationsFoundNearby?.map(parseTripAdvisorLocationSearchResultFromStorage),
             json.searchedAt ? new Date(json.searchedAt) : new Date()
         );
     } else {
@@ -121,7 +134,59 @@ function parseCatalogRestaurantsFromStorage(json: any): Restaurant | undefined {
         return new Restaurant(
             json.id,
             parseOverpassRestaurantFromStorage(json.overpassRestaurant),
-            parseCatalogGoogleSearchFromStorage(json.google)
+            parseCatalogGoogleSearchFromStorage(json.google),
+            parseCatalogTripAdvisorSearchFromStorage(json.tripAdvisor)
+        );
+    } else {
+        return undefined;
+    }
+}
+
+function parseTripAdvisorLocationFromStorage(json: any): TripAdvisorLocation | undefined {
+    if (json) {
+        return new TripAdvisorLocation(
+            json.locationId,
+            json.name,
+            json.webUrl,
+            json.addressObj,
+            json.ancestors,
+            json.latitude,
+            json.longitude,
+            json.timezone,
+            json.email,
+            json.phone,
+            json.website,
+            json.writeReview,
+            json.rankingData,
+            json.rating,
+            json.ratingImageUrl,
+            json.numReviews,
+            json.reviewRatingCount,
+            json.subratings,
+            json.photoCount,
+            json.seeAllPhotos,
+            json.priceLevel,
+            json.hours,
+            json.features,
+            json.cuisine,
+            json.category,
+            json.subcategory,
+            json.tripTypes,
+            json.awards
+        );
+    } else {
+        return undefined;
+    }
+}
+
+function parseTripAdvisorLocationSearchResultFromStorage(json: any): TripAdvisorLocationSearchResult | undefined {
+    if (json) {
+        return new TripAdvisorLocationSearchResult(
+            json.location,
+            json.name,
+            json.distance,
+            json.bearing,
+            json.address
         );
     } else {
         return undefined;
@@ -154,7 +219,7 @@ export function readCatalogFromStorage(folderPath: string): Catalog {
 }
 
 export function writeCatalogToStorage(catalog: Catalog, folderPath: string): Catalog {
-    const formattedData = catalog?.asJson();
+    const formattedData = JSON.stringify(catalog?.asHash(), null, 2);
     const timestamp = formatTimestamp();
 
     const outputFile = resolve(join(folderPath, `${timestamp}_output.json`));

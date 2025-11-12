@@ -84,6 +84,15 @@ export class Restaurant {
       this.tripAdvisor?.clone()
     );
   }
+
+  asHash(): any {
+    return {
+      id: this.id,
+      overpassRestaurant: this.overpassRestaurant?.asHash(),
+      google: this.google?.asHash(),
+      tripAdvisor: this.tripAdvisor?.asHash()
+    };
+  }
 }
 
 export class Catalog {
@@ -127,12 +136,12 @@ export class Catalog {
     return this;
   }
 
-  asJson(): string {
-    return JSON.stringify({
+  asHash(): any {
+    return {
       version: this.version,
       overpass: this.overpassResponse,
-      restaurants: this.restaurants?.toSorted((a, b) => a.compareTo(b))
-    }, null, 2);
+      restaurants: this.restaurants?.toSorted((a, b) => a.compareTo(b)).map(restaurant => restaurant.asHash())
+    };
   }
 
   get numberOfRestaurants(): number {

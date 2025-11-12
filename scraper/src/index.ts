@@ -60,7 +60,7 @@ async function addTripAdvisorRestaurantsIn(catalog: Catalog): Promise<Catalog> {
         const service = new TripAdvisorService(repository, TRIP_ADVISOR_LOAD_IDS, TRIP_ADVISOR_LOAD_DETAILS, TRIP_ADVISOR_RADIUS_IN_METER);
         return service.findTripAdvisorLocationsAndMerge(catalog);
     } else {
-        console.error("[TripAdvisor] There is no environment variable named 'TRIP_ADVISOR_API_KEY' to contact the API of Google Place.")
+        console.error("[TripAdvisor] There is no environment variable named 'TRIP_ADVISOR_API_KEY' to contact the API of Trip Advisor.")
         return catalog;
     }
 }

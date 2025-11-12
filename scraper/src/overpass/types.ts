@@ -108,6 +108,18 @@ export class OverpassRestaurant {
     get description(): string | undefined {
         return this.tags["description"];
     }
+    
+    asHash(): any {
+        return {
+            id: this.id,
+            type: this.type,
+            name: this.name,
+            latitude: this.latitude,
+            longitude: this.longitude,
+            tags: this.tags,
+            amenity: this.amenity
+        };
+    }
 }
 
 export class OverpassResponse {
@@ -130,5 +142,17 @@ export class OverpassResponse {
             this.restaurants.map(restaurant => restaurant.clone()),
             structuredClone(this.raw)
         );
+    }
+
+    asHash(): any {
+        return {
+            generator: this.generator,
+            version: this.version,
+            copyright: this.copyright,
+            timestampInUtc: this.timestampInUtc,
+            durationInMs: this.durationInMs,
+            restaurants: this.restaurants?.map(restaurant => restaurant?.asHash()),
+            raw: this.raw
+        };
     }
 }

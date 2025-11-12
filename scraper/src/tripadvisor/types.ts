@@ -38,6 +38,15 @@ export class TripAdvisorSearchResult {
       new Date(this.searchedAt.getTime())
     );
   }
+  
+  asHash(): any {
+    return {
+      locationId: this.locationId,
+      location: this.location?.asHash(),
+      locationsFoundNearby: this.locationsFoundNearby?.map(location => location.asHash()),
+      searchedAt: this.searchedAt
+    };
+  }
 }
 
 export class TripAdvisorLocationSearchResult {
@@ -55,6 +64,16 @@ export class TripAdvisorLocationSearchResult {
       this.bearing,
       structuredClone(this.address)
     );
+  }
+
+  asHash(): any {
+    return {
+      locationId: this.locationId,
+      name: this.name,
+      distance: this.distance,
+      bearing: this.bearing,
+      address: this.address
+    };
   }
 
   compareTo(other: TripAdvisorLocationSearchResult): number {
@@ -152,6 +171,39 @@ export class TripAdvisorLocation {
       structuredClone(this.subcategory),
       structuredClone(this.tripTypes),
       structuredClone(this.awards)
+    );
+  }
+
+  asHash(): any {
+    return new TripAdvisorLocation(
+      this.locationId,
+      this.name,
+      this.webUrl,
+      this.addressObj,
+      this.ancestors,
+      this.latitude,
+      this.longitude,
+      this.timezone,
+      this.email,
+      this.phone,
+      this.website,
+      this.writeReview,
+      this.rankingData,
+      this.rating,
+      this.ratingImageUrl,
+      this.numReviews,
+      this.reviewRatingCount,
+      this.subratings,
+      this.photoCount,
+      this.seeAllPhotos,
+      this.priceLevel,
+      this.hours,
+      this.features,
+      this.cuisine,
+      this.category,
+      this.subcategory,
+      this.tripTypes,
+      this.awards
     );
   }
 }

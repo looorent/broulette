@@ -35,8 +35,16 @@ export class GoogleRestaurantSearchResult {
     return new GoogleRestaurantSearchResult(
       this.placeId,
       this.place?.clone() || undefined,
-      new Date(this.searchedAt.getTime())
+      this.searchedAt ? new Date(this.searchedAt.getTime()) : new Date()
     );
+  }
+
+  asHash(): any {
+    return {
+      placeId: this.placeId,
+      place: this.place?.asHash(),
+      searchedAt: this.searchedAt
+    };
   }
 }
 
@@ -123,4 +131,47 @@ export class GoogleRestaurant {
         this.raw
       );
     }
+    
+  asHash(): any {
+    return {
+      id: this.id,
+      name: this.name,
+      types: this.types,
+      nationalPhoneNumber: this.nationalPhoneNumber,
+      internationalPhoneNumber: this.internationalPhoneNumber,
+      formattedAddress: this.formattedAddress,
+      addressComponents: this.addressComponents,
+      location: this.location,
+      viewport: this.viewport,
+      rating: this.rating,
+      googleMapsUri: this.googleMapsUri,
+      websiteUri: this.websiteUri,
+      regularOpeningHours: this.regularOpeningHours,
+      utcOffsetMinutes: this.utcOffsetMinutes,
+      adrFormatAddress: this.adrFormatAddress,
+      businessStatus: this.businessStatus,
+      priceLevel: this.priceLevel,
+      userRatingCount: this.userRatingCount,
+      iconMaskBaseUri: this.iconMaskBaseUri,
+      iconBackgroundColor: this.iconBackgroundColor,
+      displayName: this.displayName,
+      primaryTypeDisplayName: this.primaryTypeDisplayName,
+      takeout: this.takeout,
+      delivery: this.delivery,
+      dineIn: this.dineIn,
+      reservable: this.reservable,
+      servesBreakfast: this.servesBreakfast,
+      servesLunch: this.servesLunch,
+      servesDinner: this.servesDinner,
+      servesBeer: this.servesBeer,
+      servesWine: this.servesWine,
+      servesBrunch: this.servesBrunch,
+      servesVegetarianFood: this.servesVegetarianFood,
+      currentOpeningHours: this.currentOpeningHours,
+      primaryType: this.primaryType,
+      shortFormattedAddress: this.shortFormattedAddress,
+      photos: this.photos,
+      raw: this.raw
+    };
+  }
 }
