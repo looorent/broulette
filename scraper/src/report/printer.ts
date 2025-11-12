@@ -32,3 +32,28 @@ export function reportRestaurantsMatchedWithGoogleWithoutTheDetails(catalog: Cat
 
     return catalog;
 }
+
+export function reportRestaurantsMatchedWithTripAdvisor(catalog: Catalog): Catalog {
+    const matches = catalog.restaurants.filter(restaurant => restaurant.tripAdvisor?.locationId);
+    const mismatches = catalog.restaurants.filter(restaurant => !restaurant.tripAdvisor?.locationId);
+
+    console.info(`[Highlight] ${matches.length} restaurants have been matched with Trip Advisor`);
+    if (mismatches.length > 0) {
+        console.warn(`[Highlight] ${mismatches.length} restaurants have NOT been matched with Trip Advisor`);
+    }
+
+    return catalog;
+}
+
+export function reportRestaurantsMatchedWithTripAdvisorWithoutTheDetails(catalog: Catalog): Catalog {
+    const matches = catalog.restaurants.filter(restaurant => restaurant.tripAdvisor?.locationId);
+    const restaurantsWithIdOnly = matches.filter(restaurant => !restaurant.tripAdvisor?.location);
+
+    if (restaurantsWithIdOnly.length > 0) {
+        console.warn(`[Highlight] ${restaurantsWithIdOnly.length} restaurants have been matched with Trip Advisor but their details has not been loaded yet (for cost reasons).`);
+    } else {
+        console.info(`[Highlight] All ${matches.length} restaurants matched with Trip Advisor have their details loaded.`);
+    }
+
+    return catalog;
+}

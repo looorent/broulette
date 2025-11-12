@@ -1,10 +1,12 @@
+const MILES_100_METERS = 0.062;
+
 export class TripAdvisorSearchResult {
   static empty(searchedAt: Date): TripAdvisorSearchResult {
     return new TripAdvisorSearchResult(undefined, undefined, [], searchedAt);
   }
 
   static fromLocationSearch(locationsFound: TripAdvisorLocationSearchResult[], searchedAt: Date): TripAdvisorSearchResult {
-    const locationsFoundAndOrderedByDistance = locationsFound?.toSorted((a, b) => a.compareTo(b)) || [];
+    const locationsFoundAndOrderedByDistance = locationsFound?.filter(Boolean)?.filter(location => location.isCloserThan(MILES_100_METERS))?.toSorted((a, b) => a.compareTo(b)) || [];
     const bestLocationFound = locationsFoundAndOrderedByDistance?.[0];
     return new TripAdvisorSearchResult(
       bestLocationFound?.locationId,
@@ -78,6 +80,10 @@ export class TripAdvisorLocationSearchResult {
 
   compareTo(other: TripAdvisorLocationSearchResult): number {
     return this.distance - other.distance;
+  }
+
+  isCloserThan(distanceInMiles: number): boolean {
+    return this.distance < distanceInMiles;
   }
 }
 
@@ -207,3 +213,4 @@ export class TripAdvisorLocation {
     );
   }
 }
+

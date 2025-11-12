@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { GoogleRestaurantSearchResult } from "../google/types";
 import { OverpassResponse, OverpassRestaurant } from "../overpass/types";
-import { reportRestaurantsMatchedWithGoogle, reportRestaurantsMatchedWithGoogleWithoutTheDetails, reportRestaurantsWithoutOverpassName } from "../report/printer";
+import { reportRestaurantsMatchedWithGoogle, reportRestaurantsMatchedWithGoogleWithoutTheDetails, reportRestaurantsMatchedWithTripAdvisor, reportRestaurantsMatchedWithTripAdvisorWithoutTheDetails, reportRestaurantsWithoutOverpassName } from "../report/printer";
 import type { TripAdvisorSearchResult } from "../tripadvisor/types";
 
 function daysBetween(date: Date, otherDate: Date): number {
@@ -133,6 +133,8 @@ export class Catalog {
     reportRestaurantsWithoutOverpassName(this);
     reportRestaurantsMatchedWithGoogle(this);
     reportRestaurantsMatchedWithGoogleWithoutTheDetails(this);
+    reportRestaurantsMatchedWithTripAdvisor(this);
+    reportRestaurantsMatchedWithTripAdvisorWithoutTheDetails(this);
     return this;
   }
 
