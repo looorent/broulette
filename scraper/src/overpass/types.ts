@@ -23,6 +23,7 @@ export class OverpassRestaurant {
         );
     }
 
+    // TODO Lorent is this the best option to find a Google place? For TripAdvisor, it is not.
     createSearchableText(): string {
         return [
             this.name,
@@ -46,6 +47,14 @@ export class OverpassRestaurant {
 
     get addressPostcode(): string | undefined {
         return this.tags["addr:postcode"];
+    }
+
+    get addressStreetWithNumber(): string | undefined {
+        const address = [
+            this.addressStreet,
+            this.addressHouseNumber,
+        ].filter(Boolean).filter(text => text!.length > 0).join(" ");
+        return address.length > 0 ? address : undefined;
     }
 
     get addressCountry(): string | undefined {

@@ -1,36 +1,40 @@
 import { protos } from "@googlemaps/places";
 
 export class GoogleRestaurantSearchResult {
-  static fromPlaceDetail(placeDetail: GoogleRestaurant | undefined, placesFoundNearby: GoogleRestaurant[] | undefined): GoogleRestaurantSearchResult {
-    return new GoogleRestaurantSearchResult(
-      placeDetail?.id,
-      placeDetail,
-      placesFoundNearby,
-      new Date()
-    );
-  }
-
-  static fromPlaceId(placeId: string): GoogleRestaurantSearchResult {
+  static fromPlaceId(placeId: string | undefined, searchedAt: Date): GoogleRestaurantSearchResult {
     return new GoogleRestaurantSearchResult(
       placeId,
       undefined,
+      searchedAt
+    );
+  }
+
+  static empty(now: Date): GoogleRestaurantSearchResult {
+    return new GoogleRestaurantSearchResult(
       undefined,
-      new Date()
+      undefined,
+      now
     );
   }
 
   constructor(
     readonly placeId: string | undefined,
     readonly place: GoogleRestaurant | undefined,
-    readonly placesFoundNearby: GoogleRestaurant[] | undefined,
     readonly searchedAt: Date
   ) {}
+
+  withPlaceDetail(placeDetail: GoogleRestaurant | undefined, searchedAt: Date): GoogleRestaurantSearchResult {
+    return new GoogleRestaurantSearchResult(
+      this.placeId,
+      placeDetail?.clone(),
+      searchedAt
+    );
+  }
 
   clone(): GoogleRestaurantSearchResult {
     return new GoogleRestaurantSearchResult(
       this.placeId,
       this.place?.clone() || undefined,
-      this.placesFoundNearby?.filter(Boolean)?.map((place) => place.clone()) || undefined,
       new Date(this.searchedAt.getTime())
     );
   }

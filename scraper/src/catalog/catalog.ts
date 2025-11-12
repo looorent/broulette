@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
+import { GoogleRestaurantSearchResult } from "../google/types";
 import { OverpassResponse, OverpassRestaurant } from "../overpass/types";
-import { GoogleRestaurant, GoogleRestaurantSearchResult } from "../google/types";
 import { reportRestaurantsMatchedWithGoogle, reportRestaurantsMatchedWithGoogleWithoutTheDetails, reportRestaurantsWithoutOverpassName } from "../report/printer";
-import { CmpStr } from "cmpstr";
+import type { TripAdvisorSearchResult } from "../tripadvisor/types";
 
 function daysBetween(date: Date, otherDate: Date): number {
   const msInDay = 24 * 60 * 60 * 1000;
@@ -13,7 +13,8 @@ export class Restaurant {
   constructor(
     readonly id: string,
     readonly overpassRestaurant: OverpassRestaurant | undefined,
-    readonly google: GoogleRestaurantSearchResult | undefined
+    readonly google: GoogleRestaurantSearchResult | undefined,
+    readonly tripAdvisor: TripAdvisorSearchResult | undefined
   ) {}
 
   compareTo(other: Restaurant): number {
@@ -28,24 +29,26 @@ export class Restaurant {
     return new Restaurant(
       this.id,
       overpassRestaurant || this.overpassRestaurant || undefined,
-      this.google
+      this.google,
+      this.tripAdvisor
     );
   }
 
-  withGooglePlace(googleRestaurants: GoogleRestaurant[]): Restaurant {
-    const bestRestaurant = findTheClosestRestaurant(googleRestaurants, this.overpassRestaurant!.name!);
+  withGooglePlaceSearch(searchResult: GoogleRestaurantSearchResult): Restaurant {
     return new Restaurant(
       this.id,
       this.overpassRestaurant,
-      GoogleRestaurantSearchResult.fromPlaceDetail(bestRestaurant, googleRestaurants)
+      searchResult.clone(),
+      this.tripAdvisor
     );
   }
 
-  withGooglePlaceId(placeId: string): Restaurant {
+  withTripAdvisorLocationSearch(searchResult: TripAdvisorSearchResult): Restaurant {
     return new Restaurant(
       this.id,
       this.overpassRestaurant,
-      GoogleRestaurantSearchResult.fromPlaceId(placeId)
+      this.google,
+      searchResult?.clone()
     );
   }
 
@@ -53,19 +56,32 @@ export class Restaurant {
     return (this.overpassRestaurant?.name?.length || 0) > 0;
   }
 
+  canBeSearched(): boolean {
+    return this.hasOverpassName();
+  }
+
   hasAlreadyBeenSearchedWithGoogle(): boolean {
     return this.google !== undefined && this.google !== null;
+  }
+  
+  hasAlreadyBeenSearchedWithTripAdvisor(): boolean {
+    return this.tripAdvisor !== undefined && this.tripAdvisor !== null;
   }
 
   hasBeenSearchedWithGoogleInTheLastMonth(now: Date) : boolean {
     return this.hasAlreadyBeenSearchedWithGoogle() && daysBetween(this.google!.searchedAt, now) < 30;
   }
 
+  hasBeenSearchedWithTripAdvisorInTheLastMonth(now: Date): boolean {
+    return this.hasAlreadyBeenSearchedWithTripAdvisor() && daysBetween(this.tripAdvisor!.searchedAt, now) < 30;
+  }
+
   clone(): Restaurant {
     return new Restaurant(
       this.id,
       this.overpassRestaurant?.clone(),
-      this.google?.clone()
+      this.google?.clone(),
+      this.tripAdvisor?.clone()
     );
   }
 }
@@ -96,30 +112,48 @@ export class Catalog {
     }
   }
 
-  mergeWithGooglePlace(restaurantId: string, googleRestaurants: GoogleRestaurant[]): Catalog {
-    const index = this.restaurants?.findIndex(restaurant => restaurant.id === restaurantId);
-    if (index >= 0) {
-      const updatedRestaurants = [...this.restaurants];
-      const updatedRestaurant = this.restaurants?.[index]?.withGooglePlace(googleRestaurants);
-      if (updatedRestaurant) {
-        updatedRestaurants.splice(index, 1, updatedRestaurant);
-      }
-      return new Catalog(
-        this.version,
-        this.overpassResponse,
-        updatedRestaurants
-      );
-    } else {
-      return this;
-    }
+  mergeWithGooglePlaceSearch(restaurantId: string, searchResult: GoogleRestaurantSearchResult | undefined): Catalog {
+    return this.mergeRestaurantWith(restaurantId, searchResult, (search, restaurant) => restaurant.withGooglePlaceSearch(search));
   }
 
-  mergeWithGooglePlaceIdentifier(restaurantId: string, placeId: string | undefined): Catalog {
-    if (placeId && placeId.length > 0) {
+  mergeWithTripAdvisorLocationSearch(restaurantId: string, searchResult: TripAdvisorSearchResult | undefined): Catalog {
+    return this.mergeRestaurantWith(restaurantId, searchResult, (search, restaurant) => restaurant.withTripAdvisorLocationSearch(search));
+  }
+
+  printHighlights(): this {
+    reportRestaurantsWithoutOverpassName(this);
+    reportRestaurantsMatchedWithGoogle(this);
+    reportRestaurantsMatchedWithGoogleWithoutTheDetails(this);
+    return this;
+  }
+
+  asJson(): string {
+    return JSON.stringify({
+      version: this.version,
+      overpass: this.overpassResponse,
+      restaurants: this.restaurants?.toSorted((a, b) => a.compareTo(b))
+    }, null, 2);
+  }
+
+  get numberOfRestaurants(): number {
+    return this.restaurants?.length || 0;
+  }
+
+  clone(): Catalog {
+    return new Catalog(
+      this.version,
+      this.overpassResponse?.clone(),
+      this.restaurants?.filter(Boolean)?.map(restaurant => restaurant.clone())
+    )
+  }
+
+  private mergeRestaurantWith<SR>(restaurantId: string, searchResult: SR | undefined, updateRestaurantFn: (searchResult: SR, restaurant: Restaurant) => Restaurant): Catalog {
+    if (searchResult) {
       const index = this.restaurants?.findIndex(restaurant => restaurant.id === restaurantId);
       if (index >= 0) {
         const updatedRestaurants = [...this.restaurants];
-        const updatedRestaurant = this.restaurants?.[index]?.withGooglePlaceId(placeId);
+        const restaurantToUpdate = this.restaurants?.[index];
+        const updatedRestaurant = restaurantToUpdate ? updateRestaurantFn(searchResult, restaurantToUpdate) : undefined;
         if (updatedRestaurant) {
           updatedRestaurants.splice(index, 1, updatedRestaurant);
         }
@@ -135,33 +169,6 @@ export class Catalog {
       return this;
     }
   }
-
-  printHighlights(): this {
-    reportRestaurantsWithoutOverpassName(this);
-    reportRestaurantsMatchedWithGoogle(this);
-    reportRestaurantsMatchedWithGoogleWithoutTheDetails(this);
-    return this;
-  }
-
-  asJson(): string {
-    return JSON.stringify({
-      version: this.version,
-      overpass: this.overpassResponse,
-      restaurants: this.restaurants?.sort((a, b) => a.compareTo(b))
-    }, null, 2);
-  }
-
-  get numberOfRestaurants(): number {
-    return this.restaurants?.length || 0;
-  }
-
-  clone(): Catalog {
-    return new Catalog(
-      this.version,
-      this.overpassResponse?.clone(),
-      this.restaurants?.filter(Boolean)?.map(restaurant => restaurant.clone())
-    )
-  }
 }
 
 function completeCatalogWithOverpassRestaurants(existingRestaurants: Restaurant[], overpassRestaurants: OverpassRestaurant[]): Restaurant[] {
@@ -173,27 +180,7 @@ function completeCatalogWithOverpassRestaurants(existingRestaurants: Restaurant[
   ];
 }
 
-
-const COMPARATOR = CmpStr.create().setFlags("i").setMetric("jaroWinkler");
-
-function findTheClosestRestaurant(restaurants: GoogleRestaurant[], name: string): GoogleRestaurant | undefined {
-  if (!restaurants || restaurants.length === 0) {
-    return undefined;
-  } else {
-    const scored = restaurants.map(restaurant => ({
-      restaurant: restaurant,
-      score: COMPARATOR.compare(restaurant.name, name)
-    }));
-
-    if (scored.length === 0) {
-      return undefined;
-    } else {
-      return scored.sort((a, b) => b.score - a.score)[0]?.restaurant;
-    }
-  }
-}
-
 function createRestaurantFromOverpass(overpassRestaurant: OverpassRestaurant): Restaurant {
-  return new Restaurant(randomUUID(), overpassRestaurant, undefined);
+  return new Restaurant(randomUUID(), overpassRestaurant, undefined, undefined);
 }
 
