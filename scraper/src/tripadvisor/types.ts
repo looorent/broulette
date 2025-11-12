@@ -5,8 +5,15 @@ export class TripAdvisorSearchResult {
     return new TripAdvisorSearchResult(undefined, undefined, [], searchedAt);
   }
 
-  static fromLocationSearch(locationsFound: TripAdvisorLocationSearchResult[], searchedAt: Date): TripAdvisorSearchResult {
-    const locationsFoundAndOrderedByDistance = locationsFound?.filter(Boolean)?.filter(location => location.isCloserThan(MILES_100_METERS))?.toSorted((a, b) => a.compareTo(b)) || [];
+  static fromLocationSearch(
+    locationsFound: TripAdvisorLocationSearchResult[],
+    searchedAt: Date
+  ): TripAdvisorSearchResult {
+    const locationsFoundAndOrderedByDistance =
+      locationsFound
+        ?.filter(Boolean)
+        ?.filter((location) => location.isCloserThan(MILES_100_METERS))
+        ?.toSorted((a, b) => a.compareTo(b)) || [];
     const bestLocationFound = locationsFoundAndOrderedByDistance?.[0];
     return new TripAdvisorSearchResult(
       bestLocationFound?.locationId,
@@ -19,15 +26,22 @@ export class TripAdvisorSearchResult {
   constructor(
     readonly locationId: number | undefined,
     readonly location: TripAdvisorLocation | undefined,
-    readonly locationsFoundNearby: TripAdvisorLocationSearchResult[] | undefined,
+    readonly locationsFoundNearby:
+      | TripAdvisorLocationSearchResult[]
+      | undefined,
     readonly searchedAt: Date
   ) {}
 
-  withLocationDetail(locationDetail: TripAdvisorLocation | undefined, searchedAt: Date): TripAdvisorSearchResult {
+  withLocationDetail(
+    locationDetail: TripAdvisorLocation | undefined,
+    searchedAt: Date
+  ): TripAdvisorSearchResult {
     return new TripAdvisorSearchResult(
       this.locationId,
       locationDetail?.clone(),
-      this.locationsFoundNearby?.filter(Boolean)?.map(location => location.clone()) || undefined,
+      this.locationsFoundNearby
+        ?.filter(Boolean)
+        ?.map((location) => location.clone()) || undefined,
       searchedAt
     );
   }
@@ -36,28 +50,34 @@ export class TripAdvisorSearchResult {
     return new TripAdvisorSearchResult(
       this.locationId,
       this.location?.clone() || undefined,
-      this.locationsFoundNearby?.filter(Boolean)?.map(location => location.clone()) || undefined,
+      this.locationsFoundNearby
+        ?.filter(Boolean)
+        ?.map((location) => location.clone()) || undefined,
       new Date(this.searchedAt.getTime())
     );
   }
-  
+
   asHash(): any {
     return {
       locationId: this.locationId,
       location: this.location?.asHash(),
-      locationsFoundNearby: this.locationsFoundNearby?.map(location => location.asHash()),
+      locationsFoundNearby: this.locationsFoundNearby?.map((location) =>
+        location.asHash()
+      ),
       searchedAt: this.searchedAt
     };
   }
 }
 
 export class TripAdvisorLocationSearchResult {
-  constructor(readonly locationId: number,
-              readonly name: string,
-              readonly distance: number,
-              readonly bearing: string,
-              readonly address: any) {}
-  
+  constructor(
+    readonly locationId: number,
+    readonly name: string,
+    readonly distance: number,
+    readonly bearing: string,
+    readonly address: any
+  ) {}
+
   clone(): TripAdvisorLocationSearchResult {
     return new TripAdvisorLocationSearchResult(
       this.locationId,
@@ -143,7 +163,11 @@ export class TripAdvisorLocation {
     readonly cuisine: { name: string; localizedName: string }[],
     readonly category: { name: string; localizedName: string },
     readonly subcategory: { name: string; localizedName: string }[],
-    readonly tripTypes: { name: string; localizedName: string; value: number }[],
+    readonly tripTypes: {
+      name: string;
+      localizedName: string;
+      value: number;
+    }[],
     readonly awards: any[]
   ) {}
 
@@ -213,4 +237,3 @@ export class TripAdvisorLocation {
     );
   }
 }
-

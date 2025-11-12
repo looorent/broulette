@@ -16,7 +16,8 @@
   "scripts": {
     "build": "tsc --noEmit && esbuild src/index.ts --bundle --sourcemap --platform=node --outdir=dist --external:@googlemaps/places --external:@grpc/grpc-js --external:google-gax --external:google-proto-files --external:protobufjs",
     "lint": "eslint . --ext .ts",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@googlemaps/places": "2.1.0"
@@ -31,6 +32,7 @@
     "esbuild": "0.25.10",
     "eslint": "^9.37.0",
     "globals": "^16.4.0",
+    "prettier": "3.6.2",
     "ts-node": "10.9.2",
     "typescript": "^5.9.3"
   }

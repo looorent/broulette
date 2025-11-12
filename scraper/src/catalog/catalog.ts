@@ -1,7 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { GoogleRestaurantSearchResult } from "../google/types";
 import { OverpassResponse, OverpassRestaurant } from "../overpass/types";
-import { reportRestaurantsMatchedWithGoogle, reportRestaurantsMatchedWithGoogleWithoutTheDetails, reportRestaurantsMatchedWithTripAdvisor, reportRestaurantsMatchedWithTripAdvisorWithoutTheDetails, reportRestaurantsWithoutOverpassName } from "../report/printer";
+import {
+  reportRestaurantsMatchedWithGoogle,
+  reportRestaurantsMatchedWithGoogleWithoutTheDetails,
+  reportRestaurantsMatchedWithTripAdvisor,
+  reportRestaurantsMatchedWithTripAdvisorWithoutTheDetails,
+  reportRestaurantsWithoutOverpassName
+} from "../report/printer";
 import type { TripAdvisorSearchResult } from "../tripadvisor/types";
 
 function daysBetween(date: Date, otherDate: Date): number {
@@ -22,10 +28,12 @@ export class Restaurant {
   }
 
   hasOverpassId(id: number): boolean {
-    return id > 0 && this.overpassRestaurant?.id === id
+    return id > 0 && this.overpassRestaurant?.id === id;
   }
 
-  withOverpassRestaurant(overpassRestaurant: OverpassRestaurant | undefined): Restaurant {
+  withOverpassRestaurant(
+    overpassRestaurant: OverpassRestaurant | undefined
+  ): Restaurant {
     return new Restaurant(
       this.id,
       overpassRestaurant || this.overpassRestaurant || undefined,
@@ -34,7 +42,9 @@ export class Restaurant {
     );
   }
 
-  withGooglePlaceSearch(searchResult: GoogleRestaurantSearchResult): Restaurant {
+  withGooglePlaceSearch(
+    searchResult: GoogleRestaurantSearchResult
+  ): Restaurant {
     return new Restaurant(
       this.id,
       this.overpassRestaurant,
@@ -43,7 +53,9 @@ export class Restaurant {
     );
   }
 
-  withTripAdvisorLocationSearch(searchResult: TripAdvisorSearchResult): Restaurant {
+  withTripAdvisorLocationSearch(
+    searchResult: TripAdvisorSearchResult
+  ): Restaurant {
     return new Restaurant(
       this.id,
       this.overpassRestaurant,
@@ -63,17 +75,23 @@ export class Restaurant {
   hasAlreadyBeenSearchedWithGoogle(): boolean {
     return this.google !== undefined && this.google !== null;
   }
-  
+
   hasAlreadyBeenSearchedWithTripAdvisor(): boolean {
     return this.tripAdvisor !== undefined && this.tripAdvisor !== null;
   }
 
-  hasBeenSearchedWithGoogleInTheLastMonth(now: Date) : boolean {
-    return this.hasAlreadyBeenSearchedWithGoogle() && daysBetween(this.google!.searchedAt, now) < 30;
+  hasBeenSearchedWithGoogleInTheLastMonth(now: Date): boolean {
+    return (
+      this.hasAlreadyBeenSearchedWithGoogle() &&
+      daysBetween(this.google!.searchedAt, now) < 30
+    );
   }
 
   hasBeenSearchedWithTripAdvisorInTheLastMonth(now: Date): boolean {
-    return this.hasAlreadyBeenSearchedWithTripAdvisor() && daysBetween(this.tripAdvisor!.searchedAt, now) < 30;
+    return (
+      this.hasAlreadyBeenSearchedWithTripAdvisor() &&
+      daysBetween(this.tripAdvisor!.searchedAt, now) < 30
+    );
   }
 
   clone(): Restaurant {
@@ -100,13 +118,18 @@ export class Catalog {
     return new Catalog(0, undefined, []);
   }
 
-  constructor(readonly version: number,
+  constructor(
+    readonly version: number,
     readonly overpassResponse: OverpassResponse | undefined,
     readonly restaurants: Restaurant[]
-  ) { }
+  ) {}
 
   increaseVersion(): Catalog {
-    return new Catalog(this.version + 1, this.overpassResponse?.clone(), this.restaurants?.filter(Boolean)?.map(restaurant => restaurant.clone()));
+    return new Catalog(
+      this.version + 1,
+      this.overpassResponse?.clone(),
+      this.restaurants?.filter(Boolean)?.map((restaurant) => restaurant.clone())
+    );
   }
 
   mergeWithOverpass(overpassResponse: OverpassResponse | undefined): Catalog {
@@ -114,19 +137,36 @@ export class Catalog {
       return new Catalog(
         this.version,
         overpassResponse?.clone(),
-        completeCatalogWithOverpassRestaurants(this.restaurants, overpassResponse.restaurants)
+        completeCatalogWithOverpassRestaurants(
+          this.restaurants,
+          overpassResponse.restaurants
+        )
       );
     } else {
       return this;
     }
   }
 
-  mergeWithGooglePlaceSearch(restaurantId: string, searchResult: GoogleRestaurantSearchResult | undefined): Catalog {
-    return this.mergeRestaurantWith(restaurantId, searchResult, (search, restaurant) => restaurant.withGooglePlaceSearch(search));
+  mergeWithGooglePlaceSearch(
+    restaurantId: string,
+    searchResult: GoogleRestaurantSearchResult | undefined
+  ): Catalog {
+    return this.mergeRestaurantWith(
+      restaurantId,
+      searchResult,
+      (search, restaurant) => restaurant.withGooglePlaceSearch(search)
+    );
   }
 
-  mergeWithTripAdvisorLocationSearch(restaurantId: string, searchResult: TripAdvisorSearchResult | undefined): Catalog {
-    return this.mergeRestaurantWith(restaurantId, searchResult, (search, restaurant) => restaurant.withTripAdvisorLocationSearch(search));
+  mergeWithTripAdvisorLocationSearch(
+    restaurantId: string,
+    searchResult: TripAdvisorSearchResult | undefined
+  ): Catalog {
+    return this.mergeRestaurantWith(
+      restaurantId,
+      searchResult,
+      (search, restaurant) => restaurant.withTripAdvisorLocationSearch(search)
+    );
   }
 
   printHighlights(): this {
@@ -142,7 +182,9 @@ export class Catalog {
     return {
       version: this.version,
       overpass: this.overpassResponse,
-      restaurants: this.restaurants?.toSorted((a, b) => a.compareTo(b)).map(restaurant => restaurant.asHash())
+      restaurants: this.restaurants
+        ?.toSorted((a, b) => a.compareTo(b))
+        .map((restaurant) => restaurant.asHash())
     };
   }
 
@@ -154,17 +196,25 @@ export class Catalog {
     return new Catalog(
       this.version,
       this.overpassResponse?.clone(),
-      this.restaurants?.filter(Boolean)?.map(restaurant => restaurant.clone())
-    )
+      this.restaurants?.filter(Boolean)?.map((restaurant) => restaurant.clone())
+    );
   }
 
-  private mergeRestaurantWith<SR>(restaurantId: string, searchResult: SR | undefined, updateRestaurantFn: (searchResult: SR, restaurant: Restaurant) => Restaurant): Catalog {
+  private mergeRestaurantWith<SR>(
+    restaurantId: string,
+    searchResult: SR | undefined,
+    updateRestaurantFn: (searchResult: SR, restaurant: Restaurant) => Restaurant
+  ): Catalog {
     if (searchResult) {
-      const index = this.restaurants?.findIndex(restaurant => restaurant.id === restaurantId);
+      const index = this.restaurants?.findIndex(
+        (restaurant) => restaurant.id === restaurantId
+      );
       if (index >= 0) {
         const updatedRestaurants = [...this.restaurants];
         const restaurantToUpdate = this.restaurants?.[index];
-        const updatedRestaurant = restaurantToUpdate ? updateRestaurantFn(searchResult, restaurantToUpdate) : undefined;
+        const updatedRestaurant = restaurantToUpdate
+          ? updateRestaurantFn(searchResult, restaurantToUpdate)
+          : undefined;
         if (updatedRestaurant) {
           updatedRestaurants.splice(index, 1, updatedRestaurant);
         }
@@ -182,16 +232,39 @@ export class Catalog {
   }
 }
 
-function completeCatalogWithOverpassRestaurants(existingRestaurants: Restaurant[], overpassRestaurants: OverpassRestaurant[]): Restaurant[] {
-  const restaurants = existingRestaurants?.filter(Boolean)?.map(restaurant => restaurant.clone()) || [];
-  const missingOverpassRestaurants = overpassRestaurants?.filter(overpassRestaurant => !restaurants.some(restaurant => restaurant.hasOverpassId(overpassRestaurant.id))) || [];
+function completeCatalogWithOverpassRestaurants(
+  existingRestaurants: Restaurant[],
+  overpassRestaurants: OverpassRestaurant[]
+): Restaurant[] {
+  const restaurants =
+    existingRestaurants
+      ?.filter(Boolean)
+      ?.map((restaurant) => restaurant.clone()) || [];
+  const missingOverpassRestaurants =
+    overpassRestaurants?.filter(
+      (overpassRestaurant) =>
+        !restaurants.some((restaurant) =>
+          restaurant.hasOverpassId(overpassRestaurant.id)
+        )
+    ) || [];
   return [
-    ...restaurants.map(restaurant => restaurant.withOverpassRestaurant(overpassRestaurants.filter(Boolean).find(overpassRestaurant => restaurant.hasOverpassId(overpassRestaurant.id)) || undefined)),
-    ...missingOverpassRestaurants.map(missingOverpassRestaurant => createRestaurantFromOverpass(missingOverpassRestaurant))
+    ...restaurants.map((restaurant) =>
+      restaurant.withOverpassRestaurant(
+        overpassRestaurants
+          .filter(Boolean)
+          .find((overpassRestaurant) =>
+            restaurant.hasOverpassId(overpassRestaurant.id)
+          ) || undefined
+      )
+    ),
+    ...missingOverpassRestaurants.map((missingOverpassRestaurant) =>
+      createRestaurantFromOverpass(missingOverpassRestaurant)
+    )
   ];
 }
 
-function createRestaurantFromOverpass(overpassRestaurant: OverpassRestaurant): Restaurant {
+function createRestaurantFromOverpass(
+  overpassRestaurant: OverpassRestaurant
+): Restaurant {
   return new Restaurant(randomUUID(), overpassRestaurant, undefined, undefined);
 }
-

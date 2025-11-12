@@ -1,20 +1,15 @@
 import { protos } from "@googlemaps/places";
 
 export class GoogleRestaurantSearchResult {
-  static fromPlaceId(placeId: string | undefined, searchedAt: Date): GoogleRestaurantSearchResult {
-    return new GoogleRestaurantSearchResult(
-      placeId,
-      undefined,
-      searchedAt
-    );
+  static fromPlaceId(
+    placeId: string | undefined,
+    searchedAt: Date
+  ): GoogleRestaurantSearchResult {
+    return new GoogleRestaurantSearchResult(placeId, undefined, searchedAt);
   }
 
   static empty(now: Date): GoogleRestaurantSearchResult {
-    return new GoogleRestaurantSearchResult(
-      undefined,
-      undefined,
-      now
-    );
+    return new GoogleRestaurantSearchResult(undefined, undefined, now);
   }
 
   constructor(
@@ -23,7 +18,10 @@ export class GoogleRestaurantSearchResult {
     readonly searchedAt: Date
   ) {}
 
-  withPlaceDetail(placeDetail: GoogleRestaurant | undefined, searchedAt: Date): GoogleRestaurantSearchResult {
+  withPlaceDetail(
+    placeDetail: GoogleRestaurant | undefined,
+    searchedAt: Date
+  ): GoogleRestaurantSearchResult {
     return new GoogleRestaurantSearchResult(
       this.placeId,
       placeDetail?.clone(),
@@ -65,8 +63,14 @@ export class GoogleRestaurant {
     readonly regularOpeningHours: protos.google.maps.places.v1.Place.IOpeningHours,
     readonly utcOffsetMinutes: number,
     readonly adrFormatAddress: string,
-    readonly businessStatus: (protos.google.maps.places.v1.Place.BusinessStatus | keyof typeof protos.google.maps.places.v1.Place.BusinessStatus | null),
-    readonly priceLevel: (protos.google.maps.places.v1.PriceLevel | keyof typeof protos.google.maps.places.v1.PriceLevel | null),
+    readonly businessStatus:
+      | protos.google.maps.places.v1.Place.BusinessStatus
+      | keyof typeof protos.google.maps.places.v1.Place.BusinessStatus
+      | null,
+    readonly priceLevel:
+      | protos.google.maps.places.v1.PriceLevel
+      | keyof typeof protos.google.maps.places.v1.PriceLevel
+      | null,
     readonly userRatingCount: number,
     readonly iconMaskBaseUri: string,
     readonly iconBackgroundColor: string,
@@ -87,51 +91,52 @@ export class GoogleRestaurant {
     readonly primaryType: string,
     readonly shortFormattedAddress: string,
     readonly photos: protos.google.maps.places.v1.IPhoto[],
-    readonly raw: any) { }
+    readonly raw: any
+  ) {}
 
-    clone(): GoogleRestaurant {
-      return new GoogleRestaurant(
-        this.id,
-        this.name,
-        this.types,
-        this.nationalPhoneNumber,
-        this.internationalPhoneNumber,
-        this.formattedAddress,
-        this.addressComponents,
-        this.location,
-        this.viewport,
-        this.rating,
-        this.googleMapsUri,
-        this.websiteUri,
-        this.regularOpeningHours,
-        this.utcOffsetMinutes,
-        this.adrFormatAddress,
-        this.businessStatus,
-        this.priceLevel,
-        this.userRatingCount,
-        this.iconMaskBaseUri,
-        this.iconBackgroundColor,
-        this.displayName,
-        this.primaryTypeDisplayName,
-        this.takeout,
-        this.delivery,
-        this.dineIn,
-        this.reservable,
-        this.servesBreakfast,
-        this.servesLunch,
-        this.servesDinner,
-        this.servesBeer,
-        this.servesWine,
-        this.servesBrunch,
-        this.servesVegetarianFood,
-        this.currentOpeningHours,
-        this.primaryType,
-        this.shortFormattedAddress,
-        this.photos,
-        this.raw
-      );
-    }
-    
+  clone(): GoogleRestaurant {
+    return new GoogleRestaurant(
+      this.id,
+      this.name,
+      this.types,
+      this.nationalPhoneNumber,
+      this.internationalPhoneNumber,
+      this.formattedAddress,
+      this.addressComponents,
+      this.location,
+      this.viewport,
+      this.rating,
+      this.googleMapsUri,
+      this.websiteUri,
+      this.regularOpeningHours,
+      this.utcOffsetMinutes,
+      this.adrFormatAddress,
+      this.businessStatus,
+      this.priceLevel,
+      this.userRatingCount,
+      this.iconMaskBaseUri,
+      this.iconBackgroundColor,
+      this.displayName,
+      this.primaryTypeDisplayName,
+      this.takeout,
+      this.delivery,
+      this.dineIn,
+      this.reservable,
+      this.servesBreakfast,
+      this.servesLunch,
+      this.servesDinner,
+      this.servesBeer,
+      this.servesWine,
+      this.servesBrunch,
+      this.servesVegetarianFood,
+      this.currentOpeningHours,
+      this.primaryType,
+      this.shortFormattedAddress,
+      this.photos,
+      this.raw
+    );
+  }
+
   asHash(): any {
     return {
       id: this.id,
