@@ -3,3 +3,6 @@ dist
 /scraper/output
 !/scraper/output/.gitkeep
 .env
+
+.react-router/
+/build/

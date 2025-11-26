@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiteRoulette - Deep Warmth Scrapbook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* FONTS */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Change the default body background to a deep neutral for warmth */
+            background-color: #3B3842; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .font-display { font-family: 'Space Grotesk', sans-serif; }
+
+        /* COLOR VARIABLES */
+        .bg-cream { background-color: #FAF8F5; }
+        .bg-terracotta { background-color: #E85A4F; }
+        .text-terracotta { color: #E85A4F; }
+        .bg-charcoal { background-color: #2C2A32; }
+        .text-charcoal { color: #2C2A32; }
+        
+        /* SCRAPBOOK UTILITIES */
+        /* Soft, slightly messy shadow */
+        .soft-shadow { box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4); } 
+        
+        /* Hard border for sticker/note effect - Cream border for dark content */
+        .note-border { border: 2px solid #FAF8F5; }
+        
+        /* CSS filter for warmth/age/vibrancy */
+        .warm-filter { filter: saturate(1.15) contrast(1.15); } 
+        
+        /* Dark note style for Step 2 */
+        .dark-note {
+            background-color: #3B3842; /* A slightly lighter charcoal for contrast */
+            color: #FAF8F5;
+            border: 2px solid #E85A4F;
+        }
+
+        /* ANIMATIONS */
+        @keyframes float-subtle {
+            0%, 100% { transform: translateY(0) rotate(2deg); }
+            50% { transform: translateY(-5px) rotate(-2deg); }
+        }
+        .animate-float-subtle { animation: float-subtle 3s infinite ease-in-out; }
+
+        @keyframes pulse-fill {
+            0%, 100% { background-color: #E85A4F; }
+            50% { background-color: #FAF8F5; }
+        }
+        .animate-pulse-fill { animation: pulse-fill 1s infinite alternate; }
+
+
+        /* PHONE FRAME */
+        .phone-frame {
+            width: 100%;
+            max-width: 375px;
+            height: 812px;
+            /* Frame itself is dark/charcoal */
+            background-color: #2C2A32; 
+            border-radius: 20px;
+            border: 4px solid #E85A4F; 
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.5s ease-out; 
+            transform: translateY(100%); 
+            pointer-events: none;
+            padding: 1.5rem; 
+            box-sizing: border-box;
+            /* Apply filter globally for deep warmth */
+            filter: saturate(1.15) contrast(1.15);
+        }
+
+        .screen.active {
+            transform: translateY(0);
+            pointer-events: all;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-frame">
+        
+        <div id="o-step1" class="screen active text-center pt-16 pb-10 bg-terracotta text-cream relative">
+            
+            <div class="absolute top-10 left-4 text-7xl opacity-30 transform rotate-12">🍔</div>
+            <div class="absolute bottom-20 right-4 text-8xl opacity-30 transform -rotate-24">🍣</div>
+            <div class="absolute top-2 right-2 text-2xl bg-charcoal text-cream px-2 py-1 rounded-sm transform rotate(5deg)">QUICK</div>
+
+            <div class="flex-1 flex flex-col justify-center items-center">
+                
+                <div class="bg-cream text-charcoal py-8 px-6 rounded-lg border-2 border-charcoal soft-shadow mb-10 transform rotate(-3deg) w-11/12">
+                    <h1 class="font-display text-5xl font-bold leading-tight uppercase">
+                        DEEP<br>CHOICE
+                    </h1>
+                    <p class="text-sm mt-3 text-terracotta font-medium">EMBRACE THE UNKNOWN.</p>
+                </div>
+
+                <div class="w-32 h-32 bg-charcoal rounded-full soft-shadow flex items-center justify-center note-border animate-float-subtle" style="transform: rotate(4deg);">
+                    <span class="text-7xl">🔮</span>
+                </div>
+            </div>
+
+            <button onclick="goToOStep(2)" class="w-full bg-charcoal text-cream font-bold py-4 rounded-xl border-2 border-cream soft-shadow transition transform hover:scale-[1.03] active:scale-95 text-xl relative overflow-hidden" style="clip-path: polygon(0 0, 100% 0, 100% 80%, 95% 85%, 90% 80%, 85% 85%, 80% 80%, 75% 85%, 70% 80%, 65% 85%, 60% 80%, 55% 85%, 50% 80%, 45% 85%, 40% 80%, 35% 85%, 30% 80%, 25% 85%, 20% 80%, 15% 85%, 10% 80%, 5% 85%, 0 80%); border-radius: 4px;">
+                BEGIN THE MYSTERY
+            </button>
+        </div>
+
+        <div id="o-step2" class="screen pt-10 pb-8 bg-charcoal text-cream">
+            <header class="mb-8">
+                <button onclick="goToOStep(1)" class="text-terracotta mb-6 hover:text-cream transition text-sm flex items-center gap-1">← Back</button>
+                <h2 class="font-display text-3xl font-bold mb-2 text-cream">Set the Mood</h2>
+            </header>
+
+            <div class="flex-1 flex flex-col items-center gap-5 mb-8">
+                <div class="dark-note p-4 rounded-lg soft-shadow w-full transform rotate(-1deg)">
+                    <label class="block font-bold text-xs uppercase tracking-wider mb-2 text-terracotta">1. Vibe Location</label>
+                    <p class="font-display text-xl font-bold">Current Spot</p>
+                </div>
+
+                <div class="dark-note p-4 rounded-lg soft-shadow w-full transform rotate(2deg)">
+                    <label class="block font-bold text-xs uppercase tracking-wider mb-2 text-terracotta">2. Time Frame</label>
+                    <select class="font-display text-xl font-bold bg-transparent focus:outline-none appearance-none cursor-pointer w-full text-cream">
+                        <option class="bg-charcoal">Tonight (7 PM)</option>
+                        <option class="bg-charcoal">Right Now</option>
+                    </select>
+                </div>
+
+                <button onclick="toggleOFilters()" class="text-terracotta text-sm font-semibold mt-4 transition hover:text-white underline">
+                    A few special requests?
+                </button>
+
+                <div id="o-filters" class="hidden mt-4 p-4 rounded-lg border-2 border-dashed border-terracotta bg-charcoal/20 w-full transform rotate(1deg)">
+                    <p class="text-cream font-semibold mb-3 text-sm">Tags</p>
+                    <div class="flex justify-around items-center text-cream text-lg font-bold">
+                        <span class="bg-terracotta text-charcoal px-3 py-1 rounded-full text-sm">ASIAN</span>
+                        <span class="text-cream">$$</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="goToOStep(3)" class="w-full bg-terracotta text-cream font-bold py-4 rounded-xl border-2 border-cream soft-shadow transition transform hover:scale-[1.03] active:scale-95 text-xl">
+                SUMMON THE RESULT
+            </button>
+        </div>
+
+        <div id="o-step3" class="screen bg-terracotta justify-center items-center text-center">
+            
+            <div class="relative w-40 h-40 flex items-center justify-center mb-10">
+                <div class="w-28 h-28 rounded-full border-2 border-charcoal animate-pulse-fill flex items-center justify-center" style="transform: rotate(10deg);">
+                    <span class="text-7xl text-charcoal">🔥</span>
+                </div>
+            </div>
+
+            <p class="font-display text-2xl text-cream font-bold">
+                GENERATING WARMTH...
+            </p>
+        </div>
+
+        <div id="o-step4" class="screen pt-10 pb-8 bg-charcoal">
+            <header class="mb-6 flex justify-between items-center">
+                <p class="font-display text-3xl text-terracotta font-bold transform rotate(-1deg)">THE REVELATION</p>
+                <button onclick="goToOStep(2)" class="text-white/80 hover:text-white transition text-sm">New Note →</button>
+            </header>
+            
+            <div class="flex-1 w-full bg-cream rounded-xl soft-shadow overflow-hidden flex flex-col border-2 border-charcoal transform rotate(1deg)">
+                <div class="h-2/5 w-full bg-gray-300 relative">
+                    <img src="https://images.unsplash.com/photo-1544148103-0773fee76070?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHJlc3RhdXJhbnQlMjBpbnRlcmlvcnxlbnwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60" class="w-full h-full object-cover">
+                    <div class="absolute bottom-3 right-3 text-xl font-bold bg-terracotta text-white px-3 py-1 rounded-full border-2 border-charcoal soft-shadow transform rotate(5deg)">4.8 ★</div>
+                </div>
+                
+                <div class="p-5 flex-1 flex flex-col justify-between">
+                    <div>
+                        <h2 class="font-display text-4xl text-charcoal font-bold mb-1 leading-tight">The Warm Hearth</h2>
+                        <p class="text-terracotta text-sm font-medium mb-3">Rustic Italian · 0.5 km</p>
+                        <div class="h-px bg-gray-200 my-3"></div>
+
+                        <p class="text-charcoal text-base leading-relaxed line-clamp-3">
+                            A cozy place where everything feels handmade and the pizza comes straight from the oven. Perfect for a warm night out.
+                        </p>
+                    </div>
+                    
+                    <div class="mt-5 flex justify-between items-center">
+                        <button class="bg-charcoal text-white font-bold py-3 px-6 rounded-full soft-shadow transition hover:bg-terracotta active:scale-95 border-2 border-charcoal">GET DIRECTIONS</button>
+                        <button onclick="goToOStep(3)" class="text-charcoal text-sm font-medium hover:text-terracotta transition">Re-Draft</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Simple router logic
+        function goToOStep(stepNumber) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            
+            const target = document.getElementById('o-step' + stepNumber);
+            target.classList.add('active');
+
+            // Timer for step 3 (Loading)
+            if (stepNumber === 3) {
+                // Auto advance to Step 4 after 2.5 seconds
+                setTimeout(() => {
+                    goToOStep(4);
+                }, 2500);
+            }
+        }
+
+        // Toggle filters logic
+        function toggleOFilters() {
+            document.getElementById('o-filters').classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>

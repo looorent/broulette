@@ -1,0 +1,355 @@
+import React, { useState, useEffect } from 'react';
+import { MapPin, Clock, DollarSign, Navigation, Loader2, Sparkles, RefreshCw, ExternalLink, Star, MapPinned } from 'lucide-react';
+
+const BiteRoulette = () => {
+  const [step, setStep] = useState(1);
+  const [location, setLocation] = useState(null);
+  const [locationInput, setLocationInput] = useState('');
+  const [whenTime, setWhenTime] = useState('this-evening');
+  const [distance, setDistance] = useState(2);
+  const [priceRange, setPriceRange] = useState([1, 2, 3, 4]);
+  const [loading, setLoading] = useState(false);
+  const [restaurant, setRestaurant] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Mock restaurant data
+  const mockRestaurants = [
+    { name: "Le Petit Zinc", cuisine: "French Bistro", rating: 4.5, reviews: 342, price: 3, distance: 1.2, address: "Rue des Bouchers 18", image: "🍷" },
+    { name: "Sushi Master", cuisine: "Japanese", rating: 4.7, reviews: 218, price: 4, distance: 0.8, address: "Avenue Louise 234", image: "🍣" },
+    { name: "Trattoria Bella", cuisine: "Italian", rating: 4.3, reviews: 456, price: 2, distance: 1.5, address: "Rue du Midi 42", image: "🍝" },
+    { name: "El Toro Loco", cuisine: "Mexican", rating: 4.6, reviews: 189, price: 2, distance: 2.1, address: "Chaussée de Wavre 156", image: "🌮" },
+    { name: "Green Garden", cuisine: "Vegetarian", rating: 4.4, reviews: 267, price: 2, distance: 1.8, address: "Place Flagey 7", image: "🥗" },
+    { name: "Bangkok Street", cuisine: "Thai", rating: 4.8, reviews: 398, price: 2, distance: 1.3, address: "Rue Antoine Dansaert 89", image: "🍜" }
+  ];
+
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+          setLocationInput('Current Location');
+        },
+        () => {
+          setLocationInput('');
+        }
+      );
+    }
+  };
+
+  const findRestaurant = () => {
+    setLoading(true);
+    setStep(3);
+    
+    setTimeout(() => {
+      const filtered = mockRestaurants.filter(r => 
+        r.distance <= distance && priceRange.includes(r.price)
+      );
+      const randomRestaurant = filtered[Math.floor(Math.random() * filtered.length)] || mockRestaurants[0];
+      setRestaurant(randomRestaurant);
+      setLoading(false);
+      setStep(4);
+    }, 2500);
+  };
+
+  const timeOptions = [
+    { value: 'now', label: 'Right Now' },
+    { value: 'this-evening', label: 'This Evening' },
+    { value: 'tomorrow-lunch', label: 'Tomorrow Lunch' },
+    { value: 'tomorrow-dinner', label: 'Tomorrow Dinner' },
+    { value: 'this-weekend', label: 'This Weekend' }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-amber-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        
+        {/* Step 1: Welcome */}
+        {step === 1 && (
+          <div className="bg-white rounded-3xl shadow-2xl p-8 text-center transform transition-all duration-500">
+            <div className="mb-6 relative">
+              <div className="text-7xl mb-4 animate-bounce">🎰</div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-rose-600 to-amber-600 bg-clip-text text-transparent mb-2">
+                BiteRoulette
+              </h1>
+              <p className="text-gray-600 text-lg">Spin the wheel, find your meal</p>
+            </div>
+            
+            <div className="my-8 space-y-3 text-left bg-gradient-to-r from-orange-100 to-rose-100 rounded-2xl p-6">
+              <div className="flex items-center gap-3">
+                <Sparkles className="text-orange-600 flex-shrink-0" size={20} />
+                <span className="text-gray-700">Random restaurant discovery</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <MapPin className="text-rose-600 flex-shrink-0" size={20} />
+                <span className="text-gray-700">Near your location</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Star className="text-amber-600 flex-shrink-0" size={20} />
+                <span className="text-gray-700">Curated for you</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                getUserLocation();
+                setStep(2);
+              }}
+              className="w-full bg-gradient-to-r from-orange-500 via-rose-500 to-amber-500 text-white py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <Sparkles size={20} />
+              Find a restaurant near you
+            </button>
+          </div>
+        )}
+
+        {/* Step 2: Main Form */}
+        {step === 2 && (
+          <div className="bg-white rounded-3xl shadow-2xl p-8 transform transition-all duration-500">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <span className="text-3xl">🎲</span>
+              Let's find your spot
+            </h2>
+
+            <div className="space-y-6">
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <MapPin size={16} className="text-orange-600" />
+                  Around where?
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={locationInput}
+                    onChange={(e) => setLocationInput(e.target.value)}
+                    placeholder="Enter your address..."
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-400 focus:outline-none transition-colors"
+                  />
+                  <button
+                    onClick={getUserLocation}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                  >
+                    <Navigation size={18} />
+                  </button>
+                </div>
+              </div>
+
+              {/* When */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <Clock size={16} className="text-rose-600" />
+                  When?
+                </label>
+                <select
+                  value={whenTime}
+                  onChange={(e) => setWhenTime(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-rose-400 focus:outline-none transition-colors appearance-none bg-white cursor-pointer"
+                >
+                  {timeOptions.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Optional Filters Toggle */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-2 transition-colors"
+              >
+                <span>{showFilters ? '−' : '+'}</span>
+                More filters (optional)
+              </button>
+
+              {showFilters && (
+                <div className="space-y-6 pt-4 border-t-2 border-gray-100">
+                  {/* Distance */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Distance: {distance} km
+                    </label>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="5"
+                      step="0.5"
+                      value={distance}
+                      onChange={(e) => setDistance(parseFloat(e.target.value))}
+                      className="w-full accent-amber-500"
+                    />
+                  </div>
+
+                  {/* Price Range */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Price Range
+                    </label>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4].map(price => (
+                        <button
+                          key={price}
+                          onClick={() => {
+                            if (priceRange.includes(price)) {
+                              setPriceRange(priceRange.filter(p => p !== price));
+                            } else {
+                              setPriceRange([...priceRange, price].sort());
+                            }
+                          }}
+                          className={`flex-1 py-2 rounded-xl font-semibold transition-all ${
+                            priceRange.includes(price)
+                              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          {'€'.repeat(price)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={findRestaurant}
+                disabled={!locationInput}
+                className="w-full bg-gradient-to-r from-orange-500 via-rose-500 to-amber-500 text-white py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+              >
+                <Sparkles size={20} />
+                Spin the wheel!
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Loading */}
+        {step === 3 && loading && (
+          <div className="bg-white rounded-3xl shadow-2xl p-12 text-center transform transition-all duration-500">
+            <div className="relative mb-8">
+              <div className="text-8xl animate-spin-slow inline-block">🎰</div>
+              <Sparkles className="absolute top-0 right-0 text-orange-500 animate-pulse" size={32} />
+              <Sparkles className="absolute bottom-0 left-0 text-rose-500 animate-pulse delay-100" size={24} />
+            </div>
+            
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+              Finding your perfect spot...
+            </h3>
+            
+            <div className="flex items-center justify-center gap-2 text-gray-600">
+              <Loader2 className="animate-spin" size={20} />
+              <span>Spinning the roulette</span>
+            </div>
+
+            <div className="mt-8 space-y-2 text-sm text-gray-500">
+              <p className="animate-fade-in">Checking nearby restaurants...</p>
+              <p className="animate-fade-in delay-500">Analyzing ratings...</p>
+              <p className="animate-fade-in delay-1000">Making the perfect match...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Result */}
+        {step === 4 && restaurant && (
+          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden transform transition-all duration-500">
+            <div className="bg-gradient-to-r from-orange-500 via-rose-500 to-amber-500 p-6 text-center text-white">
+              <div className="text-6xl mb-3">{restaurant.image}</div>
+              <h2 className="text-3xl font-bold mb-1">{restaurant.name}</h2>
+              <p className="text-orange-100 text-lg">{restaurant.cuisine}</p>
+            </div>
+
+            <div className="p-8 space-y-6">
+              {/* Rating */}
+              <div className="flex items-center justify-between bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-4">
+                <div className="flex items-center gap-2">
+                  <Star className="text-amber-500 fill-amber-500" size={24} />
+                  <span className="text-2xl font-bold text-gray-800">{restaurant.rating}</span>
+                  <span className="text-gray-600">({restaurant.reviews} reviews)</span>
+                </div>
+                <div className="text-2xl font-bold text-orange-600">
+                  {'€'.repeat(restaurant.price)}
+                </div>
+              </div>
+
+              {/* Details */}
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 text-gray-700">
+                  <MapPinned className="text-rose-600 flex-shrink-0 mt-1" size={20} />
+                  <div>
+                    <p className="font-semibold">{restaurant.address}</p>
+                    <p className="text-sm text-gray-500">{restaurant.distance} km away</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="space-y-3 pt-4">
+                <button
+                  onClick={() => window.open(`https://www.google.com/maps/search/${encodeURIComponent(restaurant.name + ' ' + restaurant.address)}`, '_blank')}
+                  className="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-white py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <ExternalLink size={20} />
+                  View on Google Maps
+                </button>
+
+                <button
+                  onClick={findRestaurant}
+                  className="w-full bg-white border-2 border-gray-300 text-gray-700 py-4 rounded-2xl font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <RefreshCw size={20} />
+                  Find something else
+                </button>
+
+                <button
+                  onClick={() => {
+                    setStep(2);
+                    setRestaurant(null);
+                  }}
+                  className="w-full text-gray-600 py-3 font-medium hover:text-gray-800 transition-colors"
+                >
+                  Change preferences
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        {step !== 3 && (
+          <div className="text-center mt-6 text-sm text-gray-600">
+            <p>BiteRoulette • Let fate choose your plate</p>
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 3s linear infinite;
+        }
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.5s ease-out forwards;
+          opacity: 0;
+        }
+        .delay-100 {
+          animation-delay: 0.1s;
+        }
+        .delay-500 {
+          animation-delay: 0.5s;
+        }
+        .delay-1000 {
+          animation-delay: 1s;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default BiteRoulette;
