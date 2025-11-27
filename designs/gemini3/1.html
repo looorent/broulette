@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiteRoulette</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom Font Setup */
+        h1, h2, h3, .btn-text { font-family: 'Fredoka One', cursive; }
+        body { font-family: 'Quicksand', sans-serif; }
+
+        /* Custom Animations */
+        @keyframes slotSpin {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-1000px); }
+        }
+        
+        .slot-machine-effect {
+            animation: slotSpin 2s ease-in-out infinite;
+        }
+
+        /* Hide scrollbar for clean mobile look */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none;  scrollbar-width: none; }
+        
+        /* Smooth transitions for steps */
+        .step-container {
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease;
+        }
+    </style>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bite-red': '#FF4757',
+                        'bite-orange': '#FF6B81',
+                        'bite-yellow': '#FFA502',
+                        'bite-dark': '#2F3542',
+                        'bite-cream': '#F1F2F6',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-bite-red via-orange-500 to-purple-600 min-h-screen text-bite-dark overflow-hidden relative">
+
+    <div class="absolute top-10 left-[-50px] w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+    <div class="absolute bottom-10 right-[-50px] w-60 h-60 bg-yellow-300 opacity-20 rounded-full blur-3xl"></div>
+
+    <main class="relative z-10 max-w-md mx-auto h-screen flex flex-col justify-between p-6">
+        
+        <header class="text-center pt-8 mb-4">
+            <h1 class="text-4xl text-white drop-shadow-md tracking-wider">
+                <i class="fas fa-pizza-slice text-bite-yellow mr-2"></i>Bite<span class="text-bite-yellow">Roulette</span>
+            </h1>
+            <p class="text-white opacity-90 text-sm mt-1">Don't decide. Let fate decide.</p>
+        </header>
+
+        <div id="app-content" class="flex-grow flex flex-col justify-center relative">
+            
+            <div id="step-1" class="step-container w-full text-center">
+                <div class="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-xl">
+                    <div class="mb-8">
+                        <i class="fas fa-utensils text-6xl text-white animate-bounce"></i>
+                    </div>
+                    <h2 class="text-2xl text-white mb-6">Hungry but indecisive?</h2>
+                    <button onclick="goToStep(2)" class="w-full bg-bite-yellow hover:bg-yellow-400 text-bite-dark text-xl py-4 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95 btn-text border-b-4 border-yellow-600">
+                        Spin the Wheel
+                    </button>
+                </div>
+            </div>
+
+            <div id="step-2" class="step-container w-full hidden">
+                <div class="bg-white rounded-3xl p-6 shadow-2xl relative">
+                    <button onclick="goToStep(1)" class="absolute top-4 left-4 text-gray-400 hover:text-bite-red"><i class="fas fa-arrow-left"></i></button>
+                    
+                    <h2 class="text-2xl text-center mb-6 text-bite-red">Set the Table</h2>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-gray-600 mb-2">Where?</label>
+                        <div class="relative">
+                            <input type="text" placeholder="Current Location" class="w-full bg-gray-100 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-bite-red font-bold text-gray-700">
+                            <i class="fas fa-map-marker-alt absolute left-4 top-3.5 text-bite-red"></i>
+                            <button class="absolute right-2 top-2 bg-white p-1.5 rounded-lg shadow-sm text-xs text-bite-red border border-gray-200 font-bold">Detect</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-gray-600 mb-2">When?</label>
+                        <select class="w-full bg-gray-100 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-bite-red appearance-none font-bold text-gray-700">
+                            <option>Right Now (I'm starving)</option>
+                            <option>Tonight</option>
+                            <option>Tomorrow Lunch</option>
+                            <option>Weekend</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-6">
+                        <button onclick="toggleFilters()" id="filter-toggle-btn" class="text-sm text-bite-red font-bold flex items-center justify-center w-full hover:underline">
+                            <span><i class="fas fa-sliders-h mr-2"></i> Add Filters (Optional)</span>
+                        </button>
+                    </div>
+
+                    <div id="advanced-filters" class="hidden mb-6 bg-orange-50 p-4 rounded-xl border border-orange-100">
+                        <div class="mb-4">
+                            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Budget</label>
+                            <div class="flex justify-between gap-2">
+                                <button class="flex-1 py-2 rounded-lg bg-white border border-gray-200 text-green-600 font-bold hover:bg-green-50 shadow-sm">$</button>
+                                <button class="flex-1 py-2 rounded-lg bg-bite-red text-white font-bold shadow-md border-b-2 border-red-700">$$</button>
+                                <button class="flex-1 py-2 rounded-lg bg-white border border-gray-200 text-gray-400 font-bold hover:bg-gray-50 shadow-sm">$$$</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Max Distance</label>
+                            <input type="range" class="w-full accent-bite-red h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                <span>Walkable</span>
+                                <span>Driveable</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="startRoulette()" class="w-full bg-bite-red hover:bg-red-600 text-white text-xl py-4 rounded-2xl shadow-lg transform transition active:scale-95 btn-text border-b-4 border-red-800">
+                        <i class="fas fa-dice mr-2"></i> Roll the Dice
+                    </button>
+                </div>
+            </div>
+
+            <div id="step-3" class="step-container w-full hidden text-center">
+                <div class="relative w-64 h-64 mx-auto mb-8 flex items-center justify-center">
+                    <div class="absolute w-full h-full border-8 border-white/20 rounded-full animate-spin" style="animation-duration: 3s;"></div>
+                    <div class="absolute w-48 h-48 border-8 border-bite-yellow rounded-full border-t-transparent animate-spin"></div>
+                    
+                    <div class="bg-white w-32 h-32 rounded-full flex items-center justify-center shadow-2xl z-10 overflow-hidden relative">
+                        <div id="roulette-icons" class="text-5xl text-bite-red">
+                            <i class="fas fa-hamburger"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <h2 class="text-3xl text-white mb-2 animate-pulse">Spinning...</h2>
+                <p class="text-white/80 font-bold" id="loading-text">Checking Yelp...</p>
+            </div>
+
+            <div id="step-4" class="step-container w-full hidden">
+                <div class="bg-white rounded-3xl overflow-hidden shadow-2xl transform rotate-1 transition duration-500 hover:rotate-0">
+                    <div class="h-48 bg-gray-200 relative">
+                        
+                        <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Food" class="w-full h-full object-cover">
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-sm font-bold text-bite-dark shadow-sm">
+                            <i class="fas fa-walking mr-1"></i> 5 min
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-bite-yellow text-bite-dark px-3 py-1 rounded-lg text-xs font-bold shadow-sm uppercase tracking-wide">
+                            Top Match
+                        </div>
+                    </div>
+
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h2 class="text-2xl text-gray-800 leading-tight">The Rusty Spoon</h2>
+                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded-md text-xs font-bold">$$</span>
+                        </div>
+                        
+                        <div class="flex items-center mb-4 text-yellow-400 text-sm">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span class="text-gray-400 ml-2 text-xs font-semibold">(4.8/5 on Google)</span>
+                        </div>
+
+                        <p class="text-gray-500 text-sm mb-6 line-clamp-2">Famous for their spicy wings and craft beer selection. A cozy spot for tonight.</p>
+
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <button class="bg-bite-dark text-white py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-gray-800">
+                                <i class="fas fa-directions mr-1"></i> Go There
+                            </button>
+                            <button onclick="startRoulette()" class="bg-gray-100 text-gray-600 py-3 rounded-xl font-bold text-sm hover:bg-gray-200 border border-gray-200">
+                                <i class="fas fa-redo-alt mr-1"></i> Spin Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-6">
+                    <p class="text-white/70 text-sm">Not feeling it?</p>
+                    <button onclick="goToStep(2)" class="text-white font-bold underline mt-1 hover:text-bite-yellow">Change Filters</button>
+                </div>
+            </div>
+
+        </div>
+
+        <footer class="text-center py-4 text-white/40 text-xs">
+            &copy; 2023 BiteRoulette Inc.
+        </footer>
+
+    </main>
+
+    <script>
+        // DOM Elements
+        const steps = [
+            document.getElementById('step-1'),
+            document.getElementById('step-2'),
+            document.getElementById('step-3'),
+            document.getElementById('step-4')
+        ];
+        const advancedFilters = document.getElementById('advanced-filters');
+        const filterBtn = document.getElementById('filter-toggle-btn');
+        const loadingText = document.getElementById('loading-text');
+        const rouletteIcons = document.getElementById('roulette-icons');
+
+        // Navigation Function
+        function goToStep(stepNumber) {
+            steps.forEach(el => el.classList.add('hidden'));
+            steps[stepNumber - 1].classList.remove('hidden');
+        }
+
+        // Toggle Advanced Filters
+        function toggleFilters() {
+            advancedFilters.classList.toggle('hidden');
+            if(advancedFilters.classList.contains('hidden')) {
+                filterBtn.innerHTML = '<span><i class="fas fa-sliders-h mr-2"></i> Add Filters (Optional)</span>';
+            } else {
+                filterBtn.innerHTML = '<span><i class="fas fa-times mr-2"></i> Hide Filters</span>';
+            }
+        }
+
+        // Logic for the Roulette (Step 3 to 4)
+        function startRoulette() {
+            goToStep(3);
+            
+            const messages = ["Scanning grid...", "Avoiding salads...", "Consulting the stars...", "Found a spot!"];
+            const icons = [
+                '<i class="fas fa-pizza-slice"></i>',
+                '<i class="fas fa-hotdog"></i>',
+                '<i class="fas fa-ice-cream"></i>',
+                '<i class="fas fa-pepper-hot"></i>',
+                '<i class="fas fa-drumstick-bite"></i>'
+            ];
+            
+            let messageIndex = 0;
+            let iconIndex = 0;
+
+            // Cycle text
+            const textInterval = setInterval(() => {
+                loadingText.innerText = messages[messageIndex];
+                messageIndex++;
+                if (messageIndex >= messages.length) clearInterval(textInterval);
+            }, 700);
+
+            // Cycle icons rapidly
+            const iconInterval = setInterval(() => {
+                rouletteIcons.innerHTML = icons[iconIndex];
+                iconIndex = (iconIndex + 1) % icons.length;
+            }, 150);
+
+            // Finish after 3 seconds
+            setTimeout(() => {
+                clearInterval(iconInterval);
+                goToStep(4);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
