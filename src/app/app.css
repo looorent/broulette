@@ -1,15 +1,82 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=Space+Grotesk:wght@700&family=Luckiest+Guy&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
+  /* --- COLORS --- */
+  --color-fun-red: #D64035;
+  --color-fun-cream: #FAF8F5;
+  --color-fun-dark: #2C2A32;
+  --color-fun-yellow: #FFD166;
+  --color-fun-green: #06D6A0;
+  --color-fun-blue: #118AB2;
+  
+  /* BACKGROUND */
+  --bg-app-blend-mode: soft-light, soft-light, normal, normal;
 
-html,
-body {
-  @apply bg-white dark:bg-gray-950;
+  /* --- FONT FAMILY --- */
+  --font-sans: "DM Sans", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-pop: "Luckiest Guy", cursive;
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
+  /* --- BOX SHADOWS --- */
+  --shadow-hard: 4px 4px 0px 0px var(--color-fun-dark);
+  --shadow-hard-hover: 2px 2px 0px 0px var(--color-fun-dark);
+  --shadow-hard-white: 4px 4px 0px 0px var(--color-fun-cream);
+
+  /* --- ANIMATION --- */
+  --animate-float: float-text 3s ease-in-out infinite;
+  @keyframes float-text {
+    0%, 100% { transform: translateY(0px) }
+    50% { transform: translateY(-10px) }
+  }
+  --animate-pulse-mega: pulse-mega 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+  @keyframes pulse-mega {
+    0% { transform: scale(0.9); opacity: 0.7 }
+    100% { transform: scale(3); opacity: 0 }
+  }
+  --animate-pan-zoom: pan-zoom-subtle 20s ease-in-out infinite alternate;
+  @keyframes pan-zoom-subtle {
+    0% { transform: scale(1.05) translate(0%, 0%) }
+    50% { transform: scale(1.15) translate(-2%, -2%) }
+    100% { transform: scale(1.05) translate(0%, 0%) }
+  }
+  --animate-spin-orbit: spin-orbit 1.5s linear infinite;
+  @keyframes spin-orbit {
+    from { transform: rotate(0deg) translateY(-60px) rotate(0deg) }
+    to { transform: rotate(360deg) translateY(-60px) rotate(-360deg) }
+  }
+  --animate-fade-in: fade-in 0.3s ease-out forwards;
+  @keyframes fade-in {
+    0% { opacity: 0 }
+    100% { opacity: 1 }
+  }
+  --animate-shape-shift: shape-shift 2s infinite cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  @keyframes shape-shift {
+    0% { border-radius: 0%; background-color: var(--color-fun-yellow); transform: rotate(0deg) scale(1); }
+    25% { border-radius: 50%; background-color: #E85A4F; transform: rotate(90deg) scale(0.8); }
+    50% { border-radius: 0% 50% 50% 50%; background-color: var(--color-fun-yellow); transform: rotate(180deg) scale(1.1); }
+    75% { border-radius: 20px; background-color: var(--color-fun-blue); transform: rotate(270deg) scale(0.9) skewX(10deg); }
+    100% { border-radius: 0%; background-color: var(--color-fun-yellow); transform: rotate(360deg) scale(1); }
+  }
+
+  --animate-fall: fall linear infinite;
+  @keyframes fall {
+    0% { transform: translateY(-20vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.12; } 
+    90% { opacity: 0.12; }
+    100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
   }
 }
+
+.background-blend {
+  background-blend-mode: var(--bg-app-blend-mode);
+}
+
+
+
+
+
+
+
+
+

@@ -11,10 +11,13 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- tsParticles -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700&family=Space+Grotesk:wght@700&family=Luckiest+Guy&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -30,7 +33,6 @@
                     fontFamily: {
                         'sans': ['DM Sans', 'sans-serif'],
                         'display': ['Space Grotesk', 'sans-serif'],
-                        'pop': ['Luckiest Guy', 'cursive'], /* New Fun Font */
                     },
                     boxShadow: {
                         'hard': '4px 4px 0px 0px #2C2A32',
@@ -71,8 +73,8 @@
         /* --- Falling Animation --- */
         @keyframes fall {
             0% { transform: translateY(-20vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.08; } /* Very subtle opacity */
-            90% { opacity: 0.08; }
+            10% { opacity: 0.12; } 
+            90% { opacity: 0.12; }
             100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
         }
 
@@ -134,22 +136,38 @@
             animation: pulse-mega 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
         }
 
+        #rain-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
     </style>
 </head>
 <body>
 
     <!-- BACKGROUND ANIMATION CONTAINER -->
-    <div id="rain-container" class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <!-- JS will populate this with icons -->
-    </div>
+    <div id="rain-container"></div>
+
+    <!-- GET HELP BUTTON (Fixed Position) -->
+    <button onclick="alert('Help is coming! Just follow the big buttons for now.')" class="fixed top-5 right-5 z-50 bg-fun-cream text-fun-dark border-[3px] border-fun-dark rounded-full p-2 shadow-hard-hover hover:scale-110 active:scale-95 transition-transform group" title="Get Help">
+        <i data-lucide="help-circle" class="w-6 h-6 group-hover:rotate-12 transition-transform"></i>
+    </button>
 
     <!-- STEP 1: INTRO -->
-    <div id="step-1" class="screen active p-6 justify-between pt-16 z-20">
+    <!-- Changed justify-between to justify-center and reduced padding for better balance -->
+    <div id="step-1" class="screen active p-6 justify-center items-center gap-12 z-20">
         
-        <!-- Top Section: Big Text -->
-        <div class="text-center relative z-10 mt-10">
-            <h1 class="font-display text-[5rem] leading-[0.85] text-white drop-shadow-[5px_5px_0px_rgba(45,52,54,1)] tracking-tighter mb-4 animate-float">
-                TOO<br>LAZY<br>TO<br>PICK?
+        <!-- Top Section: Big Text (Chaotic Layout) -->
+        <div class="text-center relative animate-float">
+            <!-- Adjusted text size for responsiveness -->
+            <h1 class="font-display text-6xl md:text-7xl leading-[0.9] text-white drop-shadow-[5px_5px_0px_rgba(45,52,54,1)] tracking-tighter mb-4 flex flex-col items-center">
+                <span class="transform -rotate-6 transition hover:rotate-0 duration-300">TOO</span>
+                <span class="transform rotate-3 transition hover:rotate-0 duration-300 text-fun-yellow">LAZY</span>
+                <span class="transform -rotate-2 transition hover:rotate-0 duration-300">TO</span>
+                <span class="transform rotate-6 transition hover:rotate-0 duration-300">PICK?</span>
             </h1>
             <div class="inline-block bg-fun-dark text-fun-cream px-4 py-2 rounded-full transform -rotate-2 mt-4 shadow-hard-white">
                 <p class="font-bold tracking-widest uppercase text-sm">We choose, you eat.</p>
@@ -157,12 +175,13 @@
         </div>
 
         <!-- Bottom Section: Big Button -->
-        <div class="relative w-full h-64 flex justify-center items-center z-10 mb-10">
-            <!-- Decorative circle behind with new mega pulse -->
-            <div class="absolute w-56 h-56 bg-fun-cream/30 rounded-full animate-pulse-fun"></div>
+        <div class="relative w-48 h-48 flex justify-center items-center">
+            <!-- Decorative circle behind with new mega pulse - Resized -->
+            <div class="absolute w-48 h-48 bg-fun-cream/30 rounded-full animate-pulse-fun"></div>
             
-            <button onclick="goToStep(2)" class="group relative w-48 h-48 bg-fun-cream rounded-full border-[6px] border-fun-dark shadow-hard transition-all duration-200 hover:translate-y-[2px] hover:shadow-hard-hover active:scale-95 flex flex-col items-center justify-center gap-2 z-20">
-                <span class="font-pop text-4xl uppercase tracking-wider text-fun-dark">Let's Go</span>
+            <!-- Button Resized: w-48 -> w-40 -->
+            <button onclick="goToStep(2)" class="group relative w-40 h-40 bg-fun-cream rounded-full border-[5px] border-fun-dark shadow-hard transition-all duration-200 hover:translate-y-[2px] hover:shadow-hard-hover active:scale-95 flex flex-col items-center justify-center gap-2 z-20">
+                <span class="font-sans font-black text-3xl lowercase text-fun-dark tracking-tight">feed me</span>
             </button>
         </div>
     </div>
@@ -314,46 +333,21 @@
     </div>
 
     <script>
-        // --- Custom SVGs for Falling Food ---
-        // Chunky, Filled Styles for "Nicer" Look
-        const svgs = [
-            // Pizza
-            `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.43 2 5.23 4.22 3.86 7.42L12 22l8.14-14.58C18.77 4.22 15.57 2 12 2zm0 2c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3z"/></svg>`,
-            // Burger
-            `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 10c0-4.42-3.58-8-8-8s-8 3.58-8 8h16zm-8-6c3.31 0 6 2.69 6 6H6c0-3.31 2.69-6 6-6zM4 12h16v2H4zM4 16h16v6H4z"/></svg>`,
-            // Donut
-            `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>`,
-            // Taco
-            `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 13.5c0-4.5-3.5-8-8-8H9c-4.5 0-8 3.5-8 8v6h22v-6zM12 8h2c2.5 0 4.5 2 4.5 4.5V17h-13v-4.5C5.5 10 7.5 8 12 8z"/></svg>`
-        ];
-
-        const container = document.getElementById('rain-container');
+        // --- Vectorized SVGs (as Data URIs for tsparticles) ---
+        // These are the "better" icons vectorized with thick strokes
+        const iconColor = "%232C2A32"; // Hex #2C2A32 encoded
         
-        function createRain() {
-            // Create 15 elements (fewer but bigger)
-            for(let i=0; i<15; i++) {
-                const el = document.createElement('div');
-                el.classList.add('falling-item');
-                
-                // Random SVG
-                const svgString = svgs[Math.floor(Math.random() * svgs.length)];
-                el.innerHTML = svgString;
-                
-                // Randomize style
-                const size = Math.random() * 80 + 80; // 80px to 160px (Big!)
-                const left = Math.random() * 100; 
-                const duration = Math.random() * 15 + 15; // Slow fall
-                const delay = Math.random() * -30;
-                
-                el.style.left = `${left}%`;
-                el.style.width = `${size}px`;
-                el.style.height = `${size}px`;
-                el.style.animationDuration = `${duration}s`;
-                el.style.animationDelay = `${delay}s`;
-                
-                container.appendChild(el);
-            }
-        }
+        const pizzaSvg = `data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C7 2 3 5 3 5L12 22L21 5C21 5 17 2 12 2Z" /><path d="M3 5C3 5 7 8 12 8C17 8 21 5 21 5" /><circle cx="12" cy="13" r="2" /><circle cx="9" cy="9" r="1" /><circle cx="15" cy="10" r="1" /></svg>`;
+        
+        const sausageSvg = `data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M18 8C19.6569 8 21 9.34315 21 11C21 12.6569 19.6569 14 18 14H6C4.34315 14 3 12.6569 3 11C3 9.34315 4.34315 8 6 8" /><path d="M6 8C5 8 4 10 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 10 19 8 18 8" /><path d="M6 8C7 10 12 11 18 8" /><path d="M9 13L9 16" /><path d="M12 14L12 17" /><path d="M15 13L15 16" /><path d="M7 5C7 5 8 3 8 2" /><path d="M12 5C12 5 13 3 13 2" /><path d="M17 5C17 5 18 3 18 2" /></svg>`;
+        
+        const hotdogSvg = `data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M4 11C4 11 4 15 5 17C6 19 8 20 12 20C16 20 18 19 19 17C20 15 20 11 20 11" /><path d="M2 10C2 8.5 3 7 4 7H20C21 7 22 8.5 22 10C22 11.5 20 13 19 13H5C4 13 2 11.5 2 10Z" /><path d="M5 10C6 9 7 9 8 10C9 11 10 11 11 10C12 9 13 9 14 10C15 11 16 11 17 10C18 9 19 9 20 10" /></svg>`;
+        
+        const sushiSvg = `data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="10" width="16" height="10" rx="4" /><path d="M2 8C2 5.5 5 4 12 4C19 4 22 5.5 22 8C22 10.5 19 12 12 12C5 12 2 10.5 2 8Z" /><path d="M7 4C7 4 6 8 6 12" /><path d="M12 4C12 4 11 8 11 12" /><path d="M17 4C17 4 16 8 16 12" /></svg>`;
+        
+        const forkSvg = `data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M12 22V10" /><path d="M8 2V7C8 9 10 10 12 10C14 10 16 9 16 7V2" /><path d="M12 2V7" /></svg>`;
+        
+        const burgerSvg = `data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M4 10c0-3.3 3.6-6 8-6s8 2.7 8 6H4z"/><rect x="4" y="14" width="16" height="4" rx="2"/><path d="M4 18h16v2c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2v-2z"/><path d="M4 12h16"/></svg>`;
 
         // --- Router Logic ---
         function goToStep(step) {
@@ -406,8 +400,62 @@
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
-            createRain();
             lucide.createIcons();
+            
+            // tsParticles Configuration
+            tsParticles.load("rain-container", {
+                particles: {
+                    number: {
+                        value: 8, // Reduced density further for cleaner look
+                    },
+                    shape: {
+                        type: "image",
+                        image: [
+                            { src: pizzaSvg, width: 100, height: 100 },
+                            { src: sausageSvg, width: 100, height: 100 },
+                            { src: hotdogSvg, width: 100, height: 100 },
+                            { src: sushiSvg, width: 100, height: 100 },
+                            { src: forkSvg, width: 100, height: 100 },
+                            { src: burgerSvg, width: 100, height: 100 }
+                        ]
+                    },
+                    opacity: {
+                        value: 0.12, // Reduced opacity for subtler look
+                        random: false,
+                    },
+                    size: {
+                        value: { min: 40, max: 80 }, // Smaller size range
+                        random: true,
+                    },
+                    move: {
+                        enable: true,
+                        speed: 3, // Slow fall
+                        direction: "bottom",
+                        random: false,
+                        straight: false,
+                        outModes: {
+                            default: "out"
+                        },
+                    },
+                    rotate: {
+                        value: 0,
+                        random: true,
+                        direction: "clockwise",
+                        animation: {
+                            enable: true,
+                            speed: 5,
+                            sync: false
+                        }
+                    }
+                },
+                interactivity: {
+                    detectsOn: "canvas",
+                    events: {
+                        resize: true
+                    }
+                },
+                detectRetina: true
+            });
         });
 
     </script>
