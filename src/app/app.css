@@ -9,7 +9,7 @@
   --color-fun-yellow: #FFD166;
   --color-fun-green: #06D6A0;
   --color-fun-blue: #118AB2;
-  
+
   /* BACKGROUND */
   --bg-app-blend-mode: soft-light, soft-light, normal, normal;
 
@@ -63,15 +63,9 @@
   --animate-fall: fall linear infinite;
   @keyframes fall {
     0% { transform: translateY(-20vh) rotate(0deg); opacity: 0; }
-    10% { opacity: 0.12; } 
+    10% { opacity: 0.12; }
     90% { opacity: 0.12; }
     100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
-  }
-
-  --animate-slide-up: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  @keyframes slide-up {
-    0% { transform: translateY(100%) }
-    100% { transform: translateY(0) }
   }
 }
 
@@ -87,8 +81,8 @@
   animation: shape-shift 2s infinite cubic-bezier(0.68, -0.55, 0.265, 1.55);
   position: relative;
   /* Ensure it's visible */
-  display: block; 
-  background-color: #FFD166; 
+  display: block;
+  background-color: #FFD166;
 }
 
 .orbit-dot {
@@ -102,6 +96,6 @@
   left: 50%;
   margin-top: -8px;
   margin-left: -8px;
-  /* transform-origin will be handled by animation keyframes in Tailwind config, 
+  /* transform-origin will be handled by animation keyframes in Tailwind config,
       but fallback here just in case */
 }
