@@ -1,7 +1,7 @@
 import { ChevronUp } from "lucide-react";
 import { useState } from "react";
 
-export async function PreferenceChip() {
+export function PreferenceChip() {
     const [locationLabel, setLocationLabel] = useState("Near you");
     const [distanceLabel, setDistanceLabel] = useState("Walkable");
     const [momentLabel, setMomentLabel] = useState("Now");

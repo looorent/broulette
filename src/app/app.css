@@ -67,6 +67,12 @@
     90% { opacity: 0.12; }
     100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
   }
+
+  --animate-slide-up: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  @keyframes slide-up {
+    0% { transform: translateY(100%) }
+    100% { transform: translateY(0) }
+  }
 }
 
 .background-blend {

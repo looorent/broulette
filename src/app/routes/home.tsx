@@ -1,10 +1,12 @@
 import { HelpCircle } from "lucide-react";
-import { Form, useFetcher, useNavigation } from "react-router";
+import { Form, NavLink, useFetcher, useLocation, useNavigation, useSearchParams } from "react-router";
 import FoodRain from "~/components/food-rain";
 import type { Route } from "./+types/home";
 import LoadingSpinner from "~/components/loading-spinner";
 import { LoadingTitle } from "~/components/loading-title";
 import { PreferenceChip } from "~/components/preferences-chip";
+import { PreferencesModal } from "~/components/preferences-modal";
+
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -32,6 +34,7 @@ export default function Home() {
       </main>
     );
   } else {
+    const [searchParams, setSearchParams] = useSearchParams();
     return (
       <main className="h-full relative">
         <button 
@@ -51,6 +54,8 @@ export default function Home() {
           <HelpCircle />
         </button>
   
+        { searchParams.get("modal") === "preferences" ? <PreferencesModal /> : null}
+
         <FoodRain />
   
         <section className="h-full flex flex-col justify-between pt-14"
@@ -69,7 +74,7 @@ export default function Home() {
   
           <fetcher.Form method="post"
                 action="/searches"
-                className="w-full flex justify-center items-center mb-10 mt-auto">
+                className="w-full flex justify-center items-center mb-14 mt-auto">
             <div className="absolute w-56 h-56 bg-fun-cream/30 rounded-full animate-pulse-mega pointer-events-none z-0" aria-hidden="true"></div>
             
             <button className="group relative w-48 h-48 bg-fun-cream rounded-full border-[6px] border-fun-dark shadow-hard transition-all duration-200 hover:translate-y-0.5 hover:shadow-hard-hover active:scale-95 flex flex-col items-center justify-center gap-2 z-20 cursor-pointer"
@@ -80,7 +85,9 @@ export default function Home() {
             </button>
           </fetcher.Form>
 
-          <PreferenceChip />
+          <NavLink to="?modal=preferences">
+            <PreferenceChip />
+          </NavLink>
         </section>
       </main>
     );
