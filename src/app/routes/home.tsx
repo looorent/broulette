@@ -1,6 +1,7 @@
 import type { Route } from "./+types/home";
 import { HelpCircle } from "lucide-react";
 import { Link } from "react-router";
+import FoodRain from "~/components/food-rain";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -11,7 +12,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   return (
-    <main className="min-h-screen relative">
+    <main className="h-full relative">
       <button 
         className="absolute
           top-5 
@@ -29,8 +30,10 @@ export default function Home() {
         <HelpCircle />
       </button>
 
-      <section className="min-h-screen flex flex-col justify-between pt-14"
-              aria-label="Welcome Screen">
+      <FoodRain />
+
+      <section className="h-full flex flex-col justify-between pt-14"
+               aria-label="Welcome Screen">
         <header className="text-center relative animate-float">
           <h1 className="font-display text-6xl sm:text-7xl leading-[0.9] text-white drop-shadow-[5px_5px_0px_rgba(45,52,54,1)] tracking-tighter mb-4 flex flex-col items-center">
               <span className="transform -rotate-6 transition hover:rotate-0 duration-300">TOO</span>
@@ -43,8 +46,8 @@ export default function Home() {
           </div>
         </header>
 
-        <div className="w-full h-64 flex justify-center items-center z-10 mb-10">
-          <div className="absolute w-56 h-56 bg-fun-cream/30 rounded-full animate-pulse-mega pointer-events-none" aria-hidden="true"></div>
+        <div className="w-full flex justify-center items-center mb-10 mt-auto">
+          <div className="absolute w-56 h-56 bg-fun-cream/30 rounded-full animate-pulse-mega pointer-events-none z-0" aria-hidden="true"></div>
           
           <Link to="/searches/new" 
                 className="group relative w-48 h-48 bg-fun-cream rounded-full border-[6px] border-fun-dark shadow-hard transition-all duration-200 hover:translate-y-0.5 hover:shadow-hard-hover active:scale-95 flex flex-col items-center justify-center gap-2 z-20 cursor-pointer">

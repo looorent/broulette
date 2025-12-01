@@ -10,16 +10,12 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 
-export const links: Route.LinksFunction = () => [
-
-];
-
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full w-full overflow-hidden bg-fun-dark select-none">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
          {/* PWA Tags */}
         <meta name="mobile-web-app-capable" content="yes" />
@@ -34,8 +30,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
           bg-[radial-gradient(circle_at_20%_80%,rgba(255,209,102,0.6)_0%,transparent_40%),radial-gradient(circle_at_80%_20%,rgba(6,214,160,0.5)_0%,transparent_40%),conic-gradient(from_45deg_at_50%_50%,rgba(232,90,79,0.2)_0deg,rgba(255,209,102,0.2)_120deg,rgba(232,90,79,0.2)_240deg),linear-gradient(135deg,#D64035_0%,#A33028_100%)]
           bg-fixed
           background-blend
-          relative
-          overflow-hidden w-full h-full">
+          overflow-hidden
+          w-full h-full min-h-screen">
           {children}
         <ScrollRestoration />
         <Scripts />
