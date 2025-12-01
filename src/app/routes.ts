@@ -6,7 +6,7 @@ import {
 
 export default [
   index("./routes/home.tsx"),
-  route("searches/new", "./routes/new-search.tsx"),
+  route("searches", "./routes/new-search.tsx"),
   route("searches/:searchId?", "./routes/search.tsx"),
   route("searches/:searchId/selections/:selectionId?", "./routes/selection.tsx"),
   // TODO use prefix
