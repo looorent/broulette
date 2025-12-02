@@ -1,7 +1,7 @@
 import { useDrag } from "@use-gesture/react";
-import { Check, Crosshair, MapPin, XCircle } from "lucide-react";
+import { Check, Crosshair, Loader2, MapPin, XCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { createDistanceRangeLabel, DistanceRange, type LocationPreference } from "types/location";
+import { createDistanceRangeLabel, DistanceRange } from "types/location";
 import type { Preference } from "types/preference";
 import { type ServicePreference } from "types/service";
 
@@ -15,6 +15,9 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
   const [range, setRange] = useState(preferences.range);
   const [location, setLocation] = useState(preferences.location);
   const [selectedService, setService] = useState(preferences.service);
+  const [isLocating, setIsLocating] = useState(false);
+  const [isGPSActive, setIsGPSActive] = useState(preferences.location.nearby);{}
+  const timeScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (range !== preferences.range) {
@@ -23,19 +26,59 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
     if (location !== preferences.location) {
       setLocation(preferences.location);
     }
+
     if (selectedService !== preferences.service) {
       setService(preferences.service);
     }
+
+    setIsGPSActive(preferences.location.nearby);
   }, [preferences, range, location, selectedService]);
 
-  const updateLocation = (newLocation: string) => {
-    const location = {
-      label: "TODO",
-      address: newLocation,
+  const updateLocationText = (newText: string) => {
+    setIsGPSActive(false);
+
+    const newLocation = {
+      label: newText,
+      address: newText,
       nearby: false
     };
-    setLocation(location);
-    onUpdate(preferences.withLocation(location));
+    setLocation(newLocation);
+    onUpdate(preferences.withLocation(newLocation));
+  };
+
+  const handleUseGPS = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    } else {
+      setIsLocating(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const gpsLocation = {
+            label: "Current Location",
+            address: `${latitude}, ${longitude}`, // Or reverse geocode here
+            nearby: true
+          };
+
+          setLocation(gpsLocation);
+          setIsGPSActive(true);
+          setIsLocating(false);
+          onUpdate(preferences.withLocation(gpsLocation));
+        },
+        (error) => {
+          console.error(error);
+          setIsLocating(false);
+          setIsGPSActive(false);
+          alert("Unable to retrieve your location.");
+        }
+      );
+    }
+  };
+
+  const clearGPS = () => {
+    setIsGPSActive(false);
+    updateLocationText("");
   };
 
   const updateRange = (newRange: DistanceRange) => {
@@ -50,27 +93,22 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
   };
 
   const closeModal = () => {
-    if (onClosed) {
-      if (isOpen) {
-        onClosed();
-      }
-    }
+    if (onClosed && isOpen) {
+      onClosed()
+    };
   };
 
-  const swipeDown = useDrag(({ down, movement: [, my], velocity: [, vy], direction: [, dy], memo }) => {
+  const swipeDown = useDrag(({ down, movement: [, my] }) => {
     if (down) {
       closeModal();
     }
-  },
-    {
-      axis: "y",
-      filterTaps: true,
-      threshold: 50
-    }
-  );
+  }, {
+    axis: "y",
+    filterTaps: true,
+    threshold: 50
+  });
 
-  const timeScrollRef = useRef<HTMLDivElement>(null);
-  const bindTimeslotScroll = useDrag(({ active, movement: [mx], direction: [dx], cancel, event, memo = timeScrollRef.current?.scrollLeft }) => {
+  const bindTimeslotScroll = useDrag(({ active, movement: [mx], event, memo = timeScrollRef.current?.scrollLeft }) => {
     event.stopPropagation();
     if (timeScrollRef.current) {
       timeScrollRef.current.scrollLeft = memo - mx;
@@ -99,8 +137,7 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
 
         <div id="settings-modal-header"
           {...swipeDown()}
-          className="w-full pt-0 pb-6 -mt-6 cursor-grab active:cursor-grabbing touch-none"
-        >
+          className="w-full pt-0 pb-6 -mt-6 cursor-grab active:cursor-grabbing touch-none">
             <div className="w-20 h-2 bg-fun-dark/80 rounded-full mx-auto mt-6"></div>
         </div>
 
@@ -119,25 +156,54 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
 
             <div className="relative group">
               <div className="absolute -inset-1 bg-fun-dark rounded-2xl blur opacity-20 group-hover:opacity-40 transition"></div>
-              <div className="relative bg-fun-cream border-4 border-fun-dark rounded-2xl shadow-hard flex items-center p-2 focus-within:translate-y-0.5 focus-within:shadow-hard-hover transition-all">
+
+              <div className={`
+                relative border-4 border-fun-dark rounded-2xl shadow-hard flex items-center p-2
+                transition-all duration-300
+                ${isGPSActive ? "bg-fun-yellow" : "bg-fun-cream focus-within:translate-y-0.5 focus-within:shadow-hard-hover"}
+              `}>
+
                 <div className="ml-2 mr-3">
-                  <MapPin className="w-6 h-6 text-fun-dark stroke-3" />
+                  <MapPin className="w-6 h-6 stroke-3 transition-colors text-fun-dark" />
                 </div>
 
-                <input type="text"
-                  id="location-input"
-                  placeholder="City, neighborhood..."
-                  className="flex-1 min-w-0 bg-transparent font-sans font-medium text-lg text-fun-dark placeholder:text-fun-dark/40 outline-none"
-                  value={location.label}
-                  onChange={event => updateLocation(event.target.value) }
-                  autoComplete="off"
-                  aria-autocomplete="list" />
+                {isGPSActive ? (
+                  <div className="flex-1 min-w-0 font-sans font-bold text-lg  animate-in fade-in zoom-in duration-200">
+                    Current Location
+                  </div>
+                ) : (
+                  <input type="text"
+                    id="location-input"
+                    placeholder="City, neighborhood..."
+                    className="flex-1 min-w-0 bg-transparent font-sans font-medium text-lg text-fun-dark placeholder:text-fun-dark/40 outline-none"
+                    value={location.address}
+                    onChange={event => updateLocationText(event.target.value) }
+                    autoComplete="street-address"
+                  />
+                )}
 
-                <button type="button"
-                  aria-label="Use my current location"
-                  className="ml-2 bg-fun-yellow text-fun-dark border-2 border-fun-dark px-3 py-1 rounded-xl font-bold uppercase tracking-wider hover:bg-white transition-colors flex items-center shadow-hard-hover active:scale-95">
-                  <Crosshair className="w-4 h-4 text-fun-dark stroke-3" />
-                </button>
+                <div className="ml-2">
+                  {isGPSActive ? (
+                    <button type="button"
+                      onClick={clearGPS}
+                      className="bg-fun-cream text-fun-dark border-2 border-fun-dark p-1.5 rounded-xl hover:bg-white transition-colors flex items-center shadow-sm active:scale-95"
+                      aria-label="Clear current location">
+                      <XCircle className="w-5 h-5 stroke-[2.5px]" />
+                    </button>
+                  ) : (
+                    <button type="button"
+                      onClick={handleUseGPS}
+                      disabled={isLocating}
+                      aria-label="Use my current location"
+                      className="bg-fun-yellow text-fun-dark border-2 border-fun-dark px-3 py-1.5 rounded-xl font-bold uppercase tracking-wider hover:bg-white transition-colors flex items-center shadow-hard-hover active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                      {isLocating ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <Crosshair className="w-5 h-5 text-fun-dark stroke-3" />
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -205,15 +271,9 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
                   <span>Far</span>
                 </div>
               </div>
-
-              {/* TODO Lorent make components */}
-
-              <div className="relative w-[90px] h-10 shrink-0 mt-1" aria-hidden="true">
-                <svg className="w-full h-full overflow-visible" viewBox="0 0 100 45">
-                  <path className="fill-fun-yellow stroke-3 stroke-fun-dark drop-shadow-[2px_2px_0px_var(--color-fun-dark)]"
-                    d="M15 0 H90 A10 10 0 0 1 100 10 V35 A10 10 0 0 1 90 45 H15 A10 10 0 0 1 5 35 L0 22.5 L5 10 A10 10 0 0 1 15 0 Z" />
-                </svg>
-
+              <div className="relative w-[90px] h-10 shrink-0 mt-1">
+                <svg className="w-full h-full overflow-visible"
+                     viewBox="0 0 100 45"><path className="fill-fun-yellow stroke-3 stroke-fun-dark drop-shadow-[2px_2px_0px_var(--color-fun-dark)]" d="M15 0 H90 A10 10 0 0 1 100 10 V35 A10 10 0 0 1 90 45 H15 A10 10 0 0 1 5 35 L0 22.5 L5 10 A10 10 0 0 1 15 0 Z" /></svg>
                 <span className="absolute inset-0 flex items-center justify-center font-sans font-bold text-xs text-fun-dark whitespace-nowrap">
                   {createDistanceRangeLabel(range)}
                 </span>
@@ -240,9 +300,9 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
                 pr-24
               " role="radiogroup">
 
-              {services.map((service) => {
-                const Icon = service.icon;
-                return (
+                {services.map((service) => {
+                  const Icon = service.icon;
+                  return (
                   <label className="cursor-pointer group relative flex-none w-32" key={service.id}>
                     <input type="radio"
                       name="time"
@@ -258,16 +318,16 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
                       peer-checked:border-fun-dark
                       peer-checked:bg-fun-yellow
                       peer-checked:shadow-hard">
-                      <Icon className="w-8 h-8 stroke-[2.5px] text-fun-dark" />
-                      <span className="font-sans font-bold text-fun-dark uppercase tracking-tight text-center leading-none">{service.label}</span>
-                    </div>
-                    <div className="absolute -top-1 -right-1 bg-fun-green border-2 border-fun-dark rounded-full p-1 opacity-0 peer-checked:opacity-100 transition-opacity shadow-hard-hover scale-0 peer-checked:scale-100 duration-200 z-10">
-                      <Check className="w-4 h-4 text-fun-cream stroke-[4px]" />
-                    </div>
-                  </label>
-                );
-              })}
-            </div>
+                        <Icon className="w-8 h-8 stroke-[2.5px] text-fun-dark" />
+                        <span className="font-sans font-bold text-fun-dark uppercase tracking-tight text-center leading-none">{service.label}</span>
+                      </div>
+                      <div className="absolute -top-1 -right-1 bg-fun-green border-2 border-fun-dark rounded-full p-1 opacity-0 peer-checked:opacity-100 transition-opacity shadow-hard-hover scale-0 peer-checked:scale-100 duration-200 z-10">
+                        <Check className="w-4 h-4 text-fun-cream stroke-[4px]" />
+                      </div>
+                    </label>
+                  );
+                })}
+             </div>
           </fieldset>
 
           {/* <button type="button"
