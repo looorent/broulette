@@ -1,6 +1,6 @@
 import { useDrag } from "@use-gesture/react";
 import { Check, Crosshair, MapPin, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createDistanceRangeLabel, DistanceRange, type LocationPreference } from "types/location";
 import type { Preference } from "types/preference";
 import { type ServicePreference } from "types/service";
@@ -56,6 +56,7 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
       }
     }
   };
+
   const swipeDown = useDrag(({ down, movement: [, my], velocity: [, vy], direction: [, dy], memo }) => {
     if (down) {
       closeModal();
@@ -68,10 +69,25 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
     }
   );
 
+  const timeScrollRef = useRef<HTMLDivElement>(null);
+  const bindTimeslotScroll = useDrag(({ active, movement: [mx], direction: [dx], cancel, event, memo = timeScrollRef.current?.scrollLeft }) => {
+    event.stopPropagation();
+    if (timeScrollRef.current) {
+      timeScrollRef.current.scrollLeft = memo - mx;
+    }
+    return memo;
+  }, {
+    axis: "x",
+    filterTaps: true,
+    from: () => [timeScrollRef.current?.scrollLeft || 0, 0],
+    eventOptions: { passive: false },
+    pointer: { touch: false },
+  });
+
   return (
     <dialog id="settings-modal"
       className={`flex flex-col fixed inset-0 z-100 items-center justify-end
-        py-0 px-2 backdrop-blur-sm w-full h-full border-none m-0 max-w-full max-h-full bg-transparent
+        py-0 px-2 backdrop-blur-sm w-full h-dvh border-none m-0 max-w-full max-h-full bg-transparent
         transform transition-transform duration-300
         ${isOpen ? "ease-out" : "ease-in"}
         ${isOpen ? "translate-y-0" : "translate-y-full"}
@@ -79,10 +95,14 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
       open>
 
       <div className="bg-fun-cream w-full sm:max-w-md border-x-2 border-t-4 border-fun-dark rounded-t-3xl sm:rounded-3xl p-6 pb-10
-                        shadow-hard relative mx-auto max-h-[90vh] overflow-y-auto touch-none"
-        {...swipeDown()}>
+                        shadow-hard relative mx-auto max-h-[90vh] touch-pan-y">
 
-        <div className="w-20 h-2 bg-fun-dark/80 rounded-full mx-auto mb-6"></div>
+        <div id="settings-modal-header"
+          {...swipeDown()}
+          className="w-full pt-0 pb-6 -mt-6 cursor-grab active:cursor-grabbing touch-none"
+        >
+            <div className="w-20 h-2 bg-fun-dark/80 rounded-full mx-auto mt-6"></div>
+        </div>
 
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-pop text-3xl text-fun-dark">Preferences</h3>
@@ -201,11 +221,24 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
             </div>
           </fieldset>
 
-          <fieldset className="space-y-3 relative border-none p-0 m-0">
+          <fieldset className="space-y-3 relative border-none p-0 m-0 min-w-0">
             <legend className="block font-pop text-2xl text-fun-dark tracking-wide mb-2">When?</legend>
-            <div className="absolute right-0 top-10 bottom-0 w-16 bg-linear-to-l from-fun-red/40 to-transparent pointer-events-none z-10 rounded-r-xl" aria-hidden="true"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-24 bg-linear-to-l from-fun-cream via-fun-cream/80 to-transparent pointer-events-none z-10 rounded-r-xl" aria-hidden="true"></div>
             <div id="time-scroll-container"
-              className="flex gap-4 overflow-x-auto p-1 no-scrollbar cursor-grab active:cursor-grabbing select-none relative touch-pan-x" role="radiogroup">
+              ref={timeScrollRef}
+              {...bindTimeslotScroll()}
+              className="
+                flex gap-4 p-1
+                overflow-x-auto
+                [&::-webkit-scrollbar]:hidden
+                [-ms-overflow-style:none]
+                [scrollbar-width:none]
+                cursor-grab active:cursor-grabbing select-none
+                touch-pan-y touch-pan-x
+                snap-x snap-mandatory
+                max-w-full
+                pr-24
+              " role="radiogroup">
 
               {services.map((service) => {
                 const Icon = service.icon;
@@ -216,8 +249,15 @@ export function PreferencesModal({ isOpen, services, preferences, onClosed, onUp
                       value={service.id}
                       className="peer sr-only"
                       onChange={event => updateService(event.target.value)}
-                      checked={service.id === service.id} />
-                    <div className="h-full bg-fun-cream border-4 border-transparent peer-checked:border-fun-dark peer-checked:bg-fun-yellow peer-checked:shadow-hard rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all hover:bg-white/90">
+                      checked={service.id === selectedService.id} />
+                    <div className="h-full rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all
+                      border-4
+                      bg-white
+                      border-fun-dark/10
+                      group-hover:border-fun-dark/30
+                      peer-checked:border-fun-dark
+                      peer-checked:bg-fun-yellow
+                      peer-checked:shadow-hard">
                       <Icon className="w-8 h-8 stroke-[2.5px] text-fun-dark" />
                       <span className="font-sans font-bold text-fun-dark uppercase tracking-tight text-center leading-none">{service.label}</span>
                     </div>
