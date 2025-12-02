@@ -1,21 +1,23 @@
 import { HelpCircle } from "lucide-react";
-import { Form, NavLink, useFetcher, useLocation, useNavigation, useSearchParams } from "react-router";
+import { useState } from "react";
+import { NavLink, useFetcher, useSearchParams } from "react-router";
+import { createDefaultPreference, type Preference } from "types/preference";
+import { createNextServices } from "types/service";
 import FoodRain from "~/components/food-rain";
-import type { Route } from "./+types/home";
 import LoadingSpinner from "~/components/loading-spinner";
 import { LoadingTitle } from "~/components/loading-title";
 import { PreferenceChip } from "~/components/preferences-chip";
 import { PreferencesModal } from "~/components/preferences-modal";
-import { useDrag } from "@use-gesture/react";
+import type { Route } from "./+types/home";
 
 
-export function meta({}: Route.MetaArgs) {
+
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "BiteRoulette" },
     { name: "description", content: "The lazy way to decide where to eat." },
   ];
 }
-
 
 export async function action({
   request,
@@ -25,18 +27,21 @@ export async function action({
   return "pouet";
 }
 
+const SERVICES = createNextServices(new Date());
+
 export default function Home() {
   const fetcher = useFetcher();
 
   if (fetcher.state !== "idle") {
     return (
       <main className="h-full relative flex flex-col items-center justify-center gap-10">
-          <LoadingSpinner />
-          <LoadingTitle />
+        <LoadingSpinner />
+        <LoadingTitle />
       </main>
     );
   } else {
     const [searchParams, setSearchParams] = useSearchParams();
+    const [preferences, setPreferences] = useState(createDefaultPreference(SERVICES));
 
     return (
       <main className="h-full relative">
@@ -53,38 +58,45 @@ export default function Home() {
             shadow-hard-hover hover:scale-110 active:scale-95 transition-transform group"
           title="Get Help"
           aria-label="Get Help"
-          onClick={() => alert('Help is coming! Just follow the big buttons for now.') }>
+          onClick={() => alert('Help is coming! Just follow the big buttons for now.')}>
           <HelpCircle />
         </button>
 
-        <PreferencesModal isOpen={searchParams.get("modal") === "preferences"} onClosed={() => {
-          searchParams.delete("modal");
-          setSearchParams(searchParams);
-        }} />
+        <PreferencesModal isOpen={searchParams.get("modal") === "preferences"}
+          preferences={preferences}
+          services={SERVICES}
+          onClosed={() => {
+            searchParams.delete("modal");
+            setSearchParams(searchParams);
+          }}
+          onUpdate={(newPreferences: Preference) => {
+            setPreferences(newPreferences);
+            // TODO Update the hidden form used for base HTML
+          }} />
 
         <FoodRain />
 
         <section className="h-full flex flex-col justify-between pt-14"
-                aria-label="Welcome Screen">
+          aria-label="Welcome Screen">
           <header className="text-center relative animate-float">
             <h1 className="font-display text-6xl sm:text-7xl leading-[0.9] text-white drop-shadow-[5px_5px_0px_rgba(45,52,54,1)] tracking-tighter mb-4 flex flex-col items-center">
-                <span className="transform -rotate-6 transition hover:rotate-0 duration-300">TOO</span>
-                <span className="transform rotate-3 transition hover:rotate-0 duration-300 text-fun-yellow">LAZY</span>
-                <span className="transform -rotate-2 transition hover:rotate-0 duration-300">TO</span>
-                <span className="transform rotate-6 transition hover:rotate-0 duration-300">PICK?</span>
+              <span className="transform -rotate-6 transition hover:rotate-0 duration-300">TOO</span>
+              <span className="transform rotate-3 transition hover:rotate-0 duration-300 text-fun-yellow">LAZY</span>
+              <span className="transform -rotate-2 transition hover:rotate-0 duration-300">TO</span>
+              <span className="transform rotate-6 transition hover:rotate-0 duration-300">PICK?</span>
             </h1>
             <div className="inline-block bg-fun-dark text-fun-cream px-4 py-2 rounded-full transform -rotate-2 mt-4 shadow-hard-white">
-                <p className="font-bold tracking-widest uppercase text-sm">We choose, you eat.</p>
+              <p className="font-bold tracking-widest uppercase text-sm">We choose, you eat.</p>
             </div>
           </header>
 
           <fetcher.Form method="post"
-                action="/searches"
-                className="w-full flex justify-center items-center mb-14 mt-auto">
+            action="/searches"
+            className="w-full flex justify-center items-center mb-14 mt-auto">
             <div className="absolute w-56 h-56 bg-fun-cream/30 rounded-full animate-pulse-mega pointer-events-none z-0" aria-hidden="true"></div>
 
             <button className="group relative w-48 h-48 bg-fun-cream rounded-full border-[6px] border-fun-dark shadow-hard transition-all duration-200 hover:translate-y-0.5 hover:shadow-hard-hover active:scale-95 flex flex-col items-center justify-center gap-2 z-20 cursor-pointer"
-                    type="submit">
+              type="submit">
               <span className="font-pop text-4xl uppercase tracking-wider text-fun-dark">
                 feed me
               </span>
@@ -92,7 +104,7 @@ export default function Home() {
           </fetcher.Form>
 
           <NavLink to="?modal=preferences">
-            <PreferenceChip onOpen={() => {
+            <PreferenceChip preferences={preferences} onOpen={() => {
               searchParams.set("modal", "preferences");
               setSearchParams(searchParams);
             }} />

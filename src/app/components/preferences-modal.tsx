@@ -1,57 +1,53 @@
 import { useDrag } from "@use-gesture/react";
-import { CalendarPlus, Check, Clock, Crosshair, MapPin, Moon, Sun, UtensilsCrossed, XCircle, type LucideProps } from "lucide-react";
-import { useState } from "react";
+import { Check, Crosshair, MapPin, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { createDistanceRangeLabel, DistanceRange, type LocationPreference } from "types/location";
+import type { Preference } from "types/preference";
+import { type ServicePreference } from "types/service";
 
-function createRangeLabel(range: number): string {
-  switch (range) {
-    default:
-    case 1:
-      return "Walkable";
-    case 2:
-      return "Drive";
-    case 3:
-      return "Adventure";
-  }
-}
+export function PreferencesModal({ isOpen, services, preferences, onClosed, onUpdate }: {
+  isOpen: boolean,
+  services: ServicePreference[],
+  preferences: Preference,
+  onClosed: () => void,
+  onUpdate: (newPreferences: Preference) => void
+}) {
+  const [range, setRange] = useState(preferences.range);
+  const [location, setLocation] = useState(preferences.location);
+  const [selectedService, setService] = useState(preferences.service);
 
-type MomentValue = "right_now" | "tonight" | "tomorrow_lunch" | "tomorrow_dinner" | "pick_a_moment";
-interface MomentOption {
-  value: MomentValue;
-  icon: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
-  label: string;
-}
-const MOMENT_OPTIONS: MomentOption[] = [
-  {
-    value: "right_now",
-    icon: Clock,
-    label: "Right Now"
-  },
-  {
-    value: "tonight",
-    icon: Moon,
-    label: "Tonight"
-  },
-  {
-    value: "tomorrow_lunch",
-    icon: Sun,
-    label: "Tomorrow Lunch"
-  },
-  {
-    value: "tomorrow_dinner",
-    icon: UtensilsCrossed,
-    label: "Tomorrow Dinner"
-  },
-  {
-    value: "pick_a_moment",
-    icon: CalendarPlus,
-    label: "Pick a moment"
-  },
-];
+  useEffect(() => {
+    if (range !== preferences.range) {
+      setRange(preferences.range);
+    }
+    if (location !== preferences.location) {
+      setLocation(preferences.location);
+    }
+    if (selectedService !== preferences.service) {
+      setService(preferences.service);
+    }
+  }, [preferences, range, location, selectedService]);
 
-export function PreferencesModal({ isOpen, onClosed }: { isOpen: boolean, onClosed: () => void }) {
-  const [range, setRange] = useState(1);
-  const [selectedMoment, setMoment] = useState(("right_now" as MomentValue));
-  const [location, setLocation] = useState("");
+  const updateLocation = (newLocation: string) => {
+    const location = {
+      label: "TODO",
+      address: newLocation,
+      nearby: false
+    };
+    setLocation(location);
+    onUpdate(preferences.withLocation(location));
+  };
+
+  const updateRange = (newRange: DistanceRange) => {
+    setRange(newRange);
+    onUpdate(preferences.withRange(newRange));
+  };
+
+  const updateService = (newServiceId: string) => {
+    const selected = services.find(service => service.id === newServiceId) || services[0];
+    setService(selected);
+    onUpdate(preferences.withService(selected));
+  };
 
   const closeModal = () => {
     if (onClosed) {
@@ -61,10 +57,10 @@ export function PreferencesModal({ isOpen, onClosed }: { isOpen: boolean, onClos
     }
   };
   const swipeDown = useDrag(({ down, movement: [, my], velocity: [, vy], direction: [, dy], memo }) => {
-      if (down) {
-        closeModal();
-      }
-    },
+    if (down) {
+      closeModal();
+    }
+  },
     {
       axis: "y",
       filterTaps: true,
@@ -75,16 +71,16 @@ export function PreferencesModal({ isOpen, onClosed }: { isOpen: boolean, onClos
   return (
     <dialog id="settings-modal"
       className={`flex flex-col fixed inset-0 z-100 items-center justify-end
-                    py-0 px-2 backdrop-blur-sm w-full h-full border-none m-0 max-w-full max-h-full bg-transparent
-                    transform transition-transform duration-300
-                    ${isOpen ? "ease-out" : "ease-in"}
-                    ${isOpen ? "translate-y-0" : "translate-y-full"}
-                `}
+        py-0 px-2 backdrop-blur-sm w-full h-full border-none m-0 max-w-full max-h-full bg-transparent
+        transform transition-transform duration-300
+        ${isOpen ? "ease-out" : "ease-in"}
+        ${isOpen ? "translate-y-0" : "translate-y-full"}
+      `}
       open>
 
       <div className="bg-fun-cream w-full sm:max-w-md border-x-2 border-t-4 border-fun-dark rounded-t-3xl sm:rounded-3xl p-6 pb-10
                         shadow-hard relative mx-auto max-h-[90vh] overflow-y-auto touch-none"
-             {...swipeDown()}>
+        {...swipeDown()}>
 
         <div className="w-20 h-2 bg-fun-dark/80 rounded-full mx-auto mb-6"></div>
 
@@ -112,8 +108,8 @@ export function PreferencesModal({ isOpen, onClosed }: { isOpen: boolean, onClos
                   id="location-input"
                   placeholder="City, neighborhood..."
                   className="flex-1 min-w-0 bg-transparent font-sans font-medium text-lg text-fun-dark placeholder:text-fun-dark/40 outline-none"
-                  value={location}
-                  onChange={event => setLocation(event.target.value)}
+                  value={location.label}
+                  onChange={event => updateLocation(event.target.value) }
                   autoComplete="off"
                   aria-autocomplete="list" />
 
@@ -131,7 +127,7 @@ export function PreferencesModal({ isOpen, onClosed }: { isOpen: boolean, onClos
                   min="1"
                   max="3"
                   value={range}
-                  onChange={event => setRange(Number(event.target.value))}
+                  onChange={event => updateRange(Number(event.target.value))}
                   name="rangeInput"
                   className="
                     /* Base Input Styles (Original CSS: input[type=range]) */
@@ -199,7 +195,7 @@ export function PreferencesModal({ isOpen, onClosed }: { isOpen: boolean, onClos
                 </svg>
 
                 <span className="absolute inset-0 flex items-center justify-center font-sans font-bold text-xs text-fun-dark whitespace-nowrap">
-                  {createRangeLabel(range)}
+                  {createDistanceRangeLabel(range)}
                 </span>
               </div>
             </div>
@@ -211,23 +207,22 @@ export function PreferencesModal({ isOpen, onClosed }: { isOpen: boolean, onClos
             <div id="time-scroll-container"
               className="flex gap-4 overflow-x-auto p-1 no-scrollbar cursor-grab active:cursor-grabbing select-none relative touch-pan-x" role="radiogroup">
 
-              {MOMENT_OPTIONS.map((moment) => {
-                const Icon = moment.icon;
+              {services.map((service) => {
+                const Icon = service.icon;
                 return (
-                  <label className="cursor-pointer group relative flex-none w-32" key={moment.value}>
+                  <label className="cursor-pointer group relative flex-none w-32" key={service.id}>
                     <input type="radio"
                       name="time"
-                      value={moment.value}
+                      value={service.id}
                       className="peer sr-only"
-                      onChange={event => setMoment(event.target.value as MomentValue)}
-                      checked={selectedMoment === moment.value} />
+                      onChange={event => updateService(event.target.value)}
+                      checked={service.id === service.id} />
                     <div className="h-full bg-fun-cream border-4 border-transparent peer-checked:border-fun-dark peer-checked:bg-fun-yellow peer-checked:shadow-hard rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all hover:bg-white/90">
                       <Icon className="w-8 h-8 stroke-[2.5px] text-fun-dark" />
-                      <span className="font-sans font-bold text-fun-dark uppercase tracking-tight text-center leading-none">{moment.label}</span>
+                      <span className="font-sans font-bold text-fun-dark uppercase tracking-tight text-center leading-none">{service.label}</span>
                     </div>
                     <div className="absolute -top-1 -right-1 bg-fun-green border-2 border-fun-dark rounded-full p-1 opacity-0 peer-checked:opacity-100 transition-opacity shadow-hard-hover scale-0 peer-checked:scale-100 duration-200 z-10">
                       <Check className="w-4 h-4 text-fun-cream stroke-[4px]" />
-                      <i data-lucide="check" className="w-4 h-4 text-fun-cream stroke-[4px]"></i>
                     </div>
                   </label>
                 );
@@ -241,14 +236,14 @@ export function PreferencesModal({ isOpen, onClosed }: { isOpen: boolean, onClos
                     Picky Eater?
                     </button> */}
 
-          <button type="submit"
+          {/* <button type="submit"
             className="
               w-full mt-auto
               bg-fun-green border-4 border-fun-dark rounded-2xl py-4 shadow-hard flex items-center justify-center gap-3 transition-transform
               active:translate-y-2 active:translate-x-2
             ">
             <span className="font-pop text-2xl text-fun-dark uppercase tracking-wide">Okay</span>
-          </button>
+          </button> */}
         </form>
       </div>
     </dialog>
