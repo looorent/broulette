@@ -10,7 +10,7 @@ interface BottomSheetProps {
   className?: string;
 }
 
-const DRAG_TRESHOLD_IN_PIXELS = 50;
+const DRAG_TRESHOLD_IN_PIXELS = 30;
 
 export function BottomSheet({
   isOpen,
@@ -19,8 +19,9 @@ export function BottomSheet({
   children,
   className = ""
 }: BottomSheetProps) {
+  // TODO does not work
   const bindDrag = useDrag(({ down, movement: [, my] }) => {
-    if (down && my > DRAG_TRESHOLD_IN_PIXELS) { // TODO not sure the 50 is needed here because we have defined the treshold
+    if (down) {
       onClose();
     }
   }, {
@@ -42,6 +43,8 @@ export function BottomSheet({
       open
     >
       <div className="bg-fun-cream w-full sm:max-w-md border-x-2 border-t-4 border-fun-dark rounded-t-3xl sm:rounded-3xl p-6 pb-10 shadow-hard relative mx-auto max-h-[90vh] touch-pan-y">
+
+        {/* Header */}
         <div
           {...bindDrag()}
           className="w-full pt-0 pb-6 -mt-6 cursor-grab active:cursor-grabbing touch-none"
@@ -49,6 +52,7 @@ export function BottomSheet({
           <div className="w-20 h-2 bg-fun-dark/80 rounded-full mx-auto mt-6"></div>
         </div>
 
+        {/* Title */}
         <div className="flex justify-between items-center mb-6">
           {title && <h3 className="font-pop text-3xl text-fun-dark">{title}</h3>}
           <button
@@ -59,6 +63,8 @@ export function BottomSheet({
             <XCircle className="w-8 h-8 stroke-[2.5px]" />
           </button>
         </div>
+
+        {/* Body of the modal */}
         <div className="w-full">
           {children}
         </div>

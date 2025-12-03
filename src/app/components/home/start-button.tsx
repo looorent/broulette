@@ -13,7 +13,7 @@ export default function StartButton({ preferences, className = "" } : StartButto
   const fetcher = useFetcher({ key: SEARCH_FETCHER });
   useEffect(() => {
     console.log("TODO preferences", preferences);
-  }, [preferences]);
+  }, [preferences?.id]);
   return (
     <fetcher.Form method="post"
       action="/searches"

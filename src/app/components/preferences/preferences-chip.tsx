@@ -2,7 +2,14 @@ import { useDrag } from "@use-gesture/react";
 import { ChevronUp } from "lucide-react";
 import type { Preference } from "~/types/preference";
 
-export function PreferenceChip({ onOpen, preferences }: { onOpen?: () => void, preferences: Preference }) {
+interface PreferenceChipProps {
+  onOpen?: () => void;
+  preferences: Preference;
+}
+
+const DRAG_TRESHOLD_IN_PIXELS = 20;
+
+export function PreferenceChip({ onOpen, preferences }: PreferenceChipProps) {
   const openPreferences = () => {
     if (onOpen) {
       onOpen();
@@ -17,12 +24,15 @@ export function PreferenceChip({ onOpen, preferences }: { onOpen?: () => void, p
     {
       axis: "y",
       filterTaps: true,
-      threshold: 20
+      threshold: DRAG_TRESHOLD_IN_PIXELS
     }
   );
 
   return (
     <section className="w-full px-2 pb-0">
+      <pre className="text-xs bg-gray-100 p-2 overflow-auto">
+        {JSON.stringify(preferences?.location, null, 2)}
+      </pre>
       <button className="w-full bg-fun-green
         border-4 border-b-0 border-fun-dark rounded-t-[3rem]
         p-4 pb-6 shadow-sheet flex flex-col

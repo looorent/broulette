@@ -1,35 +1,50 @@
-import { RANGES, type DistanceRange } from "~/types/distance";
+import { type DistanceRange } from "~/types/distance";
 import { DistanceRangeTag } from "./distance-range-tag";
 import { DistanceRangeCaption } from "./distance-range-caption";
+import { useEffect, useState } from "react";
 
 interface DistanceRangeSelectorProps {
-  value: DistanceRange;
+  selectedRange: DistanceRange;
+  ranges: DistanceRange[];
   onChange: (range: DistanceRange) => void;
   className?: string;
 }
 
-export function DistanceRangeSelector({ value, onChange, className = "" }: DistanceRangeSelectorProps) {
-  // Helper to handle the slider input change (converts index back to object)
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const index = Number(event.target.value) - 1;
-    const newRange = RANGES[index];
-    if (newRange) {
-      onChange(newRange);
+export function DistanceRangeSelector({ selectedRange, ranges, onChange, className = "" }: DistanceRangeSelectorProps) {
+  const findArrayIndexFor = (selectedRangeId: string) => {
+    return ranges.findIndex((range) => range.id === selectedRangeId) || 0;
+  };
+
+  const [rangeIndex, setRangeIndex] = useState(findArrayIndexFor(selectedRange?.id));
+
+  const handleInputChange = (newIndex: number) => {
+    const changed = newIndex !== rangeIndex;
+    setRangeIndex(newIndex);
+    if (changed) {
+      const newRange = ranges[newIndex];
+      if (newRange) {
+        onChange(newRange);
+      }
     }
   };
 
-  const currentIndex = RANGES.findIndex((range) => range.id === value?.id) + 1;
+  useEffect(() => {
+    const index = findArrayIndexFor(selectedRange?.id);
+    if (rangeIndex !== index) {
+      setRangeIndex(index);
+    }
+  }, [selectedRange?.id]);
 
   return (
     <div className={`flex gap-3 px-1 ${className}`}>
       <div className="flex-1 relative pt-1">
         <input
           type="range"
-          min="1"
-          max={RANGES.length}
-          value={currentIndex || 1}
-          onChange={handleInputChange}
-          name="rangeInput"
+          min="0"
+          max={ranges.length - 1}
+          value={rangeIndex || 0}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleInputChange(event.target.valueAsNumber)}
+          name="distanceRangeInput"
           className="
             /* Base Input Styles */
             appearance-none w-full h-10 bg-transparent relative z-10 cursor-pointer m-0
@@ -81,10 +96,10 @@ export function DistanceRangeSelector({ value, onChange, className = "" }: Dista
           "
           aria-label="Distance preference"
         />
-        <DistanceRangeCaption ranges={RANGES} />
+        <DistanceRangeCaption ranges={ranges} />
       </div>
 
-      <DistanceRangeTag text={value?.label?.display} />
+      <DistanceRangeTag text={selectedRange?.label?.display} />
     </div>
   );
 }

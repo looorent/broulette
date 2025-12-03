@@ -3,14 +3,14 @@ import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ServicePreference } from "~/types/service";
 
-interface TimeslotSelectorProps {
+interface ServiceSelectorProps {
   services: ServicePreference[];
   selectedService: ServicePreference | null;
   className?: string;
-  onUpdate: (service: ServicePreference) => void;
+  onChange: (service: ServicePreference) => void;
 }
 
-export default function TimeslotSelector({ services, selectedService, className = "", onUpdate } : TimeslotSelectorProps) {
+export default function ServiceSelector({ services, selectedService, className = "", onChange } : ServiceSelectorProps) {
   const ref = useRef<HTMLDivElement>(null);
   const bindTimeslotScroll = useDrag(({ active, movement: [mx], event, memo = ref.current?.scrollLeft }) => {
     event.stopPropagation();
@@ -35,7 +35,7 @@ export default function TimeslotSelector({ services, selectedService, className 
     if (newServiceId?.length > 0 && newServiceId !== selectedService?.id) {
       const newService = services.find(service => service.id === newServiceId) || services[0];
       setServiceId(newService.id);
-      onUpdate(newService);
+      onChange(newService);
     }
   };
 

@@ -1,34 +1,24 @@
-import { useDrag } from "@use-gesture/react";
-import { Crosshair, History, Loader2, MapPin, XCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { getBrowserLocation } from "~/functions/geolocation";
-import { COMMON_LOCATIONS, createDeviceLocation, type LocationPreference } from "~/types/location";
+import { useEffect, useState } from "react";
+import { RANGES, type DistanceRange } from "~/types/distance";
+import type { LocationPreference } from "~/types/location";
 import { Preference } from "~/types/preference";
 import { type ServicePreference } from "~/types/service";
 import { DistanceRangeSelector } from "./form/distange-range-selector";
-import TimeslotSelector from "./form/timeslot-selector";
+import { LocationSelector } from "./form/location-selector";
+import ServiceSelector from "./form/service-selector";
 
 interface PreferencesFormProps {
   services: ServicePreference[];
   preferences: Preference;
-  onUpdate: (newPreferences: Preference) => void;
+  onLocationChange: (newLocation: LocationPreference) => void;
+  onDistanceRangeChange: (newDistanceRange: DistanceRange) => void;
+  onServiceChange: (newService: ServicePreference) => void;
 }
 
-export function PreferencesForm({ services, preferences, onUpdate }: PreferencesFormProps) {
+export function PreferencesForm({ services, preferences, onLocationChange, onDistanceRangeChange, onServiceChange }: PreferencesFormProps) {
   const [selectedRange, setSelectedRange] = useState(preferences.range);
   const [selectedLocation, setSelectedLocation] = useState(preferences.location);
   const [selectedService, setSelectedService] = useState(preferences.service);
-
-  const [locationSearchText, setLocationSearchText] = useState("");
-  const [isLocatingDevice, setIsLocatingDevice] = useState(false);
-  const [isSearchLocationMode, setIsSearchLocationMode] = useState(false);
-  const [isDeviceLocationAllowed, setIsDeviceLocationAllowed] = useState(false);
-  const [isSearchingForSuggestions, setIsSearchingForSuggestions] = useState(false);
-
-  const [suggestions, setSuggestions] = useState<LocationPreference[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-
-  const locationWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (selectedRange?.id !== preferences?.range?.id) {
@@ -37,90 +27,10 @@ export function PreferencesForm({ services, preferences, onUpdate }: Preferences
     if (!selectedLocation?.equals(preferences?.location)) {
       setSelectedLocation(preferences.location);
     }
-
     if (selectedService?.id !== preferences?.service?.id) {
       setSelectedService(preferences.service);
     }
-  }, [
-    preferences.range?.id,
-    preferences.service?.id,
-    preferences.location?.coordinates?.latitude,
-    preferences.location?.coordinates?.longitude
-  ]);
-
-  const isFirstRender = useRef(true);
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-    } else {
-      onUpdate(new Preference(selectedService, selectedLocation, selectedRange));
-    }
-  }, []);
-
-  const searchLocation = (text: string) => {
-    setLocationSearchText(text);
-
-    if (text.length > 0) {
-      const filtered = COMMON_LOCATIONS.filter(location =>
-        location.label.display.toLowerCase().includes(text.toLowerCase())
-      );
-      setSuggestions([
-        // TODO add current location
-        ...filtered
-      ]);
-      setShowSuggestions(true);
-    } else {
-      setShowSuggestions(false);
-    }
-  };
-
-  const selectSuggestion = (suggestion: LocationPreference) => {
-    // TODO also add the current location to the suggestions
-    setLocationSearchText(suggestion?.label?.display || "");
-    setShowSuggestions(false);
-    setSelectedLocation(suggestion);
-    closeSearchTextMode();
-  };
-
-  const triggerDeviceLocation = async () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
-      // TODO manage error
-      return;
-    } else {
-      setIsLocatingDevice(true);
-      setShowSuggestions(false);
-      try {
-        const position = await getBrowserLocation();
-        const deviceLocation = createDeviceLocation(position.coords);
-        setSelectedLocation(deviceLocation);
-        closeSearchTextMode();
-      } catch (e) {
-          console.error(e);
-          setIsLocatingDevice(false);
-          alert("Unable to retrieve your location."); // TODO manage error
-      }
-    }
-  };
-
-  // TODO use "useMemo" to derive some properties
-
-  const locationInputRef = useRef<HTMLInputElement>(null); // TODO does not work
-  const enableSearchTextMode = () => {
-    setIsLocatingDevice(false);
-    setIsSearchLocationMode(true);
-    setLocationSearchText("");
-    locationInputRef.current?.focus({ preventScroll: true });
-  };
-
-  const closeSearchTextMode = () => {
-    setIsLocatingDevice(false);
-    setIsSearchLocationMode(false);
-    setLocationSearchText("");
-  };
-
-
-  const deviceLocationSupported = Boolean(navigator.geolocation) as boolean;
+  }, [ preferences?.id ]);
 
   return (
     <form id="preferences-form" className="flex flex-col gap-8" onSubmit={() => false}>
@@ -129,108 +39,38 @@ export function PreferencesForm({ services, preferences, onUpdate }: Preferences
           Near where?
         </legend>
 
-        <div className="relative group" ref={locationWrapperRef}>
-          <div className="absolute -inset-1 bg-fun-dark rounded-2xl blur opacity-20 group-hover:opacity-40 transition"></div>
-
-          <div className={`
-            relative border-4 border-fun-dark rounded-2xl shadow-hard flex items-center p-2
-            transition-all duration-300
-            ${isSearchLocationMode ? "bg-fun-cream focus-within:translate-y-0.5 focus-within:shadow-hard-hover" : (!deviceLocationSupported || selectedLocation?.isDeviceLocation && !selectedLocation.hasCoordinates() ? "bg-fun-red" : "bg-fun-yellow") }
-          `}>
-            <div className="ml-2 mr-3">
-              {
-                isLocatingDevice || isSearchingForSuggestions
-                ? <Loader2 className="w-6 h-6 stroke-3 transition-colors text-fun-dark animate-spin" />
-                : <MapPin className="w-6 h-6 stroke-3 transition-colors text-fun-dark" />
-              }
-            </div>
-
-            {isSearchLocationMode ? (
-              <input type="text"
-                id="location-input"
-                ref={locationInputRef}
-                placeholder="City, neighborhood..."
-                className="flex-1 min-w-0 bg-transparent font-sans font-medium text-lg text-fun-dark placeholder:text-fun-dark/40 outline-none"
-                value={locationSearchText}
-                onChange={event => searchLocation(event.target.value) }
-                onFocus={() => setShowSuggestions(locationSearchText?.length > 0)}
-                autoComplete="off"
-              />
-            ) : (
-              <div className="flex-1 min-w-0 font-sans font-bold text-lg animate-in fade-in zoom-in duration-200">
-                { deviceLocationSupported ? (
-                  selectedLocation?.isDeviceLocation && !selectedLocation.hasCoordinates()
-                  ? "Location not allowed"
-                  : selectedLocation?.label?.display || ""
-                ): "Location not supported"}
-              </div>
-            )}
-
-            <div className="ml-2">
-              {isSearchLocationMode ? (
-                <button
-                  type="button"
-                  onClick={triggerDeviceLocation}
-                  className="bg-fun-yellow text-fun-dark border-2 border-fun-dark px-3 py-1.5 rounded-xl font-bold uppercase tracking-wider hover:bg-yellow transition-colors flex items-center shadow-hard-hover active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
-                  aria-label="Clear location and use your current device">
-                  <Crosshair className="w-5 h-5 stroke-[2.5px]" />
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={enableSearchTextMode}
-                  disabled={isLocatingDevice}
-                  className="bg-fun-cream text-fun-dark border-2 border-fun-dark px-3 py-1.5 rounded-xl font-bold uppercase tracking-wider hover:bg-white transition-colors flex items-center shadow-hard-hover active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
-                  aria-label="Use my current location">
-                  <XCircle className="w-5 h-5 text-fun-dark stroke-3" />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* --- AUTOCOMPLETE DROPDOWN --- */}
-          {isSearchLocationMode && showSuggestions && suggestions.length > 0 && (
-            <div className="
-              absolute top-full left-0 w-full mt-2 z-50
-              bg-white border-4 border-fun-dark rounded-2xl shadow-hard
-              overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200
-            ">
-              <ul className="max-h-60 overflow-y-auto no-scrollbar py-1">
-                {suggestions.map((suggestion, index) => (
-                  <li key={index}>
-                    <button
-                      type="button"
-                      onClick={() => selectSuggestion(suggestion)}
-                      className="
-                        w-full text-left px-4 py-3
-                        font-sans font-bold text-fun-dark
-                        hover:bg-fun-yellow/20 active:bg-fun-yellow/50
-                        flex items-center gap-3 transition-colors
-                      "
-                    >
-                      <History className="w-4 h-4 text-fun-dark/50" />
-                      {suggestion.label.display}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              {/* Optional 'Powered by' footer if using API */}
-              <div className="bg-fun-cream border-t-2 border-fun-dark/10 px-4 py-1 text-[10px] font-bold text-fun-dark/40 uppercase tracking-widest text-center">
-                Suggestions
-              </div>
-            </div>
-          )}
-        </div>
+        {selectedLocation?.label?.compact}
+        <LocationSelector
+          selectedLocation={selectedLocation}
+          onChange={(newLocation) => {
+            if (newLocation && !newLocation.equals(selectedLocation)) {
+              setSelectedLocation(newLocation);
+              onLocationChange(newLocation);
+            }
+          }}
+        />
 
         <DistanceRangeSelector
-          value={selectedRange}
-          onChange={setSelectedRange}
+          selectedRange={selectedRange}
+          ranges={RANGES}
+          onChange={(newDistanceRange) => {
+            if (newDistanceRange && newDistanceRange.id !== selectedRange?.id) {
+              setSelectedRange(newDistanceRange);
+              onDistanceRangeChange(newDistanceRange);
+            }
+          }}
         />
       </fieldset>
 
-      <TimeslotSelector services={services}
+      <ServiceSelector
+        services={services}
         selectedService={selectedService}
-        onUpdate={(newService) => onUpdate(preferences?.withService(newService))} />
+        onChange={(newService) => {
+          if (newService && newService.id !== selectedService?.id) {
+            setSelectedService(newService);
+            onServiceChange(newService);
+          }
+        }} />
     </form>
   );
 }

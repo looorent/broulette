@@ -17,7 +17,12 @@ export function DistanceRangeTag({ text, className = "" }: DistanceRangeTagProps
         />
       </svg>
 
-      <span className="absolute inset-0 flex items-center justify-center font-sans font-bold text-xs text-fun-dark whitespace-nowrap select-none">
+      <span className="
+        absolute inset-0
+        flex items-center justify-center
+        font-sans font-bold text-xs text-fun-dark
+        whitespace-nowrap
+        select-none">
         {text}
       </span>
     </div>

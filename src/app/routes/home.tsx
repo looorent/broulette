@@ -1,20 +1,19 @@
-import { HelpCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink, useFetcher, useLoaderData, useSearchParams, type ClientLoaderFunctionArgs } from "react-router";
+import { BottomSheet } from "~/components/bottom-sheet-modal";
 import FoodRain from "~/components/food-rain";
 import HelpButton from "~/components/help-button";
+import BrandTitle from "~/components/home/brand-title";
+import StartButton, { SEARCH_FETCHER } from "~/components/home/start-button";
 import LoadingSpinner from "~/components/loading/loading-spinner";
 import { LoadingTitle } from "~/components/loading/loading-title";
 import { PreferenceChip } from "~/components/preferences/preferences-chip";
-import { PreferencesForm } from "~/components/preferences/preferences-modal";
-import BrandTitle from "~/components/home/brand-title";
+import { PreferencesForm } from "~/components/preferences/preferences-form";
 import { getBrowserLocation } from "~/functions/geolocation";
-import { RANGES } from "~/types/distance";
-import { createDeviceLocation, type Coordinates } from "~/types/location";
+import { RANGES, type DistanceRange } from "~/types/distance";
+import { createDeviceLocation, LocationPreference, type Coordinates } from "~/types/location";
 import { createDefaultPreference, type Preference } from "~/types/preference";
 import { createNextServices, type ServicePreference } from "~/types/service";
-import StartButton, { SEARCH_FETCHER } from "~/components/home/start-button";
-import { BottomSheet } from "~/components/bottom-sheet-modal";
 
 interface LoaderData {
   services: ServicePreference[];
@@ -75,16 +74,24 @@ export default function Home() {
           <PreferencesForm
             preferences={preferences}
             services={services}
-            onUpdate={(newPreferences: Preference) => {
-              setPreferences(newPreferences);
+            onServiceChange={(newService: ServicePreference) => {
+              setPreferences(preferences.withService(newService));
+              // TODO Update the hidden form used for base HTML
+            }}
+            onDistanceRangeChange={(newDistanceRange: DistanceRange) => {
+              setPreferences(preferences.withRange(newDistanceRange));
+              // TODO Update the hidden form used for base HTML
+            }}
+            onLocationChange={(newLocation: LocationPreference) => {
+              setPreferences(preferences.withLocation(newLocation));
               // TODO Update the hidden form used for base HTML
             }} />
         </BottomSheet>
 
-
         <FoodRain />
 
-        <section className="h-full flex flex-col justify-between pt-14"
+        <section
+          className="h-full flex flex-col justify-between pt-14"
           aria-label="Welcome Screen">
           <BrandTitle />
 
