@@ -1,0 +1,90 @@
+import { RANGES, type DistanceRange } from "~/types/distance";
+import { DistanceRangeTag } from "./distance-range-tag";
+import { DistanceRangeCaption } from "./distance-range-caption";
+
+interface DistanceRangeSelectorProps {
+  value: DistanceRange;
+  onChange: (range: DistanceRange) => void;
+  className?: string;
+}
+
+export function DistanceRangeSelector({ value, onChange, className = "" }: DistanceRangeSelectorProps) {
+  // Helper to handle the slider input change (converts index back to object)
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const index = Number(event.target.value) - 1;
+    const newRange = RANGES[index];
+    if (newRange) {
+      onChange(newRange);
+    }
+  };
+
+  const currentIndex = RANGES.findIndex((range) => range.id === value?.id) + 1;
+
+  return (
+    <div className={`flex gap-3 px-1 ${className}`}>
+      <div className="flex-1 relative pt-1">
+        <input
+          type="range"
+          min="1"
+          max={RANGES.length}
+          value={currentIndex || 1}
+          onChange={handleInputChange}
+          name="rangeInput"
+          className="
+            /* Base Input Styles */
+            appearance-none w-full h-10 bg-transparent relative z-10 cursor-pointer m-0
+            focus:outline-none
+
+            /* Webkit (Chrome, Safari, Edge) Track */
+            [&::-webkit-slider-runnable-track]:w-full
+            [&::-webkit-slider-runnable-track]:h-2
+            [&::-webkit-slider-runnable-track]:cursor-pointer
+            [&::-webkit-slider-runnable-track]:bg-fun-cream
+            [&::-webkit-slider-runnable-track]:border-2
+            [&::-webkit-slider-runnable-track]:border-border-dark
+            [&::-webkit-slider-runnable-track]:rounded-full
+
+            /* Webkit Thumb */
+            [&::-webkit-slider-thumb]:appearance-none
+            [&::-webkit-slider-thumb]:h-8
+            [&::-webkit-slider-thumb]:w-8
+            [&::-webkit-slider-thumb]:rounded-full
+            [&::-webkit-slider-thumb]:bg-fun-yellow
+            [&::-webkit-slider-thumb]:border-4
+            [&::-webkit-slider-thumb]:border-border-dark
+            [&::-webkit-slider-thumb]:cursor-pointer
+            [&::-webkit-slider-thumb]:-mt-3
+            [&::-webkit-slider-thumb]:shadow-custom-thumb
+            [&::-webkit-slider-thumb]:transition-transform
+            [&::-webkit-slider-thumb:hover]:scale-110
+
+            /* Moz (Firefox) Track */
+            [&::-moz-range-track]:w-full
+            [&::-moz-range-track]:h-2
+            [&::-moz-range-track]:cursor-pointer
+            [&::-moz-range-track]:bg-fun-cream
+            [&::-moz-range-track]:border-2
+            [&::-moz-range-track]:border-fun-dark
+            [&::-moz-range-track]:rounded-full
+
+            /* Moz (Firefox) Thumb */
+            [&::-moz-range-thumb]:h-8
+            [&::-moz-range-thumb]:w-8
+            [&::-moz-range-thumb]:rounded-full
+            [&::-moz-range-thumb]:bg-fun-yellow
+            [&::-moz-range-thumb]:border-4
+            [&::-moz-range-thumb]:border-border-dark
+            [&::-moz-range-thumb]:cursor-pointer
+            [&::-moz-range-thumb]:shadow-hard-hover
+            [&::-moz-range-thumb]:transition-transform
+            [&::-moz-range-thumb:hover]:scale-110
+          "
+          aria-label="Distance preference"
+        />
+        <DistanceRangeCaption ranges={RANGES} />
+      </div>
+
+      <DistanceRangeTag text={value?.label?.display} />
+    </div>
+  );
+}

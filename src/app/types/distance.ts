@@ -18,7 +18,7 @@ export const RANGES: DistanceRange[] = [
     id: "mid_range",
     label: {
       display: "Mid-range",
-      compact: "Local"
+      compact: "Locally"
     }
   },
   {
