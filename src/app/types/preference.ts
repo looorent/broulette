@@ -11,28 +11,40 @@ export class Preference {
     this.id = crypto.randomUUID();
   }
 
-  withService(service: ServicePreference): Preference {
-    return new Preference(
-      service,
-      this.location,
-      this.range
-    );
+  withService(service: ServicePreference): Preference | this {
+    if (this.service !== service && this.service?.id !== service?.id) {
+      return new Preference(
+        service,
+        this.location,
+        this.range
+      );
+    } else {
+      return this;
+    }
   }
 
-  withLocation(location: LocationPreference): Preference {
-    return new Preference(
-      this.service,
-      location,
-      this.range
-    );
+  withLocation(location: LocationPreference): Preference | this {
+    if (this.location !== location && !this.location?.equals(location)) {
+      return new Preference(
+        this.service,
+        location,
+        this.range
+      );
+    } else {
+      return this;
+    }
   }
 
-  withRange(range: DistanceRange): Preference {
-    return new Preference(
-      this.service,
-      this.location,
-      range
-    );
+  withRange(range: DistanceRange): Preference | this {
+    if (this.range !== range && this.range?.id !== range?.id) {
+      return new Preference(
+        this.service,
+        this.location,
+        range
+      );
+    } else {
+      return this;
+    }
   }
 
   equals(other: Preference): boolean {

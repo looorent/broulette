@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { RANGES, type DistanceRange } from "~/types/distance";
 import type { LocationPreference } from "~/types/location";
 import { Preference } from "~/types/preference";
@@ -16,22 +15,6 @@ interface PreferencesFormProps {
 }
 
 export function PreferencesForm({ services, preferences, onLocationChange, onDistanceRangeChange, onServiceChange }: PreferencesFormProps) {
-  const [selectedRange, setSelectedRange] = useState(preferences.range);
-  const [selectedLocation, setSelectedLocation] = useState(preferences.location);
-  const [selectedService, setSelectedService] = useState(preferences.service);
-
-  useEffect(() => {
-    if (selectedRange?.id !== preferences?.range?.id) {
-      setSelectedRange(preferences.range);
-    }
-    if (!selectedLocation?.equals(preferences?.location)) {
-      setSelectedLocation(preferences.location);
-    }
-    if (selectedService?.id !== preferences?.service?.id) {
-      setSelectedService(preferences.service);
-    }
-  }, [ preferences?.id ]);
-
   return (
     <form id="preferences-form" className="flex flex-col gap-8" onSubmit={() => false}>
       <fieldset className="space-y-2 relative border-none p-0 m-0">
@@ -39,23 +22,20 @@ export function PreferencesForm({ services, preferences, onLocationChange, onDis
           Near where?
         </legend>
 
-        {selectedLocation?.label?.compact}
         <LocationSelector
-          selectedLocation={selectedLocation}
+          selectedLocation={preferences?.location}
           onChange={(newLocation) => {
-            if (newLocation && !newLocation.equals(selectedLocation)) {
-              setSelectedLocation(newLocation);
+            if (newLocation && !newLocation.equals(preferences?.location)) {
               onLocationChange(newLocation);
             }
           }}
         />
 
         <DistanceRangeSelector
-          selectedRange={selectedRange}
+          selectedRange={preferences?.range}
           ranges={RANGES}
           onChange={(newDistanceRange) => {
-            if (newDistanceRange && newDistanceRange.id !== selectedRange?.id) {
-              setSelectedRange(newDistanceRange);
+            if (newDistanceRange && newDistanceRange.id !== preferences?.range?.id) {
               onDistanceRangeChange(newDistanceRange);
             }
           }}
@@ -64,10 +44,9 @@ export function PreferencesForm({ services, preferences, onLocationChange, onDis
 
       <ServiceSelector
         services={services}
-        selectedService={selectedService}
+        selectedService={preferences?.service}
         onChange={(newService) => {
-          if (newService && newService.id !== selectedService?.id) {
-            setSelectedService(newService);
+          if (newService && newService.id !== preferences?.service?.id) {
             onServiceChange(newService);
           }
         }} />

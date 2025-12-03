@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NavLink, useFetcher, useLoaderData, useSearchParams, type ClientLoaderFunctionArgs } from "react-router";
 import { BottomSheet } from "~/components/bottom-sheet-modal";
 import FoodRain from "~/components/food-rain";
@@ -11,12 +11,13 @@ import { PreferenceChip } from "~/components/preferences/preferences-chip";
 import { PreferencesForm } from "~/components/preferences/preferences-form";
 import { getBrowserLocation } from "~/functions/geolocation";
 import { RANGES, type DistanceRange } from "~/types/distance";
-import { createDeviceLocation, LocationPreference, type Coordinates } from "~/types/location";
-import { createDefaultPreference, type Preference } from "~/types/preference";
+import { LocationPreference, type Coordinates } from "~/types/location";
+import { createDefaultPreference, Preference } from "~/types/preference";
 import { createNextServices, type ServicePreference } from "~/types/service";
 
 interface LoaderData {
   services: ServicePreference[];
+  defaultPreferences: Preference;
   deviceCoordinates: Coordinates | null;
 }
 
@@ -26,12 +27,14 @@ export async function clientLoader({ request }: ClientLoaderFunctionArgs): Promi
     const position = await getBrowserLocation();
     return {
       services: services,
+      defaultPreferences: createDefaultPreference(services, RANGES, position?.coords),
       deviceCoordinates: position?.coords
     };
   } catch (error) {
     console.warn("Location access denied or failed:", error);
     return {
       services: services,
+      defaultPreferences: createDefaultPreference(services, RANGES, null),
       deviceCoordinates: null
     };
   }
@@ -49,15 +52,8 @@ export default function Home() {
     );
   } else {
     const [searchParams, setSearchParams] = useSearchParams();
-    const { services, deviceCoordinates } = useLoaderData<typeof clientLoader>();
-    const [preferences, setPreferences] = useState(createDefaultPreference(services, RANGES, null)); // TODO is it possible to load navigation data here? in initialization?
-
-    // TODO test
-    useEffect(() => {
-      if (deviceCoordinates) {
-        setPreferences(previous => previous.withLocation(createDeviceLocation(deviceCoordinates)));
-      }
-    }, [deviceCoordinates]);
+    const { services, defaultPreferences } = useLoaderData<typeof clientLoader>();
+    const [preferences, setPreferences] = useState<Preference>(defaultPreferences);
 
     return (
       <main className="h-full relative">
