@@ -10,15 +10,9 @@ interface PreferenceChipProps {
 const DRAG_TRESHOLD_IN_PIXELS = 20;
 
 export function PreferenceChip({ onOpen, preferences }: PreferenceChipProps) {
-  const openPreferences = () => {
-    if (onOpen) {
-      onOpen();
-    }
-  };
-
   const swipeUp = useDrag(({ down, movement: [, my], velocity: [, vy], direction: [, dy], memo }) => {
-    if (!down) {
-      openPreferences();
+    if (!down && my < -DRAG_TRESHOLD_IN_PIXELS) {
+      onOpen?.();
     }
   },
     {
@@ -30,9 +24,6 @@ export function PreferenceChip({ onOpen, preferences }: PreferenceChipProps) {
 
   return (
     <section className="w-full px-2 pb-0">
-      <pre className="text-xs bg-gray-100 p-2 overflow-auto">
-        {JSON.stringify(preferences?.location, null, 2)}
-      </pre>
       <button className="w-full bg-fun-green
         border-4 border-b-0 border-fun-dark rounded-t-[3rem]
         p-4 pb-6 shadow-sheet flex flex-col
@@ -40,7 +31,7 @@ export function PreferenceChip({ onOpen, preferences }: PreferenceChipProps) {
         items-center justify-center gap-2
         transition-transform hover:translate-y-3 active:translate-y-0 cursor-pointer group relative z-40 animate-float
         touch-none"
-        onClick={() => openPreferences()}
+        onClick={onOpen}
         {...swipeUp()}>
         <div className="w-16 h-1.5 bg-fun-dark/20 rounded-full mb-0.5 transition-colors group-hover:bg-fun-dark/40"></div>
         <div className="flex items-center gap-2 font-pop text-fun-dark text-lg">

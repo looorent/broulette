@@ -2,7 +2,6 @@ import type { DistanceRange } from "./distance";
 import { createDeviceLocation, type Coordinates, type LocationPreference } from "./location";
 import type { ServicePreference } from "./service";
 
-  // TODO for every "with", check the value and returns "this" if there is not difference.
 export class Preference {
   readonly id: string;
   constructor(readonly service: ServicePreference,

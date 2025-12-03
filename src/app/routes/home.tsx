@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useFetcher, useLoaderData, useSearchParams, type ClientLoaderFunctionArgs } from "react-router";
+import { NavLink, useFetcher, useLoaderData, useSearchParams, type ClientLoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router";
 import { BottomSheet } from "~/components/bottom-sheet-modal";
 import FoodRain from "~/components/food-rain";
 import HelpButton from "~/components/help-button";
@@ -20,6 +20,15 @@ interface LoaderData {
   defaultPreferences: Preference;
   deviceCoordinates: Coordinates | null;
 }
+
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  currentUrl,
+  nextUrl,
+  defaultShouldRevalidate,
+}) => {
+  const isModalChange = currentUrl.searchParams.get("modal") !== nextUrl.searchParams.get("modal");
+  return !isModalChange && defaultShouldRevalidate;
+};
 
 export async function clientLoader({ request }: ClientLoaderFunctionArgs): Promise<LoaderData> {
   const services = createNextServices(new Date());
@@ -93,12 +102,12 @@ export default function Home() {
 
           <StartButton preferences={preferences} />
 
-          <NavLink to="?modal=preferences">
-            <PreferenceChip preferences={preferences} onOpen={() => {
-              searchParams.set("modal", "preferences");
-              setSearchParams(searchParams);
-            }} />
-          </NavLink>
+          <PreferenceChip preferences={preferences} onOpen={() => {
+            setSearchParams(previous => {
+              previous.set("modal", "preferences");
+              return previous;
+            });
+          }} />
         </section>
       </main>
     );
