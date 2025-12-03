@@ -1,6 +1,3 @@
-import { useNavigation } from "react-router";
-import LoadingSpinner from "~/components/loading-spinner";
-import { LoadingTitle } from "~/components/loading-title";
 import type { Route } from "../+types/root";
 
 export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

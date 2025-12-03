@@ -1,33 +1,38 @@
 import { HelpCircle } from "lucide-react";
-import { useState } from "react";
-import { NavLink, useFetcher, useSearchParams } from "react-router";
-import { createDefaultPreference, type Preference } from "types/preference";
-import { createNextServices } from "types/service";
+import { useEffect, useState } from "react";
+import { NavLink, useFetcher, useLoaderData, useSearchParams, type ClientLoaderFunctionArgs } from "react-router";
 import FoodRain from "~/components/food-rain";
 import LoadingSpinner from "~/components/loading-spinner";
 import { LoadingTitle } from "~/components/loading-title";
 import { PreferenceChip } from "~/components/preferences-chip";
 import { PreferencesModal } from "~/components/preferences-modal";
-import type { Route } from "./+types/home";
+import { getBrowserLocation } from "~/functions/geolocation";
+import { RANGES } from "~/types/distance";
+import { createDeviceLocation, type Coordinates } from "~/types/location";
+import { createDefaultPreference, type Preference } from "~/types/preference";
+import { createNextServices, type ServicePreference } from "~/types/service";
 
-
-
-export function meta({ }: Route.MetaArgs) {
-  return [
-    { title: "BiteRoulette" },
-    { name: "description", content: "The lazy way to decide where to eat." },
-  ];
+interface LoaderData {
+  services: ServicePreference[];
+  deviceCoordinates: Coordinates | null;
 }
 
-export async function action({
-  request,
-}: Route.ActionArgs) {
-  const formData = await request.formData();
-  console.log(formData);
-  return "pouet";
+export async function clientLoader({ request }: ClientLoaderFunctionArgs): Promise<LoaderData> {
+  const services = createNextServices(new Date());
+  try {
+    const position = await getBrowserLocation();
+    return {
+      services: services,
+      deviceCoordinates: position?.coords
+    };
+  } catch (error) {
+    console.warn("Location access denied or failed:", error);
+    return {
+      services: services,
+      deviceCoordinates: null
+    };
+  }
 }
-
-const SERVICES = createNextServices(new Date());
 
 export default function Home() {
   const fetcher = useFetcher();
@@ -41,7 +46,15 @@ export default function Home() {
     );
   } else {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [preferences, setPreferences] = useState(createDefaultPreference(SERVICES));
+    const { services, deviceCoordinates } = useLoaderData<typeof clientLoader>();
+    const [preferences, setPreferences] = useState(createDefaultPreference(services, RANGES, null)); // TODO is it possible to load navigation data here? in initialization?
+
+    // TODO test
+    useEffect(() => {
+      if (deviceCoordinates) {
+        setPreferences(previous => previous.withLocation(createDeviceLocation(deviceCoordinates)));
+      }
+    }, [deviceCoordinates]);
 
     return (
       <main className="h-full relative">
@@ -64,7 +77,7 @@ export default function Home() {
 
         <PreferencesModal isOpen={searchParams.get("modal") === "preferences"}
           preferences={preferences}
-          services={SERVICES}
+          services={services}
           onClosed={() => {
             searchParams.delete("modal");
             setSearchParams(searchParams);

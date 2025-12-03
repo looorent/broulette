@@ -1,15 +1,8 @@
 import { useDrag } from "@use-gesture/react";
 import { ChevronUp } from "lucide-react";
-import { createDistanceRangeLabel, createLocationLabel } from "types/location";
-import type { Preference } from "types/preference";
-
-
+import type { Preference } from "~/types/preference";
 
 export function PreferenceChip({ onOpen, preferences }: { onOpen?: () => void, preferences: Preference }) {
-  // const [locationLabel, setLocationLabel] = useState("Near you");
-  // const [distanceLabel, setDistanceLabel] = useState("Walkable");
-  // const [momentLabel, setMomentLabel] = useState("Now");
-
   const openPreferences = () => {
     if (onOpen) {
       onOpen();
@@ -27,6 +20,7 @@ export function PreferenceChip({ onOpen, preferences }: { onOpen?: () => void, p
       threshold: 20
     }
   );
+
   return (
     <section className="w-full px-2 pb-0">
       <button className="w-full bg-fun-green
@@ -40,11 +34,12 @@ export function PreferenceChip({ onOpen, preferences }: { onOpen?: () => void, p
         {...swipeUp()}>
         <div className="w-16 h-1.5 bg-fun-dark/20 rounded-full mb-0.5 transition-colors group-hover:bg-fun-dark/40"></div>
         <div className="flex items-center gap-2 font-pop text-fun-dark text-lg">
-          <span>{createLocationLabel(preferences.location)}</span>
+          <span>{preferences?.location?.label?.compact}</span>
+          {/* TODO manage errors here */}
           •
-          <span>{createDistanceRangeLabel(preferences.range)}</span>
+          <span>{preferences?.range?.label?.compact}</span>
           •
-          <span>{preferences.service.label}</span>
+          <span>{preferences?.service?.label?.compact}</span>
 
           <ChevronUp className="w-5 h-5 stroke-[3px]" />
         </div>

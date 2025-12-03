@@ -1,4 +1,5 @@
-import { createDefaultLocationPreference, DistanceRange, type LocationPreference } from "./location";
+import type { DistanceRange } from "./distance";
+import { createDeviceLocation, type Coordinates, type LocationPreference } from "./location";
 import type { ServicePreference } from "./service";
 
 export class Preference {
@@ -31,10 +32,12 @@ export class Preference {
   }
 }
 
-export function createDefaultPreference(services: ServicePreference[]): Preference {
+export function createDefaultPreference(services: ServicePreference[],
+                                        ranges: DistanceRange[],
+                                        coordinates: Coordinates | null): Preference {
   return new Preference(
     services[0],
-    createDefaultLocationPreference(),
-    DistanceRange.MidRange
+    createDeviceLocation(coordinates),
+    ranges[1]
   );
 }
