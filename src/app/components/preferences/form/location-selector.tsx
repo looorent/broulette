@@ -1,7 +1,9 @@
 import { Crosshair, Loader2, MapPin, XCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useFetcher } from "react-router";
 import { getBrowserLocation } from "~/functions/geolocation";
-import { COMMON_LOCATIONS, createDeviceLocation, type LocationPreference } from "~/types/location";
+import type { action as addressLoader } from "~/routes/api/address-search";
+import { createDeviceLocation, hasCoordinates, type LocationPreference } from "~/types/location";
 import { LocationSuggestionSelector } from "./location-suggestion-selector";
 
 interface LocationSelectorProps {
@@ -13,11 +15,11 @@ export function LocationSelector({ selectedLocation, onChange }: LocationSelecto
   const [searchText, setSearchText  ] = useState("");
   const [isLocating, setIsLocating] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
-  const [suggestions, setSuggestions] = useState<LocationPreference[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fetcher = useFetcher<typeof addressLoader>();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -29,18 +31,24 @@ export function LocationSelector({ selectedLocation, onChange }: LocationSelecto
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSearch = (text: string) => {
-    setSearchText(text);
-    if (text.length > 0) {
-      const filtered = COMMON_LOCATIONS.filter(location =>
-        location.label.display.toLowerCase().includes(text.toLowerCase())
-      );
-      setSuggestions(filtered);
-      setShowSuggestions(true);
-    } else {
+  // Search and debounce
+  useEffect(() => {
+    if (!isSearchMode || searchText.trim().length === 0) {
       setShowSuggestions(false);
+    } else {
+      const timeoutId = setTimeout(() => {
+        fetcher.submit(
+          { query: searchText },
+          {
+            method: "post",
+            action: "/api/address-searches"
+          }
+        );
+        setShowSuggestions(true);
+      }, 300);
+      return () => clearTimeout(timeoutId);
     }
-  };
+  }, [searchText, isSearchMode, fetcher]);
 
   const handleSelectSuggestion = (suggestion: LocationPreference) => {
     setSearchText(suggestion?.label?.display || "");
@@ -51,23 +59,23 @@ export function LocationSelector({ selectedLocation, onChange }: LocationSelecto
 
   const triggerDeviceLocation = async () => {
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
+      alert("Geolocation is not supported by your browser"); // TODO
       return;
-    }
+    } else {
+      setIsLocating(true);
+      setShowSuggestions(false);
 
-    setIsLocating(true);
-    setShowSuggestions(false);
-
-    try {
-      const position = await getBrowserLocation();
-      const deviceLocation = createDeviceLocation(position.coords);
-      onChange(deviceLocation);
-      closeSearchMode();
-    } catch (e) {
-      console.error(e);
-      alert("Unable to retrieve your location.");
-    } finally {
-        setIsLocating(false);
+      try {
+        const position = await getBrowserLocation();
+        const deviceLocation = createDeviceLocation(position.coords);
+        onChange(deviceLocation);
+        closeSearchMode();
+      } catch (e) {
+        console.error(e);
+        alert("Unable to retrieve your location.");
+      } finally {
+          setIsLocating(false);
+      }
     }
   };
 
@@ -84,8 +92,8 @@ export function LocationSelector({ selectedLocation, onChange }: LocationSelecto
     setSearchText("");
   };
 
-  const deviceLocationSupported = typeof navigator !== 'undefined' && Boolean(navigator.geolocation);
-  const isInvalidDeviceLocation = !deviceLocationSupported || (selectedLocation?.isDeviceLocation && !selectedLocation.hasCoordinates());
+  const deviceLocationSupported = typeof navigator !== "undefined" && Boolean(navigator.geolocation);
+  const isInvalidDeviceLocation = !deviceLocationSupported || (selectedLocation?.isDeviceLocation && !hasCoordinates(selectedLocation));
 
   return (
     <div id="location-search" className="relative group" ref={wrapperRef}>
@@ -115,17 +123,17 @@ export function LocationSelector({ selectedLocation, onChange }: LocationSelecto
             placeholder="City, neighborhood..."
             className="flex-1 min-w-0 bg-transparent font-sans font-medium text-lg text-fun-dark placeholder:text-fun-dark/40 outline-none"
             value={searchText}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={e => setSearchText(e.target.value)}
             onFocus={() => setShowSuggestions(searchText.length > 0)}
             autoComplete="off"
           />
         ) : (
           <div className="flex-1 min-w-0 font-sans font-bold text-lg animate-in fade-in zoom-in duration-200">
-             {deviceLocationSupported ? (
-                selectedLocation?.isDeviceLocation && !selectedLocation.hasCoordinates()
-                ? "Location not allowed"
-                : selectedLocation?.label?.display || ""
-              ): "Location not supported"}
+            {deviceLocationSupported ? (
+              selectedLocation?.isDeviceLocation && !hasCoordinates(selectedLocation)
+              ? "Location not allowed"
+              : selectedLocation?.label?.display || ""
+            ): "Location not supported"}
           </div>
         )}
 
@@ -155,8 +163,8 @@ export function LocationSelector({ selectedLocation, onChange }: LocationSelecto
       </div>
 
       {/* Autocomplete Dropdown */}
-      {isSearchMode && showSuggestions && suggestions.length > 0 && (
-        <LocationSuggestionSelector suggestions={suggestions} onSelect={handleSelectSuggestion} />
+      {isSearchMode && showSuggestions && fetcher.data?.locations && (
+        <LocationSuggestionSelector suggestions={fetcher.data.locations} onSelect={handleSelectSuggestion} />
       )}
     </div>
   );

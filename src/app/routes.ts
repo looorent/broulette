@@ -9,5 +9,6 @@ export default [
   route("searches", "./routes/new-search.tsx"),
   route("searches/:searchId?", "./routes/search.tsx"),
   route("searches/:searchId/selections/:selectionId?", "./routes/selection.tsx"),
+  route("api/address-searches", "./routes/api/address-search.tsx"),
   // TODO use prefix
 ] satisfies RouteConfig;

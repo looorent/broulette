@@ -1,5 +1,5 @@
 import type { DistanceRange } from "./distance";
-import { createDeviceLocation, type Coordinates, type LocationPreference } from "./location";
+import { areLocationEquals, createDeviceLocation, type Coordinates, type LocationPreference } from "./location";
 import type { ServicePreference } from "./service";
 
 export class Preference {
@@ -23,7 +23,7 @@ export class Preference {
   }
 
   withLocation(location: LocationPreference): Preference | this {
-    if (this.location !== location && !this.location?.equals(location)) {
+    if (this.location !== location && !areLocationEquals(this.location, location)) {
       return new Preference(
         this.service,
         location,

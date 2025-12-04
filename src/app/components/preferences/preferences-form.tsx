@@ -1,5 +1,5 @@
 import { RANGES, type DistanceRange } from "~/types/distance";
-import type { LocationPreference } from "~/types/location";
+import { areLocationEquals, type LocationPreference } from "~/types/location";
 import { Preference } from "~/types/preference";
 import { type ServicePreference } from "~/types/service";
 import { DistanceRangeSelector } from "./form/distange-range-selector";
@@ -25,7 +25,7 @@ export function PreferencesForm({ services, preferences, onLocationChange, onDis
         <LocationSelector
           selectedLocation={preferences?.location}
           onChange={(newLocation) => {
-            if (newLocation && !newLocation.equals(preferences?.location)) {
+            if (newLocation && !areLocationEquals(newLocation, preferences?.location)) {
               onLocationChange(newLocation);
             }
           }}

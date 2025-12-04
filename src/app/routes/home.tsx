@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useFetcher, useLoaderData, useSearchParams, type ClientLoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router";
+import { useFetcher, useLoaderData, useSearchParams, type ClientLoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router";
 import { BottomSheet } from "~/components/bottom-sheet-modal";
 import FoodRain from "~/components/food-rain";
 import HelpButton from "~/components/help-button";
@@ -11,7 +11,7 @@ import { PreferenceChip } from "~/components/preferences/preferences-chip";
 import { PreferencesForm } from "~/components/preferences/preferences-form";
 import { getBrowserLocation } from "~/functions/geolocation";
 import { RANGES, type DistanceRange } from "~/types/distance";
-import { LocationPreference, type Coordinates } from "~/types/location";
+import { type Coordinates, type LocationPreference } from "~/types/location";
 import { createDefaultPreference, Preference } from "~/types/preference";
 import { createNextServices, type ServicePreference } from "~/types/service";
 
