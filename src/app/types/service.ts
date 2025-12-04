@@ -77,6 +77,6 @@ export function createNextServices(now: Date = new Date()): ServicePreference[] 
     ...services,
     createService(addDay(now, 1), ServiceTimeslot.Lunch, now.getHours(), "Tomorrow lunch", "Tmw lunch"),
     createService(addDay(now, 1), ServiceTimeslot.Dinner, now.getHours(), "Tomorrow dinner", "Tmw dinner"),
-    createService(addDay(now, 2), null, now.getHours(), "Pick a date", "Some day"),
+    createService(addDay(now, 2), null, now.getHours(), "Pick a date", "Some day"), // TODO add a tag "coming soon"
   ].filter(Boolean);
 }

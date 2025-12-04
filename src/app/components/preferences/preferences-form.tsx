@@ -17,11 +17,12 @@ interface PreferencesFormProps {
 export function PreferencesForm({ services, preferences, onLocationChange, onDistanceRangeChange, onServiceChange }: PreferencesFormProps) {
   return (
     <form id="preferences-form" className="flex flex-col gap-8" onSubmit={() => false}>
-      <fieldset className="space-y-2 relative border-none p-0 m-0">
+      <fieldset className="space-y-2 relative border-none p-0 m-0 min-w-0 max-w-full w-full">
         <legend className="block font-pop text-2xl text-fun-dark tracking-wide mb-2">
           Near where?
         </legend>
 
+        {/* TODO when the modal is closed, we should reset the input and go back to the geoloc */}
         <LocationSelector
           selectedLocation={preferences?.location}
           onChange={(newLocation) => {

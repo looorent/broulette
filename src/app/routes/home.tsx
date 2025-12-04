@@ -9,7 +9,7 @@ import LoadingSpinner from "~/components/loading/loading-spinner";
 import { LoadingTitle } from "~/components/loading/loading-title";
 import { PreferenceChip } from "~/components/preferences/preferences-chip";
 import { PreferencesForm } from "~/components/preferences/preferences-form";
-import { getBrowserLocation } from "~/functions/geolocation";
+import { getBrowserLocation } from "~/functions/address/browser-location";
 import { RANGES, type DistanceRange } from "~/types/distance";
 import { type Coordinates, type LocationPreference } from "~/types/location";
 import { createDefaultPreference, Preference } from "~/types/preference";

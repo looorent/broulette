@@ -12,6 +12,11 @@ export interface LocationPreference {
   isDeviceLocation: boolean;
 }
 
+export interface LocationSuggestions {
+  locations: LocationPreference[];
+  note: string | undefined;
+}
+
 export function areLocationEquals(location: LocationPreference, otherLocation: LocationPreference): boolean {
   return !location && !otherLocation
     || location && otherLocation

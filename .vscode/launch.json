@@ -2,6 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Dev webapp",
+      "webRoot": "${workspaceFolder}/src",
+      "url": "http://localhost:5173",
+      "sourceMaps": true
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Debug scraper",

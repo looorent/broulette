@@ -1,7 +1,8 @@
 import { Crosshair, Loader2, MapPin, XCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
-import { getBrowserLocation } from "~/functions/geolocation";
+import { getBrowserLocation } from "~/functions/address/browser-location";
+import { useDebounce } from "~/functions/debounce";
 import type { action as addressLoader } from "~/routes/api/address-search";
 import { createDeviceLocation, hasCoordinates, type LocationPreference } from "~/types/location";
 import { LocationSuggestionSelector } from "./location-suggestion-selector";
@@ -16,6 +17,7 @@ export function LocationSelector({ selectedLocation, onChange }: LocationSelecto
   const [isLocating, setIsLocating] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const debouncedSearchText = useDebounce(searchText, 300);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -33,22 +35,19 @@ export function LocationSelector({ selectedLocation, onChange }: LocationSelecto
 
   // Search and debounce
   useEffect(() => {
-    if (!isSearchMode || searchText.trim().length === 0) {
+    if (!isSearchMode || debouncedSearchText.trim().length === 0) {
       setShowSuggestions(false);
     } else {
-      const timeoutId = setTimeout(() => {
-        fetcher.submit(
-          { query: searchText },
-          {
-            method: "post",
-            action: "/api/address-searches"
-          }
-        );
-        setShowSuggestions(true);
-      }, 300);
-      return () => clearTimeout(timeoutId);
+      fetcher.submit(
+        { query: debouncedSearchText },
+        {
+          method: "post",
+          action: "/api/address-searches"
+        }
+      );
+      setShowSuggestions(true);
     }
-  }, [searchText, isSearchMode, fetcher]);
+  }, [debouncedSearchText, isSearchMode]);
 
   const handleSelectSuggestion = (suggestion: LocationPreference) => {
     setSearchText(suggestion?.label?.display || "");
@@ -104,10 +103,11 @@ export function LocationSelector({ selectedLocation, onChange }: LocationSelecto
       <div className={`
         relative border-4 border-fun-dark rounded-2xl shadow-hard flex items-center p-2
         transition-all duration-300
+        overflow-hidden
         ${isSearchMode ? "bg-fun-cream focus-within:translate-y-0.5 focus-within:shadow-hard-hover" : (isInvalidDeviceLocation ? "bg-fun-red" : "bg-fun-yellow") }
       `}>
         {/* Left Icon */}
-        <div className="ml-2 mr-3">
+        <div className="ml-2 mr-3 shrink-0">
           {isLocating ? (
             <Loader2 className="w-6 h-6 stroke-3 transition-colors text-fun-dark animate-spin" />
           ) : (
@@ -128,7 +128,7 @@ export function LocationSelector({ selectedLocation, onChange }: LocationSelecto
             autoComplete="off"
           />
         ) : (
-          <div className="flex-1 min-w-0 font-sans font-bold text-lg animate-in fade-in zoom-in duration-200">
+          <div className="flex-1 min-w-0 truncate font-sans font-bold text-lg animate-in fade-in zoom-in duration-200">
             {deviceLocationSupported ? (
               selectedLocation?.isDeviceLocation && !hasCoordinates(selectedLocation)
               ? "Location not allowed"
@@ -138,7 +138,7 @@ export function LocationSelector({ selectedLocation, onChange }: LocationSelecto
         )}
 
         {/* Action Button (Right Side) */}
-        <div className="ml-2">
+        <div className="ml-2 shrink-0">
           {isSearchMode ? (
             <button
               type="button"
@@ -163,8 +163,11 @@ export function LocationSelector({ selectedLocation, onChange }: LocationSelecto
       </div>
 
       {/* Autocomplete Dropdown */}
-      {isSearchMode && showSuggestions && fetcher.data?.locations && (
-        <LocationSuggestionSelector suggestions={fetcher.data.locations} onSelect={handleSelectSuggestion} />
+      {isSearchMode && showSuggestions && (fetcher.data?.locations || fetcher.state !== "idle") && (
+        <LocationSuggestionSelector suggestions={fetcher.data?.locations}
+                                    note={fetcher.data?.note}
+                                    isSearching={fetcher.state !== "idle"}
+                                    onSelect={handleSelectSuggestion} />
       )}
     </div>
   );

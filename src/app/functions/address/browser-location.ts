@@ -16,3 +16,4 @@ export function getBrowserLocation(): Promise<GeolocationPosition> {
     }
   });
 }
+

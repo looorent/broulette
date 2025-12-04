@@ -1,29 +1,5 @@
-import type { LocationPreference } from "~/types/location";
-import type { Route } from "../+types/address-suggestion";
 import type { ActionFunctionArgs } from "react-router";
-
-interface OverpassLocation {
-  place_id: number;
-  name: string;
-  display_name: string;
-  lat: string;
-  lon: string;
-  type: string;
-}
-
-function convertOverpassLocationToSuggestion(overpassLocation: OverpassLocation): LocationPreference {
-  return {
-    label: {
-      display: overpassLocation.display_name,
-      compact: overpassLocation.name
-    },
-    coordinates: {
-      latitude: Number(overpassLocation.lat),
-      longitude: Number(overpassLocation.lon)
-    },
-    isDeviceLocation: false
-  };
-}
+import { searchLocations } from "~/functions/address/provider";
 
 export async function action({ request }: ActionFunctionArgs) {
   if (request.method !== "POST") {
@@ -33,29 +9,21 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const query = formData.get("query");
 
-  if (query && typeof query === "string" && query.length > 1) {
+  if (!query || typeof query !== "string" || query.length < 2) {
+    return {
+      locations: [],
+      note: undefined
+    };
+  } else {
     try {
-      const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}format=json&limit=5&addressdetails=1&extratags=0&namedetails=0&polygon_geojson=0&bounded=0`;
-
-      const response = await fetch(apiUrl, {
-        headers: {
-          "User-Agent": "BiteRoulette/1.0" // TODO
-        },
-      });
-
-      if (response.ok) {
-        const data: OverpassLocation[] = await response.json();
-        return {
-          locations: data.filter(Boolean).map(convertOverpassLocationToSuggestion)
-        };
-      } else {
-        console.log("Error when looking for address:", response.status, response.body);
-        throw new Error("API failed"); // TODO manage this
-      }
+      return await searchLocations(query, request.signal);
     } catch (error) {
-      console.error(error);
-      // TODO
-      throw new Response("Failed to fetch addresses", { status: 500 });
+      console.error("Address lookup failed:", error);
+      return {
+        locations: [],
+        note: undefined,
+        error: "Unable to fetch addresses at this time. Please try again."
+      };
     }
   }
 }
