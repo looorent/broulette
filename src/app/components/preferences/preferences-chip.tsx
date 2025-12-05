@@ -73,7 +73,7 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
                 ${isBuzzing ? 'animate-buzz ' : ''}
               `}>
                 <MapPin className="w-4 h-4 fill-fun-cream" />
-                <span className="font-bold text-sm uppercase tracking-wide">
+                <span className="font-bold text-sm uppercase tracking-wide whitespace-nowrap">
                   {isLocationValid ? preferences?.location?.label?.compact : "Where?!"}
                 </span>
 
@@ -100,7 +100,7 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
                 transition-all duration-200 ease-spring
               ">
                 <Footprints className="w-4 h-4 fill-fun-cream" />
-                <span className="font-bold text-sm uppercase tracking-wide">
+                <span className="font-bold text-sm uppercase tracking-wide whitespace-nowrap">
                   {preferences?.range?.label?.compact}
                 </span>
               </div>
@@ -118,8 +118,9 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
                 transition-all duration-200 ease-spring
               ">
                 {/* TODO some icons are not rendered properly */}
+                {/* TODO truncate text if needed */}
                 <ServiceIcon className="w-4 h-4 fill-fun-cream" />
-                <span className="font-bold text-sm uppercase tracking-wide">
+                <span className="font-bold text-sm uppercase tracking-wide whitespace-nowrap">
                   {preferences?.service?.label?.compact}
                 </span>
               </div>

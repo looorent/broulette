@@ -62,11 +62,15 @@ export default function ServiceSelector({ services, selectedService, className =
           {services.map((service) => {
             const Icon = service.icon;
             return (
-            <label className="cursor-pointer group relative flex-none w-32" key={service.id}>
+            <label className={`
+              cursor-pointer group relative flex-none w-32
+              ${service.isAvailable ? "cursor-pointer" : "cursor-not-allowed"}
+            `} key={service.id}>
               <input type="radio"
                 name="time"
                 value={service.id}
                 className="peer sr-only"
+                disabled={!service.isAvailable}
                 onChange={event => updateValue(event.target.value)}
                 checked={service.id === serviceId} />
               <div className="h-full rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all
@@ -83,6 +87,22 @@ export default function ServiceSelector({ services, selectedService, className =
                 <div className="absolute -top-1 -right-1 bg-fun-green border-2 border-fun-dark rounded-full p-1 opacity-0 peer-checked:opacity-100 transition-opacity shadow-hard-hover scale-0 peer-checked:scale-100 duration-200 z-10">
                   <Check className="w-4 h-4 text-fun-cream stroke-[4px]" />
                 </div>
+
+                {!service.isAvailable && (
+                  <div className="absolute inset-0 flex items-center justify-center z-20 overflow-hidden rounded-2xl pointer-events-none">
+                    <div className="
+                      bg-fun-dark text-white
+                      text-[10px] font-extrabold tracking-widest uppercase
+                      px-8 py-1
+                      -rotate-12
+                      shadow-md
+                      border-y-2 border-dashed border-white/20
+                      whitespace-nowrap
+                    ">
+                      Coming Soon
+                    </div>
+                  </div>
+                )}
               </label>
             );
           })}
