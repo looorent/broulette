@@ -7,7 +7,7 @@ import BrandTitle from "~/components/home/brand-title";
 import StartButton, { SEARCH_FETCHER } from "~/components/home/start-button";
 import LoadingSpinner from "~/components/loading/loading-spinner";
 import { LoadingTitle } from "~/components/loading/loading-title";
-import { PreferenceChip } from "~/components/preferences/preferences-chip";
+import { PreferenceChip, type PreferenceChipHandle } from "~/components/preferences/preferences-chip";
 import { PreferencesForm, type PreferencesFormHandle } from "~/components/preferences/preferences-form";
 import { getBrowserLocation } from "~/functions/address/browser-location";
 import { RANGES, type DistanceRange } from "~/types/distance";
@@ -64,6 +64,7 @@ export default function Home() {
     const { services, defaultPreferences } = useLoaderData<typeof clientLoader>();
     const [preferences, setPreferences] = useState<Preference>(defaultPreferences);
     const preferenceFormRef = useRef<PreferencesFormHandle>(null);
+    const preferenceChipRef = useRef<PreferenceChipHandle>(null);
 
     return (
       <main className="h-full relative">
@@ -95,9 +96,14 @@ export default function Home() {
           aria-label="Welcome Screen">
           <BrandTitle />
 
-          <StartButton preferences={preferences} />
+          <StartButton
+            preferences={preferences}
+            onBuzzOnError={() => preferenceChipRef?.current?.handleBuzzOnLocationError?.()}/>
 
-          <PreferenceChip preferences={preferences} onOpen={() => {
+          <PreferenceChip
+            ref={preferenceChipRef}
+            preferences={preferences}
+            onOpen={() => {
             setSearchParams(previous => {
               previous.set("modal", "preferences");
               return previous;

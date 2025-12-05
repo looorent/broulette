@@ -7,17 +7,17 @@ export const SEARCH_FETCHER = "search-fetcher";
 
 interface StartButtonProps {
   preferences: Preference;
+  onBuzzOnError?: () => void;
   className?: string;
 }
 
-export default function StartButton({ preferences, className = "" } : StartButtonProps) {
+export default function StartButton({ preferences, onBuzzOnError, className = "" } : StartButtonProps) {
   const fetcher = useFetcher({ key: SEARCH_FETCHER });
   const [isBuzzing, setIsBuzzing] = useState(false);
   useEffect(() => {
     console.log("TODO preferences", preferences);
   }, [preferences?.id]);
-  const isReady = false;
-  // const isReady = !!preferences.isValid();
+  const isReady = !!preferences.isValid();
 
   const triggerBuzz = () => {
     if (!isBuzzing) {
@@ -30,6 +30,7 @@ export default function StartButton({ preferences, className = "" } : StartButto
     e.preventDefault();
     if (!isReady) {
       triggerBuzz();
+      onBuzzOnError?.();
     } else {
       console.log("TODO submit");
       // fetcher.submit();

@@ -78,36 +78,8 @@
     75% { transform: translateX(-2px) rotate(-2deg); }
     100% { transform: translateX(0); }
   }
-
 }
 
 .background-blend {
   background-blend-mode: var(--bg-app-blend-mode);
-}
-
-.loader-shape {
-  width: 100px;
-  height: 100px;
-  border: 6px solid #2C2A32;
-  box-shadow: 8px 8px 0px #2C2A32;
-  animation: shape-shift 2s infinite cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  position: relative;
-  /* Ensure it's visible */
-  display: block;
-  background-color: #FFD166;
-}
-
-.orbit-dot {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  background: #FAF8F5;
-  border: 3px solid #2C2A32;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  margin-top: -8px;
-  margin-left: -8px;
-  /* transform-origin will be handled by animation keyframes in Tailwind config,
-      but fallback here just in case */
 }

@@ -50,8 +50,12 @@ export class Preference {
     return other && this.id === other.id;
   }
 
+  hasValidLocation(): boolean {
+    return hasCoordinates(this.location);
+  }
+
   isValid(): boolean {
-    return this.service && this.range && hasCoordinates(this.location);
+    return this.service && this.range && this.hasValidLocation();
   }
 }
 

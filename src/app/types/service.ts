@@ -43,7 +43,7 @@ function pickIcon(timeslot: ServiceTimeslot | null): React.ForwardRefExoticCompo
   }
 }
 
-function createService(baseDate: Date, service: ServiceTimeslot | null, timeHour: number, labelDisplay: string, labelCompact: string, isAvailable: boolean): ServicePreference {
+function createService(baseDate: Date, service: ServiceTimeslot | null, timeHour: number, labelDisplay: string, labelCompact: string, isAvailable: boolean = true): ServicePreference {
   const icon = pickIcon(service);
   return {
     id: `${service}-${baseDate.toISOString().split("T")[0]}`,
@@ -79,6 +79,6 @@ export function createNextServices(now: Date = new Date()): ServicePreference[] 
     ...services,
     createService(addDay(now, 1), ServiceTimeslot.Lunch, now.getHours(), "Tomorrow lunch", "Tmw lunch"),
     createService(addDay(now, 1), ServiceTimeslot.Dinner, now.getHours(), "Tomorrow dinner", "Tmw dinner"),
-    createService(addDay(now, 2), null, now.getHours(), "Pick a date", "Some day"), // TODO add a tag "coming soon"
+    createService(addDay(now, 2), null, now.getHours(), "Pick a date", "Some day", false),
   ].filter(Boolean);
 }
