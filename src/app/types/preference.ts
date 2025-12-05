@@ -1,5 +1,5 @@
 import type { DistanceRange } from "./distance";
-import { areLocationEquals, createDeviceLocation, type Coordinates, type LocationPreference } from "./location";
+import { areLocationEquals, createDeviceLocation, hasCoordinates, type Coordinates, type LocationPreference } from "./location";
 import type { ServicePreference } from "./service";
 
 export class Preference {
@@ -48,6 +48,10 @@ export class Preference {
 
   equals(other: Preference): boolean {
     return other && this.id === other.id;
+  }
+
+  isValid(): boolean {
+    return this.service && this.range && hasCoordinates(this.location);
   }
 }
 

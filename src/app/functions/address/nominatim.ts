@@ -1,12 +1,12 @@
 import type { LocationPreference, LocationSuggestions } from "~/types/location";
 import { executeRequest } from "../http-client";
+import { APP_CONFIG } from "~/config";
 
-// TODO use env variables
 const NOMINATIM_CONFIG = {
-  BASE_URL: "https://nominatim.openstreetmap.org/search",
-  USER_AGENT: "BiteRoulette/1.0", // TODO Replace with real contact info
-  NOTE: "by OpenStreetMap",
-  TIMEOUT_IN_MS: 5000
+  BASE_URL: import.meta.env.NOMINATIM_URL ?? "https://nominatim.openstreetmap.org/search",
+  USER_AGENT: import.meta.env.NOMINATIM_USER_AGENT ?? `${APP_CONFIG.name}/${APP_CONFIG.version}`,
+  BOTTOM_NOTE: import.meta.env.NOMINATIM_BOTTOM_NOTE ?? "by OpenStreetMap",
+  TIMEOUT_IN_MS: Number(import.meta.env.NOMINATIM_API_TIMEOUT) || 5000
 };
 
 interface NominatimPlace {

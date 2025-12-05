@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useFetcher, useLoaderData, useSearchParams, type ClientLoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router";
 import { BottomSheet } from "~/components/bottom-sheet-modal";
 import FoodRain from "~/components/food-rain";
@@ -8,7 +8,7 @@ import StartButton, { SEARCH_FETCHER } from "~/components/home/start-button";
 import LoadingSpinner from "~/components/loading/loading-spinner";
 import { LoadingTitle } from "~/components/loading/loading-title";
 import { PreferenceChip } from "~/components/preferences/preferences-chip";
-import { PreferencesForm } from "~/components/preferences/preferences-form";
+import { PreferencesForm, type PreferencesFormHandle } from "~/components/preferences/preferences-form";
 import { getBrowserLocation } from "~/functions/address/browser-location";
 import { RANGES, type DistanceRange } from "~/types/distance";
 import { type Coordinates, type LocationPreference } from "~/types/location";
@@ -63,6 +63,7 @@ export default function Home() {
     const [searchParams, setSearchParams] = useSearchParams();
     const { services, defaultPreferences } = useLoaderData<typeof clientLoader>();
     const [preferences, setPreferences] = useState<Preference>(defaultPreferences);
+    const preferenceFormRef = useRef<PreferencesFormHandle>(null);
 
     return (
       <main className="h-full relative">
@@ -71,26 +72,20 @@ export default function Home() {
         <BottomSheet
           isOpen={searchParams.get("modal") === "preferences"}
           onClose={() => {
+            preferenceFormRef?.current?.handleClose();
             searchParams.delete("modal");
             setSearchParams(searchParams);
+
           }}
           title="Preferences"
         >
           <PreferencesForm
+            ref={preferenceFormRef}
             preferences={preferences}
             services={services}
-            onServiceChange={(newService: ServicePreference) => {
-              setPreferences(preferences.withService(newService));
-              // TODO Update the hidden form used for base HTML
-            }}
-            onDistanceRangeChange={(newDistanceRange: DistanceRange) => {
-              setPreferences(preferences.withRange(newDistanceRange));
-              // TODO Update the hidden form used for base HTML
-            }}
-            onLocationChange={(newLocation: LocationPreference) => {
-              setPreferences(preferences.withLocation(newLocation));
-              // TODO Update the hidden form used for base HTML
-            }} />
+            onServiceChange={newService => setPreferences(preferences.withService(newService))}
+            onDistanceRangeChange={newDistanceRange => setPreferences(preferences.withRange(newDistanceRange))}
+            onLocationChange={newLocation => setPreferences(preferences.withLocation(newLocation))} />
         </BottomSheet>
 
         <FoodRain />

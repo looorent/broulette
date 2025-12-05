@@ -15,6 +15,7 @@ export interface ServicePreference {
   icon: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
   date: Date;
   timeslot: ServiceTimeslot | null;
+  isAvailable: boolean;
 }
 
 function createMoment(baseDate: Date, hour: number): Date {
@@ -42,7 +43,7 @@ function pickIcon(timeslot: ServiceTimeslot | null): React.ForwardRefExoticCompo
   }
 }
 
-function createService(baseDate: Date, service: ServiceTimeslot | null, timeHour: number, labelDisplay: string, labelCompact: string): ServicePreference {
+function createService(baseDate: Date, service: ServiceTimeslot | null, timeHour: number, labelDisplay: string, labelCompact: string, isAvailable: boolean): ServicePreference {
   const icon = pickIcon(service);
   return {
     id: `${service}-${baseDate.toISOString().split("T")[0]}`,
@@ -52,7 +53,8 @@ function createService(baseDate: Date, service: ServiceTimeslot | null, timeHour
     },
     icon: pickIcon(service),
     date: createMoment(baseDate, timeHour),
-    timeslot: service
+    timeslot: service,
+    isAvailable: isAvailable
   };
 };
 

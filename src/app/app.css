@@ -67,6 +67,18 @@
     90% { opacity: 0.12; }
     100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
   }
+
+  --animate-buzz: buzz 0.4s cubic-bezier(.36, .07, .19, .97) both;
+  @keyframes buzz {
+    0% { transform: translateX(0); }
+    15% { transform: translateX(-5px) rotate(-5deg); }
+    30% { transform: translateX(5px) rotate(5deg); }
+    45% { transform: translateX(-5px) rotate(-5deg); }
+    60% { transform: translateX(5px) rotate(5deg); }
+    75% { transform: translateX(-2px) rotate(-2deg); }
+    100% { transform: translateX(0); }
+  }
+
 }
 
 .background-blend {
