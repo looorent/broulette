@@ -1,6 +1,10 @@
 import { HelpCircle } from "lucide-react";
 
-export default function HelpButton() {
+interface HelpButtonProps {
+  onOpen: () => void;
+}
+
+export default function HelpButton({ onOpen }: HelpButtonProps) {
   return (
     <button
       className="absolute
@@ -15,7 +19,7 @@ export default function HelpButton() {
         shadow-hard-hover hover:scale-110 active:scale-95 transition-transform group"
       title="Get Help"
       aria-label="Get Help"
-      onClick={() => alert('Help is coming! Just follow the big buttons for now.')}>
+      onClick={onOpen}>
       <HelpCircle />
     </button>
   );

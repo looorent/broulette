@@ -74,7 +74,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
     };
 
     const triggerDeviceLocation = async () => {
-      if (navigator.geolocation) {
+      if (!navigator.geolocation) {
         setShowGeoError(true);
       } else {
         setIsLocating(true);
@@ -116,11 +116,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
           isOpen={showGeoError}
           onClose={() => setShowGeoError(false)}
         />
-        <div id="location-search" className="relative group" ref={wrapperRef}>
-
-          {/* Glow Effect */}
-          <div className="absolute -inset-1 bg-fun-dark rounded-2xl blur opacity-20 group-hover:opacity-40 transition"></div>
-
+        <div id="location-search" className="relative group mr-1" ref={wrapperRef}>
           {/* Main Container */}
           <div className={`
             relative border-4 border-fun-dark rounded-2xl shadow-hard flex items-center p-2
@@ -184,9 +180,9 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
             </div>
           </div>
 
-          {/* Autocomplete Dropdown */}
           {isSearchMode && showSuggestions && (fetcher.data?.locations || fetcher.state !== "idle") && (
-            <LocationSuggestionSelector suggestions={fetcher.data?.locations}
+            <LocationSuggestionSelector
+              suggestions={fetcher.data?.locations}
               note={fetcher.data?.note}
               isSearching={fetcher.state !== "idle"}
               onSelect={handleSelectSuggestion} />

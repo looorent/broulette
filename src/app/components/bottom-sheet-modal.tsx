@@ -41,17 +41,18 @@ export function BottomSheet({
       `}
       open
     >
-      <div {...bindDrag()} className="
+      <div className="
+        flex flex-col
         bg-fun-cream
-        w-full sm:max-w-md
+        w-full
         border-x-2 border-t-4 border-fun-dark rounded-t-3xl
         p-6 pb-10 md:pb-6
         shadow-hard relative mx-auto max-h-[90vh]
         touch-pan-y">
 
         {/* Header */}
-        <div
-
+        <div id="bottom-sheet-header"
+          {...bindDrag()}
           className="w-full pt-0 pb-6 -mt-6 cursor-grab active:cursor-grabbing touch-none"
         >
           <div className="w-20 h-2 bg-fun-dark/80 rounded-full mx-auto mt-6"></div>
@@ -70,7 +71,7 @@ export function BottomSheet({
         </div>
 
         {/* Body of the modal */}
-        <div className="w-full">
+        <div className="w-full flex-1 overflow-y-auto min-h-0 pb-10 overscroll-contain">
           {children}
         </div>
       </div>

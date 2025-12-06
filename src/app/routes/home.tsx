@@ -1,17 +1,18 @@
 import { useRef, useState } from "react";
 import { useFetcher, useLoaderData, useSearchParams, type ClientLoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router";
 import { BottomSheet } from "~/components/bottom-sheet-modal";
+import BrandTitle from "~/components/home/brand-title";
 import FoodRain from "~/components/home/food-rain";
 import HelpButton from "~/components/home/help-button";
-import BrandTitle from "~/components/home/brand-title";
+import HelpModal from "~/components/home/help-modal";
 import StartButton, { SEARCH_FETCHER } from "~/components/home/start-button";
 import LoadingSpinner from "~/components/loading/loading-spinner";
 import { LoadingTitle } from "~/components/loading/loading-title";
 import { PreferenceChip, type PreferenceChipHandle } from "~/components/preferences/preferences-chip";
 import { PreferencesForm, type PreferencesFormHandle } from "~/components/preferences/preferences-form";
 import { getBrowserLocation } from "~/functions/address/browser-location";
-import { RANGES, type DistanceRange } from "~/types/distance";
-import { type Coordinates, type LocationPreference } from "~/types/location";
+import { RANGES } from "~/types/distance";
+import { type Coordinates } from "~/types/location";
 import { createDefaultPreference, Preference } from "~/types/preference";
 import { createNextServices, type ServicePreference } from "~/types/service";
 
@@ -67,50 +68,65 @@ export default function Home() {
     const preferenceChipRef = useRef<PreferenceChipHandle>(null);
 
     return (
-      <main className="h-full relative">
-        <HelpButton />
-
-        <BottomSheet
-          isOpen={searchParams.get("modal") === "preferences"}
+      <>
+        <HelpModal
+          isOpen={searchParams.get("modal") === "help"}
           onClose={() => {
-            preferenceFormRef?.current?.handleClose();
             searchParams.delete("modal");
             setSearchParams(searchParams);
-
           }}
-          title="Preferences"
-        >
-          <PreferencesForm
-            ref={preferenceFormRef}
-            preferences={preferences}
-            services={services}
-            onServiceChange={newService => setPreferences(preferences.withService(newService))}
-            onDistanceRangeChange={newDistanceRange => setPreferences(preferences.withRange(newDistanceRange))}
-            onLocationChange={newLocation => setPreferences(preferences.withLocation(newLocation))} />
-        </BottomSheet>
+        />
+        <main className="h-full relative">
+          <HelpButton onOpen={() => {
+              setSearchParams(previous => {
+                previous.set("modal", "help");
+                return previous;
+              });
+            }
+           } />
 
-        <FoodRain />
+          <BottomSheet
+            isOpen={searchParams.get("modal") === "preferences"}
+            onClose={() => {
+              preferenceFormRef?.current?.handleClose();
+              searchParams.delete("modal");
+              setSearchParams(searchParams);
+            }}
+            title="Preferences"
+          >
+            <PreferencesForm
+              ref={preferenceFormRef}
+              preferences={preferences}
+              services={services}
+              onServiceChange={newService => setPreferences(preferences.withService(newService))}
+              onDistanceRangeChange={newDistanceRange => setPreferences(preferences.withRange(newDistanceRange))}
+              onLocationChange={newLocation => setPreferences(preferences.withLocation(newLocation))} />
+          </BottomSheet>
 
-        <section
-          className="h-full flex flex-col justify-between pt-14"
-          aria-label="Welcome Screen">
-          <BrandTitle />
+          <FoodRain />
 
-          <StartButton
-            preferences={preferences}
-            onBuzzOnError={() => preferenceChipRef?.current?.handleBuzzOnLocationError?.()}/>
+          <section
+            className="h-full flex flex-col justify-between pt-14"
+            aria-label="Welcome Screen">
+            <BrandTitle />
 
-          <PreferenceChip
-            ref={preferenceChipRef}
-            preferences={preferences}
-            onOpen={() => {
-            setSearchParams(previous => {
-              previous.set("modal", "preferences");
-              return previous;
-            });
-          }} />
-        </section>
-      </main>
+            <StartButton
+              preferences={preferences}
+              onBuzzOnError={() => preferenceChipRef?.current?.handleBuzzOnLocationError?.()}/>
+
+            <PreferenceChip
+              ref={preferenceChipRef}
+              preferences={preferences}
+              onOpen={() => {
+                setSearchParams(previous => {
+                  previous.set("modal", "preferences");
+                  return previous;
+                });
+              }
+            } />
+          </section>
+        </main>
+      </>
     );
   }
 }
