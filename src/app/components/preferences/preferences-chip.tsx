@@ -2,6 +2,7 @@ import { useDrag } from "@use-gesture/react";
 import { Footprints, MapPin } from "lucide-react";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import type { Preference } from "~/types/preference";
+import { PreferenceChipValue } from "./preference-chip-value";
 
 interface PreferenceChipProps {
   onOpen?: () => void;
@@ -59,77 +60,28 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
           <div className="w-16 h-1.5 bg-fun-dark/20 rounded-full mb-0.5 transition-colors group-hover:bg-fun-dark/40"></div>
           <div className="flex items-center gap-2 font-pop text-lg">
 
-            {/* Location */}
-            <div className="relative group/tag">
-              <div className={`
-                flex items-center gap-1.5 px-3 py-1
-                border-2
-                shadow-none
-                rounded-md
-                bg-fun-cream
-                -rotate-3 hover:rotate-0 hover:scale-105
-                transition-all duration-200 ease-spring
-                ${!isLocationValid ? "bg-fun-cream text-fun-red hover:translate-y-0.5 hover:shadow-hard-hover active:scale-95 border-dashed  hover:bg-slate-200" : ""}
-                ${isBuzzing ? 'animate-buzz ' : ''}
-              `}>
-                <MapPin className="w-4 h-4 fill-fun-cream" />
-                <span className="font-bold text-sm uppercase tracking-wide whitespace-nowrap truncate max-w-32">
-                  {isLocationValid ? preferences?.location?.label?.compact : "Where?!"}
-                </span>
+            <PreferenceChipValue
+              label={isLocationValid ? preferences?.location?.label?.compact : "Where?!"}
+              className="-rotate-3 hover:rotate-0 hover:scale-105"
+              icon={MapPin}
+              isBuzzing={isBuzzing}
+              isValid={isLocationValid}
+              />
 
-                {!isLocationValid ? (
-                  <span className={`
-                  absolute -top-1 -right-1
-                  w-3 h-3
-                  bg-fun-red rounded-full border-2 border-fun-cream
-                  ${isBuzzing ? 'animate-buzz ' : ''}
-                `} />
-                ) : null}
-              </div>
-            </div>
+            <PreferenceChipValue
+              label={preferences?.range?.label?.compact}
+              className="rotate-2 hover:rotate-0 mt-1.5"
+              icon={Footprints}
+              />
 
-            {/* Distance range */}
-            <div className="relative group/tag">
-              <div className="
-                flex items-center gap-1.5 px-3 py-1
-                border-2
-                shadow-none
-                rounded-md
-                bg-fun-cream
-                rotate-2 hover:rotate-0 mt-1.5
-                transition-all duration-200 ease-spring
-              ">
-                <Footprints className="w-4 h-4 fill-fun-cream" />
-                <span className="font-bold text-sm uppercase tracking-wide whitespace-nowrap truncate max-w-32">
-                  {preferences?.range?.label?.compact}
-                </span>
-              </div>
-            </div>
-
-            {/* When? */}
-            <div className="relative group/tag">
-              <div className="
-                flex items-center gap-1.5 px-3 py-1
-                border-2
-                shadow-none
-                rounded-md
-                bg-fun-cream
-                -rotate-2 hover:rotate-0 -mt-1
-                transition-all duration-200 ease-spring
-              ">
-                {/* TODO some icons are not rendered properly */}
-                {/* TODO add a padding in the chip */}
-                <ServiceIcon className="w-4 h-4 fill-fun-cream" />
-                <span className="font-bold text-sm uppercase tracking-wide whitespace-nowrap truncate max-w-32">
-                  {preferences?.service?.label?.compact}
-                </span>
-              </div>
-            </div>
+            <PreferenceChipValue
+              label={preferences?.service?.label?.compact}
+              className="-rotate-2 hover:rotate-0 -mt-1"
+              icon={preferences?.service?.icon}
+              />
           </div>
         </button>
       </section>
     );
   }
 );
-
-PreferenceChip.displayName = "PreferenceChip";

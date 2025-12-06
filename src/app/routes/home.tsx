@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFetcher, useLoaderData, useSearchParams, type ClientLoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router";
 import { BottomSheet } from "~/components/bottom-sheet-modal";
 import BrandTitle from "~/components/home/brand-title";
@@ -12,7 +12,7 @@ import { PreferenceChip, type PreferenceChipHandle } from "~/components/preferen
 import { PreferencesForm, type PreferencesFormHandle } from "~/components/preferences/preferences-form";
 import { getBrowserLocation } from "~/functions/address/browser-location";
 import { RANGES } from "~/types/distance";
-import { type Coordinates } from "~/types/location";
+import { createDeviceLocation, type Coordinates } from "~/types/location";
 import { createDefaultPreference, Preference } from "~/types/preference";
 import { createNextServices, type ServicePreference } from "~/types/service";
 
@@ -54,6 +54,23 @@ export default function Home() {
     const [preferences, setPreferences] = useState<Preference>(defaultPreferences);
     const preferenceFormRef = useRef<PreferencesFormHandle>(null);
     const preferenceChipRef = useRef<PreferenceChipHandle>(null);
+
+    useEffect(() => {
+      async function fetchLocation() {
+        try {
+          const devicePosition = await getBrowserLocation();
+          if (devicePosition?.coords) {
+            setPreferences((prev) => prev.withLocation(createDeviceLocation(devicePosition.coords)));
+          }
+        } catch (error) {
+          console.warn("Location access denied or failed:", error);
+        }
+      }
+
+      if (!preferences.isValid()) {
+        fetchLocation();
+      }
+    }, []);
 
     return (
       <>
