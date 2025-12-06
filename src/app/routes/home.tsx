@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
 import { useFetcher, useLoaderData, useSearchParams, type ClientLoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router";
 import { BottomSheet } from "~/components/bottom-sheet-modal";
-import FoodRain from "~/components/food-rain";
-import HelpButton from "~/components/help-button";
+import FoodRain from "~/components/home/food-rain";
+import HelpButton from "~/components/home/help-button";
 import BrandTitle from "~/components/home/brand-title";
 import StartButton, { SEARCH_FETCHER } from "~/components/home/start-button";
 import LoadingSpinner from "~/components/loading/loading-spinner";

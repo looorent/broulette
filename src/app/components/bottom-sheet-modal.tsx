@@ -32,7 +32,7 @@ export function BottomSheet({
   return (
     <dialog
       className={`
-        flex flex-col fixed inset-0 z-100 items-center justify-end
+        flex flex-col absolute inset-0 z-100 items-center justify-end
         py-0 px-2 backdrop-blur-sm w-full h-dvh border-none m-0 max-w-full max-h-full bg-transparent
         transform transition-transform duration-300
         ${isOpen ? "ease-out" : "ease-in"}
@@ -41,7 +41,13 @@ export function BottomSheet({
       `}
       open
     >
-      <div {...bindDrag()} className="bg-fun-cream w-full sm:max-w-md border-x-2 border-t-4 border-fun-dark rounded-t-3xl sm:rounded-3xl p-6 pb-10 shadow-hard relative mx-auto max-h-[90vh] touch-pan-y">
+      <div {...bindDrag()} className="
+        bg-fun-cream
+        w-full sm:max-w-md
+        border-x-2 border-t-4 border-fun-dark rounded-t-3xl
+        p-6 pb-10 md:pb-6
+        shadow-hard relative mx-auto max-h-[90vh]
+        touch-pan-y">
 
         {/* Header */}
         <div

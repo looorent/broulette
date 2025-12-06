@@ -50,9 +50,9 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
         <button className="w-full bg-fun-green
         border-4 border-b-0 border-fun-dark rounded-t-[3rem]
         p-4 pb-6 shadow-sheet flex flex-col
-        -mb-3
+        -mb-4
         items-center justify-center gap-2
-        transition-transform hover:translate-y-3 active:translate-y-0 cursor-pointer group relative z-40 animate-float
+        transition-transform hover:-translate-y-3 active:translate-y-0 hover:-mb-5  cursor-pointer group relative z-40 animate-float
         touch-none"
           onClick={onOpen}
           {...swipeUp()}>
@@ -73,7 +73,7 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
                 ${isBuzzing ? 'animate-buzz ' : ''}
               `}>
                 <MapPin className="w-4 h-4 fill-fun-cream" />
-                <span className="font-bold text-sm uppercase tracking-wide whitespace-nowrap">
+                <span className="font-bold text-sm uppercase tracking-wide whitespace-nowrap truncate max-w-32">
                   {isLocationValid ? preferences?.location?.label?.compact : "Where?!"}
                 </span>
 
@@ -100,7 +100,7 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
                 transition-all duration-200 ease-spring
               ">
                 <Footprints className="w-4 h-4 fill-fun-cream" />
-                <span className="font-bold text-sm uppercase tracking-wide whitespace-nowrap">
+                <span className="font-bold text-sm uppercase tracking-wide whitespace-nowrap truncate max-w-32">
                   {preferences?.range?.label?.compact}
                 </span>
               </div>
@@ -118,9 +118,9 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
                 transition-all duration-200 ease-spring
               ">
                 {/* TODO some icons are not rendered properly */}
-                {/* TODO truncate text if needed */}
+                {/* TODO add a padding in the chip */}
                 <ServiceIcon className="w-4 h-4 fill-fun-cream" />
-                <span className="font-bold text-sm uppercase tracking-wide whitespace-nowrap">
+                <span className="font-bold text-sm uppercase tracking-wide whitespace-nowrap truncate max-w-32">
                   {preferences?.service?.label?.compact}
                 </span>
               </div>
