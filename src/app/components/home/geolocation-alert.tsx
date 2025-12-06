@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
-import AlertBox from "../alert-box";
+import { AlertBox } from "../alert-box";
 
 interface GeolocationAlertProps {
   isOpen: boolean;

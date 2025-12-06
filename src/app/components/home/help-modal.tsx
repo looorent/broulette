@@ -1,5 +1,5 @@
-import { Cookie, Info, MapPin, Scale, Server, ShieldCheck } from "lucide-react";
-import AlertBox from "../alert-box";
+import { Cookie, MapPin, Scale, Server, ShieldCheck } from "lucide-react";
+import { AlertBox } from "../alert-box";
 
 interface HelpModalProps {
   isOpen: boolean;

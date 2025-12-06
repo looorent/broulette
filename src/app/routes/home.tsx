@@ -19,7 +19,6 @@ import { createNextServices, type ServicePreference } from "~/types/service";
 interface LoaderData {
   services: ServicePreference[];
   defaultPreferences: Preference;
-  deviceCoordinates: Coordinates | null;
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({
@@ -33,21 +32,10 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 
 export async function clientLoader({ request }: ClientLoaderFunctionArgs): Promise<LoaderData> {
   const services = createNextServices(new Date());
-  try {
-    const position = await getBrowserLocation();
-    return {
-      services: services,
-      defaultPreferences: createDefaultPreference(services, RANGES, position?.coords),
-      deviceCoordinates: position?.coords
-    };
-  } catch (error) {
-    console.warn("Location access denied or failed:", error);
-    return {
-      services: services,
-      defaultPreferences: createDefaultPreference(services, RANGES, null),
-      deviceCoordinates: null
-    };
-  }
+  return {
+    services: services,
+    defaultPreferences: createDefaultPreference(services, RANGES, null)
+  };
 }
 
 export default function Home() {

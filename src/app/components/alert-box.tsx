@@ -1,4 +1,4 @@
-import { X, AlertTriangle, CheckCircle, Info, XCircle } from "lucide-react";
+import { X, XCircle } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 type AlertVariant = "default" | "danger" | "success" | "warning";
@@ -23,7 +23,7 @@ const VARIANT_STYLES: Record<AlertVariant, { topBar: string; iconBorder: string;
   },
   danger: {
     topBar: "bg-fun-red",
-    iconBorder: "border-fun-dark", // Keeping border dark for contrast
+    iconBorder: "border-fun-dark",
     iconText: "text-fun-red",
   },
   success: {
@@ -38,7 +38,7 @@ const VARIANT_STYLES: Record<AlertVariant, { topBar: string; iconBorder: string;
   },
 };
 
-export default function AlertBox({
+export function AlertBox({
   isOpen,
   onClose,
   title,
@@ -52,7 +52,6 @@ export default function AlertBox({
   const [visible, setVisible] = useState(false);
   const styles = VARIANT_STYLES[variant];
 
-  // Animation logic to handle exit transitions
   useEffect(() => {
     if (isOpen) {
       setVisible(true);
@@ -67,7 +66,7 @@ export default function AlertBox({
   return (
     <div
       className={`
-        fixed inset-0 z-100 overflow-y-auto
+        fixed inset-0 z-100
         ${isOpen ? "pointer-events-auto" : "pointer-events-none"}
         ${className}
       `}
@@ -75,7 +74,6 @@ export default function AlertBox({
       role="dialog"
       aria-modal="true"
     >
-      {/* Backdrop */}
       <div
         className={`
           fixed inset-0
@@ -87,27 +85,20 @@ export default function AlertBox({
         aria-hidden="true"
       />
 
-      {/* Modal Positioning */}
       <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
-
-        {/* Card */}
         <div
           className={`
             relative transform overflow-hidden rounded-xl bg-fun-cream text-left
             border-4 border-fun-dark shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]
             transition-all duration-200 ease-spring
-            w-full sm:max-w-md
-            /* Added Flex col and max-h to handle scrollable content */
-            flex flex-col max-h-[90vh]
+            w-full sm:max-w-lg md:max-w-xl
+            flex flex-col max-h-[85dvh]
             ${isOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4"}
           `}
         >
-          {/* Decorative Top Bar */}
-          <div
-            className={`h-4 w-full border-b-4 border-fun-dark pattern-diagonal-lines shrink-0 ${styles.topBar}`}
-          />
+          {/* Header Bar - No shrink */}
+          <div className={`h-4 w-full border-b-4 border-fun-dark pattern-diagonal-lines shrink-0 ${styles.topBar}`} />
 
-          {/* Optional Close Button */}
           {showCloseButton && (
             <button
               onClick={onClose}
@@ -118,11 +109,8 @@ export default function AlertBox({
             </button>
           )}
 
-          {/* Content Body - Scrollable */}
-          <div className="px-4 pb-4 pt-5 sm:p-6 sm:pb-4 overflow-y-auto flex-1">
+          <div className="px-4 pb-4 pt-5 sm:p-6 sm:pb-4 overflow-y-auto flex-1 min-h-0 overscroll-contain touch-pan-y">
             <div className="sm:flex sm:items-start">
-
-              {/* Icon Container */}
               {icon && (
                 <div
                   className={`
@@ -135,12 +123,8 @@ export default function AlertBox({
                 </div>
               )}
 
-              {/* Text Content */}
-              <div className={`mt-3 text-center sm:mt-0 sm:text-left ${icon ? 'sm:ml-4' : ''}`}>
-                <h3
-                  className="text-xl font-bold uppercase tracking-wide text-fun-dark font-pop pr-6"
-                  id="modal-title"
-                >
+              <div className={`mt-3 text-center sm:mt-0 sm:text-left ${icon ? 'sm:ml-4' : ''} w-full`}>
+                <h3 className="text-xl font-bold uppercase tracking-wide text-fun-dark font-pop pr-6" id="modal-title">
                   {title}
                 </h3>
                 <div className="mt-2 text-fun-dark">
@@ -150,7 +134,6 @@ export default function AlertBox({
             </div>
           </div>
 
-          {/* Footer (Only renders if actions are provided) */}
           {actions && (
             <div className="bg-fun-cream px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-2 shrink-0 border-t-2 border-fun-dark/5">
               {actions}
