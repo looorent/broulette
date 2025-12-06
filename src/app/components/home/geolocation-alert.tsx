@@ -1,4 +1,3 @@
-import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AlertBox } from "../alert-box";
 
@@ -29,7 +28,6 @@ export default function GeolocationAlert({ isOpen, onClose }: GeolocationAlertPr
         onClose={onClose}
         title="Geolocation is not supported by your browser."
         variant="danger"
-        icon={<X />}
         actions={
           <button
             type="button"
