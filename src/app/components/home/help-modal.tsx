@@ -12,7 +12,6 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
     <AlertBox
       isOpen={isOpen}
       onClose={onClose}
-      title="Our Story"
       variant="default"
       showCloseButton={true}
       actions={
@@ -39,7 +38,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
         {/* --- PART 1: THE EXPERIENCE --- */}
         <section className="text-center space-y-4">
-          <h2 className="font-display text-3xl text-fun-red transform -rotate-2 mt-2">
+          <h2 className="font-pop text-3xl text-fun-red transform -rotate-2 mt-8">
             Serendipity, Served.
           </h2>
 

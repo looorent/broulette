@@ -3,10 +3,12 @@ import { useEffect, useState, type ReactNode } from "react";
 
 type AlertVariant = "default" | "danger" | "success" | "warning";
 
+
+// TODO The animation does not "pop IN"
 interface AlertBoxProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
+  title?: string;
   children: ReactNode;
   actions?: ReactNode;
   icon?: ReactNode;
@@ -56,7 +58,7 @@ export function AlertBox({
     if (isOpen) {
       setVisible(true);
     } else {
-      const timer = setTimeout(() => setVisible(false), 200);
+      const timer = setTimeout(() => setVisible(false), 300);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -74,11 +76,12 @@ export function AlertBox({
       role="dialog"
       aria-modal="true"
     >
+      {/* Backdrop */}
       <div
         className={`
           fixed inset-0
           bg-fun-dark/20 backdrop-blur-sm
-          transition-opacity duration-200 ease-out
+          transition-opacity duration-300 ease-in-out
           ${isOpen ? "opacity-100" : "opacity-0"}
         `}
         onClick={onClose}
@@ -86,14 +89,19 @@ export function AlertBox({
       />
 
       <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
+        {/* Modal Container  */}
         <div
           className={`
             relative transform overflow-hidden rounded-xl bg-fun-cream text-left
             border-4 border-fun-dark shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]
-            transition-all duration-200 ease-spring
+            transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
             w-full sm:max-w-lg md:max-w-xl
             flex flex-col max-h-[85dvh]
-            ${isOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4"}
+
+            ${isOpen
+              ? "opacity-100 scale-100 translate-y-0"
+              : "opacity-0 scale-90 translate-y-8 pointer-events-none"
+            }
           `}
         >
           {/* Header Bar - No shrink */}
@@ -124,9 +132,12 @@ export function AlertBox({
               )}
 
               <div className={`mt-3 text-center sm:mt-0 sm:text-left ${icon ? 'sm:ml-4' : ''} w-full`}>
-                <h3 className="text-xl font-bold uppercase tracking-wide text-fun-dark font-pop pr-6" id="modal-title">
-                  {title}
-                </h3>
+                { title ? (
+                  <h3 className="text-xl font-bold uppercase tracking-wide text-fun-dark font-pop pr-6" id="modal-title">
+                    {title}
+                  </h3>
+                ) : null}
+
                 <div className="mt-2 text-fun-dark">
                   {children}
                 </div>
