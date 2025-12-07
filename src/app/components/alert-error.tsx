@@ -1,23 +1,24 @@
 import { useEffect, useState } from "react";
-import { AlertBox } from "../alert-box";
+import { AlertBox } from "./alert-box";
 
-interface GeolocationAlertProps {
+interface AlertErrorProps {
+  title: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function GeolocationAlert({ isOpen, onClose }: GeolocationAlertProps) {
+export default function AlertError({ title, isOpen, onClose }: AlertErrorProps) {
   const [visible, setVisible] = useState(false);
 
-  // animation
-  useEffect(() => {
-    if (isOpen) {
-      setVisible(true);
-    } else {
-      const timer = setTimeout(() => setVisible(false), 200);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
+  // // animation
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     setVisible(true);
+  //   } else {
+  //     const timer = setTimeout(() => setVisible(false), 200);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [isOpen]);
 
   if (!visible && !isOpen) {
     return null;

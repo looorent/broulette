@@ -4,9 +4,9 @@ import { useFetcher } from "react-router";
 import { getBrowserLocation } from "~/functions/address/browser-location";
 import { useDebounce } from "~/functions/debounce";
 import type { action as addressLoader } from "~/routes/api/address-search";
+import { useHomeContext } from "~/routes/home/context";
 import { createDeviceLocation, hasCoordinates, type LocationPreference } from "~/types/location";
 import { LocationSuggestionSelector } from "./location-suggestion-selector";
-import GeolocationAlert from "~/components/home/geolocation-alert";
 
 export interface LocationSelectorHandle {
   handleClose: () => void;
@@ -25,8 +25,8 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
     const [isLocating, setIsLocating] = useState(false);
     const [isSearchMode, setIsSearchMode] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const [showGeoError, setShowGeoError] = useState(false);
     const debouncedSearchText = useDebounce(searchText, 300);
+    const { openAlert, closeAlert } = useHomeContext();
 
     const wrapperRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -73,9 +73,42 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
       closeSearchMode();
     };
 
+    const openGeolocationErrorInAlert = () => {
+      openAlert({
+        title: "Geolocation is not supported by your browser.",
+        variant: "danger",
+        showCloseButton: false,
+        actions: (
+          <button
+            type="button"
+            onClick={closeAlert}
+            className="
+            inline-flex w-full justify-center rounded-md
+            bg-fun-red px-4 py-2
+            text-sm font-bold uppercase tracking-wider
+            border-2 border-fun-dark shadow-hard
+            hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5
+            text-fun-cream
+            transition-all duration-150 ease-out
+            sm:ml-3 sm:w-auto
+            cursor-pointer
+            -rotate-1 hover:rotate-0 hover:scale-105
+            font-pop
+          ">
+            Dismiss
+          </button>
+        ),
+        children: (
+          <p className="text-fun-dark mt-2 font-sans">
+            Please try updating your browser or enabling permissions in your settings.
+          </p>
+        )
+      });
+    };
+
     const triggerDeviceLocation = async () => {
       if (!navigator.geolocation) {
-        setShowGeoError(true);
+        openGeolocationErrorInAlert();
       } else {
         setIsLocating(true);
         setShowSuggestions(false);
@@ -87,7 +120,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
           closeSearchMode();
         } catch (e) {
           console.error(e);
-          setShowGeoError(true);
+          openGeolocationErrorInAlert();
         } finally {
           setIsLocating(false);
         }
@@ -112,10 +145,6 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
 
     return (
       <>
-        <GeolocationAlert
-          isOpen={showGeoError}
-          onClose={() => setShowGeoError(false)}
-        />
         <div id="location-search" className="relative group mr-1" ref={wrapperRef}>
           {/* Main Container */}
           <div className={`
@@ -171,7 +200,17 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
                   type="button"
                   onClick={enableSearchMode}
                   disabled={isLocating}
-                  className="bg-fun-cream text-fun-dark border-2 border-fun-dark px-3 py-1.5 rounded-xl font-bold uppercase tracking-wider hover:bg-white transition-colors flex items-center shadow-hard-hover active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="bg-fun-cream
+                    text-fun-dark border-2 border-fun-dark
+                    px-3 py-1.5
+                    rounded-xl
+                    font-bold uppercase
+                    tracking-wider
+                    hover:bg-white transition-colors
+                    flex items-center
+                    shadow-hard-hover
+                    cursor-pointer
+                    active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
                   aria-label="Change location"
                 >
                   <XCircle className="w-5 h-5 text-fun-dark stroke-3" />

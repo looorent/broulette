@@ -1,20 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { useFetcher, useLoaderData, useSearchParams, type ClientLoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router";
+import { AlertBox } from "~/components/alert-box";
 import { BottomSheet } from "~/components/bottom-sheet-modal";
-import BrandTitle from "~/components/home/brand-title";
-import FoodRain from "~/components/home/food-rain";
-import HelpButton from "~/components/home/help-button";
-import HelpModal from "~/components/home/help-modal";
-import StartButton, { SEARCH_FETCHER } from "~/components/home/start-button";
 import LoadingSpinner from "~/components/loading/loading-spinner";
 import { LoadingTitle } from "~/components/loading/loading-title";
-import { PreferenceChip, type PreferenceChipHandle } from "~/components/preferences/preferences-chip";
-import { PreferencesForm, type PreferencesFormHandle } from "~/components/preferences/preferences-form";
 import { getBrowserLocation } from "~/functions/address/browser-location";
+import { PreferenceChip, type PreferenceChipHandle } from "~/routes/home/components/preferences/preferences-chip";
+import { PreferencesForm, type PreferencesFormHandle } from "~/routes/home/components/preferences/preferences-form";
 import { RANGES } from "~/types/distance";
-import { createDeviceLocation, type Coordinates } from "~/types/location";
+import { createDeviceLocation } from "~/types/location";
 import { createDefaultPreference, Preference } from "~/types/preference";
 import { createNextServices, type ServicePreference } from "~/types/service";
+import BrandTitle from "./components/brand-title";
+import FoodRain from "./components/food-rain";
+import HelpButton from "./components/help-button";
+import HelpModal from "./components/help-modal";
+import StartButton, { SEARCH_FETCHER } from "./components/start-button";
+import { HomeProvider, useHomeContext } from "./context";
 
 interface LoaderData {
   services: ServicePreference[];
@@ -38,7 +40,7 @@ export async function clientLoader({ request }: ClientLoaderFunctionArgs): Promi
   };
 }
 
-export default function Home() {
+function HomeContent() {
   const fetcher = useFetcher({ key: SEARCH_FETCHER });
 
   if (fetcher.state !== "idle") {
@@ -54,6 +56,7 @@ export default function Home() {
     const [preferences, setPreferences] = useState<Preference>(defaultPreferences);
     const preferenceFormRef = useRef<PreferencesFormHandle>(null);
     const preferenceChipRef = useRef<PreferenceChipHandle>(null);
+    const { isAlertOpen, closeAlert, alertOptions } = useHomeContext();
 
     useEffect(() => {
       async function fetchLocation() {
@@ -74,22 +77,35 @@ export default function Home() {
 
     return (
       <main className="h-full relative">
-
-        <HelpModal
-          isOpen={searchParams.get("modal") === "help"}
-          onClose={() => {
-            searchParams.delete("modal");
-            setSearchParams(searchParams);
-          }}
-        />
-
         <HelpButton onOpen={() => {
-            setSearchParams(previous => {
-              previous.set("modal", "help");
-              return previous;
-            });
-          }
-          } />
+          setSearchParams(previous => {
+            previous.set("modal", "help");
+            return previous;
+          });
+        }} />
+
+        <section
+          className="h-full flex flex-col justify-between pt-14"
+          aria-label="Welcome Screen">
+          <BrandTitle />
+
+          <StartButton
+            preferences={preferences}
+            onBuzzOnError={() => preferenceChipRef?.current?.handleBuzzOnLocationError?.()} />
+
+          <PreferenceChip
+            ref={preferenceChipRef}
+            preferences={preferences}
+            onOpen={() => {
+              setSearchParams(previous => {
+                previous.set("modal", "preferences");
+                return previous;
+              });
+            }
+            } />
+        </section>
+
+        <FoodRain />
 
         <BottomSheet
           isOpen={searchParams.get("modal") === "preferences"}
@@ -109,29 +125,33 @@ export default function Home() {
             onLocationChange={newLocation => setPreferences(preferences.withLocation(newLocation))} />
         </BottomSheet>
 
-        <FoodRain />
+        <AlertBox
+          isOpen={isAlertOpen}
+          onClose={closeAlert}
+          title={alertOptions?.title}
+          variant={alertOptions?.variant}
+          actions={alertOptions?.actions}
+          className={alertOptions?.className}
+        >
+          {alertOptions?.children}
+        </AlertBox>
 
-        <section
-          className="h-full flex flex-col justify-between pt-14"
-          aria-label="Welcome Screen">
-          <BrandTitle />
-
-          <StartButton
-            preferences={preferences}
-            onBuzzOnError={() => preferenceChipRef?.current?.handleBuzzOnLocationError?.()}/>
-
-          <PreferenceChip
-            ref={preferenceChipRef}
-            preferences={preferences}
-            onOpen={() => {
-              setSearchParams(previous => {
-                previous.set("modal", "preferences");
-                return previous;
-              });
-            }
-          } />
-        </section>
+        <HelpModal
+          isOpen={searchParams.get("modal") === "help"}
+          onClose={() => {
+            searchParams.delete("modal");
+            setSearchParams(searchParams);
+          }}
+        />
       </main>
     );
   }
+}
+
+export default function Home() {
+  return (
+    <HomeProvider>
+      <HomeContent></HomeContent>
+    </HomeProvider>
+  );
 }

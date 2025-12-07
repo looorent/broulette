@@ -6,7 +6,7 @@ import {
 } from "@react-router/dev/routes";
 
 export default [
-  index("./routes/home.tsx"),
+  index("./routes/home/route.tsx"),
   ...prefix("searches", [
     index("./routes/new-search.tsx"),
     route(":searchId?", "./routes/search.tsx"),

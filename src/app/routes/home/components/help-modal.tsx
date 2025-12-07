@@ -10,8 +10,8 @@ import {
   Sparkles
 } from "lucide-react";
 import { useState } from "react";
+import { AlertBox } from "~/components/alert-box";
 import { APP_CONFIG } from "~/config";
-import { AlertBox } from "../alert-box";
 
 interface HelpModalProps {
   isOpen: boolean;
@@ -55,7 +55,6 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
       onClose={onClose}
       variant="default"
       showCloseButton={true}
-      isAbsolute={true}
       className="h-full"
       actions={
         <button
