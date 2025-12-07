@@ -1,5 +1,5 @@
 import { XCircle, type LucideProps } from "lucide-react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 type AlertVariant = "default" | "danger" | "success" | "warning";
 
@@ -56,29 +56,54 @@ export function AlertBox({
 }: AlertBoxProps) {
   const styles = VARIANT_STYLES[variant];
 
-  if (isOpen) {
+  const [isMounted, setIsMounted] = useState(false);
+  const [showContent, setShowContent] = useState(false);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    if (isOpen) {
+      setIsMounted(true);
+      timeoutId = setTimeout(() => {
+        setShowContent(true);
+      }, 10);
+    } else {
+      setShowContent(false);
+      timeoutId = setTimeout(() => {
+        setIsMounted(false);
+      }, 300);
+    }
+
+    return () => clearTimeout(timeoutId);
+  }, [isOpen]);
+
+  if (isMounted) {
     const Icon = icon;
+
     return (
       <dialog
         onClose={onClose}
         className={`
-          absolute inset-0
-          flex items-center justify-center
-          w-full h-full
-          p-4
-          z-100
-          bg-transparent border-none m-0
-          transition-all duration-300 ease-in-out
-          ${isOpen ? "opacity-100 visible backdrop-blur-sm" : "opacity-0 invisible backdrop-blur-none"}
-          ${className}
-        `}
+        absolute inset-0
+        flex items-center justify-center
+        w-full h-full
+        p-4
+        z-100
+        bg-transparent border-none m-0
+        transition-all duration-300 ease-in-out
+        ${showContent ? "visible backdrop-blur-sm" : "invisible backdrop-blur-none"}
+        ${className}
+      `}
         role="dialog"
         aria-modal="true"
         open
       >
         {/* Backdrop */}
         <div
-          className="absolute inset-0 bg-fun-dark/50 transition-opacity"
+          className={`
+            absolute inset-0 bg-fun-dark/50 transition-opacity duration-300
+            ${showContent ? "opacity-100" : "opacity-0"}
+          `}
           onClick={onClose}
         ></div>
 
@@ -91,9 +116,12 @@ export function AlertBox({
             bg-fun-cream
             border-4 border-fun-dark rounded-xl
             shadown-hard
-            transform transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
+            transform transition-all duration-300
             w-full max-h-[85vh]
             ${contentClassName}
+            ${showContent
+                ? "opacity-100 scale-100 translate-y-0 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                : "opacity-0 scale-95 translate-y-4 ease-in"}
           `}>
 
           {/* Header Bar */}
@@ -104,14 +132,14 @@ export function AlertBox({
               <button
                 onClick={onClose}
                 className="absolute top-1 right-1 z-50
-                  p-2 r
-                  border border-fun-cream bg-fun-cream rounded-full
-                  cursor-pointer
-                  text-fun-dark
-                "
+                p-2
+                border border-fun-cream bg-fun-cream rounded-full
+                cursor-pointer
+                text-fun-dark
+              "
                 aria-label="Close"
               >
-                <XCircle className="w-8 h-8 stroke-[2.5px]  hover:scale-110 transition-transform" />
+                <XCircle className="w-8 h-8 stroke-[2.5px] hover:scale-110 transition-transform" />
               </button>
             </div>
           )}
@@ -121,21 +149,21 @@ export function AlertBox({
               {Icon && (
                 <div
                   className={`
-                    bg-fun-cream
-                    mx-auto flex h-12 w-12 shrink-0 items-center justify-center
-                    rounded-full border-2 sm:mx-0 sm:h-10 sm:w-10
-                    ${styles.iconBorder} ${styles.iconText}
-                  `}
+                  bg-fun-cream
+                  mx-auto flex h-12 w-12 shrink-0 items-center justify-center
+                  rounded-full border-2 sm:mx-0 sm:h-10 sm:w-10
+                  ${styles.iconBorder} ${styles.iconText}
+                `}
                 >
                   <Icon />
                 </div>
               )}
 
               <div className={`
-                mt-3 text-center sm:mt-0 sm:text-left
-                ${icon ? 'sm:ml-4' : ''}
-                w-full h-full flex flex-col
-              `}>
+              mt-3 text-center sm:mt-0 sm:text-left
+              ${icon ? 'sm:ml-4' : ''}
+              w-full h-full flex flex-col
+            `}>
                 {title ? (
                   <h3 className="text-xl font-bold uppercase tracking-wide text-fun-dark font-pop pr-6" id="alert-box-modal-title">
                     {title}
@@ -160,5 +188,4 @@ export function AlertBox({
   } else {
     return null;
   }
-
 }
