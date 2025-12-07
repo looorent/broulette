@@ -117,13 +117,15 @@ export function AlertBox({
             <div className={`h-4 w-full border-b-4 border-fun-dark pattern-diagonal-lines shrink-0 ${styles.topBar}`} />
 
             {showCloseButton && (
-              <button
-                onClick={onClose}
-                className="absolute top-6 right-4 p-1 text-fun-dark/50 hover:text-fun-dark hover:bg-black/5 rounded-full transition-colors z-10"
-                aria-label="Close"
-              >
-                <XCircle className="w-8 h-8 stroke-[2.5px]" />
-              </button>
+              <div className="text-right">
+                <button
+                  onClick={onClose}
+                  className="text-fun-dark hover:scale-110 transition-transform p-4"
+                  aria-label="Close"
+                >
+                  <XCircle className="w-8 h-8 stroke-[2.5px]" />
+                </button>
+              </div>
             )}
 
             <div className="px-4 pb-4 pt-5 sm:p-6 sm:pb-4 overflow-y-auto flex-1 min-h-0 overscroll-contain touch-pan-y">
