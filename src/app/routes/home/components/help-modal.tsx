@@ -55,7 +55,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
       onClose={onClose}
       variant="default"
       showCloseButton={true}
-      className="h-full"
+      contentClassName="h-full"
       actions={
         <button
           type="button"

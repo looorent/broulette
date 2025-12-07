@@ -11,6 +11,7 @@ export interface AlertBoxOptions {
   variant?: AlertVariant;
   showCloseButton?: boolean;
   className?: string;
+  contentClassName?: string;
 }
 
 interface AlertBoxProps extends AlertBoxOptions {
@@ -51,6 +52,7 @@ export function AlertBox({
   variant = "default",
   showCloseButton = false,
   className = "",
+  contentClassName = ""
 }: AlertBoxProps) {
   const styles = VARIANT_STYLES[variant];
 
@@ -91,6 +93,7 @@ export function AlertBox({
             shadown-hard
             transform transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
             w-full max-h-[85vh]
+            ${contentClassName}
           `}>
 
           {/* Header Bar */}
