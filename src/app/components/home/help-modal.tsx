@@ -1,4 +1,16 @@
-import { Cookie, MapPin, Scale, Server, ShieldCheck } from "lucide-react";
+import {
+  AlertTriangle,
+  Cookie,
+  Mail,
+  Map,
+  MapPin,
+  Scroll,
+  Server,
+  ShieldCheck,
+  Sparkles
+} from "lucide-react";
+import { useState } from "react";
+import { APP_CONFIG } from "~/config";
 import { AlertBox } from "../alert-box";
 
 interface HelpModalProps {
@@ -6,15 +18,37 @@ interface HelpModalProps {
   onClose: () => void;
 }
 
-function PhilosophyItem({ title, description} : { title: string, description: string}) {
+type TabType = "about" | "privacy" | "legal";
+
+function PhilosophyItem({ title, description }: { title: string, description: string }) {
   return (
     <li className="flex gap-2">
-      <span><strong>{title}:</strong> {description}</span>
+      <span className="text-fun-dark"><strong>{title}:</strong> {description}</span>
     </li>
   );
 }
 
 export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
+  const [activeTab, setActiveTab] = useState<TabType>("about");
+
+  const TabButton = ({ id, label, icon: Icon }: { id: TabType, label: string, icon: any }) => (
+    <button
+      onClick={() => setActiveTab(id)}
+      className={`
+        flex items-center font-pop gap-2 pb-2 px-2 text-sm uppercase tracking-wide transition-all duration-200
+        border-b-2
+        cursor-pointer
+        ${activeTab === id
+          ? "border-fun-dark text-fun-dark"
+          : "border-transparent text-fun-dark/40 hover:text-fun-dark hover:border-fun-dark/20"
+        }
+      `}
+    >
+      <Icon className="w-4 h-4" />
+      {label}
+    </button>
+  );
+
   return (
     <AlertBox
       isOpen={isOpen}
@@ -41,118 +75,164 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
         </button>
       }
     >
-      <div className="space-y-8 text-fun-dark font-sans pb-4 select-text">
-        <h2 className="font-pop text-3xl text-fun-red text-center transform -rotate-2 mt-8">
-          Serendipity, Served.
-        </h2>
-
-        <section className="text-center space-y-4">
-          <h3 className="hidden">Principle</h3>
+      <div className="flex flex-col font-sans select-text h-[70vh]">
+        <div className="text-center mb-8">
+          <h2 className="font-pop text-3xl text-fun-red text-center transform -rotate-2 mb-4">
+            Serendipity, Served.
+          </h2>
 
           <p className="text-sm italic opacity-80 max-w-sm mx-auto">
             In a world of infinite choices, the hardest question is often, <em>"Where should we eat?"</em>
           </p>
-
-          <p className="text-sm leading-relaxed">
-            <strong>BiteRoulette</strong> eliminates the paradox of choice.
-            We don't waste time looking for the "best" rated spot; we embrace the chaos of chance. We cut through the noise of reviews to serve you one completely random destination near you.
-            Whether it's a hidden gem, a greasy spoon, or a total mystery—stop scrolling and roll the dice.
-          </p>
-
-          <div className="bg-fun-dark/5 p-4 rounded-lg border-2 border-fun-dark/10 text-left mx-auto max-w-sm">
-            <h3 className="font-bold text-xs uppercase tracking-widest mb-3 text-center border-b border-fun-dark/10 pb-2">The Philosophy</h3>
-            <ul className="space-y-2 text-sm list-none">
-              <PhilosophyItem title="Zero Friction" description="No scrolling, no debating." />
-              <PhilosophyItem title="Local Discovery" description="Uncover hidden gems." />
-              <PhilosophyItem title="Pure Spontaneity" description="Let fate decide." />
-            </ul>
-          </div>
-
-          <div className="font-display text-lg text-fun-dark">
-            <p>Press the button. Embrace the unknown.</p>
-            <p className="text-fun-red">Bon appétit.</p>
-          </div>
-        </section>
-
-        {/* Divider */}
-        <div className="relative flex py-2 items-center">
-          <div className="grow border-t-2 border-fun-dark/10"></div>
-          <ShieldCheck className="w-5 h-5 shrink-0 mx-4 text-fun-dark/30" />
-          <div className="grow border-t-2 border-fun-dark/10"></div>
         </div>
 
-        {/* --- PART 2: PRIVACY --- */}
-        <section className="text-left space-y-6">
-          <div className="mb-4">
-            <h3 className="text-xl font-bold uppercase tracking-wide font-pop">Privacy - The "No-Nonsense" Approach</h3>
-            <p className="text-[10px] opacity-50 mt-1">Last Updated: December 7, 2025</p>
-            <p className="text-sm mt-3">
-              We treat your data with the same respect we treat your dinner plans: strictly private and to the point. We believe in data minimalism.
-            </p>
-          </div>
 
-          <div className="space-y-4">
-            {/* Cookies */}
-            <div className="flex gap-3 items-start">
-              <div className="p-2 bg-fun-red/10 rounded-lg shrink-0 mt-1">
-                <Cookie className="w-5 h-5 text-fun-red" />
-              </div>
-              <div>
-                <h4 className="font-bold text-sm uppercase tracking-wide mb-1">The Zero-Cookie Diet</h4>
-                <p className="text-sm opacity-80 leading-relaxed">
-                  We are here to feed you, not your browser. We do not use tracking cookies. You will not find marketing pixels or third-party ad trackers here.
-                </p>
-                <div className="mt-2 text-xs bg-yellow-50 p-2 rounded border border-yellow-200 text-yellow-800">
-                  <strong>Security Note:</strong> We use cookies strictly for protection, not profit. Aside from Google's tool to block bots, our cookies are just there to prevent unauthorized activity and keep the site secure.
-                </div>
-              </div>
-            </div>
+        {/* Tab Navigation */}
+        <div className="flex gap-4 border-b-2 border-fun-dark/5 mb-6 shrink-0">
+          <TabButton id="about" label="Recipe" icon={Sparkles} />
+          <TabButton id="privacy" label="Diet" icon={ShieldCheck} />
+          <TabButton id="legal" label="Ingredients" icon={Scroll} />
+        </div>
 
-            {/* Location */}
-            <div className="flex gap-3 items-start">
-              <div className="p-2 bg-blue-100 rounded-lg shrink-0 mt-1">
-                <MapPin className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <h4 className="font-bold text-sm uppercase tracking-wide mb-1">Your Location Data</h4>
-                <p className="text-sm opacity-80 leading-relaxed mb-2">
-                  To work our magic, we need to know where you stand.
-                </p>
-                <ul className="text-xs space-y-1 list-disc pl-4 opacity-80">
-                  <li><strong>Collection:</strong> Only when you tap search.</li>
-                  <li><strong>Processing:</strong> Anonymized and sent to mapping providers (Google/OSM).</li>
-                  <li><strong>Storage:</strong> Coordinates logged only to refine algorithms.</li>
+        {/* Tab Content Container */}
+        <div className="flex-1 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+
+          {/* Concept */}
+          {activeTab === 'about' && (
+            <section className="text-center space-y-6">
+              <p className="text-sm leading-relaxed text-left sm:text-center text-fun-dark">
+                <strong>BiteRoulette</strong> eliminates the paradox of choice.
+                We don't waste time looking for the "best" rated spot; we embrace the chaos of chance. We cut through the noise of reviews to serve you one completely random destination near you.
+              </p>
+
+              <div className="bg-fun-dark/5 p-4 rounded-lg border-2 border-fun-dark/10 text-left mx-auto max-w-sm">
+                <h3 className="font-bold text-xs uppercase tracking-widest mb-3 text-center border-b border-fun-dark/10 pb-2">The Philosophy</h3>
+                <ul className="space-y-2 text-sm list-none">
+                  <PhilosophyItem title="Zero Friction" description="No scrolling, no debating." />
+                  <PhilosophyItem title="Local Discovery" description="Uncover hidden gems." />
+                  <PhilosophyItem title="Pure Spontaneity" description="Let fate decide." />
                 </ul>
               </div>
-            </div>
 
-            {/* Storage */}
-            <div className="flex gap-3 items-start">
-              <div className="p-2 bg-indigo-100 rounded-lg shrink-0 mt-1">
-                <Server className="w-5 h-5 text-indigo-600" />
+              <div className="font-display text-lg text-fun-dark pt-2">
+                <p>Press the button. Embrace the unknown.</p>
+                <p className="text-fun-red">Bon appétit.</p>
               </div>
-              <div>
-                <h4 className="font-bold text-sm uppercase tracking-wide mb-1">Fortress Europe</h4>
-                <p className="text-sm opacity-80 leading-relaxed">
-                  Your data is securely anchored in <strong>Frankfurt, Germany</strong> (eu-central-1). We utilize Render (AWS infrastructure), ensuring rigorous European security standards.
+            </section>
+          )}
+
+          {/* --- TAB 2: PRIVACY --- */}
+          {activeTab === 'privacy' && (
+            <section className="text-left space-y-5">
+              <h3 className="hidden">Privacy</h3>
+              <div className="mb-8">
+                <p className="text-sm mt-2">
+                  We treat your data with the same respect we treat your dinner plans: strictly private and to the point.
                 </p>
               </div>
-            </div>
 
-            {/* Rights */}
-            <div className="flex gap-3 items-start">
-              <div className="p-2 bg-emerald-100 rounded-lg shrink-0 mt-1">
-                <Scale className="w-5 h-5 text-emerald-600" />
+              {/* Cookies */}
+              <div className="flex gap-3 items-start">
+                <div className="p-2 bg-fun-red/10 rounded-lg shrink-0 mt-1">
+                  <Cookie className="w-5 h-5 text-fun-red" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm uppercase tracking-wide mb-1">The Zero-Tracking Diet</h4>
+                  <p className="text-sm leading-relaxed mb-2">
+                    We are here to feed you, not your browser. We do not use tracking cookies or marketing pixels.
+                  </p>
+                  <div className="text-xs bg-fun-dark/5 p-2 rounded border border-fun-dark/10 text-fun-dark/80">
+                    <strong>Security Note:</strong> We use cookies strictly for protection, not profit. Aside from Google's tool to block bots, our cookies are just there to prevent unauthorized activity and keep the site secure.
+                  </div>
+                </div>
               </div>
-              <div>
-                <h4 className="font-bold text-sm uppercase tracking-wide mb-1">Your Rights</h4>
-                <p className="text-sm opacity-80 leading-relaxed">
-                  Your data belongs to you. If you wish to review or purge your data, simply contact us.
-                </p>
+
+              {/* Location */}
+              <div className="flex gap-3 items-start">
+                <div className="p-2 bg-blue-100 rounded-lg shrink-0 mt-1">
+                  <MapPin className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm uppercase tracking-wide mb-1">Your Location Data</h4>
+                  <ul className="text-xs space-y-1 list-disc pl-4 opacity-80">
+                    <li><strong>Collection:</strong> Only when you tap search.</li>
+                    <li><strong>Processing:</strong> Anonymized and sent to mapping providers (Google/OSM).</li>
+                    <li><strong>Storage:</strong> Coordinates logged only to refine algorithms.</li>
+                  </ul>
+                </div>
               </div>
-            </div>
-          </div>
-        </section>
+
+              {/* Storage */}
+              <div className="flex gap-3 items-start">
+                <div className="p-2 bg-indigo-100 rounded-lg shrink-0 mt-1">
+                  <Server className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm uppercase tracking-wide mb-1">Fortress Europe</h4>
+                  <p className="text-xs opacity-80 leading-relaxed">
+                    Your data is securely anchored in <strong>Frankfurt, Germany</strong> (eu-central-1). We utilize Render (AWS infrastructure), ensuring rigorous European security standards.
+                  </p>
+                </div>
+              </div>
+
+
+              <p className="text-[10px] opacity-70 mt-1">Last Updated: {APP_CONFIG.privacy.updatedAt}</p>
+            </section>
+          )}
+
+          {/* --- TAB 3: LEGAL (New) --- */}
+          {activeTab === 'legal' && (
+            <section className="text-left space-y-6">
+
+              {/* Liability - Critical */}
+              <div className="flex gap-3 items-start bg-orange-50 p-4 rounded-lg border border-orange-200">
+                <AlertTriangle className="w-6 h-6 text-orange-500 shrink-0" />
+                <div>
+                  <h4 className="font-bold text-sm text-orange-800 uppercase tracking-wide mb-1">Disclaimer: We Pick, You Verify</h4>
+                  <p className="text-xs text-orange-900/80 leading-relaxed">
+                    BiteRoulette provides random suggestions based on third-party data. We do not guarantee the quality, safety, or operating hours of any location. Always check open times and reviews before you travel. Eat responsibly.
+                  </p>
+                </div>
+              </div>
+
+              {/* Attribution */}
+              <div className="flex gap-3 items-start">
+                <div className="p-2 bg-gray-100 rounded-lg shrink-0 mt-1">
+                  <Map className="w-5 h-5 text-gray-600" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm uppercase tracking-wide mb-1">Data Sources</h4>
+                  <p className="text-xs opacity-80 leading-relaxed">
+                    Powered by <strong>Google Maps Platform</strong>. <br />
+                    Icons provided by <strong>Lucide</strong>.
+                  </p>
+                </div>
+              </div>
+
+              {/* Feedback Loop */}
+              <div className="flex gap-3 items-start">
+                <div className="p-2 bg-purple-100 rounded-lg shrink-0 mt-1">
+                  <Mail className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm uppercase tracking-wide mb-1">Feedback & Rights</h4>
+                  <p className="text-xs opacity-80 leading-relaxed mb-2">
+                    Found a bug? The dice got stuck? Or wish to request a data purge?
+                  </p>
+                  <a href="mailto:hello@biteroulette.com" className="text-sm font-bold text-fun-dark underline decoration-2 decoration-fun-red hover:decoration-fun-dark transition-all">
+                    hello@biteroulette.com
+                  </a>
+                </div>
+              </div>
+
+              {/* Version */}
+              <div className="text-center pt-8 opacity-30">
+                <p className="text-[10px] font-mono uppercase tracking-widest">v{APP_CONFIG.version}</p>
+              </div>
+            </section>
+          )}
+
+        </div>
       </div>
     </AlertBox>
   );

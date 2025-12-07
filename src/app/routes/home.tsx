@@ -73,7 +73,8 @@ export default function Home() {
     }, []);
 
     return (
-      <>
+      <main className="h-full relative">
+
         <HelpModal
           isOpen={searchParams.get("modal") === "help"}
           onClose={() => {
@@ -81,57 +82,56 @@ export default function Home() {
             setSearchParams(searchParams);
           }}
         />
-        <main className="h-full relative">
-          <HelpButton onOpen={() => {
+
+        <HelpButton onOpen={() => {
+            setSearchParams(previous => {
+              previous.set("modal", "help");
+              return previous;
+            });
+          }
+          } />
+
+        <BottomSheet
+          isOpen={searchParams.get("modal") === "preferences"}
+          onClose={() => {
+            preferenceFormRef?.current?.handleClose();
+            searchParams.delete("modal");
+            setSearchParams(searchParams);
+          }}
+          title="Preferences"
+        >
+          <PreferencesForm
+            ref={preferenceFormRef}
+            preferences={preferences}
+            services={services}
+            onServiceChange={newService => setPreferences(preferences.withService(newService))}
+            onDistanceRangeChange={newDistanceRange => setPreferences(preferences.withRange(newDistanceRange))}
+            onLocationChange={newLocation => setPreferences(preferences.withLocation(newLocation))} />
+        </BottomSheet>
+
+        <FoodRain />
+
+        <section
+          className="h-full flex flex-col justify-between pt-14"
+          aria-label="Welcome Screen">
+          <BrandTitle />
+
+          <StartButton
+            preferences={preferences}
+            onBuzzOnError={() => preferenceChipRef?.current?.handleBuzzOnLocationError?.()}/>
+
+          <PreferenceChip
+            ref={preferenceChipRef}
+            preferences={preferences}
+            onOpen={() => {
               setSearchParams(previous => {
-                previous.set("modal", "help");
+                previous.set("modal", "preferences");
                 return previous;
               });
             }
-           } />
-
-          <BottomSheet
-            isOpen={searchParams.get("modal") === "preferences"}
-            onClose={() => {
-              preferenceFormRef?.current?.handleClose();
-              searchParams.delete("modal");
-              setSearchParams(searchParams);
-            }}
-            title="Preferences"
-          >
-            <PreferencesForm
-              ref={preferenceFormRef}
-              preferences={preferences}
-              services={services}
-              onServiceChange={newService => setPreferences(preferences.withService(newService))}
-              onDistanceRangeChange={newDistanceRange => setPreferences(preferences.withRange(newDistanceRange))}
-              onLocationChange={newLocation => setPreferences(preferences.withLocation(newLocation))} />
-          </BottomSheet>
-
-          <FoodRain />
-
-          <section
-            className="h-full flex flex-col justify-between pt-14"
-            aria-label="Welcome Screen">
-            <BrandTitle />
-
-            <StartButton
-              preferences={preferences}
-              onBuzzOnError={() => preferenceChipRef?.current?.handleBuzzOnLocationError?.()}/>
-
-            <PreferenceChip
-              ref={preferenceChipRef}
-              preferences={preferences}
-              onOpen={() => {
-                setSearchParams(previous => {
-                  previous.set("modal", "preferences");
-                  return previous;
-                });
-              }
-            } />
-          </section>
-        </main>
-      </>
+          } />
+        </section>
+      </main>
     );
   }
 }

@@ -75,7 +75,7 @@ export function AlertBox({
     return (
       <div
         className={`
-          fixed inset-0 z-100
+          absolute inset-0 z-100
           ${isVisible ? "pointer-events-auto" : "pointer-events-none"}
           ${className}
         `}
@@ -100,8 +100,7 @@ export function AlertBox({
           <div
             className={`
               relative transform overflow-hidden rounded-xl bg-fun-cream text-left
-              border-4 border-fun-dark shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]
-              /* This bezier curve creates the "Pop" / overshoot effect */
+              border-4 border-fun-dark shadown-hard
               transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
               w-full sm:max-w-lg md:max-w-xl
               flex flex-col max-h-[85dvh]
