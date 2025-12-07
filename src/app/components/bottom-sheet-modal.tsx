@@ -32,7 +32,7 @@ export function BottomSheet({
   return (
     <dialog
       className={`
-        flex flex-col absolute inset-0 z-100 items-center justify-end
+        flex flex-col absolute inset-0 z-50 items-center justify-end
         py-0 px-2 backdrop-blur-sm w-full h-dvh border-none m-0 max-w-full max-h-full bg-transparent
         transform transition-transform duration-300
         ${isOpen ? "ease-out" : "ease-in"}

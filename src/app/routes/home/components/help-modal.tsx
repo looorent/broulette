@@ -64,11 +64,13 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             inline-flex w-full justify-center rounded-md
             bg-fun-dark px-4 py-2
             text-sm font-bold uppercase tracking-wider
-            border-2 border-transparent
-            hover:bg-fun-dark/90 hover:shadow-lg
+            border-2 border-fun-dark shadow-hard
+            hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5
             text-fun-cream
             transition-all duration-150 ease-out
             sm:ml-3 sm:w-auto
+            cursor-pointer
+            -rotate-1 hover:rotate-0 hover:scale-105
             font-pop
           "
         >
@@ -87,7 +89,6 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
           </p>
         </div>
 
-
         {/* Tab Navigation */}
         <div className="flex gap-4 border-b-2 border-fun-dark/5 mb-4 shrink-0">
           <TabButton id="about" label="Recipe" icon={Sparkles} />
@@ -97,11 +98,11 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
         {/* Tab Content Container */}
         <div className="flex-1
-          min-h-0
-          pr-2
-          space-y-6
-          animate-in fade-in zoom-in-95 duration-200
-          overflow-y-auto
+            min-h-0
+            pr-2
+            space-y-6
+            animate-in fade-in zoom-in-95 duration-200
+            overflow-y-auto
           ">
 
           {/* Tab 1: Concept */}
@@ -186,7 +187,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             </section>
           )}
 
-          {/* --- TAB 3: LEGAL (New) --- */}
+          {/* Tab 3: Legal */}
           {activeTab === "legal" && (
             <section className="text-left space-y-6">
               <h3 className="hidden">Legal</h3>
@@ -226,8 +227,8 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   <p className="text-xs opacity-80 leading-relaxed mb-2">
                     Found a bug? The dice got stuck? Or wish to request a data purge?
                   </p>
-                  <a href="mailto:hello@biteroulette.com" className="text-sm font-bold text-fun-dark underline decoration-2 decoration-fun-red hover:decoration-fun-dark transition-all">
-                    hello@biteroulette.com
+                  <a href={"mailto:" + APP_CONFIG.privacy.contactEmail} className="text-sm font-bold text-fun-dark underline decoration-2 decoration-fun-red hover:decoration-fun-dark transition-all">
+                    {APP_CONFIG.privacy.contactEmail}
                   </a>
                 </div>
               </div>
