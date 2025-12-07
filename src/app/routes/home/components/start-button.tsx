@@ -17,7 +17,8 @@ export default function StartButton({ preferences, onBuzzOnError, className = ""
   useEffect(() => {
     console.log("TODO preferences", preferences);
   }, [preferences?.id]);
-  const isReady = !!preferences.isValid();
+  const hasErrors = preferences ? !preferences.isValid() : false;
+  const showErrors = preferences && preferences.isDeviceLocationAttempted && !preferences.isValid();
 
   const triggerBuzz = () => {
     if (!isBuzzing) {
@@ -28,7 +29,7 @@ export default function StartButton({ preferences, onBuzzOnError, className = ""
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isReady) {
+    if (hasErrors) {
       triggerBuzz();
       onBuzzOnError?.();
     } else {
@@ -55,27 +56,27 @@ export default function StartButton({ preferences, onBuzzOnError, className = ""
           flex flex-col items-center justify-center z-20
           transition-all duration-300 ease-out
           ${isBuzzing ? 'animate-buzz bg-fun-red border-2 border-fun-cream border-dashed' : ''}
-          ${!isReady && !isBuzzing ? 'bg-slate-100 text-slate-400 border-2 border-slate-200 border-dashed cursor-not-allowed hover:bg-slate-200' : ''}
-          ${isReady ? 'bg-fun-cream border-fun-dark shadow-hard hover:translate-y-0.5 hover:shadow-hard-hover active:scale-95 cursor-pointer' : ''}
+          ${showErrors && !isBuzzing ? 'bg-slate-100 text-slate-400 border-2 border-slate-200 border-dashed cursor-not-allowed hover:bg-slate-200' : ''}
+          ${!showErrors ? 'bg-fun-cream border-fun-dark shadow-hard hover:translate-y-0.5 hover:shadow-hard-hover active:scale-95 cursor-pointer' : ''}
         `}
-        aria-disabled={!isReady}>
+        aria-disabled={hasErrors}>
           <span className={`
             font-pop text-4xl uppercase tracking-wider transition-all duration-300
-            ${isReady
-              ? "text-fun-dark"
-              : "text-gray-300 decoration-4 decoration-red-400/50 blur-[0.5px]"
+            ${showErrors
+              ? "text-gray-300 decoration-4 decoration-red-400/50 blur-[0.5px]"
+              : "text-fun-dark"
             }
           `}>
             feed me
           </span>
 
-          {!isReady && (
+          {showErrors && (
             <div className="
               absolute -top-1 -right-1
               rotate-12 group-hover:rotate-25 group-hover:scale-110
               transition-all duration-200 ease-spring
             ">
-              <AlertTriangle className="w-14 h-14 text-fun-dark fill-yellow-400 stroke-[2.5px] drop-shadow-md"
+              <AlertTriangle className="w-14 h-14 text-fun-dark fill-fun-yellow stroke-[2.5px] drop-shadow-md"
               />
             </div>
           )}

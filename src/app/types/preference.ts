@@ -6,6 +6,7 @@ export class Preference {
   readonly id: string;
   constructor(readonly service: ServicePreference,
               readonly location: LocationPreference,
+              readonly isDeviceLocationAttempted: boolean,
               readonly range: DistanceRange) {
     this.id = crypto.randomUUID();
   }
@@ -15,6 +16,7 @@ export class Preference {
       return new Preference(
         service,
         this.location,
+        this.isDeviceLocationAttempted,
         this.range
       );
     } else {
@@ -27,6 +29,7 @@ export class Preference {
       return new Preference(
         this.service,
         location,
+        this.isDeviceLocationAttempted,
         this.range
       );
     } else {
@@ -39,10 +42,24 @@ export class Preference {
       return new Preference(
         this.service,
         this.location,
+        this.isDeviceLocationAttempted,
         range
       );
     } else {
       return this;
+    }
+  }
+
+  withDeviceLocationAttempted(): Preference | this {
+    if (this.isDeviceLocationAttempted) {
+      return this;
+    } else {
+      return new Preference(
+        this.service,
+        this.location,
+        true,
+        this.range
+      );
     }
   }
 
@@ -65,6 +82,7 @@ export function createDefaultPreference(services: ServicePreference[],
   return new Preference(
     services[0],
     createDeviceLocation(coordinates),
+    false,
     ranges[1]
   );
 }

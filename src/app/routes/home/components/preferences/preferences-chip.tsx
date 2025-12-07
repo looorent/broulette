@@ -42,19 +42,18 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
       },
     }));
 
-    const isLocationValid: boolean = preferences?.hasValidLocation();
-
-    let ServiceIcon = preferences?.service?.icon;
-
+    const isLocationValid = preferences ? !preferences.isDeviceLocationAttempted || preferences.hasValidLocation() : true;
     return (
       <section className="w-full px-2 pb-0">
-        <button className="w-full bg-fun-green
-        border-4 border-b-0 border-fun-dark rounded-t-[3rem]
-        p-4 pb-6 shadow-sheet flex flex-col
-        -mb-4
-        items-center justify-center gap-2
-        transition-transform hover:-translate-y-3 active:translate-y-0 hover:-mb-5  cursor-pointer group relative z-40 animate-float
-        touch-none"
+        <button className="
+            w-full bg-fun-green
+            border-4 border-b-0 border-fun-dark rounded-t-[3rem]
+            p-4 pb-6 shadow-sheet flex flex-col
+            -mb-4
+            items-center justify-center gap-2
+            transition-transform hover:-translate-y-3 active:translate-y-0 hover:-mb-5  cursor-pointer group relative z-40 animate-float
+            touch-none
+          "
           onClick={onOpen}
           {...swipeUp()}>
           <div className="w-16 h-1.5 bg-fun-dark/20 rounded-full mb-0.5 transition-colors group-hover:bg-fun-dark/40"></div>

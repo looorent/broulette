@@ -63,10 +63,11 @@ function HomeContent() {
         try {
           const devicePosition = await getBrowserLocation();
           if (devicePosition?.coords) {
-            setPreferences((prev) => prev.withLocation(createDeviceLocation(devicePosition.coords)));
+            setPreferences((prev) => prev.withLocation(createDeviceLocation(devicePosition.coords)).withDeviceLocationAttempted());
           }
         } catch (error) {
           console.warn("Location access denied or failed:", error);
+          setPreferences((prev) => prev.withDeviceLocationAttempted());
         }
       }
 
