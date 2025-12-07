@@ -75,15 +75,16 @@ export function AlertBox({
   if (isRendered) {
     const Icon = icon;
     return (
-      <div
+      <dialog
         className={`
           ${isAbsolute ? "absolute" : "fixed"}
           inset-0 z-100
           p-4
+          flex justify-center text-center items-center
           ${isVisible ? "pointer-events-auto" : "pointer-events-none"}
           ${className}
         `}
-        aria-labelledby="modal-title"
+        aria-labelledby="alert-box-modal-title"
         role="dialog"
         aria-modal="true"
       >
@@ -100,7 +101,9 @@ export function AlertBox({
         />
 
         {/* Modal Container */}
-        <div className={`flex flex-col min-h-full items-center justify-center text-center relative overflow-hidden
+        <div className={`flex flex-col
+              items-center justify-center text-center
+              relative overflow-hidden
               bg-fun-cream
               border-4 border-fun-dark rounded-xl
               shadown-hard
@@ -149,7 +152,7 @@ export function AlertBox({
 
               <div className={`mt-3 text-center sm:mt-0 sm:text-left ${icon ? 'sm:ml-4' : ''} w-full`}>
                 {title ? (
-                  <h3 className="text-xl font-bold uppercase tracking-wide text-fun-dark font-pop pr-6" id="modal-title">
+                  <h3 className="text-xl font-bold uppercase tracking-wide text-fun-dark font-pop pr-6" id="alert-box-modal-title">
                     {title}
                   </h3>
                 ) : null}
@@ -167,7 +170,7 @@ export function AlertBox({
             </div>
           )}
         </div>
-      </div>
+      </dialog>
     );
   } else {
     return null;

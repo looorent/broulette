@@ -39,6 +39,9 @@ export function BottomSheet({
         ${isOpen ? "translate-y-0" : "translate-y-full"}
         ${className}
       `}
+      aria-labelledby="bottom-sheet-modal-title"
+      role="dialog"
+      aria-modal="true"
       open
     >
       <div className="
@@ -60,7 +63,7 @@ export function BottomSheet({
 
         {/* Title */}
         <div className="flex justify-between items-center mb-6">
-          {title && <h3 className="font-pop text-3xl text-fun-dark">{title}</h3>}
+          {title && <h3 className="font-pop text-3xl text-fun-dark" id="alert-box-modal-title">{title}</h3>}
           <button
             onClick={onClose}
             className="text-fun-dark hover:scale-110 transition-transform cursor-pointer"

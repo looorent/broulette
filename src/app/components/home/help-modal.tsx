@@ -56,6 +56,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
       variant="default"
       showCloseButton={true}
       isAbsolute={true}
+      className="h-full"
       actions={
         <button
           type="button"
@@ -76,8 +77,8 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
         </button>
       }
     >
-      <div className="flex flex-col font-sans select-text h-full">
-        <div className="text-center mt-8 mb-4 sm:mb-8">
+      <div className="flex flex-col font-sans select-text h-full overflow-hidden">
+        <div className="text-center mt-8 mb-4 sm:mb-8 shrink-0">
           <h2 className="font-pop text-3xl text-fun-red text-center transform -rotate-2 mb-4">
             Serendipity, Served.
           </h2>
@@ -97,6 +98,8 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
         {/* Tab Content Container */}
         <div className="flex-1
+          min-h-0
+          pr-2
           space-y-6
           animate-in fade-in zoom-in-95 duration-200
           overflow-y-auto
