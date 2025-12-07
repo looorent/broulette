@@ -55,6 +55,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
       onClose={onClose}
       variant="default"
       showCloseButton={true}
+      isAbsolute={true}
       actions={
         <button
           type="button"
@@ -75,37 +76,41 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
         </button>
       }
     >
-      <div className="flex flex-col font-sans select-text h-[70vh]">
-        <div className="text-center mb-8">
+      <div className="flex flex-col font-sans select-text h-full">
+        <div className="text-center mt-8 mb-4 sm:mb-8">
           <h2 className="font-pop text-3xl text-fun-red text-center transform -rotate-2 mb-4">
             Serendipity, Served.
           </h2>
 
-          <p className="text-sm italic opacity-80 max-w-sm mx-auto">
+          <p className="text-sm opacity-80 mb-4 sm:mb-8">
             In a world of infinite choices, the hardest question is often, <em>"Where should we eat?"</em>
           </p>
         </div>
 
 
         {/* Tab Navigation */}
-        <div className="flex gap-4 border-b-2 border-fun-dark/5 mb-6 shrink-0">
+        <div className="flex gap-4 border-b-2 border-fun-dark/5 mb-4 shrink-0">
           <TabButton id="about" label="Recipe" icon={Sparkles} />
           <TabButton id="privacy" label="Diet" icon={ShieldCheck} />
           <TabButton id="legal" label="Ingredients" icon={Scroll} />
         </div>
 
         {/* Tab Content Container */}
-        <div className="flex-1 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex-1
+          space-y-6
+          animate-in fade-in zoom-in-95 duration-200
+          overflow-y-auto
+          ">
 
-          {/* Concept */}
-          {activeTab === 'about' && (
+          {/* Tab 1: Concept */}
+          {activeTab === "about" && (
             <section className="text-center space-y-6">
-              <p className="text-sm leading-relaxed text-left sm:text-center text-fun-dark">
+              <p className="text-sm leading-relaxed text-left text-fun-dark">
                 <strong>BiteRoulette</strong> eliminates the paradox of choice.
                 We don't waste time looking for the "best" rated spot; we embrace the chaos of chance. We cut through the noise of reviews to serve you one completely random destination near you.
               </p>
 
-              <div className="bg-fun-dark/5 p-4 rounded-lg border-2 border-fun-dark/10 text-left mx-auto max-w-sm">
+              <div className="bg-fun-dark/5 p-4 rounded-lg border-2 border-fun-dark/10 text-left mx-auto">
                 <h3 className="font-bold text-xs uppercase tracking-widest mb-3 text-center border-b border-fun-dark/10 pb-2">The Philosophy</h3>
                 <ul className="space-y-2 text-sm list-none">
                   <PhilosophyItem title="Zero Friction" description="No scrolling, no debating." />
@@ -121,15 +126,14 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             </section>
           )}
 
-          {/* --- TAB 2: PRIVACY --- */}
-          {activeTab === 'privacy' && (
+          {/* Tab 2: Privacy*/}
+          {activeTab === "privacy" && (
             <section className="text-left space-y-5">
               <h3 className="hidden">Privacy</h3>
-              <div className="mb-8">
-                <p className="text-sm mt-2">
-                  We treat your data with the same respect we treat your dinner plans: strictly private and to the point.
-                </p>
-              </div>
+              <p className="text-sm leading-relaxed text-left text-fun-dark">
+                We treat your data with the same respect we treat your dinner plans: strictly private and to the point.
+              </p>
+
 
               {/* Cookies */}
               <div className="flex gap-3 items-start">
@@ -138,12 +142,12 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 </div>
                 <div>
                   <h4 className="font-bold text-sm uppercase tracking-wide mb-1">The Zero-Tracking Diet</h4>
-                  <p className="text-sm leading-relaxed mb-2">
+                  <p className="text-xs leading-relaxed mb-2">
                     We are here to feed you, not your browser. We do not use tracking cookies or marketing pixels.
                   </p>
-                  <div className="text-xs bg-fun-dark/5 p-2 rounded border border-fun-dark/10 text-fun-dark/80">
+                  <p className="text-xs bg-fun-dark/5 p-2 rounded border border-fun-dark/10 text-fun-dark/80">
                     <strong>Security Note:</strong> We use cookies strictly for protection, not profit. Aside from Google's tool to block bots, our cookies are just there to prevent unauthorized activity and keep the site secure.
-                  </div>
+                  </p>
                 </div>
               </div>
 
@@ -154,7 +158,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 </div>
                 <div>
                   <h4 className="font-bold text-sm uppercase tracking-wide mb-1">Your Location Data</h4>
-                  <ul className="text-xs space-y-1 list-disc pl-4 opacity-80">
+                  <ul className="text-xs space-y-1 opacity-80 list-none">
                     <li><strong>Collection:</strong> Only when you tap search.</li>
                     <li><strong>Processing:</strong> Anonymized and sent to mapping providers (Google/OSM).</li>
                     <li><strong>Storage:</strong> Coordinates logged only to refine algorithms.</li>
@@ -181,10 +185,11 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
           )}
 
           {/* --- TAB 3: LEGAL (New) --- */}
-          {activeTab === 'legal' && (
+          {activeTab === "legal" && (
             <section className="text-left space-y-6">
+              <h3 className="hidden">Legal</h3>
 
-              {/* Liability - Critical */}
+              {/* Liability */}
               <div className="flex gap-3 items-start bg-orange-50 p-4 rounded-lg border border-orange-200">
                 <AlertTriangle className="w-6 h-6 text-orange-500 shrink-0" />
                 <div>
@@ -197,7 +202,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
               {/* Attribution */}
               <div className="flex gap-3 items-start">
-                <div className="p-2 bg-gray-100 rounded-lg shrink-0 mt-1">
+                <div className="p-2 bg-fun-cream rounded-lg shrink-0 mt-1">
                   <Map className="w-5 h-5 text-gray-600" />
                 </div>
                 <div>

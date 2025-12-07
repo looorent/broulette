@@ -63,7 +63,7 @@ export function BottomSheet({
           {title && <h3 className="font-pop text-3xl text-fun-dark">{title}</h3>}
           <button
             onClick={onClose}
-            className="text-fun-dark hover:scale-110 transition-transform"
+            className="text-fun-dark hover:scale-110 transition-transform cursor-pointer"
             aria-label="Close"
           >
             <XCircle className="w-8 h-8 stroke-[2.5px]" />
