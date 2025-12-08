@@ -1,10 +1,10 @@
 export function SearchLoaderSpinner() {
   return (
-    <div>
+    <>
       <div className="absolute w-[140vw] h-[140vw]
         bg-fun-cream/10 rounded-full
-        animate-ping opacity-20 pointer-events-none"
-        style={{animationDuration: "3s"}}
+        animate-ping opacity-50 pointer-events-none"
+        style={{animationDuration: "7s"}}
         aria-hidden="true"></div>
 
       <div className="relative mb-12">
@@ -12,6 +12,6 @@ export function SearchLoaderSpinner() {
           <div className="absolute top-1/2 left-1/2 -mt-2 -ml-2 w-4 h-4 rounded-full border-[3px] border-fun-dark bg-fun-cream animate-spin-orbit"></div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

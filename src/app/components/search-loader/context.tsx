@@ -2,9 +2,9 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { useNavigation, type Navigation } from "react-router";
 import type { SearchLoaderState } from "./types";
 
-// The loader will always stay visible for at least this long.
-// This prevents it from flashing on/off if a user clicks fast or the API is too fast.
-const MIN_DURATION_MS = 1000;
+// A tiny buffer to bridge the gap between "submitting" -> "loading"
+// This prevents the loader from flickering off during the router state transition.
+const EXIT_DELAY_MS = 300;
 
 export interface SearchLoaderContextType {
   setManualLoader: (visible: boolean, message?: string) => void;
@@ -34,51 +34,45 @@ export function SearchLoaderProvider({ children }: { children: React.ReactNode }
   const navigation = useNavigation();
   const [state, setState] = useState<SearchLoaderState>(defaultState);
   const [manualState, setManualState] = useState<SearchLoaderState>(defaultState);
-  const startTimeRef = useRef<number | null>(null);
-  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const exitDelayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const detected = detectLoaderState(navigation);
     const isNavigating = navigation.state !== "idle" && detected.visible;
-
     const shouldShow = isNavigating || manualState.visible;
     const message = isNavigating ? detected.message : manualState.message;
 
     if (shouldShow) {
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current);
-        hideTimerRef.current = null;
+      // Cancel any pending exit timer.
+      // If we were about to hide but a new signal came in (e.g. submitting -> loading transition),
+      // we cancel the hide to keep the loader visible seamlessly.
+      if (exitDelayTimerRef.current) {
+        clearTimeout(exitDelayTimerRef.current);
+        exitDelayTimerRef.current = null;
       }
 
+      // Show immediately or update message
       if (!state.visible) {
-        startTimeRef.current = Date.now();
         setState({ visible: true, message });
       } else {
+        // Only trigger a re-render if the message actually changed
         setState((prev) => (prev.message === message ? prev : { ...prev, message }));
       }
-    } else {
-      if (state.visible && startTimeRef.current) {
-        const elapsed = Date.now() - startTimeRef.current;
-        const remainingTime = MIN_DURATION_MS - elapsed;
 
-        if (remainingTime > 0) {
-          if (!hideTimerRef.current) {
-            hideTimerRef.current = setTimeout(() => {
-              setState({ visible: false, message: undefined });
-              startTimeRef.current = null;
-              hideTimerRef.current = null;
-            }, remainingTime);
-          }
-        } else {
+    } else {
+      // Don't hide immediately! Wait 300ms to see if this is just a router state gap.
+      // Only set this if we aren't already waiting for an exit delay.
+      if (state.visible && !exitDelayTimerRef.current) {
+        exitDelayTimerRef.current = setTimeout(() => {
           setState({ visible: false, message: undefined });
-          startTimeRef.current = null;
-        }
+          exitDelayTimerRef.current = null;
+        }, EXIT_DELAY_MS);
       }
     }
 
     return () => {
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current);
+      if (exitDelayTimerRef.current) {
+        clearTimeout(exitDelayTimerRef.current);
       }
     };
   }, [navigation, manualState, state.visible]);
