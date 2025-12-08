@@ -10,7 +10,7 @@ export async function loader({ params }: Route.LoaderArgs) {
   if ("latest" === params.searchId.toLowerCase()) {
     throw redirect(selection.toUrl());
   } else {
-    await delay(100000);
+    await delay(5000);
     return {
       selection: selection
     };

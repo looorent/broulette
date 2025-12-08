@@ -23,7 +23,7 @@ export function SearchLoaderTitle({ title }: SearchLoaderTitleProps) {
   }, []);
 
   return (
-    <div className="text-center relative z-10 px-6">
+    <div className="text-center relative z-10 px-6 min-h-22 justify-center items-start">
       <h3 id="loading-title"
           className="
           font-pop

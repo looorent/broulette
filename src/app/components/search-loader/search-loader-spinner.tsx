@@ -3,8 +3,8 @@ export function SearchLoaderSpinner() {
     <>
       <div className="absolute w-[140vw] h-[140vw]
         bg-fun-cream/10 rounded-full
-        animate-ping opacity-50 pointer-events-none"
-        style={{animationDuration: "7s"}}
+        animate-ping opacity-60 pointer-events-none"
+        style={{animationDuration: "2s"}}
         aria-hidden="true"></div>
 
       <div className="relative mb-12">

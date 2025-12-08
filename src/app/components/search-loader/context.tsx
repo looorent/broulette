@@ -17,12 +17,18 @@ const defaultState: SearchLoaderState = {
 };
 
 function detectLoaderState(navigation: Navigation): SearchLoaderState {
+  console.group("Detect loader state");
+  console.log("navigation.state", navigation.state);
+  console.log("navigation.formAction", navigation.formAction);
+  console.log("navigation.formMethod", navigation.formMethod);
+  console.log("navigation.location", navigation.location);
+  console.groupEnd();
   if (navigation.state === "submitting" && navigation.formAction?.startsWith("/searches")) {
     // Check for submission to specific path
-    return { visible: true, message: "Searching..." };
+    return { visible: true };
   } else if (navigation.state === "loading" && navigation.formMethod != null) {
     // Check for the loading phase (redirect/revalidation) after a submission
-    return { visible: true, message: "Loading..." };
+    return { visible: true };
   } else {
     return defaultState;
   }
