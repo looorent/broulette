@@ -17,7 +17,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-        <meta title="BiteRoulette" />
+        <title>BiteRoulette</title>
         <meta name="description" content="The lazy way to decide where to eat." />
 
          {/* PWA Tags */}
@@ -39,7 +39,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
           bg-fun-red
           bg-[radial-gradient(circle_at_20%_80%,rgba(255,209,102,0.6)_0%,transparent_40%),radial-gradient(circle_at_80%_20%,rgba(6,214,160,0.5)_0%,transparent_40%),conic-gradient(from_45deg_at_50%_50%,rgba(232,90,79,0.2)_0deg,rgba(255,209,102,0.2)_120deg,rgba(232,90,79,0.2)_240deg),linear-gradient(135deg,#D64035_0%,#A33028_100%)]
-          bg-fixed
           background-blend
           overflow-hidden">
           <SearchLoaderProvider>
@@ -55,6 +54,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const { state } = useSearchLoader();
+  const inertProps = state.visible ? { inert: "true" } : {};
   return (
     <>
       <SearchLoader
@@ -63,10 +63,10 @@ export default function App() {
 
       <div
         aria-hidden={state.visible}
-        inert={state.visible}
+        inert={state.visible ? true : undefined}
         className={`
           h-full w-full
-          ${state.visible ? "none": "block"}
+          ${state.visible ? "hidden": "block"}
         `}>
         <Outlet />
       </div>

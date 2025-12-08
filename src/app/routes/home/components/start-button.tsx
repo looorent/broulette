@@ -3,8 +3,6 @@ import { useState } from "react";
 import { Form, useSubmit } from "react-router";
 import type { Preference } from "~/types/preference";
 
-export const SEARCH_FETCHER = "search-fetcher";
-
 interface StartButtonProps {
   preferences: Preference;
   onBuzzOnError?: () => void;
