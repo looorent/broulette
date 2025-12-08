@@ -1,13 +1,9 @@
-import { redirect, useNavigate, useSubmit } from "react-router";
-import { delay } from "~/functions/delay";
-import { createEmptySelection, Selection } from "~/types/selection";
-import type { Route } from "../search/+types/route";
 import { useEffect } from "react";
+import { useNavigate, useSubmit } from "react-router";
+import { delay } from "~/functions/delay";
 import { Search } from "~/types/search";
-
-export const handle = {
-  supportsLoader: true
-};
+import { Selection } from "~/types/selection";
+import type { Route } from "./+types/route";
 
 function findSearch(searchId: string): Search | null {
   return new Search(searchId);
@@ -48,7 +44,8 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
       }, {
         method: "POST",
         action: `/searches/${loaderData.search!.id}/selections`,
-        replace: true
+        replace: true,
+        viewTransition: true
       });
     }
   }, [loaderData.latestSelection?.id]);

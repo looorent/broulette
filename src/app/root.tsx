@@ -4,16 +4,12 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useMatches,
-  useNavigate,
-  useNavigation,
   type Navigation
 } from "react-router";
 
-import { useState } from "react";
 import "./app.css";
-import { LoaderContainer } from "./components/loading/loader-container";
-import type { LoaderState, RootContextType } from "./context";
+import { SearchLoaderProvider, useSearchLoader } from "./components/search-loader/context";
+import { SearchLoader } from "./components/search-loader/search-loader";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -47,7 +43,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           bg-fixed
           background-blend
           overflow-hidden">
-          {children}
+          <SearchLoaderProvider>
+            {children}
+          </SearchLoaderProvider>
         </div>
         <ScrollRestoration />
         <Scripts />
@@ -56,59 +54,37 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-function mustDisplayLoader(navigation: Navigation): boolean {
-  const isRedirecting =
-    navigation.state === "loading" &&
-    navigation.formMethod != null;
+// function mustDisplayLoader(navigation: Navigation): boolean {
+//   const isRedirecting =
+//     navigation.state === "loading" &&
+//     navigation.formMethod != null;
 
-  const isSubmittingSearch =
-    navigation.state === "submitting"
-    && (navigation.formAction?.startsWith("/searches"));
+//   const isSubmittingSearch =
+//     navigation.state === "submitting"
+//     && (navigation.formAction?.startsWith("/searches"));
 
-  // const isLoadingSearch =
-
-  console.log("navigation.state", navigation.state);
-  console.log("navigation.formMethod", navigation.formMethod);
-  console.log("navigation.location", navigation.location);
-  return isRedirecting || isSubmittingSearch;
-}
+//   // console.log("navigation.state", navigation.state);
+//   // console.log("navigation.formMethod", navigation.formMethod);
+//   // console.log("navigation.location", navigation.location);
+//   return isRedirecting || isSubmittingSearch;
+// }
 
 export default function App() {
-  const matches = useMatches();
-  const navigation = useNavigation();
-
-  // TODO refactor
-  // Information about the loader container
-  const [manualState, setManualState] = useState<LoaderState>({
-    visible: false,
-    message: "Loading..."
-  });
-  const isNavigationLoading = navigation.state !== "idle";
-  const routeSupportsMatches = matches.some(match => (match.handle as any)?.supportsLoader);
-  const showLoader = isNavigationLoading && routeSupportsMatches && mustDisplayLoader(navigation) || manualState?.visible;
-
-
-  const activeState: LoaderState = showLoader ? { visible: true } : { visible: false };
-  const contextValue: RootContextType = {
-    startLoader: (message = "") => setManualState({ visible: true, message: message }),
-    updateLoader: (updates) => setManualState((prev) => ({ ...prev, ...updates })),
-    stopLoader: () => setManualState((prev) => ({ ...prev, visible: false })),
-  };
-
+  const { state } = useSearchLoader();
   return (
     <>
-      {activeState.visible && (
-        <LoaderContainer title={activeState.message} />
+      {state.visible && (
+        <SearchLoader title={state.message} />
       )}
 
       <div
-        aria-hidden={activeState.visible}
-        inert={activeState.visible}
+        aria-hidden={state.visible}
+        inert={state.visible}
         className={`
           h-full w-full
-          ${activeState.visible ? "none": "block"}
+          ${state.visible ? "none": "block"}
         `}>
-        <Outlet context={contextValue} />
+        <Outlet />
       </div>
     </>
   );

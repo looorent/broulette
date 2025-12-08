@@ -4,10 +4,6 @@ import { Search } from "~/types/search";
 import { createEmptySelection } from "~/types/selection";
 import type { Route } from "../selection/+types/route";
 
-export const handle = {
-  supportsLoader: false
-};
-
 export async function loader({ params }: Route.LoaderArgs) {
   const search = new Search(params.searchId);
   const selection = createEmptySelection(search.id);

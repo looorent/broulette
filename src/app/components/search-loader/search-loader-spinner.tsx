@@ -1,4 +1,4 @@
-export default function LoadingSpinner() {
+export function SearchLoaderSpinner() {
   return (
     <div>
       <div className="absolute w-[140vw] h-[140vw]

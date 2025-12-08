@@ -9,11 +9,11 @@ const MESSAGES = [
   "Rolling flavor..."
 ];
 
-interface LoadingTitleProps {
+interface SearchLoaderTitleProps {
   title?: string;
 }
 
-export function LoadingTitle({ title }: LoadingTitleProps) {
+export function SearchLoaderTitle({ title }: SearchLoaderTitleProps) {
   const [messageIndex, setMessageIndex] = useState(0);
   useEffect(() => {
     const intervalId = setInterval(() => {

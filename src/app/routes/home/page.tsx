@@ -38,10 +38,6 @@ export async function clientLoader({ request }: ClientLoaderFunctionArgs): Promi
   };
 }
 
-export const handle = {
-  supportsLoader: true
-};
-
 function HomeContent() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { services, defaultPreferences } = useLoaderData<typeof clientLoader>();
@@ -68,12 +64,23 @@ function HomeContent() {
     }
   }, []);
 
+  const closeModal = () => {
+    setSearchParams(previous => {
+      const newParams = new URLSearchParams(previous);
+      newParams.delete("modal");
+      return newParams;
+    }, {
+      replace: true
+    });
+  };
+
   return (
     <main className="h-full relative">
       <HelpButton onOpen={() => {
         setSearchParams(previous => {
-          previous.set("modal", "help");
-          return previous;
+          const newParams = new URLSearchParams(previous);
+          newParams.set("modal", "help");
+          return newParams;
         });
       }} />
 
@@ -91,8 +98,9 @@ function HomeContent() {
           preferences={preferences}
           onOpen={() => {
             setSearchParams(previous => {
-              previous.set("modal", "preferences");
-              return previous;
+              const newParams = new URLSearchParams(previous);
+              newParams.set("modal", "preferences");
+              return newParams;
             });
           }
           } />
@@ -104,8 +112,7 @@ function HomeContent() {
         isOpen={searchParams.get("modal") === "preferences"}
         onClose={() => {
           preferenceFormRef?.current?.handleClose();
-          searchParams.delete("modal");
-          setSearchParams(searchParams);
+          closeModal();
         }}
         title="Preferences"
       >
@@ -131,10 +138,7 @@ function HomeContent() {
 
       <HelpModal
         isOpen={searchParams.get("modal") === "help"}
-        onClose={() => {
-          searchParams.delete("modal");
-          setSearchParams(searchParams);
-        }}
+        onClose={closeModal}
       />
     </main>
   );
