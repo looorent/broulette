@@ -10,6 +10,7 @@ import {
 import "./app.css";
 import { SearchLoaderProvider, useSearchLoader } from "./components/search-loader/context";
 import { SearchLoader } from "./components/search-loader/search-loader";
+import { NavigationLogger } from "./components/navigation-logger";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -43,6 +44,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           bg-fixed
           background-blend
           overflow-hidden">
+          <NavigationLogger />
           <SearchLoaderProvider>
             {children}
           </SearchLoaderProvider>
@@ -53,21 +55,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     </html>
   );
 }
-
-// function mustDisplayLoader(navigation: Navigation): boolean {
-//   const isRedirecting =
-//     navigation.state === "loading" &&
-//     navigation.formMethod != null;
-
-//   const isSubmittingSearch =
-//     navigation.state === "submitting"
-//     && (navigation.formAction?.startsWith("/searches"));
-
-//   // console.log("navigation.state", navigation.state);
-//   // console.log("navigation.formMethod", navigation.formMethod);
-//   // console.log("navigation.location", navigation.location);
-//   return isRedirecting || isSubmittingSearch;
-// }
 
 export default function App() {
   const { state } = useSearchLoader();

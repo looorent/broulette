@@ -1,10 +1,33 @@
-import { createContext, useCallback, useContext, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { SearchLoaderState } from "./types";
+import { useNavigation, type Navigation } from "react-router";
 
 export interface SearchLoaderContextType {
-  showLoader: (message?: string, delay?: number) => void;
-  hideLoader: () => void;
+  setManualLoader: (visible: boolean, message?: string) => void;
   state: SearchLoaderState;
+}
+
+function detectLoaderState(navigation: Navigation): SearchLoaderState {
+  if (navigation.state === "submitting" && navigation.formAction?.startsWith("/searches")) {
+    // Submit a search or a selection
+    return {
+      visible: true,
+      message: "TODO"
+    };
+  } else if (navigation.state === "loading" && navigation.formMethod != null) {
+    // Redirecting to a view page after a submission
+    return {
+      visible: true,
+      message: "TODO"
+    };
+  } else {
+    // hide loader
+    // console.log("hide loader?");
+    // console.log("navigation.state", navigation.state);
+    // console.log("navigation.formMethod", navigation.formMethod);
+    // console.log("navigation.location", navigation.location);
+    return defaultState;
+  }
 }
 
 const defaultState: SearchLoaderState = {
@@ -14,34 +37,39 @@ const defaultState: SearchLoaderState = {
 
 const SearchLoaderContext = createContext<SearchLoaderContextType | undefined>(undefined);
 
+const DELAY_IN_MS = 200;
+
 export function SearchLoaderProvider({ children }: { children: React.ReactNode }) {
+  const navigation = useNavigation();
   const [state, setState] = useState<SearchLoaderState>(defaultState);
+  const [manualState, setManualState] = useState<SearchLoaderState>(defaultState);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const showLoader = useCallback((message?: string, delay: number = 200) => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
+  useEffect(() => {
+    const detectedState = detectLoaderState(navigation);
+    const isNavigating = navigation.state !== "idle" && !!detectedState;
+    const shouldShow = isNavigating || manualState.visible;
+    const message = isNavigating ? detectedState.message : manualState.message;
 
-    if (delay === 0) {
-      setState({ visible: true, message });
+    if (shouldShow) {
+      if (!state.visible && !timerRef.current) {
+        timerRef.current = setTimeout(() => setState({ visible: true, message }), DELAY_IN_MS);
+      }
     } else {
-      timerRef.current = setTimeout(() => {
-        setState({ visible: true, message });
-      }, delay);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      setState({ visible: false, message: undefined });
     }
-  }, []);
+  }, [navigation, manualState, state.visible]);
 
-  const hideLoader = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-
-    setState((prev) => ({ ...prev, visible: false }));
+  const setManualLoader = useCallback((visible: boolean, message?: string) => {
+    setManualState({ visible, message });
   }, []);
 
   return (
-    <SearchLoaderContext.Provider value={{ showLoader, hideLoader, state }}>
+    <SearchLoaderContext.Provider value={{ setManualLoader, state }}>
       {children}
     </SearchLoaderContext.Provider>
   );

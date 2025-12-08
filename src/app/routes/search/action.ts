@@ -9,7 +9,7 @@ export async function action({
   request,
 }: Route.ActionArgs) {
   let formData = await request.formData();
-  console.log("TODO", formData.get("locationLatitude"));
+  // console.log("TODO", formData.get("locationLatitude"));
   // TODO creates the search
   await delay(3000);
   const search = createEmptySearch();

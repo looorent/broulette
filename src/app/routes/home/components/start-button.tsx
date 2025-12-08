@@ -1,7 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { Form, useSubmit } from "react-router";
-import { useSearchLoader } from "~/components/search-loader/context";
 import type { Preference } from "~/types/preference";
 
 export const SEARCH_FETCHER = "search-fetcher";
@@ -13,8 +12,6 @@ interface StartButtonProps {
 }
 
 export default function StartButton({ preferences, onBuzzOnError, className = "" }: StartButtonProps) {
-  const { showLoader, hideLoader } = useSearchLoader();
-
   const submit = useSubmit();
 
   const [isBuzzing, setIsBuzzing] = useState(false);
@@ -34,7 +31,6 @@ export default function StartButton({ preferences, onBuzzOnError, className = ""
       triggerBuzz();
       onBuzzOnError?.();
     } else {
-      showLoader();
       submit({
         serviceDate: preferences.service.date.toISOString(),
         serviceTimeslot: preferences.service.timeslot,

@@ -6,7 +6,6 @@ interface SearchLoaderProps {
 }
 
 export function SearchLoader({ title }: SearchLoaderProps) {
-  console.log("RENDER LOADER"); // TODO
   return (
     <main id="search-loader"
       className="h-full relative flex flex-col items-center justify-center gap-10">
