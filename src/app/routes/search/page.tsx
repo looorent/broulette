@@ -3,7 +3,7 @@ import { useNavigate, useSubmit } from "react-router";
 import { delay } from "~/functions/delay";
 import { Search } from "~/types/search";
 import { Selection } from "~/types/selection";
-import type { Route } from "./+types/route";
+import type { Route } from "../search/+types/page";
 
 function findSearch(searchId: string): Search | null {
   return new Search(searchId);

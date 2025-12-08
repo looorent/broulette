@@ -2,7 +2,7 @@ import { redirect } from "react-router";
 import { delay } from "~/functions/delay";
 import { Search } from "~/types/search";
 import { createEmptySelection } from "~/types/selection";
-import type { Route } from "../selection/+types/route";
+import type { Route } from "../selection/+types/page";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const search = new Search(params.searchId);

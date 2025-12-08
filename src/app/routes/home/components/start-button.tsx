@@ -40,7 +40,7 @@ export default function StartButton({ preferences, onBuzzOnError, className = ""
       }, {
         action: "/searches",
         method: "post",
-        replace: true,
+        replace: false, // we want to keep the main "/" state in the history
         viewTransition: true
       });
     }

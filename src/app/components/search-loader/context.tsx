@@ -21,11 +21,6 @@ function detectLoaderState(navigation: Navigation): SearchLoaderState {
       message: "TODO"
     };
   } else {
-    // hide loader
-    // console.log("hide loader?");
-    // console.log("navigation.state", navigation.state);
-    // console.log("navigation.formMethod", navigation.formMethod);
-    // console.log("navigation.location", navigation.location);
     return defaultState;
   }
 }
@@ -37,7 +32,7 @@ const defaultState: SearchLoaderState = {
 
 const SearchLoaderContext = createContext<SearchLoaderContextType | undefined>(undefined);
 
-const DELAY_IN_MS = 200;
+const DELAY_IN_MS = 1000;
 
 export function SearchLoaderProvider({ children }: { children: React.ReactNode }) {
   const navigation = useNavigation();

@@ -1,6 +1,5 @@
 import { SearchLoaderSpinner } from "./search-loader-spinner";
 
-
 interface SearchLoaderProps {
   title?: string;
 }
