@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 
 const MESSAGES = [
-  "Consulting the Food Gods...", 
-  "Consulting stars...", 
-  "Scanning hunger...", 
-  "Avoiding kale...", 
-  "Calibrating...", 
+  "Consulting the Food Gods...",
+  "Consulting stars...",
+  "Scanning hunger...",
+  "Avoiding kale...",
+  "Calibrating...",
   "Rolling flavor..."
 ];
 
-export function LoadingTitle() {
+interface LoadingTitleProps {
+  title?: string;
+}
+
+export function LoadingTitle({ title }: LoadingTitleProps) {
   const [messageIndex, setMessageIndex] = useState(0);
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -20,12 +24,16 @@ export function LoadingTitle() {
 
   return (
     <div className="text-center relative z-10 px-6">
-      <h3 id="loading-title" 
-          className="font-pop 
-                    text-3xl md:text-4xl 
-                    text-fun-cream drop-shadow-hard 
-                    uppercase tracking-wide 
-                    animate-pulse text-center leading-tight">{MESSAGES[messageIndex]}</h3>
+      <h3 id="loading-title"
+          className="
+          font-pop
+          text-3xl md:text-4xl
+          text-fun-cream drop-shadow-hard
+          uppercase tracking-wide
+          animate-pulse text-center leading-tight
+        ">
+        {MESSAGES[messageIndex]}
+      </h3>
     </div>
   );
 }

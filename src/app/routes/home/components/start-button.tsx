@@ -1,6 +1,6 @@
 import { AlertTriangle } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useFetcher } from "react-router";
+import { useState } from "react";
+import { Form, useSubmit } from "react-router";
 import type { Preference } from "~/types/preference";
 
 export const SEARCH_FETCHER = "search-fetcher";
@@ -12,11 +12,9 @@ interface StartButtonProps {
 }
 
 export default function StartButton({ preferences, onBuzzOnError, className = "" } : StartButtonProps) {
-  const fetcher = useFetcher({ key: SEARCH_FETCHER });
+  const submit = useSubmit();
+
   const [isBuzzing, setIsBuzzing] = useState(false);
-  useEffect(() => {
-    console.log("TODO preferences", preferences);
-  }, [preferences?.id]);
   const hasErrors = preferences ? !preferences.isValid() : false;
   const showErrors = preferences && preferences.isDeviceLocationAttempted && !preferences.isValid();
 
@@ -33,15 +31,24 @@ export default function StartButton({ preferences, onBuzzOnError, className = ""
       triggerBuzz();
       onBuzzOnError?.();
     } else {
-      console.log("TODO submit");
-      // fetcher.submit();
+      submit({
+        serviceDate: preferences.service.date.toISOString(),
+        serviceTimeslot: preferences.service.timeslot,
+        locationLatitude: preferences.location.coordinates!.latitude,
+        locationLongitude: preferences.location.coordinates!.longitude,
+        rangeId: preferences.range.id
+      }, {
+        action: "/searches",
+        method: "post",
+        replace: true
+      });
     }
   };
 
   return (
-    <fetcher.Form method="post"
+    <Form method="post"
       action="/searches"
-      onSubmit={e => handleSubmit(e)}
+      onSubmit={handleSubmit}
       className={`w-full flex justify-center items-center mb-14 mt-auto ${className}`}>
       <div className={`
           absolute w-56 h-56 rounded-full pointer-events-none z-0
@@ -81,6 +88,6 @@ export default function StartButton({ preferences, onBuzzOnError, className = ""
             </div>
           )}
       </button>
-    </fetcher.Form>
+    </Form>
   );
 }

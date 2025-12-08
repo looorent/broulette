@@ -8,9 +8,16 @@ import {
 export default [
   index("./routes/home/route.tsx"),
   ...prefix("searches", [
-    index("./routes/new-search.tsx"),
-    route(":searchId?", "./routes/search.tsx"),
-    route(":searchId/selections/:selectionId?", "./routes/selection.tsx"),
+    index("./routes/search-post/route.tsx"),
+    ...prefix(":searchId", [
+      index("./routes/search/route.tsx"),
+      ...prefix("selections", [
+        index("./routes/selection-post/route.tsx"),
+        ...prefix(":selectionId", [
+          index("./routes/selection/route.tsx"),
+        ])
+      ])
+    ])
   ]),
 
   route("api/address-searches", "./routes/api/address-search.tsx"),
