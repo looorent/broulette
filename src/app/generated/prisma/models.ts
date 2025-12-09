@@ -9,5 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Search'
-export type * from './models/Selection'
+export type * from './models/SearchCandidate'
+export type * from './models/Restaurant'
+export type * from './models/RestaurantIdentity'
 export type * from './commonInputTypes'

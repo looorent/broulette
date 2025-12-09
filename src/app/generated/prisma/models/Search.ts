@@ -236,7 +236,7 @@ export type SearchWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Search"> | Date | string
   serviceDate?: Prisma.DateTimeFilter<"Search"> | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotFilter<"Search"> | $Enums.ServiceTimeslot
-  selections?: Prisma.SelectionListRelationFilter
+  candidates?: Prisma.SearchCandidateListRelationFilter
 }
 
 export type SearchOrderByWithRelationInput = {
@@ -247,7 +247,7 @@ export type SearchOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
   serviceTimeslot?: Prisma.SortOrder
-  selections?: Prisma.SelectionOrderByRelationAggregateInput
+  candidates?: Prisma.SearchCandidateOrderByRelationAggregateInput
 }
 
 export type SearchWhereUniqueInput = Prisma.AtLeast<{
@@ -261,7 +261,7 @@ export type SearchWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Search"> | Date | string
   serviceDate?: Prisma.DateTimeFilter<"Search"> | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotFilter<"Search"> | $Enums.ServiceTimeslot
-  selections?: Prisma.SelectionListRelationFilter
+  candidates?: Prisma.SearchCandidateListRelationFilter
 }, "id">
 
 export type SearchOrderByWithAggregationInput = {
@@ -300,7 +300,7 @@ export type SearchCreateInput = {
   createdAt?: Date | string
   serviceDate: Date | string
   serviceTimeslot: $Enums.ServiceTimeslot
-  selections?: Prisma.SelectionCreateNestedManyWithoutSearchInput
+  candidates?: Prisma.SearchCandidateCreateNestedManyWithoutSearchInput
 }
 
 export type SearchUncheckedCreateInput = {
@@ -311,7 +311,7 @@ export type SearchUncheckedCreateInput = {
   createdAt?: Date | string
   serviceDate: Date | string
   serviceTimeslot: $Enums.ServiceTimeslot
-  selections?: Prisma.SelectionUncheckedCreateNestedManyWithoutSearchInput
+  candidates?: Prisma.SearchCandidateUncheckedCreateNestedManyWithoutSearchInput
 }
 
 export type SearchUpdateInput = {
@@ -322,7 +322,7 @@ export type SearchUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotFieldUpdateOperationsInput | $Enums.ServiceTimeslot
-  selections?: Prisma.SelectionUpdateManyWithoutSearchNestedInput
+  candidates?: Prisma.SearchCandidateUpdateManyWithoutSearchNestedInput
 }
 
 export type SearchUncheckedUpdateInput = {
@@ -333,7 +333,7 @@ export type SearchUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotFieldUpdateOperationsInput | $Enums.ServiceTimeslot
-  selections?: Prisma.SelectionUncheckedUpdateManyWithoutSearchNestedInput
+  candidates?: Prisma.SearchCandidateUncheckedUpdateManyWithoutSearchNestedInput
 }
 
 export type SearchCreateManyInput = {
@@ -435,21 +435,21 @@ export type EnumServiceTimeslotFieldUpdateOperationsInput = {
   set?: $Enums.ServiceTimeslot
 }
 
-export type SearchCreateNestedOneWithoutSelectionsInput = {
-  create?: Prisma.XOR<Prisma.SearchCreateWithoutSelectionsInput, Prisma.SearchUncheckedCreateWithoutSelectionsInput>
-  connectOrCreate?: Prisma.SearchCreateOrConnectWithoutSelectionsInput
+export type SearchCreateNestedOneWithoutCandidatesInput = {
+  create?: Prisma.XOR<Prisma.SearchCreateWithoutCandidatesInput, Prisma.SearchUncheckedCreateWithoutCandidatesInput>
+  connectOrCreate?: Prisma.SearchCreateOrConnectWithoutCandidatesInput
   connect?: Prisma.SearchWhereUniqueInput
 }
 
-export type SearchUpdateOneRequiredWithoutSelectionsNestedInput = {
-  create?: Prisma.XOR<Prisma.SearchCreateWithoutSelectionsInput, Prisma.SearchUncheckedCreateWithoutSelectionsInput>
-  connectOrCreate?: Prisma.SearchCreateOrConnectWithoutSelectionsInput
-  upsert?: Prisma.SearchUpsertWithoutSelectionsInput
+export type SearchUpdateOneRequiredWithoutCandidatesNestedInput = {
+  create?: Prisma.XOR<Prisma.SearchCreateWithoutCandidatesInput, Prisma.SearchUncheckedCreateWithoutCandidatesInput>
+  connectOrCreate?: Prisma.SearchCreateOrConnectWithoutCandidatesInput
+  upsert?: Prisma.SearchUpsertWithoutCandidatesInput
   connect?: Prisma.SearchWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.SearchUpdateToOneWithWhereWithoutSelectionsInput, Prisma.SearchUpdateWithoutSelectionsInput>, Prisma.SearchUncheckedUpdateWithoutSelectionsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SearchUpdateToOneWithWhereWithoutCandidatesInput, Prisma.SearchUpdateWithoutCandidatesInput>, Prisma.SearchUncheckedUpdateWithoutCandidatesInput>
 }
 
-export type SearchCreateWithoutSelectionsInput = {
+export type SearchCreateWithoutCandidatesInput = {
   id?: string
   latitude: number
   longitude: number
@@ -459,7 +459,7 @@ export type SearchCreateWithoutSelectionsInput = {
   serviceTimeslot: $Enums.ServiceTimeslot
 }
 
-export type SearchUncheckedCreateWithoutSelectionsInput = {
+export type SearchUncheckedCreateWithoutCandidatesInput = {
   id?: string
   latitude: number
   longitude: number
@@ -469,23 +469,23 @@ export type SearchUncheckedCreateWithoutSelectionsInput = {
   serviceTimeslot: $Enums.ServiceTimeslot
 }
 
-export type SearchCreateOrConnectWithoutSelectionsInput = {
+export type SearchCreateOrConnectWithoutCandidatesInput = {
   where: Prisma.SearchWhereUniqueInput
-  create: Prisma.XOR<Prisma.SearchCreateWithoutSelectionsInput, Prisma.SearchUncheckedCreateWithoutSelectionsInput>
+  create: Prisma.XOR<Prisma.SearchCreateWithoutCandidatesInput, Prisma.SearchUncheckedCreateWithoutCandidatesInput>
 }
 
-export type SearchUpsertWithoutSelectionsInput = {
-  update: Prisma.XOR<Prisma.SearchUpdateWithoutSelectionsInput, Prisma.SearchUncheckedUpdateWithoutSelectionsInput>
-  create: Prisma.XOR<Prisma.SearchCreateWithoutSelectionsInput, Prisma.SearchUncheckedCreateWithoutSelectionsInput>
+export type SearchUpsertWithoutCandidatesInput = {
+  update: Prisma.XOR<Prisma.SearchUpdateWithoutCandidatesInput, Prisma.SearchUncheckedUpdateWithoutCandidatesInput>
+  create: Prisma.XOR<Prisma.SearchCreateWithoutCandidatesInput, Prisma.SearchUncheckedCreateWithoutCandidatesInput>
   where?: Prisma.SearchWhereInput
 }
 
-export type SearchUpdateToOneWithWhereWithoutSelectionsInput = {
+export type SearchUpdateToOneWithWhereWithoutCandidatesInput = {
   where?: Prisma.SearchWhereInput
-  data: Prisma.XOR<Prisma.SearchUpdateWithoutSelectionsInput, Prisma.SearchUncheckedUpdateWithoutSelectionsInput>
+  data: Prisma.XOR<Prisma.SearchUpdateWithoutCandidatesInput, Prisma.SearchUncheckedUpdateWithoutCandidatesInput>
 }
 
-export type SearchUpdateWithoutSelectionsInput = {
+export type SearchUpdateWithoutCandidatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -495,7 +495,7 @@ export type SearchUpdateWithoutSelectionsInput = {
   serviceTimeslot?: Prisma.EnumServiceTimeslotFieldUpdateOperationsInput | $Enums.ServiceTimeslot
 }
 
-export type SearchUncheckedUpdateWithoutSelectionsInput = {
+export type SearchUncheckedUpdateWithoutCandidatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -511,11 +511,11 @@ export type SearchUncheckedUpdateWithoutSelectionsInput = {
  */
 
 export type SearchCountOutputType = {
-  selections: number
+  candidates: number
 }
 
 export type SearchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  selections?: boolean | SearchCountOutputTypeCountSelectionsArgs
+  candidates?: boolean | SearchCountOutputTypeCountCandidatesArgs
 }
 
 /**
@@ -531,8 +531,8 @@ export type SearchCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exten
 /**
  * SearchCountOutputType without action
  */
-export type SearchCountOutputTypeCountSelectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SelectionWhereInput
+export type SearchCountOutputTypeCountCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SearchCandidateWhereInput
 }
 
 
@@ -544,7 +544,7 @@ export type SearchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   createdAt?: boolean
   serviceDate?: boolean
   serviceTimeslot?: boolean
-  selections?: boolean | Prisma.Search$selectionsArgs<ExtArgs>
+  candidates?: boolean | Prisma.Search$candidatesArgs<ExtArgs>
   _count?: boolean | Prisma.SearchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["search"]>
 
@@ -580,7 +580,7 @@ export type SearchSelectScalar = {
 
 export type SearchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "latitude" | "longitude" | "distanceRange" | "createdAt" | "serviceDate" | "serviceTimeslot", ExtArgs["result"]["search"]>
 export type SearchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  selections?: boolean | Prisma.Search$selectionsArgs<ExtArgs>
+  candidates?: boolean | Prisma.Search$candidatesArgs<ExtArgs>
   _count?: boolean | Prisma.SearchCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SearchIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -589,7 +589,7 @@ export type SearchIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type $SearchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Search"
   objects: {
-    selections: Prisma.$SelectionPayload<ExtArgs>[]
+    candidates: Prisma.$SearchCandidatePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -993,7 +993,7 @@ readonly fields: SearchFieldRefs;
  */
 export interface Prisma__SearchClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  selections<T extends Prisma.Search$selectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Search$selectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SelectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  candidates<T extends Prisma.Search$candidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Search$candidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SearchCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1418,27 +1418,27 @@ export type SearchDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
- * Search.selections
+ * Search.candidates
  */
-export type Search$selectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Search$candidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Selection
+   * Select specific fields to fetch from the SearchCandidate
    */
-  select?: Prisma.SelectionSelect<ExtArgs> | null
+  select?: Prisma.SearchCandidateSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Selection
+   * Omit specific fields from the SearchCandidate
    */
-  omit?: Prisma.SelectionOmit<ExtArgs> | null
+  omit?: Prisma.SearchCandidateOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SelectionInclude<ExtArgs> | null
-  where?: Prisma.SelectionWhereInput
-  orderBy?: Prisma.SelectionOrderByWithRelationInput | Prisma.SelectionOrderByWithRelationInput[]
-  cursor?: Prisma.SelectionWhereUniqueInput
+  include?: Prisma.SearchCandidateInclude<ExtArgs> | null
+  where?: Prisma.SearchCandidateWhereInput
+  orderBy?: Prisma.SearchCandidateOrderByWithRelationInput | Prisma.SearchCandidateOrderByWithRelationInput[]
+  cursor?: Prisma.SearchCandidateWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.SelectionScalarFieldEnum | Prisma.SelectionScalarFieldEnum[]
+  distinct?: Prisma.SearchCandidateScalarFieldEnum | Prisma.SearchCandidateScalarFieldEnum[]
 }
 
 /**

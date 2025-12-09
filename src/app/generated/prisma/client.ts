@@ -45,7 +45,17 @@ export { Prisma }
  */
 export type Search = Prisma.SearchModel
 /**
- * Model Selection
+ * Model SearchCandidate
  * 
  */
-export type Selection = Prisma.SelectionModel
+export type SearchCandidate = Prisma.SearchCandidateModel
+/**
+ * Model Restaurant
+ * 
+ */
+export type Restaurant = Prisma.RestaurantModel
+/**
+ * Model RestaurantIdentity
+ * 
+ */
+export type RestaurantIdentity = Prisma.RestaurantIdentityModel

@@ -52,7 +52,9 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Search: 'Search',
-  Selection: 'Selection'
+  SearchCandidate: 'SearchCandidate',
+  Restaurant: 'Restaurant',
+  RestaurantIdentity: 'RestaurantIdentity'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -84,24 +86,46 @@ export const SearchScalarFieldEnum = {
 export type SearchScalarFieldEnum = (typeof SearchScalarFieldEnum)[keyof typeof SearchScalarFieldEnum]
 
 
-export const SelectionScalarFieldEnum = {
+export const SearchCandidateScalarFieldEnum = {
   id: 'id',
-  searchId: 'searchId',
   createdAt: 'createdAt',
-  restaurantName: 'restaurantName',
-  restaurantLatitude: 'restaurantLatitude',
-  restaurantLongitude: 'restaurantLongitude',
-  restaurantAddress: 'restaurantAddress',
-  restaurantDescription: 'restaurantDescription',
-  restaurantImageUrl: 'restaurantImageUrl',
-  restaurantRating: 'restaurantRating',
-  restaurantPhoneNumber: 'restaurantPhoneNumber',
-  restaurantPriceRange: 'restaurantPriceRange',
-  restaurantTags: 'restaurantTags',
-  restaurantSource: 'restaurantSource'
+  order: 'order',
+  searchId: 'searchId',
+  restaurantId: 'restaurantId',
+  status: 'status',
+  rejectionReason: 'rejectionReason'
 } as const
 
-export type SelectionScalarFieldEnum = (typeof SelectionScalarFieldEnum)[keyof typeof SelectionScalarFieldEnum]
+export type SearchCandidateScalarFieldEnum = (typeof SearchCandidateScalarFieldEnum)[keyof typeof SearchCandidateScalarFieldEnum]
+
+
+export const RestaurantScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  name: 'name',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  address: 'address',
+  description: 'description',
+  imageUrl: 'imageUrl',
+  rating: 'rating',
+  phoneNumber: 'phoneNumber',
+  priceRange: 'priceRange',
+  tags: 'tags'
+} as const
+
+export type RestaurantScalarFieldEnum = (typeof RestaurantScalarFieldEnum)[keyof typeof RestaurantScalarFieldEnum]
+
+
+export const RestaurantIdentityScalarFieldEnum = {
+  id: 'id',
+  restaurantId: 'restaurantId',
+  source: 'source',
+  externalId: 'externalId'
+} as const
+
+export type RestaurantIdentityScalarFieldEnum = (typeof RestaurantIdentityScalarFieldEnum)[keyof typeof RestaurantIdentityScalarFieldEnum]
 
 
 export const SortOrder = {

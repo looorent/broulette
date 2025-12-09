@@ -25,3 +25,12 @@ export const DistanceRange = {
 } as const
 
 export type DistanceRange = (typeof DistanceRange)[keyof typeof DistanceRange]
+
+
+export const SearchCandidateStatus = {
+  Rejected: 'Rejected',
+  Returned: 'Returned',
+  Pending: 'Pending'
+} as const
+
+export type SearchCandidateStatus = (typeof SearchCandidateStatus)[keyof typeof SearchCandidateStatus]
