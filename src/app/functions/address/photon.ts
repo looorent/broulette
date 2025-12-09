@@ -81,4 +81,3 @@ export async function fetchLocationFromPhoton(query: string, limit: number, sign
     note: PHOTON_CONFIG.BOTTOM_NOTE
   };
 }
-
