@@ -20,5 +20,8 @@ export default [
     ])
   ]),
 
-  route("api/address-searches", "./routes/api/address-search.tsx"),
+  ...prefix("api", [
+    route("address-searches", "./routes/api/address-search.tsx"),
+    route("health", "./routes/api/health.ts")
+  ])
 ] satisfies RouteConfig;

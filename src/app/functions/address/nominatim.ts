@@ -66,6 +66,6 @@ export async function fetchLocationFromNominatim(query: string, limit: number, s
 
   return {
     locations: locations,
-    note: NOMINATIM_CONFIG.NOTE
+    note: NOMINATIM_CONFIG.BOTTOM_NOTE
   };
 }
