@@ -7,6 +7,9 @@ import { shareSocial } from "~/functions/share";
 import { Search } from "~/types/search";
 import { createDefaultSelection } from "~/types/selection";
 import type { Route } from "../selection/+types/page";
+import type { Coordinates } from "~/types/location";
+import { createMapLink } from "~/functions/address/map";
+import { SourceBadge } from "./components/source-badge";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const search = new Search(params.searchId);
@@ -29,12 +32,12 @@ export async function loader({ params }: Route.LoaderArgs) {
   }
 }
 
-// TODO
 export default function SelectionPage({ loaderData }: Route.ComponentProps) {
-  let { selection } = loaderData;
+  const { selection } = loaderData;
   const submit = useSubmit();
 
-  const shareResult = () => {
+  const shareResult = (e: React.MouseEvent) => {
+    e.stopPropagation();
     shareSocial(selection?.restaurant?.name || "", selection?.restaurant?.description, location.href);
     triggerHaptics();
   };
@@ -62,7 +65,7 @@ export default function SelectionPage({ loaderData }: Route.ComponentProps) {
         justify-between
         py-8
         relative
-        ease-in
+        animate-bounce-in
         transform transition-transform duration-300"
       aria-label="Restaurant Result">
       <div className="
@@ -93,9 +96,12 @@ export default function SelectionPage({ loaderData }: Route.ComponentProps) {
             m-0
           ">
             <img id="selection-image"
-              src={selection?.restaurant?.imageUrl ?? ""}
+              src={selection?.restaurant?.imageUrl ?? "https://placehold.co/600x400?text=No+Image"}
               className="w-full h-full object-cover animate-photo"
               alt="Picture of the restaurant" />
+
+              <SourceBadge source={selection?.restaurant?.source} />
+
               {
                 selection?.restaurant?.priceRange && (
                   <div className="
@@ -226,7 +232,6 @@ export default function SelectionPage({ loaderData }: Route.ComponentProps) {
               flex items-center justify-center
               shadow-hard transition-transform active:translate-y-1 active:shadow-none hover:brightness-110
               cursor-pointer
-              z-100
             "
             title="Spin Again"
             aria-label="Reroll">
@@ -235,8 +240,9 @@ export default function SelectionPage({ loaderData }: Route.ComponentProps) {
 
           {selection?.restaurant?.location?.latitude && selection?.restaurant?.location?.longitude && (
             <a
-              href={`https://www.google.com/maps/search/?api=1&query=${selection.restaurant.location.latitude},${selection.restaurant.location.longitude}`}
+              href={createMapLink(selection.restaurant.location, selection.restaurant.name)}
               target="_blank"
+              rel="noopener noreferrer"
               className="
                 flex-1 bg-fun-green
                 border-4 border-fun-dark rounded-2xl

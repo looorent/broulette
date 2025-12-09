@@ -13,6 +13,7 @@ export class Selection {
                 tagNames: string[];
                 imageUrl: string;
                 location: Coordinates;
+                source: string;
               }
   ) {}
 
@@ -40,7 +41,8 @@ export function createDefaultSelection(searchId: string): Selection {
       location: {
         latitude: 50.9658273,
         longitude: 4.8359792
-      }
+      },
+      source: "tripadvisor"
     }
   );
 }
