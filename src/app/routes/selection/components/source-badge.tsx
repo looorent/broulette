@@ -1,31 +1,46 @@
-// TODO
+interface SourceBadgeStyle {
+  style: string;
+  label: string;
+}
+
+function defineStyle(source: string): SourceBadgeStyle {
+  switch(source?.toLowerCase()) {
+    case "google":
+      return {
+        style: "bg-fun-blue text-white",
+        label: "Google"
+      };
+    case "tripadvisor":
+      return {
+        style: "bg-fun-green text-white",
+        label: "TripAdvisor"
+      };
+    case "mapbox":
+      return {
+        style: "bg-fun-blue text-white",
+        label: "MapBox"
+      };
+    case "yelp":
+      return {
+        style: "bg-fun-red text-white",
+        label: "Yelp"
+      };
+    default:
+      return {
+        style: "bg-fun-red text-white",
+        label: source
+      };
+  }
+}
+
 
 export function SourceBadge({ source }: { source?: string }) {
-  if (source) {
-    const normalizedSource = source.toLowerCase();
-
-    // Define styles for different providers
-    let badgeStyle = "bg-gray-200 text-fun-dark"; // Default
-    let label = source;
-
-    if (normalizedSource.includes("google")) {
-      badgeStyle = "bg-[#4285F4] text-white"; // Google Blue
-      label = "Google";
-    } else if (normalizedSource.includes("tripadvisor")) {
-      badgeStyle = "bg-[#00AA6C] text-white"; // TripAdvisor Green
-      label = "TripAdvisor";
-    } else if (normalizedSource.includes("mapbox")) {
-      badgeStyle = "bg-[#314CCD] text-white"; // Mapbox Blue
-      label = "Mapbox";
-    } else if (normalizedSource.includes("yelp")) {
-      badgeStyle = "bg-[#FF1A1A] text-white"; // Yelp Red
-      label = "Yelp";
-    }
-
+  if (source && source.length > 0) {
+    const style = defineStyle(source);
     return (
       <div className={`
         absolute bottom-3 right-3
-        ${badgeStyle}
+        ${style.style}
         border-[3px] border-fun-dark
         px-2.5 py-1 rounded-lg
         font-bold font-sans text-xs uppercase tracking-wider
@@ -34,11 +49,10 @@ export function SourceBadge({ source }: { source?: string }) {
         animate-in fade-in slide-in-from-bottom-2 duration-500
       `}>
         <span className="opacity-75 text-[10px] mr-1">via</span>
-        {label}
+        {style.label}
       </div>
     );
   } else {
     return null;
   }
-
 }

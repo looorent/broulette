@@ -1,14 +1,13 @@
 import { MapPin, Navigation, Phone, RefreshCw, Share2, Star } from "lucide-react";
 import { useEffect } from "react";
 import { redirect, useSubmit } from "react-router";
+import { createMapLink } from "~/functions/address/map";
 import { delay } from "~/functions/delay";
 import { triggerHaptics } from "~/functions/haptics";
 import { shareSocial } from "~/functions/share";
 import { Search } from "~/types/search";
 import { createDefaultSelection } from "~/types/selection";
 import type { Route } from "../selection/+types/page";
-import type { Coordinates } from "~/types/location";
-import { createMapLink } from "~/functions/address/map";
 import { SourceBadge } from "./components/source-badge";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -255,7 +254,7 @@ export default function SelectionPage({ loaderData }: Route.ComponentProps) {
               <span className="font-pop text-2xl text-fun-dark uppercase tracking-wide">Let's Eat!</span>
               <Navigation className="w-6 h-6 stroke-[3px] text-fun-dark" />
             </a>
-          ) }
+          )}
         </div>
       </div>
     </main>
