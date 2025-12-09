@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ServiceTimeslot {
+  Dinner
+  Lunch
+  RightNow
+}
+
+enum DistanceRange {
+  Close
+  MidRange
+  Far
+}
+
+model Search {
+  id              String @id @default(uuid()) @db.Uuid
+  latitude        Float
+  longitude       Float
+  distanceRange   DistanceRange
+  createdAt       DateTime @default(now())
+  serviceDate     DateTime @db.Date
+  serviceTimeslot ServiceTimeslot
+  selections      Selection[]
+}
+
+model Selection {
+  id                    String @id @default(uuid()) @db.Uuid
+  searchId              String @db.Uuid
+  search                Search @relation(fields: [searchId], references: [id])
+  createdAt             DateTime @default(now())
+  restaurantName        String @db.VarChar(100)
+  restaurantLatitude    Float
+  restaurantLongitude   Float
+  restaurantAddress     String?
+  restaurantDescription String?
+  restaurantImageUrl    String?
+  restaurantRating      Decimal? @db.Decimal(2, 1)
+  restaurantPhoneNumber String? @db.VarChar(20)
+  restaurantPriceRange  Int?
+  restaurantTags        String[] @db.VarChar(30)
+  restaurantSource      String? @db.VarChar(20)
+}

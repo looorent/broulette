@@ -39,7 +39,7 @@ export default function StartButton({
         serviceTimeslot: preferences.service.timeslot,
         locationLatitude: preferences.location.coordinates!.latitude,
         locationLongitude: preferences.location.coordinates!.longitude,
-        rangeId: preferences.range.id
+        distanceRangeId: preferences.range.id
       }, {
         action: "/searches",
         method: "post",
