@@ -8,7 +8,7 @@ import {
 export default [
   index("./routes/home/page.tsx"),
   ...prefix("searches", [
-    index("./routes/search/action.ts"),
+    index("./routes/search/action.server.ts"),
     ...prefix(":searchId", [
       index("./routes/search/page.tsx"),
       ...prefix("selections", [

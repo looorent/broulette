@@ -1,12 +1,15 @@
 import { useEffect } from "react";
 import { useNavigate, useSubmit } from "react-router";
-import { delay } from "~/functions/delay";
-import { Search } from "~/types/search";
+import prisma from "~/db/prisma";
 import { Selection } from "~/types/selection";
 import type { Route } from "../search/+types/page";
 
-function findSearch(searchId: string): Search | null {
-  return new Search(searchId);
+async function findSearch(searchId: string) {
+  return await prisma.search.findUnique({
+    where: {
+      id: searchId
+    }
+  });
 }
 
 // TODO load the search and the latest selection
@@ -15,8 +18,7 @@ function findLatestSelection(searchId: string): Selection | null {
 }
 
 export async function loader({ params }: Route.LoaderArgs) {
-  await delay(4000);
-  const search = findSearch(params.searchId);
+  const search = await findSearch(params.searchId);
   const latestSelection = findLatestSelection(params.searchId);
   return {
     search: search ? {

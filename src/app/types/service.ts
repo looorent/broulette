@@ -1,9 +1,9 @@
 import { CalendarPlus, Clock, Moon, Sun, type LucideProps } from "lucide-react";
 
 export enum ServiceTimeslot {
-  Dinner = "dinner",
-  Lunch = "lunch",
-  RightNow = "right_now"
+  Dinner = "Dinner",
+  Lunch = "Lunch",
+  RightNow = "RightNow"
 }
 
 export interface ServicePreference {

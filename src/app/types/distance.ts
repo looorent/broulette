@@ -8,21 +8,21 @@ export interface DistanceRange {
 
 export const RANGES: DistanceRange[] = [
   {
-    id: "close",
+    id: "Close",
     label: {
       display: "Close",
       compact: "Close"
     }
   },
   {
-    id: "mid_range",
+    id: "MidRange",
     label: {
       display: "Mid-range",
       compact: "Locally"
     }
   },
   {
-    id: "far",
+    id: "Far",
     label: {
       display: "Far",
       compact: "Far"
