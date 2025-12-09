@@ -62,13 +62,14 @@ export function BottomSheet({
         open
       >
         <div className="
-        flex flex-col
-        bg-fun-cream
-        w-full
-        border-x-2 border-t-4 border-fun-dark rounded-t-3xl
-        p-6 pb-10 md:pb-6
-        shadow-hard relative mx-auto max-h-[90vh]
-        touch-pan-y">
+          flex flex-col
+          bg-fun-cream
+          w-full
+          border-x-2 border-t-4 border-fun-dark rounded-t-3xl
+          p-6 pb-10 md:pb-6
+          shadow-hard relative mx-auto max-h-[90vh]
+          touch-pan-y
+        ">
 
           {/* Header */}
           <div id="bottom-sheet-header"

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useSearchParams, type ClientLoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router";
 import { AlertBox } from "~/components/alert-box";
 import { BottomSheet } from "~/components/bottom-sheet-modal";
-import { getBrowserLocation } from "~/functions/address/browser-location";
+import { getBrowserLocation } from "~/functions/address/browser-location.client";
 import { PreferenceChip, type PreferenceChipHandle } from "~/routes/home/components/preferences/preferences-chip";
 import { PreferencesForm, type PreferencesFormHandle } from "~/routes/home/components/preferences/preferences-form";
 import { RANGES } from "~/types/distance";

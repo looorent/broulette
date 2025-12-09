@@ -1,7 +1,7 @@
 import { Crosshair, Loader2, MapPin, XCircle } from "lucide-react";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useFetcher } from "react-router";
-import { getBrowserLocation } from "~/functions/address/browser-location";
+import { getBrowserLocation, isGeolocationSupported } from "~/functions/address/browser-location.client";
 import { useDebounce } from "~/functions/debounce";
 import type { action as addressLoader } from "~/routes/api/address-search";
 import { useHomeContext } from "~/routes/home/context";
@@ -107,9 +107,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
     };
 
     const triggerDeviceLocation = async () => {
-      if (!navigator.geolocation) {
-        openGeolocationErrorInAlert();
-      } else {
+      if (isGeolocationSupported()) {
         setIsLocating(true);
         setShowSuggestions(false);
 
@@ -124,6 +122,8 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
         } finally {
           setIsLocating(false);
         }
+      } else {
+        openGeolocationErrorInAlert();
       }
     };
 
@@ -140,7 +140,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
       setSearchText("");
     };
 
-    const deviceLocationSupported = typeof navigator !== "undefined" && Boolean(navigator.geolocation);
+    const deviceLocationSupported = isGeolocationSupported();
     const isInvalidDeviceLocation = !deviceLocationSupported || (selectedLocation?.isDeviceLocation && !hasCoordinates(selectedLocation));
 
     return (

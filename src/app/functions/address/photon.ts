@@ -78,7 +78,7 @@ export async function fetchLocationFromPhoton(query: string, limit: number, sign
     .map(convertPhotonToLocation);
   return {
     locations: locations,
-    note: PHOTON_CONFIG.NOTE
+    note: PHOTON_CONFIG.BOTTOM_NOTE
   };
 }
 

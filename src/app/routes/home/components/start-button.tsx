@@ -1,7 +1,7 @@
 import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { Form, useSubmit } from "react-router";
-import { triggerHaptics } from "~/functions/haptics";
+import { triggerHaptics } from "~/functions/haptics.client";
 import type { Preference } from "~/types/preference";
 
 interface StartButtonProps {

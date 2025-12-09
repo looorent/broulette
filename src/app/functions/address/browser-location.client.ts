@@ -1,9 +1,10 @@
+export function isGeolocationSupported(): boolean {
+  return typeof navigator !== "undefined" && !!navigator.geolocation;
+}
+
 export function getBrowserLocation(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error("Geolocation not supported"));
-      return;
-    } else {
+    if (isGeolocationSupported()) {
       navigator.geolocation.getCurrentPosition(
         (position) => resolve(position),
         (error) => reject(error),
@@ -13,6 +14,8 @@ export function getBrowserLocation(): Promise<GeolocationPosition> {
           maximumAge: 0
         }
       );
+    } else {
+      reject(new Error("Geolocation not supported"));
     }
   });
 }
