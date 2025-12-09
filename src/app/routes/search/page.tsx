@@ -12,7 +12,6 @@ function findSearch(searchId: string): Search | null {
 // TODO load the search and the latest selection
 function findLatestSelection(searchId: string): Selection | null {
   return null;
-  // return createEmptySelection(searchId);
 }
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -22,7 +21,8 @@ export async function loader({ params }: Route.LoaderArgs) {
   return {
     search: search ? {
       id: search.id,
-      url: search.toUrl()
+      url: search.toUrl(),
+      newSelectionUrl: search.toNewSelectionUrl()
     } : null,
     latestSelection: latestSelection ? {
       id: latestSelection.id,
@@ -43,11 +43,12 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
         searchId: loaderData.search.id
       }, {
         method: "POST",
-        action: `/searches/${loaderData.search!.id}/selections`,
+        action: loaderData.search.newSelectionUrl,
         replace: true,
         viewTransition: true
       });
     }
   }, [loaderData.latestSelection?.id]);
+
   return null;
 }

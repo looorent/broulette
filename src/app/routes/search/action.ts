@@ -1,8 +1,7 @@
 import { redirect } from "react-router";
-import type { Route } from "../../+types/root";
 import { delay } from "~/functions/delay";
 import { createEmptySearch } from "~/types/search";
-import { createEmptySelection } from "~/types/selection";
+import type { Route } from "../../+types/root";
 
 // TODO
 export async function action({

@@ -1,6 +1,7 @@
 import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { Form, useSubmit } from "react-router";
+import { triggerHaptics } from "~/functions/haptics";
 import type { Preference } from "~/types/preference";
 
 interface StartButtonProps {
@@ -9,12 +10,15 @@ interface StartButtonProps {
   className?: string;
 }
 
-export default function StartButton({ preferences, onBuzzOnError, className = "" }: StartButtonProps) {
+export default function StartButton({
+  preferences,
+  onBuzzOnError,
+  className = ""
+}: StartButtonProps) {
   const submit = useSubmit();
-
   const [isBuzzing, setIsBuzzing] = useState(false);
   const hasErrors = preferences ? !preferences.isValid() : false;
-  const showErrors = preferences && preferences.isDeviceLocationAttempted && !preferences.isValid();
+  const showErrors = preferences && preferences.isDeviceLocationAttempted && hasErrors;
 
   const triggerBuzz = () => {
     if (!isBuzzing) {
@@ -25,6 +29,7 @@ export default function StartButton({ preferences, onBuzzOnError, className = ""
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    triggerHaptics();
     if (hasErrors) {
       triggerBuzz();
       onBuzzOnError?.();
@@ -45,47 +50,58 @@ export default function StartButton({ preferences, onBuzzOnError, className = ""
   };
 
   return (
-    <Form method="post"
+    <Form
+      method="post"
       action="/searches"
       onSubmit={handleSubmit}
-      className={`w-full flex justify-center items-center mb-14 mt-auto ${className}`}>
+      className={`
+        w-full
+        flex justify-center items-center
+        mb-14 mt-auto
+        ${className}
+      `}
+    >
+      {/* Decorative Pulse */}
       <div className={`
           absolute w-56 h-56 rounded-full pointer-events-none z-0
           animate-pulse-mega transition-colors duration-500
           bg-fun-cream/30
         `}
-        aria-hidden="true"></div>
+        aria-hidden="true"
+      />
 
       <button
+        type="submit"
+        aria-invalid={hasErrors}
+        aria-label={hasErrors ? "Form incomplete, click for details" : "Start Search"}
         className={`
           group relative w-48 h-48 rounded-full border-[6px]
           flex flex-col items-center justify-center z-20
           transition-all duration-300 ease-out
-          ${isBuzzing ? 'animate-buzz bg-fun-red border-2 border-fun-cream border-dashed' : ''}
-          ${showErrors && !isBuzzing ? 'bg-slate-100 text-slate-400 border-2 border-slate-200 border-dashed cursor-not-allowed hover:bg-slate-200' : ''}
-          ${!showErrors ? 'bg-fun-cream border-fun-dark shadow-hard hover:translate-y-0.5 hover:shadow-hard-hover active:scale-95 cursor-pointer' : ''}
+          ${isBuzzing ? "animate-buzz bg-fun-red border-2 border-fun-cream border-dashed" : ""}
+          ${showErrors && !isBuzzing ? "bg-slate-100 text-slate-400 border-2 border-slate-200 border-dashed hover:bg-slate-200" : ""}
+          ${!showErrors ? "bg-fun-cream border-fun-dark shadow-hard hover:translate-y-0.5 hover:shadow-hard-hover active:scale-95 cursor-pointer" : ""}
         `}
-        aria-disabled={hasErrors}>
-          <span className={`
+      >
+        <span className={`
             font-pop text-4xl uppercase tracking-wider transition-all duration-300
             ${showErrors
               ? "text-gray-300 decoration-4 decoration-red-400/50 blur-[0.5px]"
               : "text-fun-dark"
             }
           `}>
-            feed me
-          </span>
+          feed me
+        </span>
 
-          {showErrors && (
-            <div className="
-              absolute -top-1 -right-1
-              rotate-12 group-hover:rotate-25 group-hover:scale-110
-              transition-all duration-200 ease-spring
-            ">
-              <AlertTriangle className="w-14 h-14 text-fun-dark fill-fun-yellow stroke-[2.5px] drop-shadow-md"
-              />
-            </div>
-          )}
+        {showErrors && (
+          <div className="
+            absolute -top-1 -right-1
+            rotate-12 group-hover:rotate-25 group-hover:scale-110
+            transition-all duration-200 ease-spring
+          ">
+            <AlertTriangle className="w-14 h-14 text-fun-dark fill-fun-yellow stroke-[2.5px] drop-shadow-md" />
+          </div>
+        )}
       </button>
     </Form>
   );

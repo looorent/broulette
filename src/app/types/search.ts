@@ -4,6 +4,10 @@ export class Search {
   toUrl(): string {
     return `/searches/${this.id}`;
   }
+
+  toNewSelectionUrl(): string {
+    return `/searches/${this.id}/selections`;
+  }
 }
 
 export function createEmptySearch(): Search {
