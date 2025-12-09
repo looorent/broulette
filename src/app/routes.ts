@@ -11,10 +11,10 @@ export default [
     index("./routes/search/action.server.ts"),
     ...prefix(":searchId", [
       index("./routes/search/page.tsx"),
-      ...prefix("selections", [
-        index("./routes/selection/action.ts"),
-        ...prefix(":selectionId", [
-          index("./routes/selection/page.tsx"),
+      ...prefix("candidates", [
+        index("./routes/candidate/action.server.ts"),
+        ...prefix(":candidateId", [
+          index("./routes/candidate/page.tsx"),
         ])
       ])
     ])

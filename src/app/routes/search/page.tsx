@@ -1,34 +1,41 @@
 import { useEffect } from "react";
 import { useNavigate, useSubmit } from "react-router";
-import prisma from "~/lib/prisma";
-import { Selection } from "~/types/selection";
+import prisma from "~/functions/db/prisma.server";
 import type { Route } from "../search/+types/page";
 
-async function findSearch(searchId: string) {
+async function findSearchWithLatestCandidate(searchId: string) {
   return await prisma.search.findUnique({
     where: {
       id: searchId
+    },
+    include: {
+      candidates: {
+        orderBy: {
+          order: "desc" as const,
+        },
+        where: {
+          status: CandidateStatus.Returned
+        },
+        take: 1
+      }
     }
   });
 }
 
-// TODO load the search and the latest selection
-function findLatestSelection(searchId: string): Selection | null {
-  return null;
-}
-
 export async function loader({ params }: Route.LoaderArgs) {
-  const search = await findSearch(params.searchId);
-  const latestSelection = findLatestSelection(params.searchId);
+  const search = await findSearchWithLatestCandidate(params.searchId);
+  const latestCandidate = search?.candidates?.[0];
+  console.log("search", search);
+  console.log("latestCandidate", latestCandidate);
   return {
     search: search ? {
       id: search.id,
       url: search.toUrl(),
-      newSelectionUrl: search.toNewSelectionUrl()
+      newCandidateUrl: search.toNewCandidateUrl()
     } : null,
-    latestSelection: latestSelection ? {
-      id: latestSelection.id,
-      url: latestSelection.toUrl()
+    latestCandidate: latestCandidate ? {
+      id: latestCandidate.id,
+      url: latestCandidate.toUrl()
     } : null
   };
 }
@@ -38,19 +45,19 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
   const submit = useSubmit();
 
   useEffect(() => {
-    if (loaderData.latestSelection) {
-      navigate(loaderData.latestSelection.url, { replace: true });
+    if (loaderData.latestCandidate) {
+      navigate(loaderData.latestCandidate.url, { replace: true });
     } else if (loaderData.search) {
       submit({
         searchId: loaderData.search.id
       }, {
         method: "POST",
-        action: loaderData.search.newSelectionUrl,
+        action: loaderData.search.newCandidateUrl,
         replace: true,
         viewTransition: true
       });
     }
-  }, [loaderData.latestSelection?.id]);
+  }, [loaderData.latestCandidate?.id]);
 
   return null;
 }

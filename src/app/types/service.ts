@@ -1,10 +1,5 @@
 import { CalendarPlus, Clock, Moon, Sun, type LucideProps } from "lucide-react";
-
-export enum ServiceTimeslot {
-  Dinner = "Dinner",
-  Lunch = "Lunch",
-  RightNow = "RightNow"
-}
+import { ServiceTimeslot } from "~/generated/prisma/enums";
 
 export interface ServicePreference {
   id: string;
@@ -43,8 +38,14 @@ function pickIcon(timeslot: ServiceTimeslot | null): React.ForwardRefExoticCompo
   }
 }
 
-function createService(baseDate: Date, service: ServiceTimeslot | null, timeHour: number, labelDisplay: string, labelCompact: string, isAvailable: boolean = true): ServicePreference {
-  const icon = pickIcon(service);
+function createService(
+  baseDate: Date,
+  service: ServiceTimeslot | null,
+  timeHour: number,
+  labelDisplay: string,
+  labelCompact: string,
+  isAvailable: boolean = true
+): ServicePreference {
   return {
     id: `${service}-${baseDate.toISOString().split("T")[0]}`,
     label: {

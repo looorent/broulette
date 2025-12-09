@@ -25,25 +25,65 @@ model Search {
   longitude       Float
   distanceRange   DistanceRange
   createdAt       DateTime @default(now())
+
   serviceDate     DateTime @db.Date
   serviceTimeslot ServiceTimeslot
-  selections      Selection[]
+
+  candidates      SearchCandidate[]
 }
 
-model Selection {
-  id                    String @id @default(uuid()) @db.Uuid
-  searchId              String @db.Uuid
-  search                Search @relation(fields: [searchId], references: [id])
-  createdAt             DateTime @default(now())
-  restaurantName        String @db.VarChar(100)
-  restaurantLatitude    Float
-  restaurantLongitude   Float
-  restaurantAddress     String?
-  restaurantDescription String?
-  restaurantImageUrl    String?
-  restaurantRating      Decimal? @db.Decimal(2, 1)
-  restaurantPhoneNumber String? @db.VarChar(20)
-  restaurantPriceRange  Int?
-  restaurantTags        String[] @db.VarChar(30)
-  restaurantSource      String? @db.VarChar(20)
+enum SearchCandidateStatus {
+  Rejected
+  Returned
+  Pending
+}
+
+model SearchCandidate {
+  id              String @id @default(uuid()) @db.Uuid
+  createdAt       DateTime @default(now())
+  order           Int
+
+  searchId        String @db.Uuid
+  search          Search @relation(fields: [searchId], references: [id])
+
+  restaurantId    String @db.Uuid
+  restaurant      Restaurant @relation(fields: [restaurantId], references: [id])
+
+  status          SearchCandidateStatus @default(Pending)
+
+  rejectionReason String? @db.VarChar(50)
+
+  @@index([searchId, status])
+}
+
+model Restaurant {
+  id               String @id @default(uuid()) @db.Uuid
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  identities       RestaurantIdentity[]
+  searchCandidates SearchCandidate[]
+
+  name             String @db.VarChar(100)
+  latitude         Float
+  longitude        Float
+  address          String?
+  description      String?
+  imageUrl         String?
+  rating           Decimal? @db.Decimal(2, 1)
+  phoneNumber      String? @db.VarChar(20)
+  priceRange       Int?
+  tags             String[] @db.VarChar(30)
+}
+
+model RestaurantIdentity {
+  id           String @id @default(uuid()) @db.Uuid
+
+  restaurantId String @db.Uuid
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+
+  source       String @db.VarChar(50)
+  externalId   String @db.VarChar(255)
+
+  @@unique([source, externalId])
 }

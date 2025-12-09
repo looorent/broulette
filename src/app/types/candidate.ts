@@ -1,6 +1,6 @@
 import type { Coordinates } from "./location";
 
-export class Selection {
+export class Candidate {
   constructor(readonly id: string,
               readonly searchId: string,
               readonly restaurant: {
@@ -18,12 +18,12 @@ export class Selection {
   ) {}
 
   toUrl(): string {
-    return `/searches/${this.searchId}/selections/${this.id}`;
+    return `/searches/${this.searchId}/candidates/${this.id}`;
   }
 }
 
-export function createDefaultSelection(searchId: string): Selection {
-  return new Selection(
+export function createDefaultCandidate(searchId: string): Candidate {
+  return new Candidate(
     crypto.randomUUID(),
     searchId,
     {

@@ -6,38 +6,38 @@ import { delay } from "~/functions/delay";
 import { triggerHaptics } from "~/functions/haptics.client";
 import { shareSocial } from "~/functions/share.client";
 import { Search } from "~/types/search";
-import { createDefaultSelection } from "~/types/selection";
-import type { Route } from "../selection/+types/page";
+import { createDefaultCandidate } from "~/types/candidate";
+import type { Route } from "../candidate/+types/page";
 import { SourceBadge } from "./components/source-badge";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const search = new Search(params.searchId);
-  const selection = createDefaultSelection(search.id);
+  const candidate = createDefaultCandidate(search.id);
   if ("latest" === params.searchId.toLowerCase()) {
-    throw redirect(selection.toUrl());
+    throw redirect(candidate.toUrl());
   } else {
     await delay(1000);
     return {
       search: {
         id: search.id,
-        newSelectionUrl: search.toNewSelectionUrl()
+        newCandidateUrl: search.toNewCandidateUrl()
       },
-      selection: {
-        id: selection.id,
-        url: selection.toUrl(),
-        restaurant: selection.restaurant
+      candidate: {
+        id: candidate.id,
+        url: candidate.toUrl(),
+        restaurant: candidate.restaurant
       }
     };
   }
 }
 
-export default function SelectionPage({ loaderData }: Route.ComponentProps) {
-  const { selection } = loaderData;
+export default function CandidatePage({ loaderData }: Route.ComponentProps) {
+  const { candidate } = loaderData;
   const submit = useSubmit();
 
   const shareResult = (e: React.MouseEvent) => {
     e.stopPropagation();
-    shareSocial(selection?.restaurant?.name || "", selection?.restaurant?.description, location.href);
+    shareSocial(candidate?.restaurant?.name || "", candidate?.restaurant?.description, location.href);
     triggerHaptics();
   };
 
@@ -47,7 +47,7 @@ export default function SelectionPage({ loaderData }: Route.ComponentProps) {
       searchId: loaderData.search.id
     }, {
       method: "POST",
-      action: loaderData.search.newSelectionUrl,
+      action: loaderData.search.newCandidateUrl,
       replace: true,
       viewTransition: true
     });
@@ -94,15 +94,15 @@ export default function SelectionPage({ loaderData }: Route.ComponentProps) {
             border-b-[5px] border-fun-dark overflow-hidden
             m-0
           ">
-            <img id="selection-image"
-              src={selection?.restaurant?.imageUrl ?? "https://placehold.co/600x400?text=No+Image"}
+            <img id="candidate-image"
+              src={candidate?.restaurant?.imageUrl ?? "https://placehold.co/600x400?text=No+Image"}
               className="w-full h-full object-cover animate-photo"
               alt="Picture of the restaurant" />
 
-              <SourceBadge source={selection?.restaurant?.source} />
+              <SourceBadge source={candidate?.restaurant?.source} />
 
               {
-                selection?.restaurant?.priceRange && (
+                candidate?.restaurant?.priceRange && (
                   <div className="
                     absolute top-3 right-3
                     bg-fun-yellow
@@ -112,7 +112,7 @@ export default function SelectionPage({ loaderData }: Route.ComponentProps) {
                     text-fun-dark shadow-hard-hover
                     text-sm z-10
                   ">
-                    <span id="selection-price">{selection.restaurant.priceRange}</span>
+                    <span id="candidate-price">{candidate.restaurant.priceRange}</span>
                   </div>
                 )
               }
@@ -150,24 +150,24 @@ export default function SelectionPage({ loaderData }: Route.ComponentProps) {
               z-20
             ">
               <Star className="w-4 h-4 fill-fun-cream" />
-              <span id="selection-rating">{ selection?.restaurant?.rating ?? "" }</span>
+              <span id="candidate-rating">{ candidate?.restaurant?.rating ?? "" }</span>
             </div>
 
-            <h3 id="selection-name"
+            <h3 id="candidate-name"
               className="font-pop text-3xl text-fun-dark leading-tight mb-2 mt-2">
-              { selection?.restaurant?.name ?? "" }
+              { candidate?.restaurant?.name ?? "" }
             </h3>
 
             {
-              selection?.restaurant?.description && (
+              candidate?.restaurant?.description && (
                 <p
-                  id="selection-desc"
+                  id="candidate-desc"
                   className="
                     font-sans font-medium
                     text-fun-dark/70 text-lg
                     leading-snug mb-4 line-clamp-3
                   ">
-                  {selection.restaurant.description}
+                  {candidate.restaurant.description}
                 </p>
               )
             }
@@ -175,33 +175,33 @@ export default function SelectionPage({ loaderData }: Route.ComponentProps) {
             <div className="mt-auto space-y-3">
               <address className="flex flex-col gap-2 text-fun-dark font-bold font-sans text-sm not-italic">
                 {
-                  selection?.restaurant?.address && (
+                  candidate?.restaurant?.address && (
                     <div className="flex items-center gap-2">
                       <MapPin className="w-5 h-5 text-fun-red shrink-0" />
-                      <span id="selection-address">{ selection.restaurant.address ?? "" }</span>
+                      <span id="candidate-address">{ candidate.restaurant.address ?? "" }</span>
                     </div>
                   )
                 }
 
                 {
-                  selection?.restaurant?.phoneNumber && (
+                  candidate?.restaurant?.phoneNumber && (
                     <div className="flex items-center gap-2">
                       <Phone className="w-5 h-5 text-fun-blue shrink-0" />
                       <a
-                        id="selection-phone"
+                        id="candidate-phone"
                         href="#"
                         className="hover:underline decoration-2 decoration-fun-blue"
-                      >{selection?.restaurant?.phoneNumber}</a>
+                      >{candidate?.restaurant?.phoneNumber}</a>
                     </div>
                   )
                 }
               </address>
 
               {
-                selection?.restaurant?.tagNames?.length > 0 ? (
-                  <div id="selection-tags"
+                candidate?.restaurant?.tagNames?.length > 0 ? (
+                  <div id="candidate-tags"
                     className="flex gap-2 flex-wrap pt-2">
-                    {selection.restaurant.tagNames.map(tagName => {
+                    {candidate.restaurant.tagNames.map(tagName => {
                       return (
                         <span
                           key={tagName}
@@ -237,9 +237,9 @@ export default function SelectionPage({ loaderData }: Route.ComponentProps) {
             <RefreshCw className="w-8 h-8 stroke-[3px] text-fun-dark" />
           </button>
 
-          {selection?.restaurant?.location?.latitude && selection?.restaurant?.location?.longitude && (
+          {candidate?.restaurant?.location?.latitude && candidate?.restaurant?.location?.longitude && (
             <a
-              href={createMapLink(selection.restaurant.location, selection.restaurant.name)}
+              href={createMapLink(candidate.restaurant.location, candidate.restaurant.name)}
               target="_blank"
               rel="noopener noreferrer"
               className="

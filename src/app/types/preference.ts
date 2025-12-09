@@ -1,4 +1,4 @@
-import type { DistanceRange } from "./distance";
+import type { DistanceRangeOption } from "./distance";
 import { areLocationEquals, createDeviceLocation, hasCoordinates, type Coordinates, type LocationPreference } from "./location";
 import type { ServicePreference } from "./service";
 
@@ -7,7 +7,7 @@ export class Preference {
   constructor(readonly service: ServicePreference,
               readonly location: LocationPreference,
               readonly isDeviceLocationAttempted: boolean,
-              readonly range: DistanceRange) {
+              readonly range: DistanceRangeOption) {
     this.id = crypto.randomUUID();
   }
 
@@ -37,7 +37,7 @@ export class Preference {
     }
   }
 
-  withRange(range: DistanceRange): Preference | this {
+  withRange(range: DistanceRangeOption): Preference | this {
     if (this.range !== range && this.range?.id !== range?.id) {
       return new Preference(
         this.service,
@@ -77,7 +77,7 @@ export class Preference {
 }
 
 export function createDefaultPreference(services: ServicePreference[],
-                                        ranges: DistanceRange[],
+                                        ranges: DistanceRangeOption[],
                                         coordinates: Coordinates | null): Preference {
   return new Preference(
     services[0],
