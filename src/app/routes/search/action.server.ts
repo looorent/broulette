@@ -1,6 +1,6 @@
 import type { DistanceRange, ServiceTimeslot } from "prisma/generated/prisma/enums";
 import { redirect } from "react-router";
-import prisma from "~/db/prisma";
+import prisma from "~/lib/prisma";
 import type { Route } from "../../+types/root";
 
 export async function action({

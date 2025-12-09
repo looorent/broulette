@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useSubmit } from "react-router";
-import prisma from "~/db/prisma";
+import prisma from "~/lib/prisma";
 import { Selection } from "~/types/selection";
 import type { Route } from "../search/+types/page";
 
