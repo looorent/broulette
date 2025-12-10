@@ -73,6 +73,7 @@ model Restaurant {
   rating           Decimal? @db.Decimal(2, 1)
   phoneNumber      String? @db.VarChar(20)
   priceRange       Int?
+  openingHours     String?
   tags             String[] @db.VarChar(30)
 }
 

@@ -781,6 +781,7 @@ export const RestaurantScalarFieldEnum = {
   rating: 'rating',
   phoneNumber: 'phoneNumber',
   priceRange: 'priceRange',
+  openingHours: 'openingHours',
   tags: 'tags'
 } as const
 
