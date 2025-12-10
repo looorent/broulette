@@ -1,6 +1,6 @@
 import type { LocationSuggestions } from "~/types/location";
-import { fetchLocationFromNominatim } from "./nominatim";
-import { fetchLocationFromPhoton } from "./photon";
+import { fetchLocationFromNominatim } from "./nominatim.server";
+import { fetchLocationFromPhoton } from "./photon.server";
 
 const PROVIDER_CONFIG = {
   MAX_RETRIES: 3,

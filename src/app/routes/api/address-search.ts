@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
-import { searchLocations } from "~/functions/address/provider";
+import { searchLocations } from "~/functions/address/provider.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   if (request.method !== "POST") {

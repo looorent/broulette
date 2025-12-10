@@ -1,8 +1,8 @@
 import { Crosshair, Loader2, MapPin, XCircle } from "lucide-react";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useFetcher } from "react-router";
-import { getBrowserLocation, isGeolocationSupported } from "~/functions/address/browser-location.client";
-import { useDebounce } from "~/functions/debounce";
+import { useDebounce } from "~/functions/browser/debounce.client";
+import { getDeviceLocation, isGeolocationSupported } from "~/functions/browser/geolocation.client";
 import type { action as addressLoader } from "~/routes/api/address-search";
 import { useHomeContext } from "~/routes/home/context";
 import { createDeviceLocation, hasCoordinates, type LocationPreference } from "~/types/location";
@@ -112,7 +112,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
         setShowSuggestions(false);
 
         try {
-          const position = await getBrowserLocation();
+          const position = await getDeviceLocation();
           const deviceLocation = createDeviceLocation(position.coords);
           onChange(deviceLocation);
           closeSearchMode();

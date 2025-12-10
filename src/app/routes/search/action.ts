@@ -1,12 +1,13 @@
 import { redirect } from "react-router";
-import type { Route } from "../../+types/root";
+import prisma from "~/functions/db/prisma";
+import { buildUrlForSearch } from "~/functions/url";
 import type { DistanceRange, ServiceTimeslot } from "~/generated/prisma/enums";
-import prisma from "~/functions/db/prisma.server";
+import type { Route } from "./+types/action";
 
 export async function action({
   request,
 }: Route.ActionArgs) {
-  let formData = await request.formData();
+  const formData = await request.formData();
   // TODO manage validation & errors
   const createdSearch = await prisma.search.create({
     data: {
@@ -18,5 +19,5 @@ export async function action({
     }
   });
 
-  return redirect(createdSearch.toUrl());
+  return redirect(buildUrlForSearch(createdSearch.id));
 }

@@ -1,63 +1,43 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useSubmit } from "react-router";
-import prisma from "~/functions/db/prisma.server";
+import { buildUrlForCandidate, buildUrlForNewCandidate } from "~/functions/url";
 import type { Route } from "../search/+types/page";
-
-async function findSearchWithLatestCandidate(searchId: string) {
-  return await prisma.search.findUnique({
-    where: {
-      id: searchId
-    },
-    include: {
-      candidates: {
-        orderBy: {
-          order: "desc" as const,
-        },
-        where: {
-          status: CandidateStatus.Returned
-        },
-        take: 1
-      }
-    }
-  });
-}
+import prisma from "~/functions/db/prisma";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const search = await findSearchWithLatestCandidate(params.searchId);
-  const latestCandidate = search?.candidates?.[0];
-  console.log("search", search);
-  console.log("latestCandidate", latestCandidate);
+  const search = await prisma.search.findWithLatestCandidate(params.searchId);
   return {
-    search: search ? {
-      id: search.id,
-      url: search.toUrl(),
-      newCandidateUrl: search.toNewCandidateUrl()
-    } : null,
-    latestCandidate: latestCandidate ? {
-      id: latestCandidate.id,
-      url: latestCandidate.toUrl()
-    } : null
+    search: search
   };
 }
 
 export default function SearchPage({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const submit = useSubmit();
+  const done = useRef(false);
 
+  const { search } = loaderData;
+  const latestCandidate = search?.candidates?.[0];
+
+  // TODO manage if search is null
   useEffect(() => {
-    if (loaderData.latestCandidate) {
-      navigate(loaderData.latestCandidate.url, { replace: true });
-    } else if (loaderData.search) {
-      submit({
-        searchId: loaderData.search.id
-      }, {
-        method: "POST",
-        action: loaderData.search.newCandidateUrl,
-        replace: true,
-        viewTransition: true
-      });
+    if (!done.current) {
+      done.current = true;
+
+      if (latestCandidate) {
+        navigate(buildUrlForCandidate(search.id, latestCandidate.id), { replace: true });
+      } else if (loaderData.search) {
+        submit({
+          searchId: loaderData.search.id
+        }, {
+          method: "POST",
+          action: buildUrlForNewCandidate(search!.id),
+          replace: true,
+          viewTransition: true
+        });
+      }
     }
-  }, [loaderData.latestCandidate?.id]);
+  }, [latestCandidate]);
 
   return null;
 }

@@ -17,12 +17,6 @@ const defaultState: SearchLoaderState = {
 };
 
 function detectLoaderState(navigation: Navigation): SearchLoaderState {
-  console.group("Detect loader state");
-  console.log("navigation.state", navigation.state);
-  console.log("navigation.formAction", navigation.formAction);
-  console.log("navigation.formMethod", navigation.formMethod);
-  console.log("navigation.location", navigation.location);
-  console.groupEnd();
   if (navigation.state === "submitting" && navigation.formAction?.startsWith("/searches")) {
     // Check for submission to specific path
     return { visible: true };

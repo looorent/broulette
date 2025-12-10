@@ -2,7 +2,7 @@ export function isGeolocationSupported(): boolean {
   return typeof navigator !== "undefined" && !!navigator.geolocation;
 }
 
-export function getBrowserLocation(): Promise<GeolocationPosition> {
+export function getDeviceLocation(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
     if (isGeolocationSupported()) {
       navigator.geolocation.getCurrentPosition(
@@ -10,7 +10,7 @@ export function getBrowserLocation(): Promise<GeolocationPosition> {
         (error) => reject(error),
         {
           enableHighAccuracy: true,
-          timeout: 5000,
+          timeout: 10000,
           maximumAge: 0
         }
       );

@@ -8,11 +8,11 @@ import {
 export default [
   index("./routes/home/page.tsx"),
   ...prefix("searches", [
-    index("./routes/search/action.server.ts"),
+    index("./routes/search/action.ts"),
     ...prefix(":searchId", [
       index("./routes/search/page.tsx"),
       ...prefix("candidates", [
-        index("./routes/candidate/action.server.ts"),
+        index("./routes/candidate/action.ts"),
         ...prefix(":candidateId", [
           index("./routes/candidate/page.tsx"),
         ])
@@ -21,7 +21,7 @@ export default [
   ]),
 
   ...prefix("api", [
-    route("address-searches", "./routes/api/address-search.tsx"),
+    route("address-searches", "./routes/api/address-search.ts"),
     route("health", "./routes/api/health.ts")
   ])
 ] satisfies RouteConfig;
