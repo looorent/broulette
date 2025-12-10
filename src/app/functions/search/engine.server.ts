@@ -1,13 +1,14 @@
-import type { Decimal } from "@prisma/client/runtime/client";
 import { Prisma, SearchCandidateStatus, type Restaurant, type RestaurantIdentity, type SearchCandidate } from "~/generated/prisma/client";
 import prisma from "../db/prisma";
 import { findGoogleRestaurantByText } from "./google/repository.server";
-import type { GoogleRestaurant } from "./google/types.server";
+import { type GoogleRestaurant } from "./google/types.server";
 import { fetchAllRestaurantsNearbyWithRetry } from "./overpass/repository.server";
 
+// --- Types ---
 type RestaurantWithIdentities = Restaurant & { identities: RestaurantIdentity[] };
 
-interface RestaurantNearby {
+// Represents a restaurant found from a quick external source (e.g., Overpass)
+interface DiscoveredRestaurant {
   name: string;
   latitude: number;
   longitude: number;
@@ -16,200 +17,275 @@ interface RestaurantNearby {
   externalId: string;
 }
 
+// --- Constants ---
+const DEFAULT_DISTANCE_METERS = 5000;
+const GOOGLE_SEARCH_RADIUS_METERS = 50;
+
+/**
+ * Orchestrates the three-step process: Discovery, Prioritization, and Detailing
+ * to find and return the best new restaurant candidate for a search.
+ * This also saves all the intermediate Candidates that could be found.
+ * @param searchId The ID of the search to find candidates for.
+ * @returns The newly created SearchCandidate in 'Returned' status, or null.
+ */
 export async function searchCandidate(searchId: string): Promise<SearchCandidate | null> {
-  // TODO manage error
-  const search = await prisma.search.findUniqueOrThrow({
-    where: {
-      id: searchId
-    },
-    include: {
-      candidates: {
-        include: {
-          restaurant: {
-            include: {
-              identities: true
-            }
-          }
-        }
-      }
+  try {
+    const search = await prisma.search.findUniqueWithRestaurantAndIdentities(searchId);
+
+    if (!search) {
+      // TODO throw a custom business error
+      console.error(`Search with ID ${searchId} not found.`);
+      return null;
     }
-  });
 
-  const distanceRangeInMeters = 5000; // TODO use search
-  const identitiesAlreadyPartsInCandidates = search.candidates?.flatMap(candidate => candidate.restaurant?.identities || []) || [];
-  const restaurantsNearby = await findRestaurantsNearby(search.latitude, search.longitude, distanceRangeInMeters, identitiesAlreadyPartsInCandidates);
+    const identitiesAlreadyInCandidates = search.candidates?.flatMap(candidate => candidate.restaurant?.identities || []) || [];
 
-  // TODO create the candidate in a Pending State, WITHOUT restaurant!.
+    // --- STEP 1: Discovery (Get a light list of nearby restaurants) ---
+    const discoveredRestaurants = await discoverNearbyRestaurants(
+      search.latitude,
+      search.longitude,
+      DEFAULT_DISTANCE_METERS,
+      identitiesAlreadyInCandidates
+    );
+    console.log(`Discovered ${discoveredRestaurants.length} new potential restaurants.`);
 
-  console.log("Restaurants ", restaurantsNearby);
-  console.log("identitiesAlreadyPartsInCandidates ", identitiesAlreadyPartsInCandidates);
+    // --- STEP 2: Prioritization/Randomization ---
+    const prioritizedRestaurants = prioritizeAndShuffle(discoveredRestaurants);
+    console.log("Restaurants prioritized for detailing.");
 
-  let candidate: SearchCandidate | null = null;
-
-  for (let index = 0; index < restaurantsNearby.length && (candidate === null || candidate === undefined || candidate.status !== SearchCandidateStatus.Returned); index++) {
-    const restaurantNearby = restaurantsNearby[index];
-
-    let matchingRestaurant: RestaurantWithIdentities | null = null;
-
-    ////////////////
-    // If the corresponding restaurant is already in the database, use it to check the data available
-    const existingRestaurant = (await prisma.restaurant.findFirst({
-      where: {
-        identities: {
-          some: {
-            source: restaurantNearby.externalSource,
-            externalId: restaurantNearby.externalId
-          }
-        }
-      },
-      include: {
-        identities: true
-      }
-    }));
-    if (existingRestaurant) {
-      // Complete the restaurant if required (for example, if it does not contain the opening hours)
-      const mustBeCompleted = false; // TODO do better
-      if (mustBeCompleted) {
-        // TODO do stuff
-        matchingRestaurant = existingRestaurant;
+    // --- STEP 3: Detailing, Filtering, and Candidate Creation ---
+    let createdCandidate: SearchCandidate | null = null;
+    for (const restaurantNearby of prioritizedRestaurants) {
+      if (createdCandidate && createdCandidate.status === SearchCandidateStatus.Returned) {
+        break;
       } else {
-        matchingRestaurant = existingRestaurant;
-      }
-    } else {
-      // No restaurant found in the database, try to find it on Google
-      matchingRestaurant = await findRestaurantInGoogle(restaurantNearby);
-    }
-    ////////////////
+        const details = await findAndDetailRestaurant(restaurantNearby);
 
-    // Now, we should have found a restaurant matching the restaurant nearby
-    if (matchingRestaurant) {
-      // we reload it to make sure we have everything
-      // TODO it could be done before, right?
-      const savedRestaurant = matchingRestaurant.id && matchingRestaurant.id.length > 0 ? await prisma.restaurant.findFirst({
-        where: {
-          id: matchingRestaurant.id
-        },
-        include: {
-          identities: true
-        }
-      }) : await prisma.restaurant.create({
-        data: {
-          name: matchingRestaurant.name,
-          latitude: matchingRestaurant.latitude,
-          longitude: matchingRestaurant.longitude,
-          address: matchingRestaurant.address,
-          description: matchingRestaurant.description,
-          rating: matchingRestaurant.rating,
-          imageUrl: matchingRestaurant.imageUrl,
-          phoneNumber: matchingRestaurant.phoneNumber,
-          priceRange: matchingRestaurant.priceRange,
-          tags: matchingRestaurant.tags,
-          identities: {
-            createMany: {
-              data: matchingRestaurant.identities
-            }
+        if (details) {
+          createdCandidate = await processRestaurantForCandidate(searchId, details, search.candidates);
+          if (createdCandidate.status === SearchCandidateStatus.Returned) {
+            console.log(`Found and returned viable candidate: ${details.name}`);
+          } else {
+            console.log(`Found but not viable: ${details.name}`);
           }
-        },
+        } else {
+          console.log("Restaurant has not been found in other datasources", restaurantNearby.name);
+        }
+      }
+    }
+
+    // Reload the candidate to ensure all relations are available if needed by the caller
+    if (createdCandidate) {
+      return prisma.searchCandidate.findUnique({
+        where: { id: createdCandidate.id }
       });
-
-      // Create the candidate and save it (even if it is rejected)
-      if (savedRestaurant) {
-        // TODO get latest order with a more performant method
-        const latestCandidate = (await prisma.search.findWithLatestCandidate(search.id))?.candidates?.[0];
-        const lastOrder = latestCandidate?.order || 1;
-
-        // TODO we should update the candidate here
-        candidate = await prisma.searchCandidate.create({
-          data: {
-            order: lastOrder + 1, // TODO
-            restaurantId: savedRestaurant.id,
-            searchId: search.id,
-            status: isViable(matchingRestaurant) ? SearchCandidateStatus.Returned : SearchCandidateStatus.Rejected, // TODO define the reason
-          }
-        });
-      } else {
-        // TODO is this even possible?
-        console.log("NOT POSSIBLE TODO");
-      }
+    } else {
+      return null;
     }
-  }
-
-  if (candidate) {
-    return await prisma.searchCandidate.findUnique({
-      where: {
-        id: candidate.id
-      }
-    });
-  } else {
+  } catch (error) {
+    // TODO throw a custom business error
+    console.error(`Error in searchCandidate for ID ${searchId}:`, error);
     return null;
   }
 }
 
+// --- STEP 1 Functions: Discovery ---
 
-
-// TODO add other sources
-async function findRestaurantsNearby(
+/**
+ * Fetches restaurants from external sources (e.g., Overpass) and filters out existing ones.
+ */
+async function discoverNearbyRestaurants(
   latitude: number,
   longitude: number,
   distanceRangeInMeters: number,
-  restaurantsToExclude: RestaurantIdentity[] = [] // TODO improve performance with some kind of index or hash
-): Promise<RestaurantNearby[]> {
-  const overpassResponse = await fetchAllRestaurantsNearbyWithRetry(latitude, longitude, distanceRangeInMeters)
-  // TODO manage errors and use other API
+  identitiesToExclude: RestaurantIdentity[] = []
+): Promise<DiscoveredRestaurant[]> {
+  const overpassResponse = await fetchAllRestaurantsNearbyWithRetry(latitude, longitude, distanceRangeInMeters);
 
-  const overpassRestaurantsToExclude = restaurantsToExclude.filter(restaurant => restaurant.source === "osm");
+  // Filter out Overpass/OSM restaurants that have already been processed
+  const overpassIdentitiesToExclude = identitiesToExclude.filter(restaurant => restaurant.source === "osm");
+
   return overpassResponse?.restaurants?.filter(restaurant => {
-    // remove the restaurants that has been loaded already
-    return !overpassRestaurantsToExclude.some(restaurantToExclude => restaurantToExclude.externalId === restaurant.id.toString() )
+    return !overpassIdentitiesToExclude.some(identity => identity.externalId === restaurant.id.toString());
   })?.map(restaurant => ({
     name: restaurant.name,
     latitude: restaurant.latitude,
     longitude: restaurant.longitude,
     externalSource: "osm",
     externalId: restaurant.id.toString(),
-    closed: null, // TODO use opening_hours
+    closed: null,
   }))?.filter(restaurant => restaurant.closed !== true) || [];
 }
 
-// TODO
-function isViable(restaurantToReturn: { id: string; latitude: number; longitude: number; createdAt: Date; name: string; updatedAt: Date; address: string | null; description: string | null; imageUrl: string | null; rating: Decimal | null; phoneNumber: string | null; priceRange: number | null; tags: string[]; }): boolean {
-  return true;
+// --- STEP 2 Functions: Prioritization/Randomization ---
+
+/**
+ * Applies business logic for randomization and prioritization.
+ * Currently, this is a simple pass-through.
+ * @param restaurants The list of discovered restaurants.
+ * @returns The prioritized/shuffled list.
+ */
+function prioritizeAndShuffle(restaurants: DiscoveredRestaurant[]): DiscoveredRestaurant[] {
+  // TODO: Implement actual business randomization/ranking logic here (e.g., weighting
+  // by distance, external popularity, or simple random shuffle).
+  return restaurants;
 }
 
-// TODO
-async function findRestaurantInGoogle(restaurantNearby: RestaurantNearby): Promise<RestaurantWithIdentities | null> {
-  const googleRestaurant = await findGoogleRestaurantByText(restaurantNearby.name, restaurantNearby.latitude, restaurantNearby.longitude, 50); // TODO make this "50 meters" adaptable
-  if (googleRestaurant) {
-    // TODO add more checks ? (like the name of the restaurant, or other stuff)
-    return convertGoogleRestaurantToRestaurant(googleRestaurant, restaurantNearby);
+// --- STEP 3 Functions: Detailing, Filtering, and Candidate Creation ---
+
+/**
+ * Checks the database for an existing restaurant, or tries to find and convert one from Google.
+ */
+async function findAndDetailRestaurant(restaurantNearby: DiscoveredRestaurant): Promise<Partial<RestaurantWithIdentities> | null> {
+  // 1. Check local database for match
+  let existingRestaurant = await prisma.restaurant.findFirst({
+    where: {
+      identities: {
+        some: {
+          source: restaurantNearby.externalSource,
+          externalId: restaurantNearby.externalId
+        }
+      }
+    },
+    include: { identities: true }
+  });
+
+  // 2. If it exists, check for completion/update logic
+  if (existingRestaurant) {
+    const mustBeCompleted = false; // TODO: Check if restaurant is missing critical data (e.g., address, rating)
+    if (mustBeCompleted) {
+      // TODO: Logic to complete the restaurant data
+      return existingRestaurant;
+    } else {
+      return existingRestaurant;
+    }
   } else {
-    // TODO try another search?
-    return null;
+    // 3. No restaurant found in the database, try to find details on Google
+    return await findRestaurantInGoogle(restaurantNearby);
   }
 }
 
-function convertGoogleRestaurantToRestaurant(google: GoogleRestaurant,
-                                             restaurantNearby: RestaurantNearby): any  { // TODO "any" is not right here
-  return {
-    name: google.displayName?.text ?? google.name ?? restaurantNearby.name,
-    latitude: google.location.latitude ?? restaurantNearby.latitude,
-    longitude: google.location.longitude ?? restaurantNearby.longitude,
-    address: google.adrFormatAddress,
-    description: null, // TODO
-    imageUrl: null, // TODO
-    rating: google.rating ? new Prisma.Decimal(google.rating) : null,
-    phoneNumber: google.internationalPhoneNumber,
-    priceRange: google.toPriceLevelAsNumber(),
-    tags: google.types, // TODO filter
-    identities: [
-      {
-        source: restaurantNearby.externalSource,
-        externalId: restaurantNearby.externalId
-      },
-      {
-        source: "google_place_api",
-        externalId: google.id
-      }
-    ]
+
+/**
+ * Searches Google for full restaurant details based on a light discovery record.
+ */
+async function findRestaurantInGoogle(restaurantNearby: DiscoveredRestaurant): Promise<Partial<RestaurantWithIdentities> | null> {
+  const googleRestaurant = await findGoogleRestaurantByText(
+    restaurantNearby.name,
+    restaurantNearby.latitude,
+    restaurantNearby.longitude,
+    GOOGLE_SEARCH_RADIUS_METERS
+  );
+  return convertGoogleRestaurantToRestaurant(googleRestaurant, restaurantNearby);
+}
+
+
+/**
+ * Saves/updates a restaurant in the database and creates a SearchCandidate for it.
+ */
+async function processRestaurantForCandidate(
+  searchId: string,
+  matchingRestaurant: Partial<RestaurantWithIdentities>,
+  existingCandidates: Array<{ order: number } | null> = []
+): Promise<SearchCandidate> {
+  let savedRestaurant: Restaurant | null;
+
+  // Use the name, latitude, and longitude properties which are always expected to be present.
+  const restaurantData = {
+    name: matchingRestaurant.name!,
+    latitude: matchingRestaurant.latitude!,
+    longitude: matchingRestaurant.longitude!,
+    address: matchingRestaurant.address,
+    description: matchingRestaurant.description,
+    rating: matchingRestaurant.rating,
+    imageUrl: matchingRestaurant.imageUrl,
+    phoneNumber: matchingRestaurant.phoneNumber,
+    priceRange: matchingRestaurant.priceRange,
+    tags: matchingRestaurant.tags,
   };
+
+  if (matchingRestaurant.id) {
+    // Restaurant was already in DB
+    savedRestaurant = await prisma.restaurant.findUnique({ where: { id: matchingRestaurant.id } });
+  } else {
+    // Create new restaurant record
+    savedRestaurant = await prisma.restaurant.create({
+      data: {
+        ...restaurantData,
+        identities: {
+          createMany: {
+            // Need to assert type as Partial<RestaurantWithIdentities> ensures identities is there for creation
+            data: matchingRestaurant.identities as RestaurantIdentity[]
+          }
+        }
+      },
+    });
+  }
+
+  if (!savedRestaurant) {
+    // TODO business error
+    throw new Error(`Failed to retrieve or create restaurant for candidate: ${matchingRestaurant.name}`);
+  }
+
+  // Determine the order for the new candidate
+  const latestOrder = existingCandidates.reduce((max, c) => c ? Math.max(max, c.order) : max, 0);
+  const nextOrder = latestOrder + 1;
+
+  // Create the candidate
+  return prisma.searchCandidate.create({
+    data: {
+      order: nextOrder,
+      restaurantId: savedRestaurant.id,
+      searchId: searchId,
+      status: isViable(savedRestaurant) ? SearchCandidateStatus.Returned : SearchCandidateStatus.Rejected,
+    }
+  });
+}
+
+
+// TODO find another name that explains the restaurant has been found (cool), but it does not match some criteria (and also return a string , the "reason")
+/**
+ * Checks if a restaurant meets the criteria to be returned as a candidate.
+ */
+function isViable(restaurant: Restaurant): boolean {
+  // TODO: Implement actual viability criteria based on search parameters
+  return true;
+}
+
+function convertGoogleRestaurantToRestaurant(
+  google: GoogleRestaurant,
+  restaurantNearby: DiscoveredRestaurant
+): Partial<RestaurantWithIdentities | null> {
+  if (google) {
+
+    return {
+      // Name, lat, lon fallback to Overpass data if missing from Google
+      name: google.displayName?.text ?? google.name ?? restaurantNearby.name,
+      latitude: google.location.latitude ?? restaurantNearby.latitude,
+      longitude: google.location.longitude ?? restaurantNearby.longitude,
+
+      address: google.adrFormatAddress,
+      description: null,
+      imageUrl: null,
+      rating: google.rating !== undefined && google.rating !== null
+        ? new Prisma.Decimal(google.rating)
+        : null,
+      phoneNumber: google.internationalPhoneNumber,
+      priceRange: google.toPriceLevelAsNumber(),
+      tags: google.types,
+
+      identities: [
+        {
+          source: restaurantNearby.externalSource,
+          externalId: restaurantNearby.externalId
+        },
+        {
+          source: "google_place_api",
+          externalId: google.id
+        }
+      ] as RestaurantIdentity[],
+    };
+  } else {
+    return null;
+  }
 }

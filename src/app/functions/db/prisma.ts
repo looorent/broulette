@@ -29,6 +29,19 @@ const prismaClientSingleton = () => {
               },
             },
           });
+        },
+
+        async findUniqueWithRestaurantAndIdentities(searchId: string) {
+          return await prisma.search.findUnique({
+            where: { id: searchId },
+            include: {
+              candidates: {
+                include: {
+                  restaurant: { include: { identities: true } }
+                }
+              }
+            }
+          });
         }
       }
     }
