@@ -8,6 +8,7 @@ import { shareSocial } from "~/functions/browser/share.client";
 import { buildUrlForCandidate, buildUrlForNewCandidate } from "~/functions/url";
 import type { Route } from "../candidate/+types/page";
 import { SourceBadge } from "./components/source-badge";
+import type { RestaurantIdentity, SearchCandidate } from "~/generated/prisma/client";
 
 // TODO disable the "reroll" if the search is passed
 
@@ -82,6 +83,9 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
       triggerHaptics();
     }, []);
 
+    const source = findSourceIn(candidate.restaurant.identities);
+    const rating = formatRating(candidate.restaurant.rating?.absoluteValue);
+
     return (
       <main
         className="
@@ -124,7 +128,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
                 className="w-full h-full object-cover animate-photo"
                 alt="Picture of the restaurant" />
 
-                <SourceBadge source={candidate.restaurant.source} />
+                { source ? <SourceBadge source={source} /> : null }
 
                 {
                   candidate.restaurant.priceRange && (
@@ -162,21 +166,24 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
             </figure>
 
             <div className="p-6 flex-1 flex flex-col relative">
-              <div className="
-                absolute -top-5 left-6
-                bg-fun-green
-                border-[3px] border-fun-dark rounded-full
-                px-3 py-1
-                font-bold text-white
-                shadow-hard-hover
-                flex items-center
-                gap-1
-                transform -rotate-3
-                z-20
-              ">
-                <Star className="w-4 h-4 fill-fun-cream" />
-                <span id="candidate-rating">{ candidate.restaurant.rating ?? "" }</span>
-              </div>
+              {rating ? (
+                <div className="
+                  absolute -top-5 left-6
+                  bg-fun-green
+                  border-[3px] border-fun-dark rounded-full
+                  px-3 py-1
+                  font-bold text-white
+                  shadow-hard-hover
+                  flex items-center
+                  gap-1
+                  transform -rotate-3
+                  z-20
+                ">
+                  <Star className="w-4 h-4 fill-fun-cream" />
+                  <span id="candidate-rating">{rating}</span>
+                </div>
+              ) : null}
+
 
               <h3 id="candidate-name"
                 className="font-pop text-3xl text-fun-dark leading-tight mb-2 mt-2">
@@ -226,6 +233,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
                   candidate.restaurant.tags?.length > 0 ? (
                     <div id="candidate-tags"
                       className="flex gap-2 flex-wrap pt-2">
+                      {/* TODO manage a proper list of tags */}
                       {candidate.restaurant.tags.map(tagName => {
                         return (
                           <span
@@ -264,7 +272,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
 
             {candidate.restaurant.latitude && candidate.restaurant.longitude && (
               <a
-                href={createMapLink(candidate.restaurant.location, candidate.restaurant.name)}
+                href={createMapLink(candidate.restaurant.latitude, candidate.restaurant.longitude, candidate.restaurant.name)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="
@@ -288,3 +296,20 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
     return null;
   }
 }
+
+// TODO implement this better
+const SOURCES_FOR_DISCOVERY = ["osm"];
+function findSourceIn(identities: RestaurantIdentity[]): string | undefined {
+  return
+    identities.filter(identity => !SOURCES_FOR_DISCOVERY.includes(identity.source))?.[0]
+    ?? identities?.[0]?.source;
+}
+
+function formatRating(ratingAsNumber: number | undefined): string | undefined {
+  if (ratingAsNumber) {
+    return ratingAsNumber.toString(); // TODO implement a better way
+  } else {
+    return undefined;
+  }
+}
+

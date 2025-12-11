@@ -68,6 +68,9 @@ model Restaurant {
   latitude         Float
   longitude        Float
   address          String?
+  countryCode      String? @db.VarChar(20)
+  state            String? @db.VarChar(50)
+
   description      String?
   imageUrl         String?
   rating           Decimal? @db.Decimal(2, 1)

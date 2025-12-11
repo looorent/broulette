@@ -3,9 +3,8 @@ import { GoogleRestaurant } from "./types.server";
 
 // environment varibales does not work (from .env) with import.meta.env
 
-const GOOGLE_PLACE_API_KEY = import.meta.env.GOOGLE_PLACE_API_KEY;
-const GOOGLE_PLACE_API_TIMEOUT_IN_SECONDS = import.meta.env.GOOGLE_PLACE_API_TIMEOUT_IN_SECONDS || 10000;
-
+const GOOGLE_PLACE_API_KEY = import.meta.env.VITE_GOOGLE_PLACE_API_KEY;
+const GOOGLE_PLACE_API_TIMEOUT_IN_SECONDS = import.meta.env.VITE_GOOGLE_PLACE_API_TIMEOUT_IN_SECONDS || 10000;
 
 // TODO do something with this?
 const RESTAURANT_TYPES: string[] = [

@@ -61,6 +61,10 @@ export class OverpassRestaurant {
     return this.tags["addr:country"];
   }
 
+  get addressState(): string | undefined {
+    return this.tags["addr:state"];
+  }
+
   get addressHouseNumber(): string | undefined {
     return this.tags["addr:housenumber"];
   }

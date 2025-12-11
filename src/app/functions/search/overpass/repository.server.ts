@@ -2,8 +2,8 @@ import { createCircuitBreaker } from "../circuit-breaker/circuit-breaker.server"
 import { OsmEmptyResponseError, OsmHttpError, OsmServerError } from "./error.server";
 import { OverpassResponse, OverpassRestaurant } from "./types.server";
 
-const OVERPASS_API_INSTANCE_URL = import.meta.env.OVERPASS_API_INSTANCE_URL || "https://overpass-api.de/api/interpreter";
-const OVERPASS_API_TIMEOUT_IN_SECONDS = import.meta.env.OVERPASS_API_TIMEOUT_IN_SECONDS || 5000;
+const OVERPASS_API_INSTANCE_URL = import.meta.env.VITE_OVERPASS_API_INSTANCE_URL || "https://overpass-api.de/api/interpreter";
+const OVERPASS_API_TIMEOUT_IN_SECONDS = import.meta.env.VITE_OVERPASS_API_TIMEOUT_IN_SECONDS || 5000;
 
 function createQueryToListAllRestaurantsNearby(
   latitude: number,

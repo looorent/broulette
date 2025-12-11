@@ -3,10 +3,10 @@ import { executeRequest } from "../http-client";
 import { APP_CONFIG } from "~/config";
 
 const NOMINATIM_CONFIG = {
-  BASE_URL: import.meta.env.NOMINATIM_URL ?? "https://nominatim.openstreetmap.org/search",
-  USER_AGENT: import.meta.env.NOMINATIM_USER_AGENT ?? `${APP_CONFIG.name}/${APP_CONFIG.version}`,
-  BOTTOM_NOTE: import.meta.env.NOMINATIM_BOTTOM_NOTE ?? "by OpenStreetMap",
-  TIMEOUT_IN_MS: Number(import.meta.env.NOMINATIM_API_TIMEOUT) || 5000
+  BASE_URL: import.meta.env.VITE_NOMINATIM_URL ?? "https://nominatim.openstreetmap.org/search",
+  USER_AGENT: import.meta.env.VITE_NOMINATIM_USER_AGENT ?? `${APP_CONFIG.name}/${APP_CONFIG.version}`,
+  BOTTOM_NOTE: import.meta.env.VITE_NOMINATIM_BOTTOM_NOTE ?? "by OpenStreetMap",
+  TIMEOUT_IN_MS: Number(import.meta.env.VITE_NOMINATIM_API_TIMEOUT) || 5000
 };
 
 interface NominatimPlace {

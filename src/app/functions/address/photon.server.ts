@@ -2,9 +2,9 @@ import type { LocationPreference, LocationSuggestions } from "~/types/location";
 import { executeRequest } from "../http-client";
 
 const PHOTON_CONFIG = {
-  BASE_URL: import.meta.env.PHOTON_BOTTOM_NOTE ?? "https://photon.komoot.io/api/",
-  BOTTOM_NOTE: import.meta.env.PHOTON_BOTTOM_NOTE ?? "by Photon",
-  TIMEOUT_IN_MS: Number(import.meta.env.PHOTON_API_TIMEOUT) || 5000
+  BASE_URL: import.meta.env.VITE_PHOTON_BOTTOM_NOTE ?? "https://photon.komoot.io/api/",
+  BOTTOM_NOTE: import.meta.env.VITE_PHOTON_BOTTOM_NOTE ?? "by Photon",
+  TIMEOUT_IN_MS: Number(import.meta.env.VITE_PHOTON_API_TIMEOUT) || 5000
 };
 
 interface PhotonFeature {
