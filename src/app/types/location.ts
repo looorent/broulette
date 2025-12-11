@@ -1,7 +1,4 @@
-export interface Coordinates {
-  latitude: number;
-  longitude: number;
-}
+import type { Coordinates } from "./coordinate";
 
 export interface LocationPreference {
   label: {

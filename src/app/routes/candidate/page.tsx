@@ -12,6 +12,8 @@ import type { RestaurantIdentity, SearchCandidate } from "~/generated/prisma/cli
 
 // TODO disable the "reroll" if the search is passed
 
+// If the latest restaurant is a "Rejected", we should return it, and adapt the screen (to make sure a search is done, you can add "it's dead" status on the search itself)
+
 export async function loader({ params }: Route.LoaderArgs) {
   const { searchId, candidateId } = params;
   if ("latest" === params.searchId.toLowerCase()) {
@@ -66,17 +68,19 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
       triggerHaptics();
     };
 
-    // TODO disable if urls is null
+    const reRollEnabled = urls?.newCandidate && urls?.newCandidate.length > 0;
     const reRoll = () => {
-      triggerHaptics();
-      submit({
-        searchId: candidate.searchId
-      }, {
-        method: "POST",
-        action: urls?.newCandidate,
-        replace: true,
-        viewTransition: true
-      });
+      if (reRollEnabled) {
+        triggerHaptics();
+        submit({
+          searchId: candidate.searchId
+        }, {
+          method: "POST",
+          action: urls?.newCandidate,
+          replace: true,
+          viewTransition: true
+        });
+      }
     };
 
     useEffect(() => {
@@ -258,14 +262,17 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
           <div className="flex gap-3">
             <button
               onClick={reRoll}
-              className="w-20
+              className={`
+                w-20
                 bg-fun-yellow
                 border-4 border-fun-dark rounded-2xl
                 flex items-center justify-center
                 shadow-hard transition-transform active:translate-y-1 active:shadow-none hover:brightness-110
                 cursor-pointer
-              "
+                ${reRollEnabled ? "" : ""}
+              `}
               title="Spin Again"
+              aria-disabled={!reRollEnabled}
               aria-label="Reroll">
               <RefreshCw className="w-8 h-8 stroke-[3px] text-fun-dark" />
             </button>
@@ -300,9 +307,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
 // TODO implement this better
 const SOURCES_FOR_DISCOVERY = ["osm"];
 function findSourceIn(identities: RestaurantIdentity[]): string | undefined {
-  return
-    identities.filter(identity => !SOURCES_FOR_DISCOVERY.includes(identity.source))?.[0]
-    ?? identities?.[0]?.source;
+  return (identities.filter(identity => !SOURCES_FOR_DISCOVERY.includes(identity.source))?.[0] || identities?.[0])?.source;
 }
 
 function formatRating(ratingAsNumber: number | undefined): string | undefined {

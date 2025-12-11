@@ -9,13 +9,51 @@ function createQueryToListAllRestaurantsNearby(
   latitude: number,
   longitude: number,
   distanceRangeInMeters: number,
+  idsToExclude: { osmId: string; osmType: string }[],
   timeoutInSeconds: number = OVERPASS_API_TIMEOUT_IN_SECONDS
 ): string {
+  const exclusionQuery = buildExclusionQuery(idsToExclude);
+
   return `
     [out:json][timeout:${timeoutInSeconds}];
-    nwr["amenity"~"restaurant|fast_food"](around:${distanceRangeInMeters}, ${latitude}, ${longitude});
+
+    (
+      nwr["amenity"~"restaurant|fast_food"](around:${distanceRangeInMeters}, ${latitude}, ${longitude});
+    )->.allRestaurants
+
+    ${exclusionQuery ? `(${exclusionQuery})->.excludeSet` : ""}
+
+    (
+      .allRestaurants;
+      ${exclusionQuery ? " - .excludeSet" : ""};
+    );
     out tags center qt;
   `.trim();
+}
+
+function buildExclusionQuery(idsToExclude: { osmId: string; osmType: string }[]): string | undefined {
+  const nodes = [...new Set(idsToExclude.filter(id => id.osmType === "node").map(id => id.osmId))];
+  const ways = [...new Set(idsToExclude.filter(id => id.osmType === "way").map(id => id.osmId))];
+  const rels = [...new Set(idsToExclude.filter(id => id.osmType === "relation").map(id => id.osmId))];
+
+  if (nodes.length + ways.length + rels.length > 0) {
+    let query = "";
+    if (nodes.length > 0) {
+      query += `node(id:${nodes.join(",")});`
+    }
+
+    if (ways.length > 0) {
+      query += `ways(id:${ways.join(",")});`
+    }
+
+    if (rels.length > 0) {
+      query += `rels(id:${rels.join(",")});`
+    }
+
+    return query;
+  } else {
+    return undefined;
+  }
 }
 
 function parseRestaurantFromResponse(
@@ -59,12 +97,13 @@ export async function fetchAllRestaurantsNearby(
   latitude: number,
   longitude: number,
   distanceRangeInMeters: number,
+  idsToExclude: { osmId: string; osmType: string }[],
   timeoutInSeconds: number = OVERPASS_API_TIMEOUT_IN_SECONDS
 ): Promise<OverpassResponse | undefined> {
   console.info(
     `[OSM] Fetching all OSM restaurants nearby '${latitude},${longitude}'...`
   );
-  const query = createQueryToListAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, timeoutInSeconds);
+  const query = createQueryToListAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, timeoutInSeconds);
   const start = Date.now();
   const response = await fetch(OVERPASS_API_INSTANCE_URL, {
     method: "POST",
@@ -112,9 +151,19 @@ export async function fetchAllRestaurantsNearbyWithRetry(
   latitude: number,
   longitude: number,
   distanceRangeInMeters: number,
+  idsToExclude: { osmId: string; osmType: string }[],
   timeoutInSeconds: number = OVERPASS_API_TIMEOUT_IN_SECONDS
 ): Promise<OverpassResponse | undefined> {
   return await createCircuitBreaker(() =>
-    fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, timeoutInSeconds)
+    fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, timeoutInSeconds)
   );
+}
+
+export function parseOverpassId(id: string): number | undefined {
+  if (!/^\d+$/.test(id)) {
+    return undefined;
+  } else {
+    const parsed = parseInt(id, 10);
+    return isNaN(parsed) ? undefined : parsed;
+  }
 }

@@ -1,4 +1,5 @@
 import { protos } from "@googlemaps/places";
+import { convertGooglePeriodsToOpeningHours } from "./opening-hours.server";
 
 export class GoogleRestaurantSearchResult {
   static fromPlaceId(
@@ -198,120 +199,7 @@ export class GoogleRestaurant {
     }
   }
 
-  // TODO review
-  toOsmOpeningHours(): string | null {
-    if (this.regularOpeningHours?.periods && this.regularOpeningHours?.periods?.length > 0) {
-      const periods = this.regularOpeningHours?.periods;
-
-      const is247 = periods.length === 1 &&
-        periods[0].open?.day === 0 &&
-        periods[0].open?.minute === 0 &&
-        !periods[0].close; // TODO review this
-
-      return null;
-
-      // if (is247) {
-      //   return "24/7";
-      // } else {
-      //   const dayScheduleMap = new Map<number, string[]>();
-      //   for (const period of periods) {
-      //     // If close is missing (rare outside 24/7), we skip or treat as open-end.
-      //     // OSM strictness usually requires a close time or 24/7. Skipping invalid entries for safety.
-      //     if (!period.close) continue;
-
-      //     const day = period.open!.day;
-      //     const openTime = formatTime(period.open?.time);
-      //     const closeTime = formatTime(period.close?.time);
-      //     const interval = `${openTime}-${closeTime}`;
-
-      //     if (!dayScheduleMap.has(day)) {
-      //       dayScheduleMap.set(day, []);
-      //     }
-      //     dayScheduleMap.get(day)!.push(interval);
-      //   }
-      //   const scheduleToDaysMap = new Map<string, number[]>();
-      //   dayScheduleMap.forEach((intervals, day) => {
-      //     // Join multiple intervals for the day with comma (handling split hours)
-      //     const signature = intervals.join(",");
-
-      //     if (!scheduleToDaysMap.has(signature)) {
-      //       scheduleToDaysMap.set(signature, []);
-      //     }
-      //     scheduleToDaysMap.get(signature)!.push(day);
-      //   });
-
-      //   const osmParts: string[] = [];
-      //   for (const [signature, days] of scheduleToDaysMap.entries()) {
-      //     const dayRangeString = formatDayGrouping(days);
-      //     osmParts.push(`${dayRangeString} ${signature}`);
-      //   }
-      //   return osmParts.join("; ");
-      // }
-    } else {
-      return null;
-    }
+  toOsmOpeningHours(): string | undefined {
+    return convertGooglePeriodsToOpeningHours(this.regularOpeningHours);
   }
 }
-
-// const DAY_MAP: Record<number, string> = {
-//   0: "Su", 1: "Mo", 2: "Tu", 3: "We", 4: "Th", 5: "Fr", 6: "Sa"
-// };
-
-// /**
-//  * Helper: Formats "1730" to "17:30"
-//  */
-// function formatTime(time: string): string {
-//   if (time.length !== 4) return time; // Fallback
-//   return `${time.substring(0, 2)}:${time.substring(2)}`;
-// }
-
-// /**
-//  * Helper: Converts an array of day integers [1, 2, 3, 5] into OSM string "Mo-We,Fr"
-//  */
-// function formatDayGrouping(days: number[]): string {
-//   // Sort days numerically
-//   days.sort((a, b) => a - b);
-
-//   const groups: string[] = [];
-//   if (days.length === 0) return "";
-
-//   let start = days[0];
-//   let prev = days[0];
-
-//   for (let i = 1; i < days.length; i++) {
-//     const current = days[i];
-
-//     // Check if consecutive
-//     if (current === prev + 1) {
-//       prev = current;
-//     } else {
-//       // Gap found, push the previous group
-//       groups.push(buildRangeString(start, prev));
-//       start = current;
-//       prev = current;
-//     }
-//   }
-//   // Push the final group
-//   groups.push(buildRangeString(start, prev));
-
-//   return groups.join(",");
-// }
-
-// /**
-//  * Helper: Builds "Mo-We" or "Mo" or "Mo,Tu" string
-//  */
-// function buildRangeString(start: number, end: number): string {
-//   const startDay = DAY_MAP[start];
-//   const endDay = DAY_MAP[end];
-
-//   if (start === end) {
-//     return startDay;
-//   } else if (end === start + 1) {
-//     // For 2 days, comma is often cleaner, but hyphen is valid.
-//     // Standard OSM often uses "Mo,Tu" for adjacent pairs, but "Mo-Tu" is technically valid syntax.
-//     // We will use hyphen for ranges of 2 or more for consistency.
-//     return `${startDay}-${endDay}`;
-//   } else {
-//     return `${startDay}-${endDay}`;
-//   }
-// }

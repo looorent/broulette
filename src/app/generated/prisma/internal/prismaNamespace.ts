@@ -794,7 +794,8 @@ export const RestaurantIdentityScalarFieldEnum = {
   id: 'id',
   restaurantId: 'restaurantId',
   source: 'source',
-  externalId: 'externalId'
+  externalId: 'externalId',
+  type: 'type'
 } as const
 
 export type RestaurantIdentityScalarFieldEnum = (typeof RestaurantIdentityScalarFieldEnum)[keyof typeof RestaurantIdentityScalarFieldEnum]

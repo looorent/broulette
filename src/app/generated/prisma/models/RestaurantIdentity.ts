@@ -29,6 +29,7 @@ export type RestaurantIdentityMinAggregateOutputType = {
   restaurantId: string | null
   source: string | null
   externalId: string | null
+  type: string | null
 }
 
 export type RestaurantIdentityMaxAggregateOutputType = {
@@ -36,6 +37,7 @@ export type RestaurantIdentityMaxAggregateOutputType = {
   restaurantId: string | null
   source: string | null
   externalId: string | null
+  type: string | null
 }
 
 export type RestaurantIdentityCountAggregateOutputType = {
@@ -43,6 +45,7 @@ export type RestaurantIdentityCountAggregateOutputType = {
   restaurantId: number
   source: number
   externalId: number
+  type: number
   _all: number
 }
 
@@ -52,6 +55,7 @@ export type RestaurantIdentityMinAggregateInputType = {
   restaurantId?: true
   source?: true
   externalId?: true
+  type?: true
 }
 
 export type RestaurantIdentityMaxAggregateInputType = {
@@ -59,6 +63,7 @@ export type RestaurantIdentityMaxAggregateInputType = {
   restaurantId?: true
   source?: true
   externalId?: true
+  type?: true
 }
 
 export type RestaurantIdentityCountAggregateInputType = {
@@ -66,6 +71,7 @@ export type RestaurantIdentityCountAggregateInputType = {
   restaurantId?: true
   source?: true
   externalId?: true
+  type?: true
   _all?: true
 }
 
@@ -146,6 +152,7 @@ export type RestaurantIdentityGroupByOutputType = {
   restaurantId: string
   source: string
   externalId: string
+  type: string
   _count: RestaurantIdentityCountAggregateOutputType | null
   _min: RestaurantIdentityMinAggregateOutputType | null
   _max: RestaurantIdentityMaxAggregateOutputType | null
@@ -174,6 +181,7 @@ export type RestaurantIdentityWhereInput = {
   restaurantId?: Prisma.UuidFilter<"RestaurantIdentity"> | string
   source?: Prisma.StringFilter<"RestaurantIdentity"> | string
   externalId?: Prisma.StringFilter<"RestaurantIdentity"> | string
+  type?: Prisma.StringFilter<"RestaurantIdentity"> | string
   restaurant?: Prisma.XOR<Prisma.RestaurantScalarRelationFilter, Prisma.RestaurantWhereInput>
 }
 
@@ -182,6 +190,7 @@ export type RestaurantIdentityOrderByWithRelationInput = {
   restaurantId?: Prisma.SortOrder
   source?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   restaurant?: Prisma.RestaurantOrderByWithRelationInput
 }
 
@@ -194,6 +203,7 @@ export type RestaurantIdentityWhereUniqueInput = Prisma.AtLeast<{
   restaurantId?: Prisma.UuidFilter<"RestaurantIdentity"> | string
   source?: Prisma.StringFilter<"RestaurantIdentity"> | string
   externalId?: Prisma.StringFilter<"RestaurantIdentity"> | string
+  type?: Prisma.StringFilter<"RestaurantIdentity"> | string
   restaurant?: Prisma.XOR<Prisma.RestaurantScalarRelationFilter, Prisma.RestaurantWhereInput>
 }, "id" | "source_externalId">
 
@@ -202,6 +212,7 @@ export type RestaurantIdentityOrderByWithAggregationInput = {
   restaurantId?: Prisma.SortOrder
   source?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   _count?: Prisma.RestaurantIdentityCountOrderByAggregateInput
   _max?: Prisma.RestaurantIdentityMaxOrderByAggregateInput
   _min?: Prisma.RestaurantIdentityMinOrderByAggregateInput
@@ -215,12 +226,14 @@ export type RestaurantIdentityScalarWhereWithAggregatesInput = {
   restaurantId?: Prisma.UuidWithAggregatesFilter<"RestaurantIdentity"> | string
   source?: Prisma.StringWithAggregatesFilter<"RestaurantIdentity"> | string
   externalId?: Prisma.StringWithAggregatesFilter<"RestaurantIdentity"> | string
+  type?: Prisma.StringWithAggregatesFilter<"RestaurantIdentity"> | string
 }
 
 export type RestaurantIdentityCreateInput = {
   id?: string
   source: string
   externalId: string
+  type: string
   restaurant: Prisma.RestaurantCreateNestedOneWithoutIdentitiesInput
 }
 
@@ -229,12 +242,14 @@ export type RestaurantIdentityUncheckedCreateInput = {
   restaurantId: string
   source: string
   externalId: string
+  type: string
 }
 
 export type RestaurantIdentityUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   restaurant?: Prisma.RestaurantUpdateOneRequiredWithoutIdentitiesNestedInput
 }
 
@@ -243,6 +258,7 @@ export type RestaurantIdentityUncheckedUpdateInput = {
   restaurantId?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type RestaurantIdentityCreateManyInput = {
@@ -250,12 +266,14 @@ export type RestaurantIdentityCreateManyInput = {
   restaurantId: string
   source: string
   externalId: string
+  type: string
 }
 
 export type RestaurantIdentityUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type RestaurantIdentityUncheckedUpdateManyInput = {
@@ -263,6 +281,7 @@ export type RestaurantIdentityUncheckedUpdateManyInput = {
   restaurantId?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type RestaurantIdentityListRelationFilter = {
@@ -285,6 +304,7 @@ export type RestaurantIdentityCountOrderByAggregateInput = {
   restaurantId?: Prisma.SortOrder
   source?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
+  type?: Prisma.SortOrder
 }
 
 export type RestaurantIdentityMaxOrderByAggregateInput = {
@@ -292,6 +312,7 @@ export type RestaurantIdentityMaxOrderByAggregateInput = {
   restaurantId?: Prisma.SortOrder
   source?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
+  type?: Prisma.SortOrder
 }
 
 export type RestaurantIdentityMinOrderByAggregateInput = {
@@ -299,6 +320,7 @@ export type RestaurantIdentityMinOrderByAggregateInput = {
   restaurantId?: Prisma.SortOrder
   source?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
+  type?: Prisma.SortOrder
 }
 
 export type RestaurantIdentityCreateNestedManyWithoutRestaurantInput = {
@@ -347,12 +369,14 @@ export type RestaurantIdentityCreateWithoutRestaurantInput = {
   id?: string
   source: string
   externalId: string
+  type: string
 }
 
 export type RestaurantIdentityUncheckedCreateWithoutRestaurantInput = {
   id?: string
   source: string
   externalId: string
+  type: string
 }
 
 export type RestaurantIdentityCreateOrConnectWithoutRestaurantInput = {
@@ -389,30 +413,35 @@ export type RestaurantIdentityScalarWhereInput = {
   restaurantId?: Prisma.UuidFilter<"RestaurantIdentity"> | string
   source?: Prisma.StringFilter<"RestaurantIdentity"> | string
   externalId?: Prisma.StringFilter<"RestaurantIdentity"> | string
+  type?: Prisma.StringFilter<"RestaurantIdentity"> | string
 }
 
 export type RestaurantIdentityCreateManyRestaurantInput = {
   id?: string
   source: string
   externalId: string
+  type: string
 }
 
 export type RestaurantIdentityUpdateWithoutRestaurantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type RestaurantIdentityUncheckedUpdateWithoutRestaurantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type RestaurantIdentityUncheckedUpdateManyWithoutRestaurantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -422,6 +451,7 @@ export type RestaurantIdentitySelect<ExtArgs extends runtime.Types.Extensions.In
   restaurantId?: boolean
   source?: boolean
   externalId?: boolean
+  type?: boolean
   restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["restaurantIdentity"]>
 
@@ -430,6 +460,7 @@ export type RestaurantIdentitySelectCreateManyAndReturn<ExtArgs extends runtime.
   restaurantId?: boolean
   source?: boolean
   externalId?: boolean
+  type?: boolean
   restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["restaurantIdentity"]>
 
@@ -438,6 +469,7 @@ export type RestaurantIdentitySelectUpdateManyAndReturn<ExtArgs extends runtime.
   restaurantId?: boolean
   source?: boolean
   externalId?: boolean
+  type?: boolean
   restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["restaurantIdentity"]>
 
@@ -446,9 +478,10 @@ export type RestaurantIdentitySelectScalar = {
   restaurantId?: boolean
   source?: boolean
   externalId?: boolean
+  type?: boolean
 }
 
-export type RestaurantIdentityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "restaurantId" | "source" | "externalId", ExtArgs["result"]["restaurantIdentity"]>
+export type RestaurantIdentityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "restaurantId" | "source" | "externalId" | "type", ExtArgs["result"]["restaurantIdentity"]>
 export type RestaurantIdentityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
 }
@@ -469,6 +502,7 @@ export type $RestaurantIdentityPayload<ExtArgs extends runtime.Types.Extensions.
     restaurantId: string
     source: string
     externalId: string
+    type: string
   }, ExtArgs["result"]["restaurantIdentity"]>
   composites: {}
 }
@@ -897,6 +931,7 @@ export interface RestaurantIdentityFieldRefs {
   readonly restaurantId: Prisma.FieldRef<"RestaurantIdentity", 'String'>
   readonly source: Prisma.FieldRef<"RestaurantIdentity", 'String'>
   readonly externalId: Prisma.FieldRef<"RestaurantIdentity", 'String'>
+  readonly type: Prisma.FieldRef<"RestaurantIdentity", 'String'>
 }
     
 
