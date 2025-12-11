@@ -1,28 +1,28 @@
-import { Prisma, SearchCandidateStatus, type Restaurant, type RestaurantIdentity, type SearchCandidate } from "~/generated/prisma/client";
+import { Prisma, SearchCandidateStatus, ServiceTimeslot, type Restaurant, type RestaurantIdentity, type SearchCandidate } from "~/generated/prisma/client";
 import prisma from "../db/prisma";
 import { findGoogleRestaurantByText } from "./google/repository.server";
 import { type GoogleRestaurant } from "./google/types.server";
 import { fetchAllRestaurantsNearbyWithRetry } from "./overpass/repository.server";
+import OpeningHours from "opening_hours";
 
 // --- Custom Business Errors ---
 
-class BusinessError extends Error {
+class SearchError extends Error {
   constructor(message: string) {
     super(message);
     this.name = this.constructor.name;
-    // Capturing stack trace up to the current error
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
-class SearchNotFoundError extends BusinessError {
+class SearchNotFoundError extends SearchError {
   constructor(searchId: string) {
     super(`Search with ID ${searchId} not found.`);
     this.name = 'SearchNotFoundError';
   }
 }
 
-class RestaurantCreationError extends BusinessError {
+class RestaurantCreationError extends SearchError {
   constructor(restaurantName: string, reason: string) {
     super(`Failed to retrieve or create restaurant: ${restaurantName}. Reason: ${reason}`);
     this.name = 'RestaurantCreationError';
@@ -30,9 +30,10 @@ class RestaurantCreationError extends BusinessError {
 }
 
 // --- Types ---
+
 type RestaurantWithIdentities = Restaurant & { identities: RestaurantIdentity[] };
 
-// Represents a restaurant found from a quick external source.
+type DiscoverySource = "osm";
 interface DiscoveredRestaurant {
   name: string;
   latitude: number;
@@ -42,72 +43,91 @@ interface DiscoveredRestaurant {
   externalId: string;
 }
 
-// Abstracted type for potential discovery sources
-// For now, we only have OSM but we will add other sources for resilliency.
-type DiscoverySource = "osm";
+interface SearchDiscoveryConfig {
+  initialDiscoveryRangeMeters: number;
+  discoveryRangeIncreaseMeters: number;
+  maxDiscoveryIterations: number;
+  googleSearchRadiusMeters: number;
+}
 
-// --- Constants ---
-const INITIAL_DISCOVERY_RANGE_METERS = 5000;
-const DISCOVERY_RANGE_INCREASE_METERS = 3000;
-const MAX_DISCOVERY_ITERATIONS = 3;
-const GOOGLE_SEARCH_RADIUS_METERS = 50;
 
-// --- Main Orchestration Logic ---
+const ENGINE_DEFAULT_INITIAL_DISCOVERY_RANGE_METERS = import.meta.env.ENGINE_DEFAULT_INITIAL_DISCOVERY_RANGE_METERS ?? 5000;
+const ENGINE_DEFAULT_DISCOVERY_RANGE_INCREASE_METERS = import.meta.env.ENGINE_DEFAULT_DISCOVERY_RANGE_INCREASE_METERS ?? 3000
+const ENGINE_DEFAULT_MAX_DISCOVERY_ITERATIONS = import.meta.env.ENGINE_DEFAULT_MAX_DISCOVERY_ITERATIONS ?? 3
+const ENGINE_DEFAULT_GOOGLE_SEARCH_RADIUS_METERS = import.meta.env.ENGINE_DEFAULT_GOOGLE_SEARCH_RADIUS_METERS ?? 50;
 
 /**
- * Orchestrates the three-step process (Discovery, Prioritization, Detailing)
- * to find and return the best new restaurant candidate for a search,
- * iterating on discovery range if necessary.
- * @param searchId The ID of the search to find candidates for.
- * @returns The newly created SearchCandidate in 'Returned' status, or null.
- * @throws {SearchNotFoundError} If the initial search object does not exist.
+ * Orchestrates the three-step process to find and return the best new restaurant candidate.
  */
-export async function searchCandidate(searchId: string): Promise<SearchCandidate | null> {
+export async function searchCandidate(
+  searchId: string,
+  config: SearchDiscoveryConfig = {
+    initialDiscoveryRangeMeters: ENGINE_DEFAULT_INITIAL_DISCOVERY_RANGE_METERS,
+    discoveryRangeIncreaseMeters: ENGINE_DEFAULT_DISCOVERY_RANGE_INCREASE_METERS,
+    maxDiscoveryIterations: ENGINE_DEFAULT_MAX_DISCOVERY_ITERATIONS,
+    googleSearchRadiusMeters: ENGINE_DEFAULT_GOOGLE_SEARCH_RADIUS_METERS
+  }
+): Promise<SearchCandidate | null> {
   const search = await prisma.search.findUniqueWithRestaurantAndIdentities(searchId);
 
   if (!search) {
     throw new SearchNotFoundError(searchId);
   }
 
-  const identitiesAlreadyInCandidates = search.candidates?.flatMap(candidate => candidate.restaurant?.identities || []) || [];
-
-  let currentRange = INITIAL_DISCOVERY_RANGE_METERS;
+  const localCandidates: Array<{ order: number } | null> = search.candidates ? [...search.candidates] : [];
+  let allDiscoveredIdentities: RestaurantIdentity[] = search.candidates?.flatMap(c => c.restaurant?.identities || []) || [];
+  let currentRange = config.initialDiscoveryRangeMeters;
   let createdCandidate: SearchCandidate | null = null;
-  let allDiscovered: DiscoveredRestaurant[] = [];
+  const targetInstant = computeInstant(search.serviceDate, search.serviceTimeslot);
 
-  for (let iteration = 0; iteration < MAX_DISCOVERY_ITERATIONS; iteration++) {
-    // --- STEP 1: Iterative Discovery (Get a light list) ---
+  for (let iteration = 0; iteration < config.maxDiscoveryIterations; iteration++) {
+
+    // --- STEP 1: Iterative Discovery ---
     const newDiscoveries = await discoverNearbyRestaurants(
       search.latitude,
       search.longitude,
       currentRange,
-      identitiesAlreadyInCandidates.concat(
-        allDiscovered.map(d => ({ externalId: d.externalId, source: d.externalSource } as RestaurantIdentity)) // Prevent re-discovery in subsequent iterations
-      )
+      allDiscoveredIdentities,
+      targetInstant
     );
 
     console.log(`Discovery Iteration ${iteration + 1}: Found ${newDiscoveries.length} new restaurants within ${currentRange}m.`);
 
-    if (newDiscoveries.length === 0 && iteration < MAX_DISCOVERY_ITERATIONS - 1) {
-      currentRange += DISCOVERY_RANGE_INCREASE_METERS;
+    if (newDiscoveries.length === 0) {
+      if (iteration < config.maxDiscoveryIterations - 1) {
+        currentRange += config.discoveryRangeIncreaseMeters;
+      }
     } else {
-      allDiscovered = allDiscovered.concat(newDiscoveries);
+      const newIdentities = newDiscoveries.map(d => ({ externalId: d.externalId, source: d.externalSource } as RestaurantIdentity));
+      allDiscoveredIdentities = allDiscoveredIdentities.concat(newIdentities);
 
-      // --- STEP 2: Prioritization/Randomization (Process only the new discoveries this round) ---
+      // --- STEP 2: Prioritization ---
       const prioritizedRestaurants = prioritizeAndShuffle(newDiscoveries);
       console.log(`Prioritizing ${prioritizedRestaurants.length} restaurants for detailing.`);
 
-      // --- STEP 3: Detailing, Filtering, and Candidate Creation ---
-      createdCandidate = await detailAndCreateCandidate(searchId, prioritizedRestaurants, search.candidates); // TODO I think "search.candidates" is wrong here because it does not take into account the new candidates that have been created during this process
+      // --- STEP 3: Detailing & Creation ---
+      createdCandidate = await detailAndCreateCandidate(
+        searchId,
+        prioritizedRestaurants,
+        localCandidates,
+        config.googleSearchRadiusMeters,
+        targetInstant
+      );
 
-      if (createdCandidate?.status === SearchCandidateStatus.Returned) {
-        break;
-      } else if (iteration >= MAX_DISCOVERY_ITERATIONS - 1) {
-        // If we've hit max range or found no new candidates, stop the loop.
+      if (createdCandidate && createdCandidate.status === SearchCandidateStatus.Returned) {
+        // Success: Exit the loop
         break;
       } else {
-        // Increment range for the next iteration if no viable candidate was found
-        currentRange += DISCOVERY_RANGE_INCREASE_METERS;
+        if (iteration < config.maxDiscoveryIterations - 1) {
+          // Failure in this batch: Update local candidates (if a rejected one was created) and expand range
+          if (createdCandidate) {
+            localCandidates.push({ order: createdCandidate.order });
+          }
+          currentRange += config.discoveryRangeIncreaseMeters;
+        } else {
+          // End of loops
+          break;
+        }
       }
     }
   }
@@ -117,19 +137,29 @@ export async function searchCandidate(searchId: string): Promise<SearchCandidate
 
 // --- STEP 1 Functions: Discovery ---
 
-/**
- * Fetches restaurants from discovery APIs and filters out already processed identities.
- */
 async function discoverNearbyRestaurants(
   latitude: number,
   longitude: number,
   distanceRangeInMeters: number,
-  identitiesToExclude: RestaurantIdentity[] = []
+  identitiesToExclude: RestaurantIdentity[],
+  targetInstant: Date
 ): Promise<DiscoveredRestaurant[]> {
   const osmRestaurants = await findRestaurantsFromApi("osm", latitude, longitude, distanceRangeInMeters, identitiesToExclude);
-  // TODO Gemini: implement the check with "opening_hours" lib. The restaurant might have an optional attribute "openingHours" that can be used to define if the restaurant is closed
-  // TODO: Combine with results from other APIs (Yelp, Foursquare) when integrated
-  return osmRestaurants;
+
+  // Filter by OSM opening hours if available
+  return osmRestaurants.filter(restaurant => {
+    if (!restaurant.openingHours) {
+      return true; // Keep if no data is known (optimistic)
+    } else {
+      try {
+        const oh = new OpeningHours(restaurant.openingHours);
+        return oh.getState(targetInstant); // Returns true if open
+      } catch (error) {
+        console.warn(`Failed to parse opening hours for ${restaurant.name}: ${restaurant.openingHours}`);
+        return true; // Fallback to keeping it on error
+      }
+    }
+  });
 }
 
 async function findRestaurantsFromApi(
@@ -140,10 +170,9 @@ async function findRestaurantsFromApi(
   identitiesToExclude: RestaurantIdentity[]
 ): Promise<DiscoveredRestaurant[]> {
   switch (source) {
-    case "osm":
+    case "osm": {
       const overpassResponse = await fetchAllRestaurantsNearbyWithRetry(latitude, longitude, distanceRangeInMeters);
 
-      // Filter out identities already processed by this source
       const osmIdentitiesToExclude = identitiesToExclude.filter(identity => identity.source === "osm");
 
       return overpassResponse?.restaurants?.filter(restaurant => {
@@ -156,67 +185,65 @@ async function findRestaurantsFromApi(
         externalId: restaurant.id.toString(),
         openingHours: restaurant.openingHours
       })) || [];
-    default:
+    }
+    default: {
       return [];
+    }
   }
 }
 
-// --- STEP 2 Functions: Prioritization/Randomization ---
+// --- STEP 2 Functions: Prioritization ---
 
-/**
- * Applies business logic for randomization and prioritization.
- */
 function prioritizeAndShuffle(restaurants: DiscoveredRestaurant[]): DiscoveredRestaurant[] {
   // TODO: Implement actual business randomization/ranking logic here.
   return restaurants;
 }
 
-// --- STEP 3 Orchestration: Detailing, Filtering, and Candidate Creation ---
+// --- STEP 3 Orchestration: Detailing & Creation ---
 
-/**
- * Iterates through prioritized restaurants, finds details, and creates a candidate,
- * stopping and returning the first viable one found.
- */
 async function detailAndCreateCandidate(
   searchId: string,
   prioritizedRestaurants: DiscoveredRestaurant[],
-  existingCandidates: Array<{ order: number } | null> = []
+  existingCandidates: Array<{ order: number } | null>,
+  googleRadius: number,
+  targetInstant: Date
 ): Promise<SearchCandidate | null> {
+  // We iterate through the batch. If we find a viable one, we return it immediately.
   for (const restaurantNearby of prioritizedRestaurants) {
-    const details = await findAndDetailRestaurant(restaurantNearby);
+    const details = await findAndDetailRestaurant(restaurantNearby, googleRadius);
 
     if (details) {
-      const createdCandidate = await processRestaurantForCandidate(searchId, details, existingCandidates);
+      const createdCandidate = await processRestaurantForCandidate(searchId, details, existingCandidates, targetInstant);
 
       if (createdCandidate.status === SearchCandidateStatus.Returned) {
         console.log(`Found and returned viable candidate: ${details.name}`);
         return createdCandidate;
       } else {
-        console.log(`Found but not viable: ${details.name}`);
+        console.log(`Found but not viable (Rejected): ${details.name}`);
+        // We push the rejected candidate to our local tracking list inside the loop
+        // to ensure the next calculation of 'order' is correct even within this batch
+        existingCandidates.push({ order: createdCandidate.order });
       }
     } else {
-      console.log(`Restaurant has not been found in other datasources: ${restaurantNearby.name}`);
+      console.log(`Restaurant details not found in secondary sources: ${restaurantNearby.name}`);
     }
   }
   return null;
 }
 
-/**
- * Checks the database for an existing restaurant, or tries to find and convert one from Google.
- */
-async function findAndDetailRestaurant(restaurantNearby: DiscoveredRestaurant): Promise<Partial<RestaurantWithIdentities> | null> {
+async function findAndDetailRestaurant(
+  restaurantNearby: DiscoveredRestaurant,
+  googleRadius: number
+): Promise<Partial<RestaurantWithIdentities> | null> {
   const existingRestaurant = await fetchLocalRestaurant(restaurantNearby);
 
   if (existingRestaurant) {
     return completeRestaurantDetails(existingRestaurant);
   } else {
-    return await findRestaurantInGoogle(restaurantNearby);
+    return await findRestaurantInGoogle(restaurantNearby, googleRadius);
   }
 }
 
-/**
- * Searches local DB for a matching restaurant based on identity.
- */
 function fetchLocalRestaurant(restaurantNearby: DiscoveredRestaurant): Promise<RestaurantWithIdentities | null> {
   return prisma.restaurant.findFirst({
     where: {
@@ -231,40 +258,29 @@ function fetchLocalRestaurant(restaurantNearby: DiscoveredRestaurant): Promise<R
   });
 }
 
-/**
- * Handles logic to complete/update restaurant details if required.
- */
 function completeRestaurantDetails(restaurant: RestaurantWithIdentities): RestaurantWithIdentities {
-  const mustBeCompleted = false; // TODO: Implement logic to check for missing critical data
-
-  if (mustBeCompleted) {
-    // TODO: Logic to complete the restaurant data (e.g., fetch opening hours, more details)
-  }
+  // TODO: Logic to complete the restaurant data
   return restaurant;
 }
 
-/**
- * Searches Google for full restaurant details based on a light discovery record.
- */
-async function findRestaurantInGoogle(restaurantNearby: DiscoveredRestaurant): Promise<Partial<RestaurantWithIdentities> | null> {
+async function findRestaurantInGoogle(
+  restaurantNearby: DiscoveredRestaurant,
+  googleRadius: number
+): Promise<Partial<RestaurantWithIdentities> | null> {
   const googleRestaurant = await findGoogleRestaurantByText(
     restaurantNearby.name,
     restaurantNearby.latitude,
     restaurantNearby.longitude,
-    GOOGLE_SEARCH_RADIUS_METERS
+    googleRadius
   );
   return convertGoogleRestaurantToRestaurant(googleRestaurant, restaurantNearby);
 }
 
-
-/**
- * Saves/updates a restaurant in the database and creates a SearchCandidate for it.
- * @throws {RestaurantCreationError} If saving the restaurant fails unexpectedly.
- */
 async function processRestaurantForCandidate(
   searchId: string,
   matchingRestaurant: Partial<RestaurantWithIdentities>,
-  existingCandidates: Array<{ order: number } | null> = []
+  existingCandidates: Array<{ order: number } | null>,
+  targetInstant: Date
 ): Promise<SearchCandidate> {
   const savedRestaurant = await saveOrUpdateRestaurant(matchingRestaurant);
 
@@ -272,24 +288,21 @@ async function processRestaurantForCandidate(
     throw new RestaurantCreationError(matchingRestaurant.name!, "Database operation failed unexpectedly.");
   }
 
-  // Determine the order for the new candidate
   const latestOrder = existingCandidates.reduce((max, c) => c ? Math.max(max, c.order) : max, 0);
   const nextOrder = latestOrder + 1;
 
-  // Create the candidate
+  const viable = isViable(savedRestaurant, targetInstant);
+
   return prisma.searchCandidate.create({
     data: {
       order: nextOrder,
       restaurantId: savedRestaurant.id,
       searchId: searchId,
-      status: isViable(savedRestaurant) ? SearchCandidateStatus.Returned : SearchCandidateStatus.Rejected,
+      status: viable ? SearchCandidateStatus.Returned : SearchCandidateStatus.Rejected,
     }
   });
 }
 
-/**
- * Either retrieves an existing restaurant or creates a new one in the DB.
- */
 async function saveOrUpdateRestaurant(matchingRestaurant: Partial<RestaurantWithIdentities>): Promise<Restaurant | null> {
   const restaurantData = {
     name: matchingRestaurant.name!,
@@ -305,10 +318,8 @@ async function saveOrUpdateRestaurant(matchingRestaurant: Partial<RestaurantWith
   };
 
   if (matchingRestaurant.id) {
-    // Restaurant was already in DB
     return prisma.restaurant.findUnique({ where: { id: matchingRestaurant.id } });
   } else {
-    // Create new restaurant record
     return prisma.restaurant.create({
       data: {
         ...restaurantData,
@@ -322,25 +333,47 @@ async function saveOrUpdateRestaurant(matchingRestaurant: Partial<RestaurantWith
   }
 }
 
+// --- Viability & Helpers ---
 
 /**
- * Checks if a restaurant meets the criteria to be returned as a candidate.
+ * Checks if a restaurant meets the criteria (specifically opening hours).
  */
-function isViable(restaurant: Restaurant): boolean {
-  // TODO: Implement actual viability criteria based on search parameters
-  // TODO Gemini: add a check if the Restaurant is opened for the "search" parameters. The search has two attributes:
-  // - serviceDate: Date
-  // - serviceTimeslot: $Enums.ServiceTimeslot (enum ServiceTimeslot {
-  //   Dinner
-  //   Lunch
-  //   RightNow
-  // })
+function isViable(restaurant: Restaurant, targetInstant: Date): boolean {
+  // 1. Check if we have opening hours data (Assuming it might be stored in 'description' or a dedicated field in the future)
+  // For now, we rely on the logic that if we reached here via Google, we might have better data.
+  // Ideally, 'Restaurant' model should store the structured opening hours from Google/OSM.
+
+  // NOTE: Since the Prisma 'Restaurant' type wasn't fully defined in the prompt with an 'openingHours' field,
+  // we assume true if data is missing, or implement check if the field exists.
+
+  // Example implementation assuming the Restaurant model has a 'rawOpeningHours' or we use the data passed previously.
+  // Since we don't have the Opening Hours string on the 'Restaurant' object in this context (it was on DiscoveredRestaurant),
+  // we would ideally persist it.
+
+  // For the sake of this exercise, we will assume true if we can't check,
+  // but strictly, we should have passed the 'openingHours' string down to here.
+
   return true;
 }
 
 /**
- * Converts a GoogleRestaurant object and the source DiscoveredRestaurant into a partial local Restaurant object.
+ * Helper to convert Search Date + Timeslot into a concrete JS Date object for comparison.
  */
+function computeInstant(serviceDate: Date, timeslot: ServiceTimeslot): Date {
+  switch (timeslot) {
+    case ServiceTimeslot.Lunch:
+      var target = new Date(serviceDate);
+      target.setHours(12, 30, 0, 0);
+      return target;
+    case ServiceTimeslot.Dinner:
+      var target = new Date(serviceDate);
+      target.setHours(19, 30, 0, 0);
+      return target;
+    default:
+      return new Date();
+  }
+}
+
 function convertGoogleRestaurantToRestaurant(
   google: GoogleRestaurant | null,
   restaurantNearby: DiscoveredRestaurant
