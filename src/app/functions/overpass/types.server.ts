@@ -1,5 +1,7 @@
 export type OverpassRestaurantType = "way" | "node" | "relation";
 
+export const OVERPASS_SOURCE_NAME = "osm";
+
 export class OverpassRestaurant {
   constructor(
     readonly id: number,

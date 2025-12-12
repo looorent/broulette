@@ -1,7 +1,8 @@
 import type { Coordinates } from "~/types/coordinate";
 
 import { isOpenAtTarget } from "../opening-hours.server";
-import { fetchAllRestaurantsNearbyWithRetry, parseOverpassId } from "../overpass/repository.server";
+import { fetchAllRestaurantsNearbyWithRetry } from "../overpass/repository.server";
+import { OVERPASS_SOURCE_NAME } from "../overpass/types.server";
 
 export type DiscoverySource = "osm";
 
@@ -22,6 +23,8 @@ export class DiscoveredRestaurant {
     readonly coordinates: Coordinates,
     readonly identity: DiscoveredRestaurantIdentity,
     readonly address: DiscoveredRestaurantAddress | undefined,
+    readonly phoneNumber: string | undefined,
+    readonly tags: string[],
     readonly openingHours: string | undefined,
   ) {}
 
@@ -76,7 +79,7 @@ export class RestaurantDiscoveryScanner {
   addIdentityToExclude(identity: DiscoveredRestaurantIdentity): this {
     if (identity) {
       const exists = this.identitiesToExclude.some(id => id.source === identity.source && id.externalId === identity.source);
-      if (exists) {
+      if (!exists) {
         this.identitiesToExclude.push(identity);
       }
     }
@@ -104,7 +107,7 @@ async function findRestaurantsFromOverpass(
 ): Promise<DiscoveredRestaurant[]> {
   const idsToExclude = identitiesToExclude
     .filter(Boolean)
-    .filter(id => id.source === "osm")
+    .filter(id => id.source === OVERPASS_SOURCE_NAME)
     .map(id => ({ osmId: id.externalId, osmType: id.type }));
 
   const response = await fetchAllRestaurantsNearbyWithRetry(nearBy.latitude, nearBy.longitude, rangeInMeters, idsToExclude);
@@ -117,7 +120,7 @@ async function findRestaurantsFromOverpass(
         longitude: restaurant.longitude,
       },
       {
-        source: "osm",
+        source: OVERPASS_SOURCE_NAME,
         type: restaurant.type,
         externalId: restaurant.id.toString()
       },
@@ -125,7 +128,13 @@ async function findRestaurantsFromOverpass(
         countryCode: restaurant.addressCountry,
         state: restaurant.addressState
       } : undefined,
+      restaurant.phone,
+      restaurant.cuisine && restaurant.cuisine?.length > 0 ? restaurant.cuisine?.split(";") || [] : [],
       restaurant.openingHours
     )
   );
+}
+
+function filterTags(tags: string[] | undefined): string[] {
+  return tags || []; // TODO
 }

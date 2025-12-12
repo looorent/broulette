@@ -1,4 +1,4 @@
-import { PlacesClient, protos } from "@googlemaps/places";
+import { PlacesClient, type protos } from "@googlemaps/places";
 import { GoogleRestaurant } from "./types.server";
 
 const GOOGLE_PLACE_API_KEY = import.meta.env.VITE_GOOGLE_PLACE_API_KEY;
@@ -53,6 +53,35 @@ const RESTAURANT_TYPES: string[] = [
 
 const COMPLETE_FIELDS_FILTER = "*"; // TODO reduce this mask
 
+export async function findGoogleRestaurantById(
+  placeId: string
+): Promise<GoogleRestaurant | undefined> {
+  const placesClient = new PlacesClient({
+    apiKey: GOOGLE_PLACE_API_KEY
+  });
+
+  const response = await placesClient.getPlace(
+    {
+      name: `places/${placeId}`
+    },
+    {
+      maxRetries: 3,
+      otherArgs: {
+        headers: {
+          "X-Goog-FieldMask": COMPLETE_FIELDS_FILTER
+        }
+      }
+    }
+  );
+
+  const place = response?.[0];
+  if (place) {
+    return convertGooglePlaceToRestaurant(place!);
+  } else {
+    return undefined;
+  }
+}
+
 async function findPlacesByText(
   searchableText: string,
   latitude: number,
@@ -97,7 +126,7 @@ export async function findGoogleRestaurantByText(
   latitude: number,
   longitude: number,
   radiusInMeters: number
-): Promise<GoogleRestaurant> {
+): Promise<GoogleRestaurant | undefined> {
   return (
     (
       await findPlacesByText(

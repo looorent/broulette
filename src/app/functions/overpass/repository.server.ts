@@ -13,20 +13,24 @@ function createQueryToListAllRestaurantsNearby(
   timeoutInSeconds: number = OVERPASS_API_TIMEOUT_IN_SECONDS
 ): string {
   const exclusionQuery = buildExclusionQuery(idsToExclude);
+  const exclusionBlock = exclusionQuery
+    ? `(${exclusionQuery})->.excludeSet;`
+    : "";
+  const outputLogic = exclusionQuery
+    ? "(.allRestaurants; - .excludeSet;);"
+    : ".allRestaurants;";
 
   return `
     [out:json][timeout:${timeoutInSeconds}];
 
     (
-      nwr["amenity"~"restaurant|fast_food"](around:${distanceRangeInMeters}, ${latitude}, ${longitude});
-    )->.allRestaurants
+      nwr["amenity"~"restaurant|fast_food"]["name"](around:${distanceRangeInMeters}, ${latitude}, ${longitude});
+    )->.allRestaurants;
 
-    ${exclusionQuery ? `(${exclusionQuery})->.excludeSet` : ""}
+    ${exclusionBlock}
 
-    (
-      .allRestaurants;
-      ${exclusionQuery ? " - .excludeSet" : ""};
-    );
+    ${outputLogic}
+
     out tags center qt;
   `.trim();
 }
@@ -43,11 +47,11 @@ function buildExclusionQuery(idsToExclude: { osmId: string; osmType: string }[])
     }
 
     if (ways.length > 0) {
-      query += `ways(id:${ways.join(",")});`
+      query += `way(id:${ways.join(",")});`
     }
 
     if (rels.length > 0) {
-      query += `rels(id:${rels.join(",")});`
+      query += `rel(id:${rels.join(",")});`
     }
 
     return query;

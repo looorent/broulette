@@ -1,5 +1,8 @@
-import { protos } from "@googlemaps/places";
+import { type protos } from "@googlemaps/places";
 import { convertGooglePeriodsToOpeningHours } from "./opening-hours.server";
+
+
+export const GOOGLE_PLACE_SOURCE_NAME = "google_place";
 
 export class GoogleRestaurantSearchResult {
   static fromPlaceId(
@@ -200,6 +203,10 @@ export class GoogleRestaurant {
   }
 
   toOsmOpeningHours(): string | undefined {
-    return convertGooglePeriodsToOpeningHours(this.regularOpeningHours);
+    if (this.regularOpeningHours) {
+      return convertGooglePeriodsToOpeningHours(this.regularOpeningHours);
+    } else {
+      return undefined;
+    }
   }
 }

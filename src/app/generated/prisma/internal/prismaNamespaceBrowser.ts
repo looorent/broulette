@@ -79,8 +79,11 @@ export const SearchScalarFieldEnum = {
   longitude: 'longitude',
   distanceRange: 'distanceRange',
   createdAt: 'createdAt',
+  exhausted: 'exhausted',
   serviceDate: 'serviceDate',
-  serviceTimeslot: 'serviceTimeslot'
+  serviceTimeslot: 'serviceTimeslot',
+  serviceInstant: 'serviceInstant',
+  serviceEnd: 'serviceEnd'
 } as const
 
 export type SearchScalarFieldEnum = (typeof SearchScalarFieldEnum)[keyof typeof SearchScalarFieldEnum]
@@ -103,6 +106,7 @@ export const RestaurantScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  version: 'version',
   name: 'name',
   latitude: 'latitude',
   longitude: 'longitude',

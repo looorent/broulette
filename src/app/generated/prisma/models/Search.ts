@@ -42,8 +42,11 @@ export type SearchMinAggregateOutputType = {
   longitude: number | null
   distanceRange: $Enums.DistanceRange | null
   createdAt: Date | null
+  exhausted: boolean | null
   serviceDate: Date | null
   serviceTimeslot: $Enums.ServiceTimeslot | null
+  serviceInstant: Date | null
+  serviceEnd: Date | null
 }
 
 export type SearchMaxAggregateOutputType = {
@@ -52,8 +55,11 @@ export type SearchMaxAggregateOutputType = {
   longitude: number | null
   distanceRange: $Enums.DistanceRange | null
   createdAt: Date | null
+  exhausted: boolean | null
   serviceDate: Date | null
   serviceTimeslot: $Enums.ServiceTimeslot | null
+  serviceInstant: Date | null
+  serviceEnd: Date | null
 }
 
 export type SearchCountAggregateOutputType = {
@@ -62,8 +68,11 @@ export type SearchCountAggregateOutputType = {
   longitude: number
   distanceRange: number
   createdAt: number
+  exhausted: number
   serviceDate: number
   serviceTimeslot: number
+  serviceInstant: number
+  serviceEnd: number
   _all: number
 }
 
@@ -84,8 +93,11 @@ export type SearchMinAggregateInputType = {
   longitude?: true
   distanceRange?: true
   createdAt?: true
+  exhausted?: true
   serviceDate?: true
   serviceTimeslot?: true
+  serviceInstant?: true
+  serviceEnd?: true
 }
 
 export type SearchMaxAggregateInputType = {
@@ -94,8 +106,11 @@ export type SearchMaxAggregateInputType = {
   longitude?: true
   distanceRange?: true
   createdAt?: true
+  exhausted?: true
   serviceDate?: true
   serviceTimeslot?: true
+  serviceInstant?: true
+  serviceEnd?: true
 }
 
 export type SearchCountAggregateInputType = {
@@ -104,8 +119,11 @@ export type SearchCountAggregateInputType = {
   longitude?: true
   distanceRange?: true
   createdAt?: true
+  exhausted?: true
   serviceDate?: true
   serviceTimeslot?: true
+  serviceInstant?: true
+  serviceEnd?: true
   _all?: true
 }
 
@@ -201,8 +219,11 @@ export type SearchGroupByOutputType = {
   longitude: number
   distanceRange: $Enums.DistanceRange
   createdAt: Date
+  exhausted: boolean
   serviceDate: Date
   serviceTimeslot: $Enums.ServiceTimeslot
+  serviceInstant: Date
+  serviceEnd: Date
   _count: SearchCountAggregateOutputType | null
   _avg: SearchAvgAggregateOutputType | null
   _sum: SearchSumAggregateOutputType | null
@@ -234,8 +255,11 @@ export type SearchWhereInput = {
   longitude?: Prisma.FloatFilter<"Search"> | number
   distanceRange?: Prisma.EnumDistanceRangeFilter<"Search"> | $Enums.DistanceRange
   createdAt?: Prisma.DateTimeFilter<"Search"> | Date | string
+  exhausted?: Prisma.BoolFilter<"Search"> | boolean
   serviceDate?: Prisma.DateTimeFilter<"Search"> | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotFilter<"Search"> | $Enums.ServiceTimeslot
+  serviceInstant?: Prisma.DateTimeFilter<"Search"> | Date | string
+  serviceEnd?: Prisma.DateTimeFilter<"Search"> | Date | string
   candidates?: Prisma.SearchCandidateListRelationFilter
 }
 
@@ -245,8 +269,11 @@ export type SearchOrderByWithRelationInput = {
   longitude?: Prisma.SortOrder
   distanceRange?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  exhausted?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
   serviceTimeslot?: Prisma.SortOrder
+  serviceInstant?: Prisma.SortOrder
+  serviceEnd?: Prisma.SortOrder
   candidates?: Prisma.SearchCandidateOrderByRelationAggregateInput
 }
 
@@ -259,8 +286,11 @@ export type SearchWhereUniqueInput = Prisma.AtLeast<{
   longitude?: Prisma.FloatFilter<"Search"> | number
   distanceRange?: Prisma.EnumDistanceRangeFilter<"Search"> | $Enums.DistanceRange
   createdAt?: Prisma.DateTimeFilter<"Search"> | Date | string
+  exhausted?: Prisma.BoolFilter<"Search"> | boolean
   serviceDate?: Prisma.DateTimeFilter<"Search"> | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotFilter<"Search"> | $Enums.ServiceTimeslot
+  serviceInstant?: Prisma.DateTimeFilter<"Search"> | Date | string
+  serviceEnd?: Prisma.DateTimeFilter<"Search"> | Date | string
   candidates?: Prisma.SearchCandidateListRelationFilter
 }, "id">
 
@@ -270,8 +300,11 @@ export type SearchOrderByWithAggregationInput = {
   longitude?: Prisma.SortOrder
   distanceRange?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  exhausted?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
   serviceTimeslot?: Prisma.SortOrder
+  serviceInstant?: Prisma.SortOrder
+  serviceEnd?: Prisma.SortOrder
   _count?: Prisma.SearchCountOrderByAggregateInput
   _avg?: Prisma.SearchAvgOrderByAggregateInput
   _max?: Prisma.SearchMaxOrderByAggregateInput
@@ -288,8 +321,11 @@ export type SearchScalarWhereWithAggregatesInput = {
   longitude?: Prisma.FloatWithAggregatesFilter<"Search"> | number
   distanceRange?: Prisma.EnumDistanceRangeWithAggregatesFilter<"Search"> | $Enums.DistanceRange
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Search"> | Date | string
+  exhausted?: Prisma.BoolWithAggregatesFilter<"Search"> | boolean
   serviceDate?: Prisma.DateTimeWithAggregatesFilter<"Search"> | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotWithAggregatesFilter<"Search"> | $Enums.ServiceTimeslot
+  serviceInstant?: Prisma.DateTimeWithAggregatesFilter<"Search"> | Date | string
+  serviceEnd?: Prisma.DateTimeWithAggregatesFilter<"Search"> | Date | string
 }
 
 export type SearchCreateInput = {
@@ -298,8 +334,11 @@ export type SearchCreateInput = {
   longitude: number
   distanceRange: $Enums.DistanceRange
   createdAt?: Date | string
+  exhausted?: boolean
   serviceDate: Date | string
   serviceTimeslot: $Enums.ServiceTimeslot
+  serviceInstant: Date | string
+  serviceEnd: Date | string
   candidates?: Prisma.SearchCandidateCreateNestedManyWithoutSearchInput
 }
 
@@ -309,8 +348,11 @@ export type SearchUncheckedCreateInput = {
   longitude: number
   distanceRange: $Enums.DistanceRange
   createdAt?: Date | string
+  exhausted?: boolean
   serviceDate: Date | string
   serviceTimeslot: $Enums.ServiceTimeslot
+  serviceInstant: Date | string
+  serviceEnd: Date | string
   candidates?: Prisma.SearchCandidateUncheckedCreateNestedManyWithoutSearchInput
 }
 
@@ -320,8 +362,11 @@ export type SearchUpdateInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   distanceRange?: Prisma.EnumDistanceRangeFieldUpdateOperationsInput | $Enums.DistanceRange
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  exhausted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serviceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotFieldUpdateOperationsInput | $Enums.ServiceTimeslot
+  serviceInstant?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  serviceEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   candidates?: Prisma.SearchCandidateUpdateManyWithoutSearchNestedInput
 }
 
@@ -331,8 +376,11 @@ export type SearchUncheckedUpdateInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   distanceRange?: Prisma.EnumDistanceRangeFieldUpdateOperationsInput | $Enums.DistanceRange
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  exhausted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serviceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotFieldUpdateOperationsInput | $Enums.ServiceTimeslot
+  serviceInstant?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  serviceEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   candidates?: Prisma.SearchCandidateUncheckedUpdateManyWithoutSearchNestedInput
 }
 
@@ -342,8 +390,11 @@ export type SearchCreateManyInput = {
   longitude: number
   distanceRange: $Enums.DistanceRange
   createdAt?: Date | string
+  exhausted?: boolean
   serviceDate: Date | string
   serviceTimeslot: $Enums.ServiceTimeslot
+  serviceInstant: Date | string
+  serviceEnd: Date | string
 }
 
 export type SearchUpdateManyMutationInput = {
@@ -352,8 +403,11 @@ export type SearchUpdateManyMutationInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   distanceRange?: Prisma.EnumDistanceRangeFieldUpdateOperationsInput | $Enums.DistanceRange
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  exhausted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serviceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotFieldUpdateOperationsInput | $Enums.ServiceTimeslot
+  serviceInstant?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  serviceEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SearchUncheckedUpdateManyInput = {
@@ -362,8 +416,11 @@ export type SearchUncheckedUpdateManyInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   distanceRange?: Prisma.EnumDistanceRangeFieldUpdateOperationsInput | $Enums.DistanceRange
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  exhausted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serviceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotFieldUpdateOperationsInput | $Enums.ServiceTimeslot
+  serviceInstant?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  serviceEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SearchCountOrderByAggregateInput = {
@@ -372,8 +429,11 @@ export type SearchCountOrderByAggregateInput = {
   longitude?: Prisma.SortOrder
   distanceRange?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  exhausted?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
   serviceTimeslot?: Prisma.SortOrder
+  serviceInstant?: Prisma.SortOrder
+  serviceEnd?: Prisma.SortOrder
 }
 
 export type SearchAvgOrderByAggregateInput = {
@@ -387,8 +447,11 @@ export type SearchMaxOrderByAggregateInput = {
   longitude?: Prisma.SortOrder
   distanceRange?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  exhausted?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
   serviceTimeslot?: Prisma.SortOrder
+  serviceInstant?: Prisma.SortOrder
+  serviceEnd?: Prisma.SortOrder
 }
 
 export type SearchMinOrderByAggregateInput = {
@@ -397,8 +460,11 @@ export type SearchMinOrderByAggregateInput = {
   longitude?: Prisma.SortOrder
   distanceRange?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  exhausted?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
   serviceTimeslot?: Prisma.SortOrder
+  serviceInstant?: Prisma.SortOrder
+  serviceEnd?: Prisma.SortOrder
 }
 
 export type SearchSumOrderByAggregateInput = {
@@ -431,6 +497,10 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type EnumServiceTimeslotFieldUpdateOperationsInput = {
   set?: $Enums.ServiceTimeslot
 }
@@ -455,8 +525,11 @@ export type SearchCreateWithoutCandidatesInput = {
   longitude: number
   distanceRange: $Enums.DistanceRange
   createdAt?: Date | string
+  exhausted?: boolean
   serviceDate: Date | string
   serviceTimeslot: $Enums.ServiceTimeslot
+  serviceInstant: Date | string
+  serviceEnd: Date | string
 }
 
 export type SearchUncheckedCreateWithoutCandidatesInput = {
@@ -465,8 +538,11 @@ export type SearchUncheckedCreateWithoutCandidatesInput = {
   longitude: number
   distanceRange: $Enums.DistanceRange
   createdAt?: Date | string
+  exhausted?: boolean
   serviceDate: Date | string
   serviceTimeslot: $Enums.ServiceTimeslot
+  serviceInstant: Date | string
+  serviceEnd: Date | string
 }
 
 export type SearchCreateOrConnectWithoutCandidatesInput = {
@@ -491,8 +567,11 @@ export type SearchUpdateWithoutCandidatesInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   distanceRange?: Prisma.EnumDistanceRangeFieldUpdateOperationsInput | $Enums.DistanceRange
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  exhausted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serviceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotFieldUpdateOperationsInput | $Enums.ServiceTimeslot
+  serviceInstant?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  serviceEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SearchUncheckedUpdateWithoutCandidatesInput = {
@@ -501,8 +580,11 @@ export type SearchUncheckedUpdateWithoutCandidatesInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   distanceRange?: Prisma.EnumDistanceRangeFieldUpdateOperationsInput | $Enums.DistanceRange
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  exhausted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serviceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceTimeslot?: Prisma.EnumServiceTimeslotFieldUpdateOperationsInput | $Enums.ServiceTimeslot
+  serviceInstant?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  serviceEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -542,8 +624,11 @@ export type SearchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   longitude?: boolean
   distanceRange?: boolean
   createdAt?: boolean
+  exhausted?: boolean
   serviceDate?: boolean
   serviceTimeslot?: boolean
+  serviceInstant?: boolean
+  serviceEnd?: boolean
   candidates?: boolean | Prisma.Search$candidatesArgs<ExtArgs>
   _count?: boolean | Prisma.SearchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["search"]>
@@ -554,8 +639,11 @@ export type SearchSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   longitude?: boolean
   distanceRange?: boolean
   createdAt?: boolean
+  exhausted?: boolean
   serviceDate?: boolean
   serviceTimeslot?: boolean
+  serviceInstant?: boolean
+  serviceEnd?: boolean
 }, ExtArgs["result"]["search"]>
 
 export type SearchSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -564,8 +652,11 @@ export type SearchSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   longitude?: boolean
   distanceRange?: boolean
   createdAt?: boolean
+  exhausted?: boolean
   serviceDate?: boolean
   serviceTimeslot?: boolean
+  serviceInstant?: boolean
+  serviceEnd?: boolean
 }, ExtArgs["result"]["search"]>
 
 export type SearchSelectScalar = {
@@ -574,11 +665,14 @@ export type SearchSelectScalar = {
   longitude?: boolean
   distanceRange?: boolean
   createdAt?: boolean
+  exhausted?: boolean
   serviceDate?: boolean
   serviceTimeslot?: boolean
+  serviceInstant?: boolean
+  serviceEnd?: boolean
 }
 
-export type SearchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "latitude" | "longitude" | "distanceRange" | "createdAt" | "serviceDate" | "serviceTimeslot", ExtArgs["result"]["search"]>
+export type SearchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "latitude" | "longitude" | "distanceRange" | "createdAt" | "exhausted" | "serviceDate" | "serviceTimeslot" | "serviceInstant" | "serviceEnd", ExtArgs["result"]["search"]>
 export type SearchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   candidates?: boolean | Prisma.Search$candidatesArgs<ExtArgs>
   _count?: boolean | Prisma.SearchCountOutputTypeDefaultArgs<ExtArgs>
@@ -597,8 +691,11 @@ export type $SearchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     longitude: number
     distanceRange: $Enums.DistanceRange
     createdAt: Date
+    exhausted: boolean
     serviceDate: Date
     serviceTimeslot: $Enums.ServiceTimeslot
+    serviceInstant: Date
+    serviceEnd: Date
   }, ExtArgs["result"]["search"]>
   composites: {}
 }
@@ -1028,8 +1125,11 @@ export interface SearchFieldRefs {
   readonly longitude: Prisma.FieldRef<"Search", 'Float'>
   readonly distanceRange: Prisma.FieldRef<"Search", 'DistanceRange'>
   readonly createdAt: Prisma.FieldRef<"Search", 'DateTime'>
+  readonly exhausted: Prisma.FieldRef<"Search", 'Boolean'>
   readonly serviceDate: Prisma.FieldRef<"Search", 'DateTime'>
   readonly serviceTimeslot: Prisma.FieldRef<"Search", 'ServiceTimeslot'>
+  readonly serviceInstant: Prisma.FieldRef<"Search", 'DateTime'>
+  readonly serviceEnd: Prisma.FieldRef<"Search", 'DateTime'>
 }
     
 

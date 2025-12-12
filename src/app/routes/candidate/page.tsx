@@ -2,15 +2,13 @@ import { MapPin, Navigation, Phone, RefreshCw, Share2, Star } from "lucide-react
 import { useEffect } from "react";
 import { redirect, useSubmit } from "react-router";
 import { createMapLink } from "~/functions/address/map";
-import prisma from "~/functions/db/prisma";
 import { triggerHaptics } from "~/functions/browser/haptics.client";
 import { shareSocial } from "~/functions/browser/share.client";
+import prisma from "~/functions/db/prisma";
 import { buildUrlForCandidate, buildUrlForNewCandidate } from "~/functions/url";
+import { findSourceIn } from "~/types/source";
 import type { Route } from "../candidate/+types/page";
 import { SourceBadge } from "./components/source-badge";
-import type { RestaurantIdentity, SearchCandidate } from "~/generated/prisma/client";
-
-// TODO disable the "reroll" if the search is passed
 
 // If the latest restaurant is a "Rejected", we should return it, and adapt the screen (to make sure a search is done, you can add "it's dead" status on the search itself)
 
@@ -34,6 +32,7 @@ export async function loader({ params }: Route.LoaderArgs) {
         id: candidateId
       },
       include: {
+        search: true,
         restaurant: {
           include: {
             identities: true
@@ -68,7 +67,13 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
       triggerHaptics();
     };
 
-    const reRollEnabled = urls?.newCandidate && urls?.newCandidate.length > 0;
+
+    const source = findSourceIn(candidate.restaurant.identities);
+    const rating = formatRating(candidate.restaurant.rating?.absoluteValue);
+    const tags = filterTags(candidate.restaurant.tags);
+    const hasExpired = new Date() > candidate.search.serviceEnd;
+    const reRollEnabled = !candidate.search.exhausted && !hasExpired && urls?.newCandidate && urls?.newCandidate.length > 0 ;
+
     const reRoll = () => {
       if (reRollEnabled) {
         triggerHaptics();
@@ -86,9 +91,6 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
     useEffect(() => {
       triggerHaptics();
     }, []);
-
-    const source = findSourceIn(candidate.restaurant.identities);
-    const rating = formatRating(candidate.restaurant.rating?.absoluteValue);
 
     return (
       <main
@@ -234,11 +236,11 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
                 </address>
 
                 {
-                  candidate.restaurant.tags?.length > 0 ? (
+                  tags.length > 0 ? (
                     <div id="candidate-tags"
                       className="flex gap-2 flex-wrap pt-2">
                       {/* TODO manage a proper list of tags */}
-                      {candidate.restaurant.tags.map(tagName => {
+                      {tags.map(tagName => {
                         return (
                           <span
                             key={tagName}
@@ -260,22 +262,23 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
           </article>
 
           <div className="flex gap-3">
-            <button
-              onClick={reRoll}
-              className={`
-                w-20
-                bg-fun-yellow
-                border-4 border-fun-dark rounded-2xl
-                flex items-center justify-center
-                shadow-hard transition-transform active:translate-y-1 active:shadow-none hover:brightness-110
-                cursor-pointer
-                ${reRollEnabled ? "" : ""}
-              `}
-              title="Spin Again"
-              aria-disabled={!reRollEnabled}
-              aria-label="Reroll">
-              <RefreshCw className="w-8 h-8 stroke-[3px] text-fun-dark" />
-            </button>
+            {reRollEnabled ? (
+              <button
+                onClick={reRoll}
+                className={`
+                  w-20
+                  bg-fun-yellow
+                  border-4 border-fun-dark rounded-2xl
+                  flex items-center justify-center
+                  shadow-hard transition-transform active:translate-y-1 active:shadow-none hover:brightness-110
+                  cursor-pointer
+                `}
+                title="Spin Again"
+                aria-disabled={!reRollEnabled}
+                aria-label="Reroll">
+                <RefreshCw className="w-8 h-8 stroke-[3px] text-fun-dark" />
+              </button>
+            ) : null}
 
             {candidate.restaurant.latitude && candidate.restaurant.longitude && (
               <a
@@ -304,17 +307,15 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
   }
 }
 
-// TODO implement this better
-const SOURCES_FOR_DISCOVERY = ["osm"];
-function findSourceIn(identities: RestaurantIdentity[]): string | undefined {
-  return (identities.filter(identity => !SOURCES_FOR_DISCOVERY.includes(identity.source))?.[0] || identities?.[0])?.source;
-}
-
-function formatRating(ratingAsNumber: number | undefined): string | undefined {
-  if (ratingAsNumber) {
-    return ratingAsNumber.toString(); // TODO implement a better way
-  } else {
+function formatRating(rating: number | undefined | null): string | undefined {
+  if (rating === undefined || rating === null) {
     return undefined;
+  } else {
+    return rating.toFixed(1);
   }
 }
 
+function filterTags(tags: string[] | undefined): string[] {
+  // TODO
+  return tags || [];
+}

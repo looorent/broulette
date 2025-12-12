@@ -1,4 +1,4 @@
-import { protos } from "@googlemaps/places";
+import { type protos } from "@googlemaps/places";
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const OSM_DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];

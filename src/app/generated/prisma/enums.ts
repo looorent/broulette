@@ -12,7 +12,8 @@
 export const ServiceTimeslot = {
   Dinner: 'Dinner',
   Lunch: 'Lunch',
-  RightNow: 'RightNow'
+  RightNow: 'RightNow',
+  Custom: 'Custom'
 } as const
 
 export type ServiceTimeslot = (typeof ServiceTimeslot)[keyof typeof ServiceTimeslot]

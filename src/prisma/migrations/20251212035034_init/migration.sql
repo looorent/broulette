@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "ServiceTimeslot" AS ENUM ('Dinner', 'Lunch', 'RightNow');
+CREATE TYPE "ServiceTimeslot" AS ENUM ('Dinner', 'Lunch', 'RightNow', 'Custom');
 
 -- CreateEnum
 CREATE TYPE "DistanceRange" AS ENUM ('Close', 'MidRange', 'Far');
@@ -14,8 +14,11 @@ CREATE TABLE "Search" (
     "longitude" DOUBLE PRECISION NOT NULL,
     "distanceRange" "DistanceRange" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "exhausted" BOOLEAN NOT NULL DEFAULT false,
     "serviceDate" DATE NOT NULL,
     "serviceTimeslot" "ServiceTimeslot" NOT NULL,
+    "serviceInstant" TIMESTAMP(3) NOT NULL,
+    "serviceEnd" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Search_pkey" PRIMARY KEY ("id")
 );
@@ -38,15 +41,19 @@ CREATE TABLE "Restaurant" (
     "id" UUID NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
     "name" VARCHAR(100) NOT NULL,
     "latitude" DOUBLE PRECISION NOT NULL,
     "longitude" DOUBLE PRECISION NOT NULL,
     "address" TEXT,
+    "countryCode" VARCHAR(20),
+    "state" VARCHAR(50),
     "description" TEXT,
     "imageUrl" TEXT,
     "rating" DECIMAL(2,1),
     "phoneNumber" VARCHAR(20),
     "priceRange" INTEGER,
+    "openingHours" TEXT,
     "tags" VARCHAR(30)[],
 
     CONSTRAINT "Restaurant_pkey" PRIMARY KEY ("id")
@@ -58,6 +65,7 @@ CREATE TABLE "RestaurantIdentity" (
     "restaurantId" UUID NOT NULL,
     "source" VARCHAR(50) NOT NULL,
     "externalId" VARCHAR(255) NOT NULL,
+    "type" VARCHAR(50) NOT NULL,
 
     CONSTRAINT "RestaurantIdentity_pkey" PRIMARY KEY ("id")
 );

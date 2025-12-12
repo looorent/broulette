@@ -27,6 +27,7 @@ export type AggregateRestaurant = {
 }
 
 export type RestaurantAvgAggregateOutputType = {
+  version: number | null
   latitude: number | null
   longitude: number | null
   rating: runtime.Decimal | null
@@ -34,6 +35,7 @@ export type RestaurantAvgAggregateOutputType = {
 }
 
 export type RestaurantSumAggregateOutputType = {
+  version: number | null
   latitude: number | null
   longitude: number | null
   rating: runtime.Decimal | null
@@ -44,6 +46,7 @@ export type RestaurantMinAggregateOutputType = {
   id: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  version: number | null
   name: string | null
   latitude: number | null
   longitude: number | null
@@ -62,6 +65,7 @@ export type RestaurantMaxAggregateOutputType = {
   id: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  version: number | null
   name: string | null
   latitude: number | null
   longitude: number | null
@@ -80,6 +84,7 @@ export type RestaurantCountAggregateOutputType = {
   id: number
   createdAt: number
   updatedAt: number
+  version: number
   name: number
   latitude: number
   longitude: number
@@ -98,6 +103,7 @@ export type RestaurantCountAggregateOutputType = {
 
 
 export type RestaurantAvgAggregateInputType = {
+  version?: true
   latitude?: true
   longitude?: true
   rating?: true
@@ -105,6 +111,7 @@ export type RestaurantAvgAggregateInputType = {
 }
 
 export type RestaurantSumAggregateInputType = {
+  version?: true
   latitude?: true
   longitude?: true
   rating?: true
@@ -115,6 +122,7 @@ export type RestaurantMinAggregateInputType = {
   id?: true
   createdAt?: true
   updatedAt?: true
+  version?: true
   name?: true
   latitude?: true
   longitude?: true
@@ -133,6 +141,7 @@ export type RestaurantMaxAggregateInputType = {
   id?: true
   createdAt?: true
   updatedAt?: true
+  version?: true
   name?: true
   latitude?: true
   longitude?: true
@@ -151,6 +160,7 @@ export type RestaurantCountAggregateInputType = {
   id?: true
   createdAt?: true
   updatedAt?: true
+  version?: true
   name?: true
   latitude?: true
   longitude?: true
@@ -257,6 +267,7 @@ export type RestaurantGroupByOutputType = {
   id: string
   createdAt: Date
   updatedAt: Date
+  version: number
   name: string
   latitude: number
   longitude: number
@@ -299,6 +310,7 @@ export type RestaurantWhereInput = {
   id?: Prisma.UuidFilter<"Restaurant"> | string
   createdAt?: Prisma.DateTimeFilter<"Restaurant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Restaurant"> | Date | string
+  version?: Prisma.IntFilter<"Restaurant"> | number
   name?: Prisma.StringFilter<"Restaurant"> | string
   latitude?: Prisma.FloatFilter<"Restaurant"> | number
   longitude?: Prisma.FloatFilter<"Restaurant"> | number
@@ -320,6 +332,7 @@ export type RestaurantOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   name?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -344,6 +357,7 @@ export type RestaurantWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.RestaurantWhereInput | Prisma.RestaurantWhereInput[]
   createdAt?: Prisma.DateTimeFilter<"Restaurant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Restaurant"> | Date | string
+  version?: Prisma.IntFilter<"Restaurant"> | number
   name?: Prisma.StringFilter<"Restaurant"> | string
   latitude?: Prisma.FloatFilter<"Restaurant"> | number
   longitude?: Prisma.FloatFilter<"Restaurant"> | number
@@ -365,6 +379,7 @@ export type RestaurantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   name?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -392,6 +407,7 @@ export type RestaurantScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"Restaurant"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Restaurant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Restaurant"> | Date | string
+  version?: Prisma.IntWithAggregatesFilter<"Restaurant"> | number
   name?: Prisma.StringWithAggregatesFilter<"Restaurant"> | string
   latitude?: Prisma.FloatWithAggregatesFilter<"Restaurant"> | number
   longitude?: Prisma.FloatWithAggregatesFilter<"Restaurant"> | number
@@ -411,6 +427,7 @@ export type RestaurantCreateInput = {
   id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   name: string
   latitude: number
   longitude: number
@@ -432,6 +449,7 @@ export type RestaurantUncheckedCreateInput = {
   id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   name: string
   latitude: number
   longitude: number
@@ -453,6 +471,7 @@ export type RestaurantUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -474,6 +493,7 @@ export type RestaurantUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -495,6 +515,7 @@ export type RestaurantCreateManyInput = {
   id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   name: string
   latitude: number
   longitude: number
@@ -514,6 +535,7 @@ export type RestaurantUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -533,6 +555,7 @@ export type RestaurantUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -565,6 +588,7 @@ export type RestaurantCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   name?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -581,6 +605,7 @@ export type RestaurantCountOrderByAggregateInput = {
 }
 
 export type RestaurantAvgOrderByAggregateInput = {
+  version?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   rating?: Prisma.SortOrder
@@ -591,6 +616,7 @@ export type RestaurantMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   name?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -609,6 +635,7 @@ export type RestaurantMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   name?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -624,6 +651,7 @@ export type RestaurantMinOrderByAggregateInput = {
 }
 
 export type RestaurantSumOrderByAggregateInput = {
+  version?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   rating?: Prisma.SortOrder
@@ -687,6 +715,7 @@ export type RestaurantCreateWithoutSearchCandidatesInput = {
   id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   name: string
   latitude: number
   longitude: number
@@ -707,6 +736,7 @@ export type RestaurantUncheckedCreateWithoutSearchCandidatesInput = {
   id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   name: string
   latitude: number
   longitude: number
@@ -743,6 +773,7 @@ export type RestaurantUpdateWithoutSearchCandidatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -763,6 +794,7 @@ export type RestaurantUncheckedUpdateWithoutSearchCandidatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -783,6 +815,7 @@ export type RestaurantCreateWithoutIdentitiesInput = {
   id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   name: string
   latitude: number
   longitude: number
@@ -803,6 +836,7 @@ export type RestaurantUncheckedCreateWithoutIdentitiesInput = {
   id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   name: string
   latitude: number
   longitude: number
@@ -839,6 +873,7 @@ export type RestaurantUpdateWithoutIdentitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -859,6 +894,7 @@ export type RestaurantUncheckedUpdateWithoutIdentitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -919,6 +955,7 @@ export type RestaurantSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  version?: boolean
   name?: boolean
   latitude?: boolean
   longitude?: boolean
@@ -941,6 +978,7 @@ export type RestaurantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  version?: boolean
   name?: boolean
   latitude?: boolean
   longitude?: boolean
@@ -960,6 +998,7 @@ export type RestaurantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  version?: boolean
   name?: boolean
   latitude?: boolean
   longitude?: boolean
@@ -979,6 +1018,7 @@ export type RestaurantSelectScalar = {
   id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  version?: boolean
   name?: boolean
   latitude?: boolean
   longitude?: boolean
@@ -994,7 +1034,7 @@ export type RestaurantSelectScalar = {
   tags?: boolean
 }
 
-export type RestaurantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "latitude" | "longitude" | "address" | "countryCode" | "state" | "description" | "imageUrl" | "rating" | "phoneNumber" | "priceRange" | "openingHours" | "tags", ExtArgs["result"]["restaurant"]>
+export type RestaurantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "version" | "name" | "latitude" | "longitude" | "address" | "countryCode" | "state" | "description" | "imageUrl" | "rating" | "phoneNumber" | "priceRange" | "openingHours" | "tags", ExtArgs["result"]["restaurant"]>
 export type RestaurantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   identities?: boolean | Prisma.Restaurant$identitiesArgs<ExtArgs>
   searchCandidates?: boolean | Prisma.Restaurant$searchCandidatesArgs<ExtArgs>
@@ -1013,6 +1053,7 @@ export type $RestaurantPayload<ExtArgs extends runtime.Types.Extensions.Internal
     id: string
     createdAt: Date
     updatedAt: Date
+    version: number
     name: string
     latitude: number
     longitude: number
@@ -1454,6 +1495,7 @@ export interface RestaurantFieldRefs {
   readonly id: Prisma.FieldRef<"Restaurant", 'String'>
   readonly createdAt: Prisma.FieldRef<"Restaurant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Restaurant", 'DateTime'>
+  readonly version: Prisma.FieldRef<"Restaurant", 'Int'>
   readonly name: Prisma.FieldRef<"Restaurant", 'String'>
   readonly latitude: Prisma.FieldRef<"Restaurant", 'Float'>
   readonly longitude: Prisma.FieldRef<"Restaurant", 'Float'>

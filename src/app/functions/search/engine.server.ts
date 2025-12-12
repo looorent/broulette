@@ -49,25 +49,35 @@ export async function searchCandidate(
             rejectionReason: status.rejectionReason
           }
         });
-        restaurant.identities.forEach(discovery.addIdentityToExclude);
+        restaurant.identities.forEach(identity => discovery.addIdentityToExclude(identity));
       }
     }
   }
+
+  await markSearchAsExhausted(search.id, candidateFound);
   return candidateFound;
 }
 
-function computeTargetInstant(date: Date, timeslot: ServiceTimeslot): Date {
-  switch (timeslot) {
-    case ServiceTimeslot.Lunch:
-      var target = new Date(date);
-      target.setHours(12, 30, 0, 0);
-      return target;
-    case ServiceTimeslot.Dinner:
-      var target = new Date(date);
-      target.setHours(19, 30, 0, 0);
-      return target;
-    default:
-      return new Date();
+async function markSearchAsExhausted(searchId: string, candidateFound: SearchCandidate | null) {
+  if (!candidateFound || candidateFound.status === SearchCandidateStatus.Rejected) {
+    await prisma.search.update({
+      data: { exhausted: true },
+      where: { id: searchId }
+    });
   }
 }
 
+function computeTargetInstant(date: Date, timeslot: ServiceTimeslot): Date {
+  const target = new Date(date);
+  switch (timeslot) {
+    case ServiceTimeslot.Lunch:
+      target.setHours(12, 30, 0, 0);
+      break;
+    case ServiceTimeslot.Dinner:
+      target.setHours(19, 30, 0, 0);
+      break;
+    default:
+      return new Date();
+  }
+  return target;
+}
