@@ -1,3 +1,5 @@
+import { AlertBox } from "@components/alert-box";
+import { APP_CONFIG } from "@config";
 import {
   AlertTriangle,
   Cookie,
@@ -10,8 +12,6 @@ import {
   Sparkles
 } from "lucide-react";
 import { useState } from "react";
-import { AlertBox } from "~/components/alert-box";
-import { APP_CONFIG } from "~/config";
 
 interface HelpModalProps {
   isOpen: boolean;

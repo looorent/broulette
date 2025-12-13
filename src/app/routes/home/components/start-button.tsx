@@ -1,8 +1,8 @@
+import { triggerHaptics } from "@features/browser.client";
+import type { Preference } from "@features/search";
 import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { Form, useSubmit } from "react-router";
-import { triggerHaptics } from "~/functions/browser/haptics.client";
-import type { Preference } from "~/types/preference";
 
 interface StartButtonProps {
   preferences: Preference;

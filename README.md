@@ -95,3 +95,6 @@ Je veux que tu génères ces idées:
 https://fontawesome.com/icons/pizza-slice?f=classic&s=solid
 https://fontawesome.com/icons/hotdog?f=classic&s=solid
 https://fontawesome.com/icons/spoon?f=classic&s=solid
+
+
+npx prisma generate

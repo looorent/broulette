@@ -1,9 +1,9 @@
+import prisma from "@features/db.server/prisma";
+import { createServiceDatetime, createServiceEnd } from "@features/search";
+import { buildUrlForSearch } from "@features/search.server";
+import type { DistanceRange, ServiceTimeslot } from "@persistence/enums";
 import { redirect } from "react-router";
-import prisma from "~/functions/db/prisma";
-import { buildUrlForSearch } from "~/functions/url";
-import type { DistanceRange, ServiceTimeslot } from "~/generated/prisma/enums";
 import type { Route } from "./+types/action";
-import { createServiceDatetime, createServiceEnd } from "~/types/service";
 
 export async function action({
   request,

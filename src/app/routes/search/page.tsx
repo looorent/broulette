@@ -1,8 +1,8 @@
+import prisma from "@features/db.server/prisma";
+import { buildUrlForCandidate, buildUrlForNewCandidate } from "@features/search.server";
 import { useEffect, useRef } from "react";
 import { useNavigate, useSubmit } from "react-router";
-import { buildUrlForCandidate, buildUrlForNewCandidate } from "~/functions/url";
 import type { Route } from "../search/+types/page";
-import prisma from "~/functions/db/prisma";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const search = await prisma.search.findWithLatestCandidate(params.searchId);

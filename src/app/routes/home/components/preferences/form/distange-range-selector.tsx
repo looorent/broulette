@@ -1,7 +1,8 @@
-import { type DistanceRange } from "~/types/distance";
-import { DistanceRangeTag } from "./distance-range-tag";
-import { DistanceRangeCaption } from "./distance-range-caption";
+
+import type { DistanceRange } from "@persistence/enums";
 import { useEffect, useState } from "react";
+import { DistanceRangeCaption } from "./distance-range-caption";
+import { DistanceRangeTag } from "./distance-range-tag";
 
 interface DistanceRangeSelectorProps {
   selectedRange: DistanceRange;

@@ -1,12 +1,11 @@
+import { shareSocial, triggerHaptics } from "@features/browser.client";
+import prisma from "@features/db.server/prisma";
+import { createMapLink } from "@features/map";
+import { findSourceIn } from "@features/restaurant.server";
+import { buildUrlForCandidate, buildUrlForNewCandidate } from "@features/search.server";
 import { MapPin, Navigation, Phone, RefreshCw, Share2, Star } from "lucide-react";
 import { useEffect } from "react";
 import { redirect, useSubmit } from "react-router";
-import { createMapLink } from "~/functions/address/map";
-import { triggerHaptics } from "~/functions/browser/haptics.client";
-import { shareSocial } from "~/functions/browser/share.client";
-import prisma from "~/functions/db/prisma";
-import { buildUrlForCandidate, buildUrlForNewCandidate } from "~/functions/url";
-import { findSourceIn } from "~/types/source";
 import type { Route } from "../candidate/+types/page";
 import { SourceBadge } from "./components/source-badge";
 
@@ -68,6 +67,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
     };
 
 
+    // TODO move this to the loader
     const source = findSourceIn(candidate.restaurant.identities);
     const rating = formatRating(candidate.restaurant.rating?.absoluteValue);
     const tags = filterTags(candidate.restaurant.tags);
@@ -282,6 +282,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
 
             {candidate.restaurant.latitude && candidate.restaurant.longitude && (
               <a
+                // TODO move this to the loader
                 href={createMapLink(candidate.restaurant.latitude, candidate.restaurant.longitude, candidate.restaurant.name)}
                 target="_blank"
                 rel="noopener noreferrer"

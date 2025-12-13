@@ -15,7 +15,11 @@
     "rootDirs": [".", "./.react-router/types"],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "@persistence/*": ["./app/features/generated/prisma.server/*"],
+      "@features/*": ["./app/features/*"],
+      "@routes/*": ["./app/routes/*"],
+      "@components/*": ["./app/components/*"],
+      "@config": ["./app/config.ts"],
     },
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,

@@ -1,20 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useSearchParams, type ClientLoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router";
-import { AlertBox } from "~/components/alert-box";
-import { BottomSheet } from "~/components/bottom-sheet-modal";
-import { getDeviceLocation } from "~/functions/browser/geolocation.client";
-import { PreferenceChip, type PreferenceChipHandle } from "~/routes/home/components/preferences/preferences-chip";
-import { PreferencesForm, type PreferencesFormHandle } from "~/routes/home/components/preferences/preferences-form";
-import { RANGES } from "~/types/distance";
-import { createDeviceLocation } from "~/types/location";
-import { createDefaultPreference, Preference } from "~/types/preference";
-import { createNextServices, type ServicePreference } from "~/types/service";
 import BrandTitle from "./components/brand-title";
 import FoodRain from "./components/food-rain";
 import HelpButton from "./components/help-button";
 import HelpModal from "./components/help-modal";
 import StartButton from "./components/start-button";
 import { HomeProvider, useHomeContext } from "./context";
+import { createDefaultPreference, createDeviceLocation, createNextServices, type Preference, type ServicePreference } from "@features/search";
+import { PreferencesForm, type PreferencesFormHandle } from "./components/preferences/preferences-form";
+import { PreferenceChip, type PreferenceChipHandle } from "./components/preferences/preferences-chip";
+import { getDeviceLocation } from "@features/browser.client";
+import { BottomSheet } from "@components/bottom-sheet-modal";
+import { AlertBox } from "@components/alert-box";
 
 interface LoaderData {
   services: ServicePreference[];

@@ -1,5 +1,5 @@
+import type { AlertBoxOptions } from "@components/alert-box";
 import { createContext, useContext, useState, type ReactNode } from "react";
-import type { AlertBoxOptions } from "~/components/alert-box";
 
 interface HomeContextType {
   isAlertOpen: boolean;

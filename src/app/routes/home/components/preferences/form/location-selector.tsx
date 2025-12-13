@@ -1,12 +1,11 @@
 import { Crosshair, Loader2, MapPin, XCircle } from "lucide-react";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useFetcher } from "react-router";
-import { useDebounce } from "~/functions/browser/debounce.client";
-import { getDeviceLocation, isGeolocationSupported } from "~/functions/browser/geolocation.client";
-import type { action as addressLoader } from "~/routes/api/address-search";
-import { useHomeContext } from "~/routes/home/context";
-import { createDeviceLocation, hasCoordinates, type LocationPreference } from "~/types/location";
 import { LocationSuggestionSelector } from "./location-suggestion-selector";
+import { createDeviceLocation, hasCoordinates, type LocationPreference } from "@features/search";
+import { getDeviceLocation, isGeolocationSupported, useDebounce } from "@features/browser.client";
+import { useHomeContext } from "@routes/home/context";
+import type { action as addressLoader } from "@routes/api/address-search";
 
 export interface LocationSelectorHandle {
   handleClose: () => void;

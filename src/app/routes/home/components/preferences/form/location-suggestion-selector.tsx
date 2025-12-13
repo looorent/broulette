@@ -1,5 +1,5 @@
-import { History, Loader2 } from "lucide-react";
-import { type LocationPreference } from "~/types/location";
+import type { LocationPreference } from "@features/search";
+import { History } from "lucide-react";
 import { SkeletonList } from "./location-skeleton-list";
 
 interface LocationSuggestionSelectorProps {

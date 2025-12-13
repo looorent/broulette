@@ -1,8 +1,8 @@
 import { useDrag } from "@use-gesture/react";
 import { Footprints, MapPin } from "lucide-react";
 import { forwardRef, useImperativeHandle, useState } from "react";
-import type { Preference } from "~/types/preference";
 import { PreferenceChipValue } from "./preference-chip-value";
+import type { Preference } from "@features/search";
 
 interface PreferenceChipProps {
   onOpen?: () => void;

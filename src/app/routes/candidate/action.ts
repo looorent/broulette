@@ -1,7 +1,7 @@
 import { redirect } from "react-router";
-import { searchCandidate } from "~/functions/search/engine.server";
-import { buildUrlForCandidate } from "~/functions/url";
 import type { Route } from "./+types/action";
+import { searchCandidate } from "@features/search-engine.server";
+import { buildUrlForCandidate } from "@features/search.server";
 
 export async function action({
   request,

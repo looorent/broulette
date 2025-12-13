@@ -7,8 +7,7 @@ import {
 } from "react-router";
 
 import "./app.css";
-import { SearchLoaderProvider, useSearchLoader } from "./components/search-loader/context";
-import { SearchLoader } from "./components/search-loader/search-loader";
+import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components/search-loader";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

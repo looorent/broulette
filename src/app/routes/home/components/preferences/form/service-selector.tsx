@@ -1,7 +1,7 @@
+import type { ServicePreference } from "@features/search";
 import { useDrag } from "@use-gesture/react";
 import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { ServicePreference } from "~/types/service";
 
 interface ServiceSelectorProps {
   services: ServicePreference[];

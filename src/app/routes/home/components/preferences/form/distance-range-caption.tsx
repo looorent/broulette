@@ -1,7 +1,7 @@
-import type { DistanceRange } from "~/types/distance";
+import type { DistanceRangeOption } from "@features/search";
 
 interface DistanceRangeCaptionProps {
-  ranges: DistanceRange[];
+  ranges: DistanceRangeOption[];
   className?: string;
 }
 

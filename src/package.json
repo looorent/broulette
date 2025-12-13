@@ -39,5 +39,13 @@
     "vite": "^7.2.7",
     "vite-plugin-devtools-json": "^1.0.0",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "exports": {
+    "@persistence": "./app/features/generated/prisma",
+    "@features": "./app/features",
+    "@routes": "./app/routes",
+    "@components": "./app/components",
+    "@config": "./app/config.ts"
   }
 }
+
