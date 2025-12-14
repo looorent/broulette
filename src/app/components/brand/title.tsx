@@ -1,4 +1,4 @@
-export default function BrandTitle() {
+export function BrandTitle() {
   return (
     <header className="text-center relative animate-float landscape:hidden md:landscape:block">
       <h1 className="font-display text-6xl sm:text-7xl leading-[0.9] text-white drop-shadow-[5px_5px_0px_rgba(45,52,54,1)] tracking-tighter mb-4 flex flex-col items-center">

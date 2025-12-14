@@ -52,20 +52,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { state } = useSearchLoader();
-  const inertProps = state.visible ? { inert: "true" } : {};
+  const { state: loaderState } = useSearchLoader();
   return (
     <>
       <SearchLoader
-        visible={state.visible}
-        title={state.message} />
+        visible={loaderState.visible}
+        title={loaderState.message} />
 
       <div
-        aria-hidden={state.visible}
-        inert={state.visible ? true : undefined}
+        aria-hidden={loaderState.visible}
+        inert={loaderState.visible ? true : undefined}
         className={`
           h-full w-full
-          ${state.visible ? "hidden": "block"}
+          ${loaderState.visible ? "hidden": "block"}
         `}>
         <Outlet />
       </div>

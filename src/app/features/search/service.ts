@@ -1,4 +1,4 @@
-import type { ServiceTimeslot } from "@persistence/enums";
+import { ServiceTimeslot } from "@persistence/enums";
 import { CalendarPlus, Clock, Moon, Sun, type LucideProps } from "lucide-react";
 
 export interface ServicePreference {
@@ -33,6 +33,7 @@ function createService(
   };
 };
 
+// TODO we should move that to the server side
 export const SERVICE_DEFAULTS = {
   [ServiceTimeslot.Lunch]: {
     start:  { hour: 11, minute: 30 },

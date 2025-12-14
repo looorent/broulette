@@ -1,4 +1,4 @@
-import { AlertBox } from "@components/alert-box";
+import { AlertBox } from "@components/alert/box";
 import { APP_CONFIG } from "@config";
 import {
   AlertTriangle,
@@ -28,7 +28,7 @@ function PhilosophyItem({ title, description }: { title: string, description: st
   );
 }
 
-export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
+export function HelpModal({ isOpen, onClose }: HelpModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>("about");
 
   const TabButton = ({ id, label, icon: Icon }: { id: TabType, label: string, icon: any }) => (

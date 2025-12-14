@@ -97,4 +97,7 @@ https://fontawesome.com/icons/hotdog?f=classic&s=solid
 https://fontawesome.com/icons/spoon?f=classic&s=solid
 
 
-npx prisma generate
+
+docker run --name postgres-biteroulette -e POSTGRES_PASSWORD=biteroulette postgres:18.1
+
+

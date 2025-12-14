@@ -1,7 +1,7 @@
+import type { Coordinates } from "@features/coordinate";
 import type { DistanceRangeOption } from "./distance";
 import { areLocationEquals, createDeviceLocation, hasCoordinates, type LocationPreference } from "./location";
 import type { ServicePreference } from "./service";
-import type { Coordinates } from "../coordinate/types";
 
 export class Preference {
   readonly id: string;

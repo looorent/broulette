@@ -1,17 +1,14 @@
+import { AlertBox, AlertProvider, useAlertContext } from "@components/alert";
+import { BottomSheet } from "@components/bottom-sheet-modal";
+import { BrandTitle, FoodRain } from "@components/brand";
+import { HelpButton, HelpModal } from "@components/help";
+import { SearchSubmitButton } from "@components/search";
+import { PreferenceChip, type PreferenceChipHandle } from "@components/search-preference";
+import { PreferencesForm, type PreferencesFormHandle } from "@components/search-preference-form";
+import { getDeviceLocation } from "@features/browser.client";
+import { createDefaultPreference, createDeviceLocation, createNextServices, DISTANCE_RANGES, type Preference, type ServicePreference } from "@features/search";
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useSearchParams, type ClientLoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router";
-import BrandTitle from "./components/brand-title";
-import FoodRain from "./components/food-rain";
-import HelpButton from "./components/help-button";
-import HelpModal from "./components/help-modal";
-import StartButton from "./components/start-button";
-import { HomeProvider, useHomeContext } from "./context";
-import { createDefaultPreference, createDeviceLocation, createNextServices, type Preference, type ServicePreference } from "@features/search";
-import { PreferencesForm, type PreferencesFormHandle } from "./components/preferences/preferences-form";
-import { PreferenceChip, type PreferenceChipHandle } from "./components/preferences/preferences-chip";
-import { getDeviceLocation } from "@features/browser.client";
-import { BottomSheet } from "@components/bottom-sheet-modal";
-import { AlertBox } from "@components/alert-box";
 
 interface LoaderData {
   services: ServicePreference[];
@@ -31,7 +28,7 @@ export async function clientLoader({ request }: ClientLoaderFunctionArgs): Promi
   const services = createNextServices(new Date());
   return {
     services: services,
-    defaultPreferences: createDefaultPreference(services, RANGES, null)
+    defaultPreferences: createDefaultPreference(services, DISTANCE_RANGES, null)
   };
 }
 
@@ -41,7 +38,7 @@ function HomeContent() {
   const [preferences, setPreferences] = useState<Preference>(defaultPreferences);
   const preferenceFormRef = useRef<PreferencesFormHandle>(null);
   const preferenceChipRef = useRef<PreferenceChipHandle>(null);
-  const { isAlertOpen, closeAlert, alertOptions } = useHomeContext();
+  const { isAlertOpen, closeAlert, alertOptions } = useAlertContext();
 
   useEffect(() => {
     async function fetchLocation() {
@@ -86,7 +83,7 @@ function HomeContent() {
         aria-label="Welcome Screen">
         <BrandTitle />
 
-        <StartButton
+        <SearchSubmitButton
           preferences={preferences}
           onBuzzOnError={() => preferenceChipRef?.current?.handleBuzzOnLocationError?.()} />
 
@@ -143,8 +140,8 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <HomeProvider>
+    <AlertProvider>
       <HomeContent></HomeContent>
-    </HomeProvider>
+    </AlertProvider>
   );
 }

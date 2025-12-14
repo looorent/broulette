@@ -1,9 +1,9 @@
 import prisma from "@features/db.server/prisma";
 import { createServiceDatetime, createServiceEnd } from "@features/search";
 import { buildUrlForSearch } from "@features/search.server";
-import type { DistanceRange, ServiceTimeslot } from "@persistence/enums";
+import type { DistanceRange, ServiceTimeslot } from "@persistence/client";
 import { redirect } from "react-router";
-import type { Route } from "./+types/action";
+import type { Route } from "./+types/searches._index";
 
 export async function action({
   request,
@@ -27,4 +27,8 @@ export async function action({
   });
 
   return redirect(buildUrlForSearch(createdSearch.id));
+}
+
+export async function loader() {
+  return redirect("/");
 }

@@ -1,16 +1,16 @@
-import type { AlertBoxOptions } from "@components/alert-box";
+import type { AlertBoxOptions } from "@components/alert/box";
 import { createContext, useContext, useState, type ReactNode } from "react";
 
-interface HomeContextType {
+interface AlertContextType {
   isAlertOpen: boolean;
   alertOptions: AlertBoxOptions | null;
   openAlert: (options: AlertBoxOptions | null) => void;
   closeAlert: () => void;
 }
 
-const HomeContext = createContext<HomeContextType | undefined>(undefined);
+const AlertContext = createContext<AlertContextType | undefined>(undefined);
 
-export function HomeProvider({ children }: { children: ReactNode }) {
+export function AlertProvider({ children }: { children: ReactNode }) {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [alertOptions, setAlertOptions] = useState<AlertBoxOptions | null>(null);
 
@@ -25,16 +25,16 @@ export function HomeProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <HomeContext.Provider value={{ isAlertOpen, alertOptions, openAlert, closeAlert }}>
+    <AlertContext.Provider value={{ isAlertOpen, alertOptions, openAlert, closeAlert }}>
       {children}
-    </HomeContext.Provider>
+    </AlertContext.Provider>
   );
 }
 
-export function useHomeContext() {
-  const context = useContext(HomeContext);
+export function useAlertContext() {
+  const context = useContext(AlertContext);
   if (!context) {
-    throw new Error("useHomeContext must be used within a UIProvider");
+    throw new Error("useAlertContext must be used within a UIProvider");
   } else {
     return context;
   }

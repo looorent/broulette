@@ -4,7 +4,7 @@ interface HelpButtonProps {
   onOpen: () => void;
 }
 
-export default function HelpButton({ onOpen }: HelpButtonProps) {
+export function HelpButton({ onOpen }: HelpButtonProps) {
   return (
     <button
       className="

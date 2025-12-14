@@ -1,6 +1,5 @@
 import prisma from "@features/db.server/prisma";
-import type { RestaurantIdentity, SearchCandidate } from "@persistence/client";
-import { SearchCandidateStatus, ServiceTimeslot } from "@persistence/client";
+import { SearchCandidateStatus, ServiceTimeslot, type RestaurantIdentity, type SearchCandidate } from "@persistence/client";
 import { RestaurantDiscoveryScanner, type SearchDiscoveryConfig } from "./discovery";
 import { enrichRestaurant } from "./enrich";
 import { SearchNotFoundError } from "./error";

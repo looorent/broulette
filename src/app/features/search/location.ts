@@ -1,4 +1,4 @@
-import type { Coordinates } from "../coordinate/types";
+import type { Coordinates } from "@features/coordinate";
 
 export interface LocationPreference {
   label: {

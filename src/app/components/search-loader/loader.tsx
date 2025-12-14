@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { SearchLoaderSpinner } from "./search-loader-spinner";
-import { SearchLoaderTitle } from "./search-loader-title";
+import { SearchLoaderSpinner } from "./spinner";
+import { SearchLoaderTitle } from "./title";
 
 interface SearchLoaderProps {
   title?: string;

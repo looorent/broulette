@@ -4,8 +4,8 @@ import { useFetcher } from "react-router";
 import { LocationSuggestionSelector } from "./location-suggestion-selector";
 import { createDeviceLocation, hasCoordinates, type LocationPreference } from "@features/search";
 import { getDeviceLocation, isGeolocationSupported, useDebounce } from "@features/browser.client";
-import { useHomeContext } from "@routes/home/context";
-import type { action as addressLoader } from "@routes/api/address-search";
+import { useAlertContext } from "@components/alert/context";
+import type { action as addressLoader } from "@routes/api.address-search";
 
 export interface LocationSelectorHandle {
   handleClose: () => void;
@@ -25,7 +25,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
     const [isSearchMode, setIsSearchMode] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const debouncedSearchText = useDebounce(searchText, 300);
-    const { openAlert, closeAlert } = useHomeContext();
+    const { openAlert, closeAlert } = useAlertContext();
 
     const wrapperRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);

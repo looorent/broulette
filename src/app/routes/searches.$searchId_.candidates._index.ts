@@ -1,7 +1,7 @@
-import { redirect } from "react-router";
-import type { Route } from "./+types/action";
 import { searchCandidate } from "@features/search-engine.server";
 import { buildUrlForCandidate } from "@features/search.server";
+import { redirect } from "react-router";
+import type { Route } from "./+types/searches.$searchId_.candidates._index";
 
 export async function action({
   request,
@@ -19,4 +19,8 @@ export async function action({
   } else {
     // TODO manage error
   }
+}
+
+export async function loader({ params }: Route.LoaderArgs) {
+  return redirect(buildUrlForCandidate(params.searchId, "latest"));
 }

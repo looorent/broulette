@@ -9,9 +9,11 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@googlemaps/places": "2.2.0",
     "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "^7.1.0",
     "@prisma/extension-accelerate": "^3.0.1",
+    "@react-router/fs-routes": "7.10.1",
     "@react-router/node": "^7.10.1",
     "@react-router/serve": "^7.10.1",
     "@use-gesture/react": "10.3.1",
@@ -19,7 +21,6 @@
     "isbot": "^5.1.32",
     "lucide-react": "0.561.0",
     "opening_hours": "^3.9.0",
-    "@googlemaps/places": "2.2.0",
     "pg": "^8.16.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -48,4 +49,3 @@
     "@config": "./app/config.ts"
   }
 }
-

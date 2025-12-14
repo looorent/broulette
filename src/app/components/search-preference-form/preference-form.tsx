@@ -1,16 +1,15 @@
 
-import { areLocationEquals, DISTANCE_RANGES, type LocationPreference, type Preference, type ServicePreference } from "@features/search";
-import type { DistanceRange } from "@persistence/enums";
+import { areLocationEquals, DISTANCE_RANGES, type DistanceRangeOption, type LocationPreference, type Preference, type ServicePreference } from "@features/search";
 import { forwardRef, useImperativeHandle, useRef } from "react";
-import { DistanceRangeSelector } from "./form/distange-range-selector";
-import { LocationSelector, type LocationSelectorHandle } from "./form/location-selector";
-import ServiceSelector from "./form/service-selector";
+import { DistanceRangeSelector } from "./distange-range-selector";
+import { LocationSelector, type LocationSelectorHandle } from "./location-selector";
+import ServiceSelector from "./service-selector";
 
 interface PreferencesFormProps {
   services: ServicePreference[];
   preferences: Preference;
   onLocationChange: (newLocation: LocationPreference) => void;
-  onDistanceRangeChange: (newDistanceRange: DistanceRange) => void;
+  onDistanceRangeChange: (newDistanceRange: DistanceRangeOption) => void;
   onServiceChange: (newService: ServicePreference) => void;
 }
 

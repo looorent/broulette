@@ -91,7 +91,7 @@ export function SearchLoaderProvider({ children }: { children: React.ReactNode }
 export function useSearchLoader() {
   const context = useContext(SearchLoaderContext);
   if (!context) {
-    throw new Error("useSearchLoader must be used within a SearchLoaderProvider");
+    throw new Error("useSearchLoader() must be used within a SearchLoaderProvider");
   } else {
     return context;
   }

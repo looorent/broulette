@@ -4,17 +4,17 @@ import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { Form, useSubmit } from "react-router";
 
-interface StartButtonProps {
+interface SearchSubmitButtonProps {
   preferences: Preference;
   onBuzzOnError?: () => void;
   className?: string;
 }
 
-export default function StartButton({
+export function SearchSubmitButton({
   preferences,
   onBuzzOnError,
   className = ""
-}: StartButtonProps) {
+}: SearchSubmitButtonProps) {
   const submit = useSubmit();
   const [isBuzzing, setIsBuzzing] = useState(false);
   const hasErrors = preferences ? !preferences.isValid() : false;

@@ -48,7 +48,7 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
         <button className="
             w-full bg-fun-green
             border-4 border-b-0 border-fun-dark rounded-t-[3rem]
-            p-4 pb-6 shadow-sheet flex flex-col
+            p-4 pb-11 shadow-sheet flex flex-col
             -mb-4
             items-center justify-center gap-2
             transition-transform hover:-translate-y-3 active:translate-y-0 hover:-mb-5  cursor-pointer group relative z-40 animate-float

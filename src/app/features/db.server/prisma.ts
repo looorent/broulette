@@ -1,44 +1,43 @@
+import { PrismaClient } from "@persistence/client";
 import { SearchCandidateStatus } from "@persistence/enums";
-import { PrismaClient } from "@prisma/client/extension";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
-const methodExtention = {
-  model: {
-    search: {
-      async findWithLatestCandidate(this: any, searchId: string) {
-        return await this.search.findUnique({
-          where: { id: searchId },
-          include: {
-            candidates: {
-              select: { id: true, order: true },
-              orderBy: { order: "desc" as const },
-              where: { status: SearchCandidateStatus.Returned },
-              take: 1
+const prismaClientSingleton = () => {
+  const prisma = new PrismaClient({
+    accelerateUrl: import.meta.env.VITE_DATABASE_URL!
+  })
+  .$extends({
+    model: {
+      search: {
+        async findWithLatestCandidate(this: any, searchId: string) {
+          return await prisma.search.findUnique({
+            where: { id: searchId },
+            include: {
+              candidates: {
+                select: { id: true, order: true },
+                orderBy: { order: "desc" as const },
+                where: { status: SearchCandidateStatus.Returned },
+                take: 1
+              },
             },
-          },
-        });
-      },
+          });
+        },
 
-      async findUniqueWithRestaurantAndIdentities(this: any, searchId: string) {
-        return await this.search.findUnique({
-          where: { id: searchId },
-          include: {
-            candidates: {
-              include: { restaurant: { include: { identities: true } } }
+        async findUniqueWithRestaurantAndIdentities(this: any, searchId: string) {
+          return await prisma.search.findUnique({
+            where: { id: searchId },
+            include: {
+              candidates: {
+                include: { restaurant: { include: { identities: true } } }
+              }
             }
-          }
-        });
+          });
+        }
       }
     }
-  }
-};
-
-const prismaClientSingleton = () => {
-  return new PrismaClient({
-    accelerateUrl: process.env.DATABASE_URL!
   })
-    .$extends(methodExtention)
-    .$extends(withAccelerate());
+  .$extends(withAccelerate());
+  return prisma;
 };
 
 export type ExtendedPrismaClient = ReturnType<typeof prismaClientSingleton>;

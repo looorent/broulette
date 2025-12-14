@@ -1,14 +1,17 @@
 import prisma from "@features/db.server/prisma";
 import { buildUrlForCandidate, buildUrlForNewCandidate } from "@features/search.server";
 import { useEffect, useRef } from "react";
-import { useNavigate, useSubmit } from "react-router";
-import type { Route } from "../search/+types/page";
+import { redirect, useNavigate, useSubmit } from "react-router";
+import type { Route } from "./+types/searches.$searchId";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const search = await prisma.search.findWithLatestCandidate(params.searchId);
-  return {
-    search: search
-  };
+  if (params.searchId) {
+    return {
+      search: await prisma.search.findWithLatestCandidate(params.searchId)
+    };
+  } else {
+    return redirect("/");
+  }
 }
 
 export default function SearchPage({ loaderData }: Route.ComponentProps) {
