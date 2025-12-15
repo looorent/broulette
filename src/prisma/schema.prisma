@@ -46,7 +46,7 @@ model Search {
 
   candidates      SearchCandidate[]
 
-   @@map("search")
+  @@map("search")
 }
 
 enum SearchCandidateStatus {
@@ -76,32 +76,38 @@ model SearchCandidate {
   @@map("search_candidate")
 }
 
+
 model Restaurant {
-  id               String @id @default(uuid()) @db.Uuid
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  version          Int @default(1)
+  id                       String @id @default(uuid()) @db.Uuid
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  version                  Int @default(1)
 
-  identities       RestaurantIdentity[]
-  searchCandidates SearchCandidate[]
+  identities               RestaurantIdentity[]
+  searchCandidates         SearchCandidate[]
 
-  matched          Boolean @default(false)
-  matchingAttempts RestaurantMatchingAttempt[]
+  matched                  Boolean @default(false)
+  matchingAttempts         RestaurantMatchingAttempt[]
 
-  name             String @db.VarChar(100)
-  latitude         Float
-  longitude        Float
-  address          String?
-  countryCode      String? @db.VarChar(20)
-  state            String? @db.VarChar(50)
+  name                     String @db.VarChar(100)
+  latitude                 Float
+  longitude                Float
+  address                  String?
+  countryCode              String? @db.VarChar(20)
+  state                    String? @db.VarChar(50)
 
-  description      String?
-  imageUrl         String?
-  rating           Decimal? @db.Decimal(2, 1)
-  phoneNumber      String? @db.VarChar(20)
-  priceRange       Int?
-  openingHours     String?
-  tags             String[] @db.VarChar(30)
+  description              String?
+  imageUrl                 String?
+  rating                   Decimal? @db.Decimal(2, 1)
+  ratingCount              Int?
+  phoneNumber              String? @db.VarChar(20)
+  internationalPhoneNumber String? @db.VarChar(25)
+  priceRange               Int?
+  openingHours             String?
+  tags                     String[] @db.VarChar(30)
+  operational              Boolean?
+  website                  String?
+  sourceWebpage            String?
 
   @@map("restaurant")
 }
@@ -116,7 +122,7 @@ model RestaurantIdentity {
   externalId   String @db.VarChar(255)
   type         String @db.VarChar(50)
 
-  @@unique([source, externalId])
+  @@index([source, externalId]) // I still can assume multiple places might have the same Google Place ID, for instance
   @@map("restaurant_identity")
 }
 

@@ -101,3 +101,8 @@ https://fontawesome.com/icons/spoon?f=classic&s=solid
 docker run --name postgres-biteroulette -e POSTGRES_PASSWORD=biteroulette postgres:18.1
 
 
+Type to ignore: 
+establishment
+point_of_interest
+food
+restaurant

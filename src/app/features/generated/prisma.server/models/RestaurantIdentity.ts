@@ -196,7 +196,6 @@ export type RestaurantIdentityOrderByWithRelationInput = {
 
 export type RestaurantIdentityWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  source_externalId?: Prisma.RestaurantIdentitySourceExternalIdCompoundUniqueInput
   AND?: Prisma.RestaurantIdentityWhereInput | Prisma.RestaurantIdentityWhereInput[]
   OR?: Prisma.RestaurantIdentityWhereInput[]
   NOT?: Prisma.RestaurantIdentityWhereInput | Prisma.RestaurantIdentityWhereInput[]
@@ -205,7 +204,7 @@ export type RestaurantIdentityWhereUniqueInput = Prisma.AtLeast<{
   externalId?: Prisma.StringFilter<"RestaurantIdentity"> | string
   type?: Prisma.StringFilter<"RestaurantIdentity"> | string
   restaurant?: Prisma.XOR<Prisma.RestaurantScalarRelationFilter, Prisma.RestaurantWhereInput>
-}, "id" | "source_externalId">
+}, "id">
 
 export type RestaurantIdentityOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -292,11 +291,6 @@ export type RestaurantIdentityListRelationFilter = {
 
 export type RestaurantIdentityOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type RestaurantIdentitySourceExternalIdCompoundUniqueInput = {
-  source: string
-  externalId: string
 }
 
 export type RestaurantIdentityCountOrderByAggregateInput = {

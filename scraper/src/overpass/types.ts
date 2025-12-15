@@ -1,5 +1,6 @@
 export type OverpassRestaurantType = "way" | "node" | "relation";
 
+// move to "interface"
 export class OverpassRestaurant {
   constructor(
     readonly id: number,
@@ -10,18 +11,6 @@ export class OverpassRestaurant {
     readonly tags: { [tagName: string]: string },
     readonly amenity: string
   ) {}
-
-  clone(): OverpassRestaurant {
-    return new OverpassRestaurant(
-      this.id,
-      this.type,
-      this.name,
-      this.latitude,
-      this.longitude,
-      structuredClone(this.tags),
-      this.amenity
-    );
-  }
 
   // TODO Lorent is this the best option to find a Google place? For TripAdvisor, it is not.
   createSearchableText(): string {
@@ -108,18 +97,6 @@ export class OverpassRestaurant {
   get description(): string | undefined {
     return this.tags["description"];
   }
-
-  asHash(): any {
-    return {
-      id: this.id,
-      type: this.type,
-      name: this.name,
-      latitude: this.latitude,
-      longitude: this.longitude,
-      tags: this.tags,
-      amenity: this.amenity
-    };
-  }
 }
 
 export class OverpassResponse {
@@ -132,28 +109,4 @@ export class OverpassResponse {
     readonly restaurants: OverpassRestaurant[],
     readonly raw: any
   ) {}
-
-  clone(): OverpassResponse {
-    return new OverpassResponse(
-      this.generator,
-      this.version,
-      this.copyright,
-      this.timestampInUtc,
-      this.durationInMs,
-      this.restaurants.map((restaurant) => restaurant.clone()),
-      structuredClone(this.raw)
-    );
-  }
-
-  asHash(): any {
-    return {
-      generator: this.generator,
-      version: this.version,
-      copyright: this.copyright,
-      timestampInUtc: this.timestampInUtc,
-      durationInMs: this.durationInMs,
-      restaurants: this.restaurants?.map((restaurant) => restaurant?.asHash()),
-      raw: this.raw
-    };
-  }
 }

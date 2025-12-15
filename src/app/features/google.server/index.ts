@@ -1,2 +1,2 @@
-export * from "./types";
+export { type GoogleRestaurant } from "./types";
 export * from "./repository";

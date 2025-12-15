@@ -118,10 +118,15 @@ export const RestaurantScalarFieldEnum = {
   description: 'description',
   imageUrl: 'imageUrl',
   rating: 'rating',
+  ratingCount: 'ratingCount',
   phoneNumber: 'phoneNumber',
+  internationalPhoneNumber: 'internationalPhoneNumber',
   priceRange: 'priceRange',
   openingHours: 'openingHours',
-  tags: 'tags'
+  tags: 'tags',
+  operational: 'operational',
+  website: 'website',
+  sourceWebpage: 'sourceWebpage'
 } as const
 
 export type RestaurantScalarFieldEnum = (typeof RestaurantScalarFieldEnum)[keyof typeof RestaurantScalarFieldEnum]

@@ -31,6 +31,7 @@ export type RestaurantAvgAggregateOutputType = {
   latitude: number | null
   longitude: number | null
   rating: runtime.Decimal | null
+  ratingCount: number | null
   priceRange: number | null
 }
 
@@ -39,6 +40,7 @@ export type RestaurantSumAggregateOutputType = {
   latitude: number | null
   longitude: number | null
   rating: runtime.Decimal | null
+  ratingCount: number | null
   priceRange: number | null
 }
 
@@ -57,9 +59,14 @@ export type RestaurantMinAggregateOutputType = {
   description: string | null
   imageUrl: string | null
   rating: runtime.Decimal | null
+  ratingCount: number | null
   phoneNumber: string | null
+  internationalPhoneNumber: string | null
   priceRange: number | null
   openingHours: string | null
+  operational: boolean | null
+  website: string | null
+  sourceWebpage: string | null
 }
 
 export type RestaurantMaxAggregateOutputType = {
@@ -77,9 +84,14 @@ export type RestaurantMaxAggregateOutputType = {
   description: string | null
   imageUrl: string | null
   rating: runtime.Decimal | null
+  ratingCount: number | null
   phoneNumber: string | null
+  internationalPhoneNumber: string | null
   priceRange: number | null
   openingHours: string | null
+  operational: boolean | null
+  website: string | null
+  sourceWebpage: string | null
 }
 
 export type RestaurantCountAggregateOutputType = {
@@ -97,10 +109,15 @@ export type RestaurantCountAggregateOutputType = {
   description: number
   imageUrl: number
   rating: number
+  ratingCount: number
   phoneNumber: number
+  internationalPhoneNumber: number
   priceRange: number
   openingHours: number
   tags: number
+  operational: number
+  website: number
+  sourceWebpage: number
   _all: number
 }
 
@@ -110,6 +127,7 @@ export type RestaurantAvgAggregateInputType = {
   latitude?: true
   longitude?: true
   rating?: true
+  ratingCount?: true
   priceRange?: true
 }
 
@@ -118,6 +136,7 @@ export type RestaurantSumAggregateInputType = {
   latitude?: true
   longitude?: true
   rating?: true
+  ratingCount?: true
   priceRange?: true
 }
 
@@ -136,9 +155,14 @@ export type RestaurantMinAggregateInputType = {
   description?: true
   imageUrl?: true
   rating?: true
+  ratingCount?: true
   phoneNumber?: true
+  internationalPhoneNumber?: true
   priceRange?: true
   openingHours?: true
+  operational?: true
+  website?: true
+  sourceWebpage?: true
 }
 
 export type RestaurantMaxAggregateInputType = {
@@ -156,9 +180,14 @@ export type RestaurantMaxAggregateInputType = {
   description?: true
   imageUrl?: true
   rating?: true
+  ratingCount?: true
   phoneNumber?: true
+  internationalPhoneNumber?: true
   priceRange?: true
   openingHours?: true
+  operational?: true
+  website?: true
+  sourceWebpage?: true
 }
 
 export type RestaurantCountAggregateInputType = {
@@ -176,10 +205,15 @@ export type RestaurantCountAggregateInputType = {
   description?: true
   imageUrl?: true
   rating?: true
+  ratingCount?: true
   phoneNumber?: true
+  internationalPhoneNumber?: true
   priceRange?: true
   openingHours?: true
   tags?: true
+  operational?: true
+  website?: true
+  sourceWebpage?: true
   _all?: true
 }
 
@@ -284,10 +318,15 @@ export type RestaurantGroupByOutputType = {
   description: string | null
   imageUrl: string | null
   rating: runtime.Decimal | null
+  ratingCount: number | null
   phoneNumber: string | null
+  internationalPhoneNumber: string | null
   priceRange: number | null
   openingHours: string | null
   tags: string[]
+  operational: boolean | null
+  website: string | null
+  sourceWebpage: string | null
   _count: RestaurantCountAggregateOutputType | null
   _avg: RestaurantAvgAggregateOutputType | null
   _sum: RestaurantSumAggregateOutputType | null
@@ -328,10 +367,15 @@ export type RestaurantWhereInput = {
   description?: Prisma.StringNullableFilter<"Restaurant"> | string | null
   imageUrl?: Prisma.StringNullableFilter<"Restaurant"> | string | null
   rating?: Prisma.DecimalNullableFilter<"Restaurant"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.IntNullableFilter<"Restaurant"> | number | null
   phoneNumber?: Prisma.StringNullableFilter<"Restaurant"> | string | null
+  internationalPhoneNumber?: Prisma.StringNullableFilter<"Restaurant"> | string | null
   priceRange?: Prisma.IntNullableFilter<"Restaurant"> | number | null
   openingHours?: Prisma.StringNullableFilter<"Restaurant"> | string | null
   tags?: Prisma.StringNullableListFilter<"Restaurant">
+  operational?: Prisma.BoolNullableFilter<"Restaurant"> | boolean | null
+  website?: Prisma.StringNullableFilter<"Restaurant"> | string | null
+  sourceWebpage?: Prisma.StringNullableFilter<"Restaurant"> | string | null
   identities?: Prisma.RestaurantIdentityListRelationFilter
   searchCandidates?: Prisma.SearchCandidateListRelationFilter
   matchingAttempts?: Prisma.RestaurantMatchingAttemptListRelationFilter
@@ -352,10 +396,15 @@ export type RestaurantOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   rating?: Prisma.SortOrderInput | Prisma.SortOrder
+  ratingCount?: Prisma.SortOrderInput | Prisma.SortOrder
   phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  internationalPhoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   priceRange?: Prisma.SortOrderInput | Prisma.SortOrder
   openingHours?: Prisma.SortOrderInput | Prisma.SortOrder
   tags?: Prisma.SortOrder
+  operational?: Prisma.SortOrderInput | Prisma.SortOrder
+  website?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceWebpage?: Prisma.SortOrderInput | Prisma.SortOrder
   identities?: Prisma.RestaurantIdentityOrderByRelationAggregateInput
   searchCandidates?: Prisma.SearchCandidateOrderByRelationAggregateInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptOrderByRelationAggregateInput
@@ -379,10 +428,15 @@ export type RestaurantWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Restaurant"> | string | null
   imageUrl?: Prisma.StringNullableFilter<"Restaurant"> | string | null
   rating?: Prisma.DecimalNullableFilter<"Restaurant"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.IntNullableFilter<"Restaurant"> | number | null
   phoneNumber?: Prisma.StringNullableFilter<"Restaurant"> | string | null
+  internationalPhoneNumber?: Prisma.StringNullableFilter<"Restaurant"> | string | null
   priceRange?: Prisma.IntNullableFilter<"Restaurant"> | number | null
   openingHours?: Prisma.StringNullableFilter<"Restaurant"> | string | null
   tags?: Prisma.StringNullableListFilter<"Restaurant">
+  operational?: Prisma.BoolNullableFilter<"Restaurant"> | boolean | null
+  website?: Prisma.StringNullableFilter<"Restaurant"> | string | null
+  sourceWebpage?: Prisma.StringNullableFilter<"Restaurant"> | string | null
   identities?: Prisma.RestaurantIdentityListRelationFilter
   searchCandidates?: Prisma.SearchCandidateListRelationFilter
   matchingAttempts?: Prisma.RestaurantMatchingAttemptListRelationFilter
@@ -403,10 +457,15 @@ export type RestaurantOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   rating?: Prisma.SortOrderInput | Prisma.SortOrder
+  ratingCount?: Prisma.SortOrderInput | Prisma.SortOrder
   phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  internationalPhoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   priceRange?: Prisma.SortOrderInput | Prisma.SortOrder
   openingHours?: Prisma.SortOrderInput | Prisma.SortOrder
   tags?: Prisma.SortOrder
+  operational?: Prisma.SortOrderInput | Prisma.SortOrder
+  website?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceWebpage?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.RestaurantCountOrderByAggregateInput
   _avg?: Prisma.RestaurantAvgOrderByAggregateInput
   _max?: Prisma.RestaurantMaxOrderByAggregateInput
@@ -432,10 +491,15 @@ export type RestaurantScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"Restaurant"> | string | null
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"Restaurant"> | string | null
   rating?: Prisma.DecimalNullableWithAggregatesFilter<"Restaurant"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.IntNullableWithAggregatesFilter<"Restaurant"> | number | null
   phoneNumber?: Prisma.StringNullableWithAggregatesFilter<"Restaurant"> | string | null
+  internationalPhoneNumber?: Prisma.StringNullableWithAggregatesFilter<"Restaurant"> | string | null
   priceRange?: Prisma.IntNullableWithAggregatesFilter<"Restaurant"> | number | null
   openingHours?: Prisma.StringNullableWithAggregatesFilter<"Restaurant"> | string | null
   tags?: Prisma.StringNullableListFilter<"Restaurant">
+  operational?: Prisma.BoolNullableWithAggregatesFilter<"Restaurant"> | boolean | null
+  website?: Prisma.StringNullableWithAggregatesFilter<"Restaurant"> | string | null
+  sourceWebpage?: Prisma.StringNullableWithAggregatesFilter<"Restaurant"> | string | null
 }
 
 export type RestaurantCreateInput = {
@@ -453,10 +517,15 @@ export type RestaurantCreateInput = {
   description?: string | null
   imageUrl?: string | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: number | null
   phoneNumber?: string | null
+  internationalPhoneNumber?: string | null
   priceRange?: number | null
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
+  operational?: boolean | null
+  website?: string | null
+  sourceWebpage?: string | null
   identities?: Prisma.RestaurantIdentityCreateNestedManyWithoutRestaurantInput
   searchCandidates?: Prisma.SearchCandidateCreateNestedManyWithoutRestaurantInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptCreateNestedManyWithoutRestaurantInput
@@ -477,10 +546,15 @@ export type RestaurantUncheckedCreateInput = {
   description?: string | null
   imageUrl?: string | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: number | null
   phoneNumber?: string | null
+  internationalPhoneNumber?: string | null
   priceRange?: number | null
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
+  operational?: boolean | null
+  website?: string | null
+  sourceWebpage?: string | null
   identities?: Prisma.RestaurantIdentityUncheckedCreateNestedManyWithoutRestaurantInput
   searchCandidates?: Prisma.SearchCandidateUncheckedCreateNestedManyWithoutRestaurantInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptUncheckedCreateNestedManyWithoutRestaurantInput
@@ -501,10 +575,15 @@ export type RestaurantUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internationalPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priceRange?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
+  operational?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebpage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   identities?: Prisma.RestaurantIdentityUpdateManyWithoutRestaurantNestedInput
   searchCandidates?: Prisma.SearchCandidateUpdateManyWithoutRestaurantNestedInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptUpdateManyWithoutRestaurantNestedInput
@@ -525,10 +604,15 @@ export type RestaurantUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internationalPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priceRange?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
+  operational?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebpage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   identities?: Prisma.RestaurantIdentityUncheckedUpdateManyWithoutRestaurantNestedInput
   searchCandidates?: Prisma.SearchCandidateUncheckedUpdateManyWithoutRestaurantNestedInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptUncheckedUpdateManyWithoutRestaurantNestedInput
@@ -549,10 +633,15 @@ export type RestaurantCreateManyInput = {
   description?: string | null
   imageUrl?: string | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: number | null
   phoneNumber?: string | null
+  internationalPhoneNumber?: string | null
   priceRange?: number | null
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
+  operational?: boolean | null
+  website?: string | null
+  sourceWebpage?: string | null
 }
 
 export type RestaurantUpdateManyMutationInput = {
@@ -570,10 +659,15 @@ export type RestaurantUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internationalPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priceRange?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
+  operational?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebpage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type RestaurantUncheckedUpdateManyInput = {
@@ -591,10 +685,15 @@ export type RestaurantUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internationalPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priceRange?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
+  operational?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebpage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type RestaurantScalarRelationFilter = {
@@ -625,10 +724,15 @@ export type RestaurantCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  ratingCount?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
+  internationalPhoneNumber?: Prisma.SortOrder
   priceRange?: Prisma.SortOrder
   openingHours?: Prisma.SortOrder
   tags?: Prisma.SortOrder
+  operational?: Prisma.SortOrder
+  website?: Prisma.SortOrder
+  sourceWebpage?: Prisma.SortOrder
 }
 
 export type RestaurantAvgOrderByAggregateInput = {
@@ -636,6 +740,7 @@ export type RestaurantAvgOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  ratingCount?: Prisma.SortOrder
   priceRange?: Prisma.SortOrder
 }
 
@@ -654,9 +759,14 @@ export type RestaurantMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  ratingCount?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
+  internationalPhoneNumber?: Prisma.SortOrder
   priceRange?: Prisma.SortOrder
   openingHours?: Prisma.SortOrder
+  operational?: Prisma.SortOrder
+  website?: Prisma.SortOrder
+  sourceWebpage?: Prisma.SortOrder
 }
 
 export type RestaurantMinOrderByAggregateInput = {
@@ -674,9 +784,14 @@ export type RestaurantMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  ratingCount?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
+  internationalPhoneNumber?: Prisma.SortOrder
   priceRange?: Prisma.SortOrder
   openingHours?: Prisma.SortOrder
+  operational?: Prisma.SortOrder
+  website?: Prisma.SortOrder
+  sourceWebpage?: Prisma.SortOrder
 }
 
 export type RestaurantSumOrderByAggregateInput = {
@@ -684,6 +799,7 @@ export type RestaurantSumOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  ratingCount?: Prisma.SortOrder
   priceRange?: Prisma.SortOrder
 }
 
@@ -724,6 +840,10 @@ export type NullableIntFieldUpdateOperationsInput = {
 export type RestaurantUpdatetagsInput = {
   set?: string[]
   push?: string | string[]
+}
+
+export type NullableBoolFieldUpdateOperationsInput = {
+  set?: boolean | null
 }
 
 export type RestaurantCreateNestedOneWithoutIdentitiesInput = {
@@ -769,10 +889,15 @@ export type RestaurantCreateWithoutSearchCandidatesInput = {
   description?: string | null
   imageUrl?: string | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: number | null
   phoneNumber?: string | null
+  internationalPhoneNumber?: string | null
   priceRange?: number | null
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
+  operational?: boolean | null
+  website?: string | null
+  sourceWebpage?: string | null
   identities?: Prisma.RestaurantIdentityCreateNestedManyWithoutRestaurantInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptCreateNestedManyWithoutRestaurantInput
 }
@@ -792,10 +917,15 @@ export type RestaurantUncheckedCreateWithoutSearchCandidatesInput = {
   description?: string | null
   imageUrl?: string | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: number | null
   phoneNumber?: string | null
+  internationalPhoneNumber?: string | null
   priceRange?: number | null
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
+  operational?: boolean | null
+  website?: string | null
+  sourceWebpage?: string | null
   identities?: Prisma.RestaurantIdentityUncheckedCreateNestedManyWithoutRestaurantInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptUncheckedCreateNestedManyWithoutRestaurantInput
 }
@@ -831,10 +961,15 @@ export type RestaurantUpdateWithoutSearchCandidatesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internationalPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priceRange?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
+  operational?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebpage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   identities?: Prisma.RestaurantIdentityUpdateManyWithoutRestaurantNestedInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptUpdateManyWithoutRestaurantNestedInput
 }
@@ -854,10 +989,15 @@ export type RestaurantUncheckedUpdateWithoutSearchCandidatesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internationalPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priceRange?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
+  operational?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebpage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   identities?: Prisma.RestaurantIdentityUncheckedUpdateManyWithoutRestaurantNestedInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptUncheckedUpdateManyWithoutRestaurantNestedInput
 }
@@ -877,10 +1017,15 @@ export type RestaurantCreateWithoutIdentitiesInput = {
   description?: string | null
   imageUrl?: string | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: number | null
   phoneNumber?: string | null
+  internationalPhoneNumber?: string | null
   priceRange?: number | null
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
+  operational?: boolean | null
+  website?: string | null
+  sourceWebpage?: string | null
   searchCandidates?: Prisma.SearchCandidateCreateNestedManyWithoutRestaurantInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptCreateNestedManyWithoutRestaurantInput
 }
@@ -900,10 +1045,15 @@ export type RestaurantUncheckedCreateWithoutIdentitiesInput = {
   description?: string | null
   imageUrl?: string | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: number | null
   phoneNumber?: string | null
+  internationalPhoneNumber?: string | null
   priceRange?: number | null
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
+  operational?: boolean | null
+  website?: string | null
+  sourceWebpage?: string | null
   searchCandidates?: Prisma.SearchCandidateUncheckedCreateNestedManyWithoutRestaurantInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptUncheckedCreateNestedManyWithoutRestaurantInput
 }
@@ -939,10 +1089,15 @@ export type RestaurantUpdateWithoutIdentitiesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internationalPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priceRange?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
+  operational?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebpage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   searchCandidates?: Prisma.SearchCandidateUpdateManyWithoutRestaurantNestedInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptUpdateManyWithoutRestaurantNestedInput
 }
@@ -962,10 +1117,15 @@ export type RestaurantUncheckedUpdateWithoutIdentitiesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internationalPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priceRange?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
+  operational?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebpage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   searchCandidates?: Prisma.SearchCandidateUncheckedUpdateManyWithoutRestaurantNestedInput
   matchingAttempts?: Prisma.RestaurantMatchingAttemptUncheckedUpdateManyWithoutRestaurantNestedInput
 }
@@ -985,10 +1145,15 @@ export type RestaurantCreateWithoutMatchingAttemptsInput = {
   description?: string | null
   imageUrl?: string | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: number | null
   phoneNumber?: string | null
+  internationalPhoneNumber?: string | null
   priceRange?: number | null
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
+  operational?: boolean | null
+  website?: string | null
+  sourceWebpage?: string | null
   identities?: Prisma.RestaurantIdentityCreateNestedManyWithoutRestaurantInput
   searchCandidates?: Prisma.SearchCandidateCreateNestedManyWithoutRestaurantInput
 }
@@ -1008,10 +1173,15 @@ export type RestaurantUncheckedCreateWithoutMatchingAttemptsInput = {
   description?: string | null
   imageUrl?: string | null
   rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: number | null
   phoneNumber?: string | null
+  internationalPhoneNumber?: string | null
   priceRange?: number | null
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
+  operational?: boolean | null
+  website?: string | null
+  sourceWebpage?: string | null
   identities?: Prisma.RestaurantIdentityUncheckedCreateNestedManyWithoutRestaurantInput
   searchCandidates?: Prisma.SearchCandidateUncheckedCreateNestedManyWithoutRestaurantInput
 }
@@ -1047,10 +1217,15 @@ export type RestaurantUpdateWithoutMatchingAttemptsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internationalPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priceRange?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
+  operational?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebpage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   identities?: Prisma.RestaurantIdentityUpdateManyWithoutRestaurantNestedInput
   searchCandidates?: Prisma.SearchCandidateUpdateManyWithoutRestaurantNestedInput
 }
@@ -1070,10 +1245,15 @@ export type RestaurantUncheckedUpdateWithoutMatchingAttemptsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  ratingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internationalPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priceRange?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
+  operational?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebpage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   identities?: Prisma.RestaurantIdentityUncheckedUpdateManyWithoutRestaurantNestedInput
   searchCandidates?: Prisma.SearchCandidateUncheckedUpdateManyWithoutRestaurantNestedInput
 }
@@ -1142,10 +1322,15 @@ export type RestaurantSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   description?: boolean
   imageUrl?: boolean
   rating?: boolean
+  ratingCount?: boolean
   phoneNumber?: boolean
+  internationalPhoneNumber?: boolean
   priceRange?: boolean
   openingHours?: boolean
   tags?: boolean
+  operational?: boolean
+  website?: boolean
+  sourceWebpage?: boolean
   identities?: boolean | Prisma.Restaurant$identitiesArgs<ExtArgs>
   searchCandidates?: boolean | Prisma.Restaurant$searchCandidatesArgs<ExtArgs>
   matchingAttempts?: boolean | Prisma.Restaurant$matchingAttemptsArgs<ExtArgs>
@@ -1167,10 +1352,15 @@ export type RestaurantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   description?: boolean
   imageUrl?: boolean
   rating?: boolean
+  ratingCount?: boolean
   phoneNumber?: boolean
+  internationalPhoneNumber?: boolean
   priceRange?: boolean
   openingHours?: boolean
   tags?: boolean
+  operational?: boolean
+  website?: boolean
+  sourceWebpage?: boolean
 }, ExtArgs["result"]["restaurant"]>
 
 export type RestaurantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1188,10 +1378,15 @@ export type RestaurantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   description?: boolean
   imageUrl?: boolean
   rating?: boolean
+  ratingCount?: boolean
   phoneNumber?: boolean
+  internationalPhoneNumber?: boolean
   priceRange?: boolean
   openingHours?: boolean
   tags?: boolean
+  operational?: boolean
+  website?: boolean
+  sourceWebpage?: boolean
 }, ExtArgs["result"]["restaurant"]>
 
 export type RestaurantSelectScalar = {
@@ -1209,13 +1404,18 @@ export type RestaurantSelectScalar = {
   description?: boolean
   imageUrl?: boolean
   rating?: boolean
+  ratingCount?: boolean
   phoneNumber?: boolean
+  internationalPhoneNumber?: boolean
   priceRange?: boolean
   openingHours?: boolean
   tags?: boolean
+  operational?: boolean
+  website?: boolean
+  sourceWebpage?: boolean
 }
 
-export type RestaurantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "version" | "matched" | "name" | "latitude" | "longitude" | "address" | "countryCode" | "state" | "description" | "imageUrl" | "rating" | "phoneNumber" | "priceRange" | "openingHours" | "tags", ExtArgs["result"]["restaurant"]>
+export type RestaurantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "version" | "matched" | "name" | "latitude" | "longitude" | "address" | "countryCode" | "state" | "description" | "imageUrl" | "rating" | "ratingCount" | "phoneNumber" | "internationalPhoneNumber" | "priceRange" | "openingHours" | "tags" | "operational" | "website" | "sourceWebpage", ExtArgs["result"]["restaurant"]>
 export type RestaurantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   identities?: boolean | Prisma.Restaurant$identitiesArgs<ExtArgs>
   searchCandidates?: boolean | Prisma.Restaurant$searchCandidatesArgs<ExtArgs>
@@ -1247,10 +1447,15 @@ export type $RestaurantPayload<ExtArgs extends runtime.Types.Extensions.Internal
     description: string | null
     imageUrl: string | null
     rating: runtime.Decimal | null
+    ratingCount: number | null
     phoneNumber: string | null
+    internationalPhoneNumber: string | null
     priceRange: number | null
     openingHours: string | null
     tags: string[]
+    operational: boolean | null
+    website: string | null
+    sourceWebpage: string | null
   }, ExtArgs["result"]["restaurant"]>
   composites: {}
 }
@@ -1691,10 +1896,15 @@ export interface RestaurantFieldRefs {
   readonly description: Prisma.FieldRef<"Restaurant", 'String'>
   readonly imageUrl: Prisma.FieldRef<"Restaurant", 'String'>
   readonly rating: Prisma.FieldRef<"Restaurant", 'Decimal'>
+  readonly ratingCount: Prisma.FieldRef<"Restaurant", 'Int'>
   readonly phoneNumber: Prisma.FieldRef<"Restaurant", 'String'>
+  readonly internationalPhoneNumber: Prisma.FieldRef<"Restaurant", 'String'>
   readonly priceRange: Prisma.FieldRef<"Restaurant", 'Int'>
   readonly openingHours: Prisma.FieldRef<"Restaurant", 'String'>
   readonly tags: Prisma.FieldRef<"Restaurant", 'String[]'>
+  readonly operational: Prisma.FieldRef<"Restaurant", 'Boolean'>
+  readonly website: Prisma.FieldRef<"Restaurant", 'String'>
+  readonly sourceWebpage: Prisma.FieldRef<"Restaurant", 'String'>
 }
     
 

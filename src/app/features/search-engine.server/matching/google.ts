@@ -65,21 +65,25 @@ async function updateRestaurantWithGoogle(
   restaurant: RestaurantWithIdentities
 ): Promise<RestaurantWithIdentities> {
   if (google) {
-    const countryCode = google.addressComponents?.find(component => component?.types?.includes("country"));
     return await prisma.restaurant.update({
       where: { id: restaurant.id },
       data: {
-        name: google.displayName?.text ?? google.name ?? restaurant.name,
-        latitude: google.location.latitude ?? restaurant.latitude,
-        longitude: google.location.longitude ?? restaurant.longitude,
+        name: google.displayName ?? google.name ?? restaurant.name,
+        latitude: google.location?.latitude ?? restaurant.latitude,
+        longitude: google.location?.longitude ?? restaurant.longitude,
         version: restaurant.version + 1,
-        address: google.formattedAddress ?? restaurant.address,
+        address: google.formattedAddress ?? google.shortFormattedAddress ?? restaurant.address,
         rating: (google.rating ? new Prisma.Decimal(google.rating) : null) ?? restaurant.rating,
-        phoneNumber: google.internationalPhoneNumber ?? restaurant.phoneNumber,
-        priceRange: google.toPriceLevelAsNumber() ?? restaurant.priceRange,
+        ratingCount: google.userRatingCount !== null && google.userRatingCount !== undefined ? google.userRatingCount : undefined,
+        phoneNumber: google.nationalPhoneNumber ?? restaurant.phoneNumber,
+        internationalPhoneNumber: google.internationalPhoneNumber ?? restaurant.internationalPhoneNumber,
+        priceRange: google.priceLevel ?? restaurant.priceRange,
         tags: google.types ?? restaurant.tags,
-        openingHours: google?.toOsmOpeningHours() || restaurant.openingHours,
-        countryCode: countryCode?.shortText?.toLowerCase() || restaurant.countryCode,
+        openingHours: google.openingHours || restaurant.openingHours,
+        countryCode: google.countryCode || restaurant.countryCode,
+        sourceWebpage: google.googleMapsUri,
+        website: google.websiteUri ?? restaurant.website,
+        operational: google.operational,
         matched: true,
         // description: restaurant.description,
         // imageUrl: restaurant.imageUrl, TODO

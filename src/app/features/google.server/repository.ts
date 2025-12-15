@@ -1,7 +1,26 @@
+import { computeViewportFromCircle } from "@features/coordinate";
 import { PlacesClient, type protos } from "@googlemaps/places";
-import { GoogleRestaurant } from "./types";
+import { convertGooglePeriodsToOpeningHours } from "./opening-hours";
+import type { GoogleRestaurant } from "./types";
 
-const COMPLETE_FIELDS_FILTER = "*"; // TODO reduce this mask
+const FIELDS_MASK = [
+  "places.id",
+  "places.name",
+  "places.displayName",
+  "places.location",
+  "places.formattedAddress",
+  "places.addressComponents",
+  "places.types",
+  "places.businessStatus",
+  "places.googleMapsUri",
+  "places.rating",
+  "places.regularOpeningHours",
+  "places.nationalPhoneNumber",
+  "places.internationalPhoneNumber",
+  "places.priceRange",
+  "places.userRatingCount",
+  "places.primaryType"
+].join(",");
 
 export async function findGoogleRestaurantById(
   placeId: string,
@@ -20,7 +39,7 @@ export async function findGoogleRestaurantById(
       maxRetries: retry,
       otherArgs: {
         headers: {
-          "X-Goog-FieldMask": COMPLETE_FIELDS_FILTER
+          "X-Goog-FieldMask": FIELDS_MASK
         }
       }
     }
@@ -48,16 +67,21 @@ async function findPlacesByText(
     apiKey: apiKey
   });
 
+  // using the "locationRestrictions" is superior to "locationBias" that returns unwanted results (like far far far away from the origin point)
+  const viewport = computeViewportFromCircle({ latitude: latitude, longitude: longitude }, radiusInMeters);
   const response = await placesClient.searchText(
     {
       rankPreference: "RELEVANCE",
-      locationBias: {
-        circle: {
-          center: {
-            latitude: latitude,
-            longitude: longitude
+      locationRestriction: {
+        rectangle: {
+          low: {
+            latitude: viewport.bottomLeft.latitude,
+            longitude: viewport.bottomLeft.longitude
           },
-          radius: radiusInMeters
+          high: {
+            latitude: viewport.topRight.latitude,
+            longitude: viewport.topRight.longitude
+          }
         }
       },
       textQuery: searchableText
@@ -91,7 +115,7 @@ export async function findGoogleRestaurantByText(
         longitude,
         radiusInMeters,
         1,
-        COMPLETE_FIELDS_FILTER,
+        FIELDS_MASK,
         apiKey,
         timeout
       )
@@ -107,46 +131,57 @@ function convertGooglePlaceToRestaurant(
   place: protos.google.maps.places.v1.IPlace
 ): GoogleRestaurant | undefined {
   if (place) {
-    return new GoogleRestaurant(
-      place.id!,
-      place.displayName?.text || "Unknown",
-      place.types!,
-      place.nationalPhoneNumber!,
-      place.internationalPhoneNumber!,
-      place.formattedAddress!,
-      place.addressComponents!,
-      place.location!,
-      place.viewport!,
-      place.rating!,
-      place.googleMapsUri!,
-      place.websiteUri!,
-      place.regularOpeningHours!,
-      place.utcOffsetMinutes!,
-      place.adrFormatAddress!,
-      place.businessStatus!,
-      place.priceLevel!,
-      place.userRatingCount!,
-      place.iconMaskBaseUri!,
-      place.iconBackgroundColor!,
-      place.displayName!,
-      place.primaryTypeDisplayName!,
-      place.takeout!,
-      place.delivery!,
-      place.dineIn!,
-      place.reservable!,
-      place.servesBreakfast!,
-      place.servesLunch!,
-      place.servesDinner!,
-      place.servesBeer!,
-      place.servesWine!,
-      place.servesBrunch!,
-      place.servesVegetarianFood!,
-      place.currentOpeningHours!,
-      place.primaryType!,
-      place.shortFormattedAddress!,
-      place.photos!,
-      place
-    );
+    return {
+      id: place.id!,
+      name: place.name,
+      displayName: place.displayName?.text,
+      types: place.types || [],
+      primaryType: place.primaryType,
+      nationalPhoneNumber: place.nationalPhoneNumber,
+      internationalPhoneNumber: place.internationalPhoneNumber,
+      formattedAddress: place.formattedAddress,
+      countryCode: place.addressComponents?.find(component => component?.types?.includes("country"))?.shortText?.toLowerCase(),
+      shortFormattedAddress: place.shortFormattedAddress,
+      location: location ? {
+        latitude: place?.location!.latitude!,
+        longitude: place?.location!.longitude!
+      } : undefined,
+      rating: place.rating,
+      userRatingCount: place.userRatingCount,
+      googleMapsUri: place.googleMapsUri,
+      websiteUri: place.websiteUri,
+      openingHours: place.regularOpeningHours ? convertGooglePeriodsToOpeningHours(place.regularOpeningHours) : undefined,
+      operational: convertBusinessStatusToOperational(place.businessStatus?.toString()),
+      priceLevel: convertPriceLevelToNumber(place.priceLevel?.toString())
+    }
+  } else {
+    return undefined;
+  }
+}
+
+
+function convertPriceLevelToNumber(priceLevel: string | undefined | null): number | null {
+  switch (priceLevel) {
+    case "PRICE_LEVEL_INEXPENSIVE":
+      return 1;
+    case "PRICE_LEVEL_MODERATE":
+      return 2;
+    case "PRICE_LEVEL_EXPENSIVE":
+      return 3;
+    case "PRICE_LEVEL_VERY_EXPENSIVE":
+      return 4;
+    case "PRICE_LEVEL_FREE":
+      return 0;
+    case "PRICE_LEVEL_UNSPECIFIED":
+    default:
+      return null;
+  }
+}
+
+const OPERATIONAL_BUSINESS_STATUS = "OPERATIONAL"
+function convertBusinessStatusToOperational(status: string | undefined | null): boolean | undefined {
+  if (status) {
+    return status === OPERATIONAL_BUSINESS_STATUS;
   } else {
     return undefined;
   }
