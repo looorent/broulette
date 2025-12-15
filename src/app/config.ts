@@ -45,7 +45,14 @@ export const DEFAULT_SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
       searchRadiusInMeters: Number(import.meta.env.VITE_GOOGLE_SEARCH_RADIUS_IN_METERS || 50),
       maxNumberOfAttemptsPerMonth: Number(import.meta.env.VITE_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || 200),
       retry: Number(import.meta.env.VITE_GOOGLE_RETRY || 3),
-      timeOutInMilliseconds: Number(import.meta.env.VITE_GOOGLE_PLACE_API_TIMEOUT_IN_SECONDS || 10000)
+      timeOutInMilliseconds: Number(import.meta.env.VITE_GOOGLE_PLACE_API_TIMEOUT_IN_SECONDS || 10000),
+      similarity: {
+        weight: {
+          name: 0.4,
+          location: 0.6
+        },
+        maxDistanceInMeters: Number(import.meta.env.VITE_GOOGLE_SEARCH_RADIUS_IN_METERS || 50)
+      }
     }
   }
 }

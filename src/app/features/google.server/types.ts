@@ -1,8 +1,8 @@
 import type { Coordinates } from "@features/coordinate";
-import { type protos } from "@googlemaps/places";
 
 export interface GoogleRestaurant {
   id: string;
+  location: Coordinates | undefined | null;
   name: string | undefined | null;
   displayName: string | undefined | null;
   types: string[];
@@ -12,7 +12,6 @@ export interface GoogleRestaurant {
   formattedAddress: string | undefined | null;
   countryCode: string | undefined | null;
   shortFormattedAddress: string | undefined | null;
-  location: Coordinates | undefined | null;
   rating: number | undefined | null;
   userRatingCount: number | undefined | null;
   googleMapsUri: string | undefined | null;

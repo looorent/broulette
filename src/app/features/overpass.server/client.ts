@@ -1,6 +1,6 @@
 import { createCircuitBreaker } from "@features/circuit-breaker.server";
 import { OsmEmptyResponseError, OsmHttpError, OsmServerError } from "./error";
-import { OverpassResponse, OverpassRestaurant } from "./types";
+import type { OverpassResponse, OverpassRestaurant } from "./types";
 
 const OVERPASS_API_INSTANCE_URL = import.meta.env.VITE_OVERPASS_API_INSTANCE_URL || "https://overpass-api.de/api/interpreter";
 const OVERPASS_API_TIMEOUT_IN_SECONDS = import.meta.env.VITE_OVERPASS_API_TIMEOUT_IN_SECONDS || 5000;
@@ -63,16 +63,35 @@ function buildExclusionQuery(idsToExclude: { osmId: string; osmType: string }[])
 function parseRestaurantFromResponse(
   body: any
 ): OverpassRestaurant | undefined {
-  if (body) {
-    return new OverpassRestaurant(
-      body.id,
-      body.type,
-      body.tags?.name,
-      body.lat || body.center?.lat || 0,
-      body.lon || body.center?.lon || 0,
-      body.tags || {},
-      body.tags?.amenity
-    );
+  const latitude = body?.lat || body?.center?.lat;
+  const longitude = body?.lon || body?.center?.lon;
+  if (latitude && longitude) {
+    const countryCode = body.tags["addr:country"];
+    const street = body.tags["addr:street"];
+    const houseNumber = body.tags["addr:housenumber"];
+    const city = body.tags["addr:city"];
+    const postCode = body.tags["addr:postcode"];
+
+    return {
+      id: body.id,
+      type: body.type,
+      name: body.tags?.name,
+      location: {
+        latitude: latitude,
+        longitude: longitude
+      },
+      tags: body.tags || [],
+      amenity: body.tags["amenity"],
+      cuisine: body.tags["cuisine"],
+      countryCode: countryCode?.toLowerCase(),
+      street: street,
+      city: city,
+      postCode: postCode,
+      formattedAddress: createFormattedAddress(street, houseNumber, city, postCode, countryCode),
+      website: body.tags["website"] ?? body.tags["contact:facebook"],
+      openingHours: body.tags["opening_hours"],
+      description: body.tags["description"]
+    }
   } else {
     return undefined;
   }
@@ -83,15 +102,14 @@ function parseResponse(
   durationInMs: number
 ): OverpassResponse | undefined {
   if (body) {
-    return new OverpassResponse(
-      body.generator,
-      body.version,
-      body.osm3s?.copyright,
-      body.osm3s?.timestamp_osm_base,
-      durationInMs,
-      body.elements?.map(parseRestaurantFromResponse)?.filter(Boolean) || [],
-      body
-    );
+    return {
+      generator: body.generator,
+      version: body.version,
+      copyright: body.osm3s?.copyright,
+      timestampInUtc: body.osm3s?.timestamp_osm_base,
+      durationInMs: durationInMs,
+      restaurants: body.elements?.map(parseRestaurantFromResponse)?.filter(Boolean) || []
+    };
   } else {
     return undefined;
   }
@@ -169,5 +187,32 @@ export function parseOverpassId(id: string): number | undefined {
   } else {
     const parsed = parseInt(id, 10);
     return isNaN(parsed) ? undefined : parsed;
+  }
+}
+
+// TODO Review
+function createFormattedAddress(
+  street?: string,
+  houseNumber?: string,
+  city?: string,
+  postCode?: string,
+  countryCode?: string
+): string | undefined {
+  if (!street && !city && !postCode) {
+    return undefined;
+  } else {
+    const cleanStreet = street?.trim() || "";
+    const cleanHouseNumber = houseNumber?.trim() || "";
+    const cleanCity = city?.trim() || "";
+    const cleanPostCode = postCode?.trim() || "";
+    const code = countryCode?.toLowerCase()?.trim();
+    const isEuroStyle = ["be", "fr", "de", "nl", "es", "it", "at", "ch", "pl", "dk", "no", "se", "fi"].includes(code || "");
+    if (isEuroStyle) {
+      const cityPart = [cleanPostCode, cleanCity].filter(Boolean).join(" ");
+      return [cleanStreet, cleanHouseNumber, cityPart].filter(Boolean).join(", ");
+    } else {
+      const locationPart = [cleanCity, cleanPostCode].filter(Boolean).join(" ");
+      return [cleanStreet, cleanHouseNumber, locationPart].filter(Boolean).join(", ");
+    }
   }
 }

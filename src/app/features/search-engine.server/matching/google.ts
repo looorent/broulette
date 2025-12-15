@@ -1,6 +1,6 @@
 import { GOOGLE_PLACE_SOURCE_NAME } from "@config";
 import prisma from "@features/db.server/prisma";
-import { findGoogleRestaurantById, findGoogleRestaurantByText, type GoogleRestaurant } from "@features/google.server";
+import { findGoogleRestaurantById, searchGoogleRestaurantByText, type GoogleRestaurant } from "@features/google.server";
 import { registerAttemptToGooglePlaceById, registerAttemptToGooglePlaceByText } from "@features/rate-limiting.server";
 import { thirtyDaysAgo } from "@features/utils/date";
 import { Prisma } from "@persistence/client";
@@ -33,14 +33,15 @@ async function enrichWithGoogle(
     googleRestaurant = await findGoogleRestaurantById(googleIdentity.externalId, configuration.google.apiKey, configuration.google.retry);
     await registerAttemptToGooglePlaceById(googleIdentity.externalId, restaurant.id, googleRestaurant);
   } else {
-    const query = restaurant.name; // TODO use another attributes to search
-    googleRestaurant = await findGoogleRestaurantByText(
+    const query = restaurant.name;
+    googleRestaurant = await searchGoogleRestaurantByText(
       query,
       restaurant.latitude,
       restaurant.longitude,
       configuration.google.searchRadiusInMeters,
       configuration.google.apiKey,
-      configuration.google.timeOutInMilliseconds
+      configuration.google.timeOutInMilliseconds,
+      configuration.google.similarity
     );
     await registerAttemptToGooglePlaceByText(query, restaurant.latitude, restaurant.longitude, configuration.google.searchRadiusInMeters, restaurant.id, googleRestaurant);
 

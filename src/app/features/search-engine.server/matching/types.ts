@@ -1,3 +1,4 @@
+import type { GoogleSimilarityConfiguration } from "@features/google.server";
 import type { Prisma } from "@persistence/client";
 
 export type RestaurantWithIdentities = Prisma.RestaurantGetPayload<{
@@ -14,6 +15,7 @@ export interface RestaurantMatchingConfig {
     maxNumberOfAttemptsPerMonth: number;
     retry: number;
     timeOutInMilliseconds: number;
+    similarity: GoogleSimilarityConfiguration;
   }
 }
 

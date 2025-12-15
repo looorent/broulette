@@ -1,2 +1,3 @@
 export { type GoogleRestaurant } from "./types";
-export * from "./repository";
+export { type GoogleSimilarityConfiguration } from "./similarity";
+export * from "./client";

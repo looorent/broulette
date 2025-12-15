@@ -2,6 +2,7 @@ import { computeViewportFromCircle } from "@features/coordinate";
 import { PlacesClient, type protos } from "@googlemaps/places";
 import { convertGooglePeriodsToOpeningHours } from "./opening-hours";
 import type { GoogleRestaurant } from "./types";
+import { compareSimilarity, type GoogleSimilarityConfiguration } from "./similarity";
 
 const FIELDS_MASK = [
   "places.id",
@@ -99,14 +100,16 @@ async function findPlacesByText(
   return response?.[0]?.places || [];
 }
 
-export async function findGoogleRestaurantByText(
+export async function searchGoogleRestaurantByText(
   searchableText: string,
   latitude: number,
   longitude: number,
   radiusInMeters: number,
   apiKey: string,
-  timeout: number
+  timeout: number,
+  similarityConfiguration: GoogleSimilarityConfiguration
 ): Promise<GoogleRestaurant | undefined> {
+  const comparable = { name: searchableText, location: { latitude: latitude, longitude: longitude } };
   return (
     (
       await findPlacesByText(
@@ -114,7 +117,7 @@ export async function findGoogleRestaurantByText(
         latitude,
         longitude,
         radiusInMeters,
-        1,
+        3,
         FIELDS_MASK,
         apiKey,
         timeout
@@ -122,7 +125,9 @@ export async function findGoogleRestaurantByText(
     )
     .map(convertGooglePlaceToRestaurant)
     ?.filter(Boolean)
-    .map((restaurant) => restaurant!)
+    ?.map((restaurant) => ({ restaurant: restaurant!, match: compareSimilarity(comparable, restaurant!, similarityConfiguration) }))
+    ?.sort((a, b) => b.match.totalScore - a.match.totalScore)
+    ?.map(match => match.restaurant)
     ?.[0]
   );
 }
@@ -158,7 +163,6 @@ function convertGooglePlaceToRestaurant(
     return undefined;
   }
 }
-
 
 function convertPriceLevelToNumber(priceLevel: string | undefined | null): number | null {
   switch (priceLevel) {

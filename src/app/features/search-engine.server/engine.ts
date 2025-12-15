@@ -1,11 +1,11 @@
 import prisma from "@features/db.server/prisma";
 import { SearchCandidateStatus, ServiceTimeslot, type RestaurantIdentity, type SearchCandidate } from "@persistence/client";
 import { RestaurantDiscoveryScanner } from "./discovery/core";
-import { enrichRestaurant } from "./matching/core";
 import { SearchNotFoundError } from "./error";
+import { enrichRestaurant } from "./matching/core";
 import { randomize } from "./randomization/randomizer";
-import { validateRestaurant } from "./validation/validator";
 import type { SearchEngineConfiguration } from "./types";
+import { validateRestaurant } from "./validation/validator";
 
 // TODO profiling
 export async function searchCandidate(
