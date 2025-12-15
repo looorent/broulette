@@ -3,10 +3,9 @@ import { shareSocial, triggerHaptics } from "@features/browser.client";
 import prisma from "@features/db.server/prisma";
 import { createMapLink } from "@features/map";
 import { findSourceIn } from "@features/restaurant.server";
-import { buildUrlForCandidate, buildUrlForNewCandidate } from "@features/search.server";
 import { MapPin, Navigation, Phone, RefreshCw, Share2, Star } from "lucide-react";
 import { useEffect } from "react";
-import { redirect, useSubmit } from "react-router";
+import { href, redirect, useSubmit } from "react-router";
 import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId";
 
 // If the latest restaurant is a "Rejected", we should return it, and adapt the screen (to make sure a search is done, you can add "it's dead" status on the search itself)
@@ -18,7 +17,7 @@ export async function loader({ params }: Route.LoaderArgs) {
     const searchWithLatestCandidate = await prisma.search.findWithLatestCandidate(searchId);
 
     if (searchWithLatestCandidate && searchWithLatestCandidate.candidates?.length > 0) {
-      throw redirect(buildUrlForCandidate(searchId, searchWithLatestCandidate.candidates[0].id), { status: 303 }); // TODO validate
+      throw redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: searchId, candidateId: searchWithLatestCandidate.candidates[0].id }), { status: 303 }); // TODO validate
     } else {
       // TODO manage error
       throw redirect("/");
@@ -42,8 +41,8 @@ export async function loader({ params }: Route.LoaderArgs) {
 
     if (candidate) {
       const hasExpired = new Date() > candidate.search.serviceEnd;
-      const currentUrl = buildUrlForCandidate(candidate.searchId, candidate.id);
-      const newCandidateUrl = buildUrlForNewCandidate(candidate.searchId)
+      const currentUrl = href("/searches/:searchId/candidates/:candidateId", { searchId: candidate.searchId, candidateId: candidate.id });
+      const newCandidateUrl = href("/searches/:searchId/candidates", { searchId: candidate.searchId });
       return {
         currentUrl: currentUrl,
         newCandidateUrl: newCandidateUrl,

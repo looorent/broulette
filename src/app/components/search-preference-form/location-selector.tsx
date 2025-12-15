@@ -5,7 +5,7 @@ import { LocationSuggestionSelector } from "./location-suggestion-selector";
 import { createDeviceLocation, hasCoordinates, type LocationPreference } from "@features/search";
 import { getDeviceLocation, isGeolocationSupported, useDebounce } from "@features/browser.client";
 import { useAlertContext } from "@components/alert/context";
-import type { action as addressLoader } from "@routes/api.address-search";
+import type { action as addressLoader } from "@routes/_.api.address-searches";
 
 export interface LocationSelectorHandle {
   handleClose: () => void;

@@ -1,8 +1,7 @@
-import { searchCandidate } from "@features/search-engine.server";
-import { buildUrlForCandidate } from "@features/search.server";
-import { redirect } from "react-router";
-import type { Route } from "./+types/searches.$searchId_.candidates._index";
 import { DEFAULT_SEARCH_ENGINE_CONFIGURATION } from "@config";
+import { searchCandidate } from "@features/search-engine.server";
+import { href, redirect } from "react-router";
+import type { Route } from "./+types/searches.$searchId_.candidates._index";
 
 export async function action({
   request,
@@ -12,7 +11,7 @@ export async function action({
   if (searchId) {
     const candidate = await searchCandidate(searchId, DEFAULT_SEARCH_ENGINE_CONFIGURATION);
     if (candidate) {
-      return redirect(buildUrlForCandidate(candidate.searchId, candidate.id));
+      return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: candidate.searchId, candidateId: candidate.id }));
     } else {
       // TODO manage error
       return redirect("/"); // we should display a message
@@ -23,5 +22,5 @@ export async function action({
 }
 
 export async function loader({ params }: Route.LoaderArgs) {
-  return redirect(buildUrlForCandidate(params.searchId, "latest"));
+  return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: params.searchId, candidateId: "latest" }));
 }

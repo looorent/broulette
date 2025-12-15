@@ -1,7 +1,6 @@
 import prisma from "@features/db.server/prisma";
-import { buildUrlForCandidate, buildUrlForNewCandidate } from "@features/search.server";
 import { useEffect, useRef } from "react";
-import { redirect, useNavigate, useSubmit } from "react-router";
+import { href, redirect, useNavigate, useSubmit } from "react-router";
 import type { Route } from "./+types/searches.$searchId";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -28,13 +27,13 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
       done.current = true;
 
       if (latestCandidate) {
-        navigate(buildUrlForCandidate(search.id, latestCandidate.id), { replace: true }); // TODO move this to the loader (the url build)
+        navigate(href("/searches/:searchId/candidates/:candidateId", { searchId: search.id, candidateId: latestCandidate.id }), { replace: true })
       } else if (loaderData.search) {
         submit({
           searchId: loaderData.search.id
         }, {
           method: "POST",
-          action: buildUrlForNewCandidate(search!.id),
+          action: href("/searches/:searchId/candidates", { searchId: search!.id }),
           replace: true,
           viewTransition: true
         });
