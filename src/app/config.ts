@@ -26,7 +26,10 @@ export const GOOGLE_PLACE_SOURCE_NAME = "google_place";
 export const OVERPASS_SOURCE_NAME = "osm";
 
 export const RESTAURANT_TYPES_TO_EXCLUDE: string[] = [
-  "restaurant"
+  "restaurant",
+  "establishment",
+  "point_of_interest",
+  "food",
 ];
 
 export const DEFAULT_SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
@@ -34,6 +37,10 @@ export const DEFAULT_SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
     toExclude: import.meta.env.VITE_TAGS_TO_EXCLUDE?.split(',')?.map((tag: string) => tag.trim()) || RESTAURANT_TYPES_TO_EXCLUDE
   },
   discovery: {
+    overpass: {
+      instanceUrl: import.meta.env.VITE_OVERPASS_API_INSTANCE_URL || "https://overpass-api.de/api/interpreter",
+      timeoutInSeconds: import.meta.env.VITE_OVERPASS_API_TIMEOUT || 10
+    },
     initialDiscoveryRangeMeters: Number(import.meta.env.VITE_ENGINE_DEFAULT_INITIAL_DISCOVERY_RANGE_METERS ?? 5000),
     discoveryRangeIncreaseMeters: Number(import.meta.env.VITE_ENGINE_DEFAULT_DISCOVERY_RANGE_INCREASE_METERS ?? 3000),
     maxDiscoveryIterations: Number(import.meta.env.VITE_ENGINE_DEFAULT_MAX_DISCOVERY_ITERATIONS ?? 3)

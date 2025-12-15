@@ -5,9 +5,6 @@ CREATE TYPE "service_timeslot" AS ENUM ('Dinner', 'Lunch', 'RightNow', 'Custom')
 CREATE TYPE "distance_range" AS ENUM ('Close', 'MidRange', 'Far');
 
 -- CreateEnum
-CREATE TYPE "restaurant_identity_lookup_status" AS ENUM ('FOUND', 'NOT_FOUND');
-
--- CreateEnum
 CREATE TYPE "search_candidate_status" AS ENUM ('Rejected', 'Returned');
 
 -- CreateTable
@@ -55,10 +52,15 @@ CREATE TABLE "restaurant" (
     "description" TEXT,
     "imageUrl" TEXT,
     "rating" DECIMAL(2,1),
+    "ratingCount" INTEGER,
     "phoneNumber" VARCHAR(20),
+    "internationalPhoneNumber" VARCHAR(25),
     "priceRange" INTEGER,
     "openingHours" TEXT,
     "tags" VARCHAR(30)[],
+    "operational" BOOLEAN,
+    "website" TEXT,
+    "sourceWebpage" TEXT,
 
     CONSTRAINT "restaurant_pkey" PRIMARY KEY ("id")
 );
@@ -84,7 +86,7 @@ CREATE TABLE "restaurant_matching_attempt" (
     "radius" INTEGER,
     "query" TEXT,
     "source" VARCHAR(50) NOT NULL,
-    "status" "restaurant_identity_lookup_status" NOT NULL,
+    "found" BOOLEAN NOT NULL,
     "attemptedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "restaurant_matching_attempt_pkey" PRIMARY KEY ("id")
@@ -94,7 +96,7 @@ CREATE TABLE "restaurant_matching_attempt" (
 CREATE INDEX "search_candidate_searchId_status_idx" ON "search_candidate"("searchId", "status");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "restaurant_identity_source_externalId_key" ON "restaurant_identity"("source", "externalId");
+CREATE INDEX "restaurant_identity_source_externalId_idx" ON "restaurant_identity"("source", "externalId");
 
 -- CreateIndex
 CREATE INDEX "restaurant_matching_attempt_source_idx" ON "restaurant_matching_attempt"("source");

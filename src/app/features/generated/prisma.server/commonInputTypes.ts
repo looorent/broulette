@@ -322,23 +322,6 @@ export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedBoolNullableFilter<$PrismaModel>
 }
 
-export type EnumRestaurantIdentityLookupStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.RestaurantIdentityLookupStatus | Prisma.EnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.RestaurantIdentityLookupStatus[] | Prisma.ListEnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.RestaurantIdentityLookupStatus[] | Prisma.ListEnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumRestaurantIdentityLookupStatusFilter<$PrismaModel> | $Enums.RestaurantIdentityLookupStatus
-}
-
-export type EnumRestaurantIdentityLookupStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.RestaurantIdentityLookupStatus | Prisma.EnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.RestaurantIdentityLookupStatus[] | Prisma.ListEnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.RestaurantIdentityLookupStatus[] | Prisma.ListEnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumRestaurantIdentityLookupStatusWithAggregatesFilter<$PrismaModel> | $Enums.RestaurantIdentityLookupStatus
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumRestaurantIdentityLookupStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumRestaurantIdentityLookupStatusFilter<$PrismaModel>
-}
-
 export type NestedUuidFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -645,23 +628,6 @@ export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedBoolNullableFilter<$PrismaModel>
   _max?: Prisma.NestedBoolNullableFilter<$PrismaModel>
-}
-
-export type NestedEnumRestaurantIdentityLookupStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.RestaurantIdentityLookupStatus | Prisma.EnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.RestaurantIdentityLookupStatus[] | Prisma.ListEnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.RestaurantIdentityLookupStatus[] | Prisma.ListEnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumRestaurantIdentityLookupStatusFilter<$PrismaModel> | $Enums.RestaurantIdentityLookupStatus
-}
-
-export type NestedEnumRestaurantIdentityLookupStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.RestaurantIdentityLookupStatus | Prisma.EnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.RestaurantIdentityLookupStatus[] | Prisma.ListEnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.RestaurantIdentityLookupStatus[] | Prisma.ListEnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumRestaurantIdentityLookupStatusWithAggregatesFilter<$PrismaModel> | $Enums.RestaurantIdentityLookupStatus
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumRestaurantIdentityLookupStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumRestaurantIdentityLookupStatusFilter<$PrismaModel>
 }
 
 

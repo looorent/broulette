@@ -23,7 +23,7 @@ export function registerAttemptToGooglePlaceById(
     data: {
       queryType: "id",
       source: GOOGLE_PLACE_SOURCE_NAME,
-      status: found ? "FOUND" : "NOT_FOUND", // TODO const?
+      found: found !== undefined && found !== null,
       restaurantId: restaurantId,
       query: placeId?.toString()
     }
@@ -41,7 +41,7 @@ export function registerAttemptToGooglePlaceByText(query: string,
     data: {
       queryType: "text",
       source: GOOGLE_PLACE_SOURCE_NAME,
-      status: found ? "FOUND" : "NOT_FOUND",
+      found: found !== undefined && found !== null,
       restaurantId: restaurantId,
       query: query,
       latitude: latitude,

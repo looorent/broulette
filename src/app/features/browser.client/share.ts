@@ -22,6 +22,6 @@ export async function shareSocial(
   } else if (isClipboardSupported()) {
     copyToClipboard(url);
   } else {
-    // TODO console.warn
+    console.warn("No sharing or clipboard capabilities enabled.");
   }
 }

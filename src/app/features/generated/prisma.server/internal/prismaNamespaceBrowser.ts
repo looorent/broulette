@@ -152,7 +152,7 @@ export const RestaurantMatchingAttemptScalarFieldEnum = {
   radius: 'radius',
   query: 'query',
   source: 'source',
-  status: 'status',
+  found: 'found',
   attemptedAt: 'attemptedAt'
 } as const
 

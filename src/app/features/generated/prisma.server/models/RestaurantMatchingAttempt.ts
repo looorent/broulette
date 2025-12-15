@@ -47,7 +47,7 @@ export type RestaurantMatchingAttemptMinAggregateOutputType = {
   radius: number | null
   query: string | null
   source: string | null
-  status: $Enums.RestaurantIdentityLookupStatus | null
+  found: boolean | null
   attemptedAt: Date | null
 }
 
@@ -60,7 +60,7 @@ export type RestaurantMatchingAttemptMaxAggregateOutputType = {
   radius: number | null
   query: string | null
   source: string | null
-  status: $Enums.RestaurantIdentityLookupStatus | null
+  found: boolean | null
   attemptedAt: Date | null
 }
 
@@ -73,7 +73,7 @@ export type RestaurantMatchingAttemptCountAggregateOutputType = {
   radius: number
   query: number
   source: number
-  status: number
+  found: number
   attemptedAt: number
   _all: number
 }
@@ -100,7 +100,7 @@ export type RestaurantMatchingAttemptMinAggregateInputType = {
   radius?: true
   query?: true
   source?: true
-  status?: true
+  found?: true
   attemptedAt?: true
 }
 
@@ -113,7 +113,7 @@ export type RestaurantMatchingAttemptMaxAggregateInputType = {
   radius?: true
   query?: true
   source?: true
-  status?: true
+  found?: true
   attemptedAt?: true
 }
 
@@ -126,7 +126,7 @@ export type RestaurantMatchingAttemptCountAggregateInputType = {
   radius?: true
   query?: true
   source?: true
-  status?: true
+  found?: true
   attemptedAt?: true
   _all?: true
 }
@@ -226,7 +226,7 @@ export type RestaurantMatchingAttemptGroupByOutputType = {
   radius: number | null
   query: string | null
   source: string
-  status: $Enums.RestaurantIdentityLookupStatus
+  found: boolean
   attemptedAt: Date
   _count: RestaurantMatchingAttemptCountAggregateOutputType | null
   _avg: RestaurantMatchingAttemptAvgAggregateOutputType | null
@@ -262,7 +262,7 @@ export type RestaurantMatchingAttemptWhereInput = {
   radius?: Prisma.IntNullableFilter<"RestaurantMatchingAttempt"> | number | null
   query?: Prisma.StringNullableFilter<"RestaurantMatchingAttempt"> | string | null
   source?: Prisma.StringFilter<"RestaurantMatchingAttempt"> | string
-  status?: Prisma.EnumRestaurantIdentityLookupStatusFilter<"RestaurantMatchingAttempt"> | $Enums.RestaurantIdentityLookupStatus
+  found?: Prisma.BoolFilter<"RestaurantMatchingAttempt"> | boolean
   attemptedAt?: Prisma.DateTimeFilter<"RestaurantMatchingAttempt"> | Date | string
   restaurant?: Prisma.XOR<Prisma.RestaurantScalarRelationFilter, Prisma.RestaurantWhereInput>
 }
@@ -276,7 +276,7 @@ export type RestaurantMatchingAttemptOrderByWithRelationInput = {
   radius?: Prisma.SortOrderInput | Prisma.SortOrder
   query?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  found?: Prisma.SortOrder
   attemptedAt?: Prisma.SortOrder
   restaurant?: Prisma.RestaurantOrderByWithRelationInput
 }
@@ -293,7 +293,7 @@ export type RestaurantMatchingAttemptWhereUniqueInput = Prisma.AtLeast<{
   radius?: Prisma.IntNullableFilter<"RestaurantMatchingAttempt"> | number | null
   query?: Prisma.StringNullableFilter<"RestaurantMatchingAttempt"> | string | null
   source?: Prisma.StringFilter<"RestaurantMatchingAttempt"> | string
-  status?: Prisma.EnumRestaurantIdentityLookupStatusFilter<"RestaurantMatchingAttempt"> | $Enums.RestaurantIdentityLookupStatus
+  found?: Prisma.BoolFilter<"RestaurantMatchingAttempt"> | boolean
   attemptedAt?: Prisma.DateTimeFilter<"RestaurantMatchingAttempt"> | Date | string
   restaurant?: Prisma.XOR<Prisma.RestaurantScalarRelationFilter, Prisma.RestaurantWhereInput>
 }, "id">
@@ -307,7 +307,7 @@ export type RestaurantMatchingAttemptOrderByWithAggregationInput = {
   radius?: Prisma.SortOrderInput | Prisma.SortOrder
   query?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  found?: Prisma.SortOrder
   attemptedAt?: Prisma.SortOrder
   _count?: Prisma.RestaurantMatchingAttemptCountOrderByAggregateInput
   _avg?: Prisma.RestaurantMatchingAttemptAvgOrderByAggregateInput
@@ -328,7 +328,7 @@ export type RestaurantMatchingAttemptScalarWhereWithAggregatesInput = {
   radius?: Prisma.IntNullableWithAggregatesFilter<"RestaurantMatchingAttempt"> | number | null
   query?: Prisma.StringNullableWithAggregatesFilter<"RestaurantMatchingAttempt"> | string | null
   source?: Prisma.StringWithAggregatesFilter<"RestaurantMatchingAttempt"> | string
-  status?: Prisma.EnumRestaurantIdentityLookupStatusWithAggregatesFilter<"RestaurantMatchingAttempt"> | $Enums.RestaurantIdentityLookupStatus
+  found?: Prisma.BoolWithAggregatesFilter<"RestaurantMatchingAttempt"> | boolean
   attemptedAt?: Prisma.DateTimeWithAggregatesFilter<"RestaurantMatchingAttempt"> | Date | string
 }
 
@@ -340,7 +340,7 @@ export type RestaurantMatchingAttemptCreateInput = {
   radius?: number | null
   query?: string | null
   source: string
-  status: $Enums.RestaurantIdentityLookupStatus
+  found: boolean
   attemptedAt?: Date | string
   restaurant: Prisma.RestaurantCreateNestedOneWithoutMatchingAttemptsInput
 }
@@ -354,7 +354,7 @@ export type RestaurantMatchingAttemptUncheckedCreateInput = {
   radius?: number | null
   query?: string | null
   source: string
-  status: $Enums.RestaurantIdentityLookupStatus
+  found: boolean
   attemptedAt?: Date | string
 }
 
@@ -366,7 +366,7 @@ export type RestaurantMatchingAttemptUpdateInput = {
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumRestaurantIdentityLookupStatusFieldUpdateOperationsInput | $Enums.RestaurantIdentityLookupStatus
+  found?: Prisma.BoolFieldUpdateOperationsInput | boolean
   attemptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   restaurant?: Prisma.RestaurantUpdateOneRequiredWithoutMatchingAttemptsNestedInput
 }
@@ -380,7 +380,7 @@ export type RestaurantMatchingAttemptUncheckedUpdateInput = {
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumRestaurantIdentityLookupStatusFieldUpdateOperationsInput | $Enums.RestaurantIdentityLookupStatus
+  found?: Prisma.BoolFieldUpdateOperationsInput | boolean
   attemptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -393,7 +393,7 @@ export type RestaurantMatchingAttemptCreateManyInput = {
   radius?: number | null
   query?: string | null
   source: string
-  status: $Enums.RestaurantIdentityLookupStatus
+  found: boolean
   attemptedAt?: Date | string
 }
 
@@ -405,7 +405,7 @@ export type RestaurantMatchingAttemptUpdateManyMutationInput = {
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumRestaurantIdentityLookupStatusFieldUpdateOperationsInput | $Enums.RestaurantIdentityLookupStatus
+  found?: Prisma.BoolFieldUpdateOperationsInput | boolean
   attemptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -418,7 +418,7 @@ export type RestaurantMatchingAttemptUncheckedUpdateManyInput = {
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumRestaurantIdentityLookupStatusFieldUpdateOperationsInput | $Enums.RestaurantIdentityLookupStatus
+  found?: Prisma.BoolFieldUpdateOperationsInput | boolean
   attemptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -441,7 +441,7 @@ export type RestaurantMatchingAttemptCountOrderByAggregateInput = {
   radius?: Prisma.SortOrder
   query?: Prisma.SortOrder
   source?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  found?: Prisma.SortOrder
   attemptedAt?: Prisma.SortOrder
 }
 
@@ -460,7 +460,7 @@ export type RestaurantMatchingAttemptMaxOrderByAggregateInput = {
   radius?: Prisma.SortOrder
   query?: Prisma.SortOrder
   source?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  found?: Prisma.SortOrder
   attemptedAt?: Prisma.SortOrder
 }
 
@@ -473,7 +473,7 @@ export type RestaurantMatchingAttemptMinOrderByAggregateInput = {
   radius?: Prisma.SortOrder
   query?: Prisma.SortOrder
   source?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  found?: Prisma.SortOrder
   attemptedAt?: Prisma.SortOrder
 }
 
@@ -525,10 +525,6 @@ export type RestaurantMatchingAttemptUncheckedUpdateManyWithoutRestaurantNestedI
   deleteMany?: Prisma.RestaurantMatchingAttemptScalarWhereInput | Prisma.RestaurantMatchingAttemptScalarWhereInput[]
 }
 
-export type EnumRestaurantIdentityLookupStatusFieldUpdateOperationsInput = {
-  set?: $Enums.RestaurantIdentityLookupStatus
-}
-
 export type RestaurantMatchingAttemptCreateWithoutRestaurantInput = {
   id?: string
   queryType: string
@@ -537,7 +533,7 @@ export type RestaurantMatchingAttemptCreateWithoutRestaurantInput = {
   radius?: number | null
   query?: string | null
   source: string
-  status: $Enums.RestaurantIdentityLookupStatus
+  found: boolean
   attemptedAt?: Date | string
 }
 
@@ -549,7 +545,7 @@ export type RestaurantMatchingAttemptUncheckedCreateWithoutRestaurantInput = {
   radius?: number | null
   query?: string | null
   source: string
-  status: $Enums.RestaurantIdentityLookupStatus
+  found: boolean
   attemptedAt?: Date | string
 }
 
@@ -591,7 +587,7 @@ export type RestaurantMatchingAttemptScalarWhereInput = {
   radius?: Prisma.IntNullableFilter<"RestaurantMatchingAttempt"> | number | null
   query?: Prisma.StringNullableFilter<"RestaurantMatchingAttempt"> | string | null
   source?: Prisma.StringFilter<"RestaurantMatchingAttempt"> | string
-  status?: Prisma.EnumRestaurantIdentityLookupStatusFilter<"RestaurantMatchingAttempt"> | $Enums.RestaurantIdentityLookupStatus
+  found?: Prisma.BoolFilter<"RestaurantMatchingAttempt"> | boolean
   attemptedAt?: Prisma.DateTimeFilter<"RestaurantMatchingAttempt"> | Date | string
 }
 
@@ -603,7 +599,7 @@ export type RestaurantMatchingAttemptCreateManyRestaurantInput = {
   radius?: number | null
   query?: string | null
   source: string
-  status: $Enums.RestaurantIdentityLookupStatus
+  found: boolean
   attemptedAt?: Date | string
 }
 
@@ -615,7 +611,7 @@ export type RestaurantMatchingAttemptUpdateWithoutRestaurantInput = {
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumRestaurantIdentityLookupStatusFieldUpdateOperationsInput | $Enums.RestaurantIdentityLookupStatus
+  found?: Prisma.BoolFieldUpdateOperationsInput | boolean
   attemptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -627,7 +623,7 @@ export type RestaurantMatchingAttemptUncheckedUpdateWithoutRestaurantInput = {
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumRestaurantIdentityLookupStatusFieldUpdateOperationsInput | $Enums.RestaurantIdentityLookupStatus
+  found?: Prisma.BoolFieldUpdateOperationsInput | boolean
   attemptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -639,7 +635,7 @@ export type RestaurantMatchingAttemptUncheckedUpdateManyWithoutRestaurantInput =
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumRestaurantIdentityLookupStatusFieldUpdateOperationsInput | $Enums.RestaurantIdentityLookupStatus
+  found?: Prisma.BoolFieldUpdateOperationsInput | boolean
   attemptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -654,7 +650,7 @@ export type RestaurantMatchingAttemptSelect<ExtArgs extends runtime.Types.Extens
   radius?: boolean
   query?: boolean
   source?: boolean
-  status?: boolean
+  found?: boolean
   attemptedAt?: boolean
   restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["restaurantMatchingAttempt"]>
@@ -668,7 +664,7 @@ export type RestaurantMatchingAttemptSelectCreateManyAndReturn<ExtArgs extends r
   radius?: boolean
   query?: boolean
   source?: boolean
-  status?: boolean
+  found?: boolean
   attemptedAt?: boolean
   restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["restaurantMatchingAttempt"]>
@@ -682,7 +678,7 @@ export type RestaurantMatchingAttemptSelectUpdateManyAndReturn<ExtArgs extends r
   radius?: boolean
   query?: boolean
   source?: boolean
-  status?: boolean
+  found?: boolean
   attemptedAt?: boolean
   restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["restaurantMatchingAttempt"]>
@@ -696,11 +692,11 @@ export type RestaurantMatchingAttemptSelectScalar = {
   radius?: boolean
   query?: boolean
   source?: boolean
-  status?: boolean
+  found?: boolean
   attemptedAt?: boolean
 }
 
-export type RestaurantMatchingAttemptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "restaurantId" | "queryType" | "latitude" | "longitude" | "radius" | "query" | "source" | "status" | "attemptedAt", ExtArgs["result"]["restaurantMatchingAttempt"]>
+export type RestaurantMatchingAttemptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "restaurantId" | "queryType" | "latitude" | "longitude" | "radius" | "query" | "source" | "found" | "attemptedAt", ExtArgs["result"]["restaurantMatchingAttempt"]>
 export type RestaurantMatchingAttemptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
 }
@@ -725,7 +721,7 @@ export type $RestaurantMatchingAttemptPayload<ExtArgs extends runtime.Types.Exte
     radius: number | null
     query: string | null
     source: string
-    status: $Enums.RestaurantIdentityLookupStatus
+    found: boolean
     attemptedAt: Date
   }, ExtArgs["result"]["restaurantMatchingAttempt"]>
   composites: {}
@@ -1159,7 +1155,7 @@ export interface RestaurantMatchingAttemptFieldRefs {
   readonly radius: Prisma.FieldRef<"RestaurantMatchingAttempt", 'Int'>
   readonly query: Prisma.FieldRef<"RestaurantMatchingAttempt", 'String'>
   readonly source: Prisma.FieldRef<"RestaurantMatchingAttempt", 'String'>
-  readonly status: Prisma.FieldRef<"RestaurantMatchingAttempt", 'RestaurantIdentityLookupStatus'>
+  readonly found: Prisma.FieldRef<"RestaurantMatchingAttempt", 'Boolean'>
   readonly attemptedAt: Prisma.FieldRef<"RestaurantMatchingAttempt", 'DateTime'>
 }
     

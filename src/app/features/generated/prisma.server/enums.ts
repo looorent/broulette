@@ -28,14 +28,6 @@ export const DistanceRange = {
 export type DistanceRange = (typeof DistanceRange)[keyof typeof DistanceRange]
 
 
-export const RestaurantIdentityLookupStatus = {
-  FOUND: 'FOUND',
-  NOT_FOUND: 'NOT_FOUND'
-} as const
-
-export type RestaurantIdentityLookupStatus = (typeof RestaurantIdentityLookupStatus)[keyof typeof RestaurantIdentityLookupStatus]
-
-
 export const SearchCandidateStatus = {
   Rejected: 'Rejected',
   Returned: 'Returned'

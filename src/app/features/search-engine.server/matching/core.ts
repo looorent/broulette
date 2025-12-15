@@ -1,7 +1,6 @@
 import prisma from "@features/db.server/prisma";
 import { isOlderThanAMonth } from "@features/utils/date";
-import type { DiscoveredRestaurant } from "../discovery/core";
-import type { DiscoveredRestaurantIdentity } from "../discovery/types";
+import type { DiscoveredRestaurant, DiscoveredRestaurantIdentity } from "../discovery/types";
 import { GOOGLE_MATCHER } from "./google";
 import type { Matcher, Matching, RestaurantMatchingConfig, RestaurantWithIdentities } from "./types";
 
@@ -77,6 +76,13 @@ async function saveRestaurantToDatabase(discovered: DiscoveredRestaurant) {
       latitude: discovered.coordinates.latitude!,
       longitude: discovered.coordinates.longitude!,
       tags: filterTags(discovered.tags),
+      address: discovered.formattedAddress,
+      countryCode: discovered.countryCode,
+      internationalPhoneNumber: discovered.internationalPhoneNumber,
+      phoneNumber: discovered.phoneNumber,
+      state: discovered.addressState,
+      description: discovered.description,
+      website: discovered.website,
       matched: false,
       openingHours: discovered.openingHours,
       identities: { create: discovered.identity }

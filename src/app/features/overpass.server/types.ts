@@ -8,11 +8,13 @@ export interface OverpassRestaurant {
   name: string;
   location: Coordinates;
   tags: { [tagName: string]: string };
+  phoneNumber: string | undefined;
   amenity: string | undefined;
   cuisine: string | undefined;
   countryCode: string | undefined;
   street: string | undefined;
   city: string | undefined;
+  addressState: string | undefined;
   postCode: string | undefined;
   formattedAddress: string | undefined;
   website: string | undefined;

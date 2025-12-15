@@ -1,8 +1,8 @@
 import { computeViewportFromCircle } from "@features/coordinate";
 import { PlacesClient, type protos } from "@googlemaps/places";
 import { convertGooglePeriodsToOpeningHours } from "./opening-hours";
-import type { GoogleRestaurant } from "./types";
 import { compareSimilarity, type GoogleSimilarityConfiguration } from "./similarity";
+import type { GoogleRestaurant } from "./types";
 
 const FIELDS_MASK = [
   "places.id",
@@ -135,10 +135,10 @@ export async function searchGoogleRestaurantByText(
 function convertGooglePlaceToRestaurant(
   place: protos.google.maps.places.v1.IPlace
 ): GoogleRestaurant | undefined {
-  if (place) {
+  if (place && place.location) {
     return {
       id: place.id!,
-      name: place.name,
+      name: place.displayName?.text,
       displayName: place.displayName?.text,
       types: place.types || [],
       primaryType: place.primaryType,
@@ -147,9 +147,9 @@ function convertGooglePlaceToRestaurant(
       formattedAddress: place.formattedAddress,
       countryCode: place.addressComponents?.find(component => component?.types?.includes("country"))?.shortText?.toLowerCase(),
       shortFormattedAddress: place.shortFormattedAddress,
-      location: location ? {
-        latitude: place?.location!.latitude!,
-        longitude: place?.location!.longitude!
+      location: place.location?.latitude && place.location?.longitude ? {
+        latitude: place?.location!.latitude,
+        longitude: place?.location!.longitude
       } : undefined,
       rating: place.rating,
       userRatingCount: place.userRatingCount,
@@ -182,7 +182,7 @@ function convertPriceLevelToNumber(priceLevel: string | undefined | null): numbe
   }
 }
 
-const OPERATIONAL_BUSINESS_STATUS = "OPERATIONAL"
+const OPERATIONAL_BUSINESS_STATUS = "OPERATIONAL";
 function convertBusinessStatusToOperational(status: string | undefined | null): boolean | undefined {
   if (status) {
     return status === OPERATIONAL_BUSINESS_STATUS;

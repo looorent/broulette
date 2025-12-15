@@ -895,7 +895,7 @@ export const RestaurantMatchingAttemptScalarFieldEnum = {
   radius: 'radius',
   query: 'query',
   source: 'source',
-  status: 'status',
+  found: 'found',
   attemptedAt: 'attemptedAt'
 } as const
 
@@ -1048,20 +1048,6 @@ export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
  * Reference to a field of type 'Decimal[]'
  */
 export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
-    
-
-
-/**
- * Reference to a field of type 'RestaurantIdentityLookupStatus'
- */
-export type EnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RestaurantIdentityLookupStatus'>
-    
-
-
-/**
- * Reference to a field of type 'RestaurantIdentityLookupStatus[]'
- */
-export type ListEnumRestaurantIdentityLookupStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RestaurantIdentityLookupStatus[]'>
     
 
 /**

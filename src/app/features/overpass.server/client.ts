@@ -2,15 +2,12 @@ import { createCircuitBreaker } from "@features/circuit-breaker.server";
 import { OsmEmptyResponseError, OsmHttpError, OsmServerError } from "./error";
 import type { OverpassResponse, OverpassRestaurant } from "./types";
 
-const OVERPASS_API_INSTANCE_URL = import.meta.env.VITE_OVERPASS_API_INSTANCE_URL || "https://overpass-api.de/api/interpreter";
-const OVERPASS_API_TIMEOUT_IN_SECONDS = import.meta.env.VITE_OVERPASS_API_TIMEOUT_IN_SECONDS || 5000;
-
 function createQueryToListAllRestaurantsNearby(
   latitude: number,
   longitude: number,
   distanceRangeInMeters: number,
   idsToExclude: { osmId: string; osmType: string }[],
-  timeoutInSeconds: number = OVERPASS_API_TIMEOUT_IN_SECONDS
+  timeoutInSeconds: number
 ): string {
   const exclusionQuery = buildExclusionQuery(idsToExclude);
   const exclusionBlock = exclusionQuery
@@ -120,14 +117,15 @@ export async function fetchAllRestaurantsNearby(
   longitude: number,
   distanceRangeInMeters: number,
   idsToExclude: { osmId: string; osmType: string }[],
-  timeoutInSeconds: number = OVERPASS_API_TIMEOUT_IN_SECONDS
+  instanceUrl: string,
+  timeoutInSeconds: number
 ): Promise<OverpassResponse | undefined> {
   console.info(
     `[OSM] Fetching all OSM restaurants nearby '${latitude},${longitude}'...`
   );
   const query = createQueryToListAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, timeoutInSeconds);
   const start = Date.now();
-  const response = await fetch(OVERPASS_API_INSTANCE_URL, {
+  const response = await fetch(instanceUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
@@ -174,10 +172,11 @@ export async function fetchAllRestaurantsNearbyWithRetry(
   longitude: number,
   distanceRangeInMeters: number,
   idsToExclude: { osmId: string; osmType: string }[],
-  timeoutInSeconds: number = OVERPASS_API_TIMEOUT_IN_SECONDS
+  instanceUrl: string,
+  timeoutInSeconds: number
 ): Promise<OverpassResponse | undefined> {
   return await createCircuitBreaker(() =>
-    fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, timeoutInSeconds)
+    fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, instanceUrl, timeoutInSeconds)
   );
 }
 

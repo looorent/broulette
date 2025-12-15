@@ -13,7 +13,7 @@ function createQueryToListAllRestaurantsInCountry(
   return `
         [out:json][timeout:${timeoutInSeconds}];
         area["ISO3166-1"="${countryCodeInIso3166}"]->.searchArea;
-        nwr["amenity"~"restaurant|fast_food"]["name"](area.searchArea);
+        nwr["amenity"~"restaurant|fast_food"](area.searchArea);
         out tags center qt;
     `.trim();
 }

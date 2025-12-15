@@ -24,13 +24,6 @@ enum DistanceRange {
   @@map("distance_range")
 }
 
-enum RestaurantIdentityLookupStatus {
-  FOUND
-  NOT_FOUND
-
-  @@map("restaurant_identity_lookup_status")
-}
-
 model Search {
   id              String @id @default(uuid()) @db.Uuid
   latitude        Float
@@ -126,9 +119,8 @@ model RestaurantIdentity {
   @@map("restaurant_identity")
 }
 
-// TODO add a "matching score" to assess ourselves if the restaurant matches properly
 model RestaurantMatchingAttempt {
-  id           String   @id @default(uuid()) @db.Uuid
+  id           String @id @default(uuid()) @db.Uuid
 
   restaurantId String @db.Uuid
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
@@ -140,7 +132,7 @@ model RestaurantMatchingAttempt {
   query        String?
 
   source       String @db.VarChar(50)
-  status       RestaurantIdentityLookupStatus
+  found        Boolean
 
   attemptedAt  DateTime @default(now())
 
