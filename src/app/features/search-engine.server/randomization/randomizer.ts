@@ -1,4 +1,4 @@
-import type { DiscoveredRestaurant } from "./discovery";
+import type { DiscoveredRestaurant } from "../discovery/core";
 
 export async function randomize(restaurants: DiscoveredRestaurant[]): Promise<DiscoveredRestaurant[]> {
   const shuffled = [...restaurants];

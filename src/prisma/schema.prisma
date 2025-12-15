@@ -12,12 +12,23 @@ enum ServiceTimeslot {
   Lunch
   RightNow
   Custom
+
+   @@map("service_timeslot")
 }
 
 enum DistanceRange {
   Close
   MidRange
   Far
+
+  @@map("distance_range")
+}
+
+enum RestaurantIdentityLookupStatus {
+  FOUND
+  NOT_FOUND
+
+  @@map("restaurant_identity_lookup_status")
 }
 
 model Search {
@@ -34,12 +45,15 @@ model Search {
   serviceEnd      DateTime
 
   candidates      SearchCandidate[]
+
+   @@map("search")
 }
 
 enum SearchCandidateStatus {
   Rejected
   Returned
-  Pending
+
+  @@map("search_candidate_status")
 }
 
 model SearchCandidate {
@@ -53,11 +67,13 @@ model SearchCandidate {
   restaurantId    String @db.Uuid
   restaurant      Restaurant @relation(fields: [restaurantId], references: [id])
 
-  status          SearchCandidateStatus @default(Pending)
+  status          SearchCandidateStatus
 
   rejectionReason String? @db.VarChar(50)
 
   @@index([searchId, status])
+
+  @@map("search_candidate")
 }
 
 model Restaurant {
@@ -68,6 +84,9 @@ model Restaurant {
 
   identities       RestaurantIdentity[]
   searchCandidates SearchCandidate[]
+
+  matched          Boolean @default(false)
+  matchingAttempts RestaurantMatchingAttempt[]
 
   name             String @db.VarChar(100)
   latitude         Float
@@ -83,6 +102,8 @@ model Restaurant {
   priceRange       Int?
   openingHours     String?
   tags             String[] @db.VarChar(30)
+
+  @@map("restaurant")
 }
 
 model RestaurantIdentity {
@@ -96,4 +117,27 @@ model RestaurantIdentity {
   type         String @db.VarChar(50)
 
   @@unique([source, externalId])
+  @@map("restaurant_identity")
+}
+
+// TODO add a "matching score" to assess ourselves if the restaurant matches properly
+model RestaurantMatchingAttempt {
+  id           String   @id @default(uuid()) @db.Uuid
+
+  restaurantId String @db.Uuid
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+
+  queryType    String
+  latitude     Decimal?
+  longitude    Decimal?
+  radius       Int?
+  query        String?
+
+  source       String @db.VarChar(50)
+  status       RestaurantIdentityLookupStatus
+
+  attemptedAt  DateTime @default(now())
+
+  @@index(source)
+  @@map("restaurant_matching_attempt")
 }

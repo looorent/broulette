@@ -59,3 +59,8 @@ export type Restaurant = Prisma.RestaurantModel
  * 
  */
 export type RestaurantIdentity = Prisma.RestaurantIdentityModel
+/**
+ * Model RestaurantMatchingAttempt
+ * 
+ */
+export type RestaurantMatchingAttempt = Prisma.RestaurantMatchingAttemptModel

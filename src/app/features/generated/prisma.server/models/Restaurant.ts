@@ -47,6 +47,7 @@ export type RestaurantMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   version: number | null
+  matched: boolean | null
   name: string | null
   latitude: number | null
   longitude: number | null
@@ -66,6 +67,7 @@ export type RestaurantMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   version: number | null
+  matched: boolean | null
   name: string | null
   latitude: number | null
   longitude: number | null
@@ -85,6 +87,7 @@ export type RestaurantCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   version: number
+  matched: number
   name: number
   latitude: number
   longitude: number
@@ -123,6 +126,7 @@ export type RestaurantMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   version?: true
+  matched?: true
   name?: true
   latitude?: true
   longitude?: true
@@ -142,6 +146,7 @@ export type RestaurantMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   version?: true
+  matched?: true
   name?: true
   latitude?: true
   longitude?: true
@@ -161,6 +166,7 @@ export type RestaurantCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   version?: true
+  matched?: true
   name?: true
   latitude?: true
   longitude?: true
@@ -268,6 +274,7 @@ export type RestaurantGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   version: number
+  matched: boolean
   name: string
   latitude: number
   longitude: number
@@ -311,6 +318,7 @@ export type RestaurantWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Restaurant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Restaurant"> | Date | string
   version?: Prisma.IntFilter<"Restaurant"> | number
+  matched?: Prisma.BoolFilter<"Restaurant"> | boolean
   name?: Prisma.StringFilter<"Restaurant"> | string
   latitude?: Prisma.FloatFilter<"Restaurant"> | number
   longitude?: Prisma.FloatFilter<"Restaurant"> | number
@@ -326,6 +334,7 @@ export type RestaurantWhereInput = {
   tags?: Prisma.StringNullableListFilter<"Restaurant">
   identities?: Prisma.RestaurantIdentityListRelationFilter
   searchCandidates?: Prisma.SearchCandidateListRelationFilter
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptListRelationFilter
 }
 
 export type RestaurantOrderByWithRelationInput = {
@@ -333,6 +342,7 @@ export type RestaurantOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  matched?: Prisma.SortOrder
   name?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -348,6 +358,7 @@ export type RestaurantOrderByWithRelationInput = {
   tags?: Prisma.SortOrder
   identities?: Prisma.RestaurantIdentityOrderByRelationAggregateInput
   searchCandidates?: Prisma.SearchCandidateOrderByRelationAggregateInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptOrderByRelationAggregateInput
 }
 
 export type RestaurantWhereUniqueInput = Prisma.AtLeast<{
@@ -358,6 +369,7 @@ export type RestaurantWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Restaurant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Restaurant"> | Date | string
   version?: Prisma.IntFilter<"Restaurant"> | number
+  matched?: Prisma.BoolFilter<"Restaurant"> | boolean
   name?: Prisma.StringFilter<"Restaurant"> | string
   latitude?: Prisma.FloatFilter<"Restaurant"> | number
   longitude?: Prisma.FloatFilter<"Restaurant"> | number
@@ -373,6 +385,7 @@ export type RestaurantWhereUniqueInput = Prisma.AtLeast<{
   tags?: Prisma.StringNullableListFilter<"Restaurant">
   identities?: Prisma.RestaurantIdentityListRelationFilter
   searchCandidates?: Prisma.SearchCandidateListRelationFilter
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptListRelationFilter
 }, "id">
 
 export type RestaurantOrderByWithAggregationInput = {
@@ -380,6 +393,7 @@ export type RestaurantOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  matched?: Prisma.SortOrder
   name?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -408,6 +422,7 @@ export type RestaurantScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Restaurant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Restaurant"> | Date | string
   version?: Prisma.IntWithAggregatesFilter<"Restaurant"> | number
+  matched?: Prisma.BoolWithAggregatesFilter<"Restaurant"> | boolean
   name?: Prisma.StringWithAggregatesFilter<"Restaurant"> | string
   latitude?: Prisma.FloatWithAggregatesFilter<"Restaurant"> | number
   longitude?: Prisma.FloatWithAggregatesFilter<"Restaurant"> | number
@@ -428,6 +443,7 @@ export type RestaurantCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
+  matched?: boolean
   name: string
   latitude: number
   longitude: number
@@ -443,6 +459,7 @@ export type RestaurantCreateInput = {
   tags?: Prisma.RestaurantCreatetagsInput | string[]
   identities?: Prisma.RestaurantIdentityCreateNestedManyWithoutRestaurantInput
   searchCandidates?: Prisma.SearchCandidateCreateNestedManyWithoutRestaurantInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptCreateNestedManyWithoutRestaurantInput
 }
 
 export type RestaurantUncheckedCreateInput = {
@@ -450,6 +467,7 @@ export type RestaurantUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
+  matched?: boolean
   name: string
   latitude: number
   longitude: number
@@ -465,6 +483,7 @@ export type RestaurantUncheckedCreateInput = {
   tags?: Prisma.RestaurantCreatetagsInput | string[]
   identities?: Prisma.RestaurantIdentityUncheckedCreateNestedManyWithoutRestaurantInput
   searchCandidates?: Prisma.SearchCandidateUncheckedCreateNestedManyWithoutRestaurantInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptUncheckedCreateNestedManyWithoutRestaurantInput
 }
 
 export type RestaurantUpdateInput = {
@@ -472,6 +491,7 @@ export type RestaurantUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  matched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -487,6 +507,7 @@ export type RestaurantUpdateInput = {
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
   identities?: Prisma.RestaurantIdentityUpdateManyWithoutRestaurantNestedInput
   searchCandidates?: Prisma.SearchCandidateUpdateManyWithoutRestaurantNestedInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptUpdateManyWithoutRestaurantNestedInput
 }
 
 export type RestaurantUncheckedUpdateInput = {
@@ -494,6 +515,7 @@ export type RestaurantUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  matched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -509,6 +531,7 @@ export type RestaurantUncheckedUpdateInput = {
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
   identities?: Prisma.RestaurantIdentityUncheckedUpdateManyWithoutRestaurantNestedInput
   searchCandidates?: Prisma.SearchCandidateUncheckedUpdateManyWithoutRestaurantNestedInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptUncheckedUpdateManyWithoutRestaurantNestedInput
 }
 
 export type RestaurantCreateManyInput = {
@@ -516,6 +539,7 @@ export type RestaurantCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
+  matched?: boolean
   name: string
   latitude: number
   longitude: number
@@ -536,6 +560,7 @@ export type RestaurantUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  matched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -556,6 +581,7 @@ export type RestaurantUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  matched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -589,6 +615,7 @@ export type RestaurantCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  matched?: Prisma.SortOrder
   name?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -617,6 +644,7 @@ export type RestaurantMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  matched?: Prisma.SortOrder
   name?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -636,6 +664,7 @@ export type RestaurantMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  matched?: Prisma.SortOrder
   name?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -711,11 +740,26 @@ export type RestaurantUpdateOneRequiredWithoutIdentitiesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RestaurantUpdateToOneWithWhereWithoutIdentitiesInput, Prisma.RestaurantUpdateWithoutIdentitiesInput>, Prisma.RestaurantUncheckedUpdateWithoutIdentitiesInput>
 }
 
+export type RestaurantCreateNestedOneWithoutMatchingAttemptsInput = {
+  create?: Prisma.XOR<Prisma.RestaurantCreateWithoutMatchingAttemptsInput, Prisma.RestaurantUncheckedCreateWithoutMatchingAttemptsInput>
+  connectOrCreate?: Prisma.RestaurantCreateOrConnectWithoutMatchingAttemptsInput
+  connect?: Prisma.RestaurantWhereUniqueInput
+}
+
+export type RestaurantUpdateOneRequiredWithoutMatchingAttemptsNestedInput = {
+  create?: Prisma.XOR<Prisma.RestaurantCreateWithoutMatchingAttemptsInput, Prisma.RestaurantUncheckedCreateWithoutMatchingAttemptsInput>
+  connectOrCreate?: Prisma.RestaurantCreateOrConnectWithoutMatchingAttemptsInput
+  upsert?: Prisma.RestaurantUpsertWithoutMatchingAttemptsInput
+  connect?: Prisma.RestaurantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RestaurantUpdateToOneWithWhereWithoutMatchingAttemptsInput, Prisma.RestaurantUpdateWithoutMatchingAttemptsInput>, Prisma.RestaurantUncheckedUpdateWithoutMatchingAttemptsInput>
+}
+
 export type RestaurantCreateWithoutSearchCandidatesInput = {
   id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
+  matched?: boolean
   name: string
   latitude: number
   longitude: number
@@ -730,6 +774,7 @@ export type RestaurantCreateWithoutSearchCandidatesInput = {
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
   identities?: Prisma.RestaurantIdentityCreateNestedManyWithoutRestaurantInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptCreateNestedManyWithoutRestaurantInput
 }
 
 export type RestaurantUncheckedCreateWithoutSearchCandidatesInput = {
@@ -737,6 +782,7 @@ export type RestaurantUncheckedCreateWithoutSearchCandidatesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
+  matched?: boolean
   name: string
   latitude: number
   longitude: number
@@ -751,6 +797,7 @@ export type RestaurantUncheckedCreateWithoutSearchCandidatesInput = {
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
   identities?: Prisma.RestaurantIdentityUncheckedCreateNestedManyWithoutRestaurantInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptUncheckedCreateNestedManyWithoutRestaurantInput
 }
 
 export type RestaurantCreateOrConnectWithoutSearchCandidatesInput = {
@@ -774,6 +821,7 @@ export type RestaurantUpdateWithoutSearchCandidatesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  matched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -788,6 +836,7 @@ export type RestaurantUpdateWithoutSearchCandidatesInput = {
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
   identities?: Prisma.RestaurantIdentityUpdateManyWithoutRestaurantNestedInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptUpdateManyWithoutRestaurantNestedInput
 }
 
 export type RestaurantUncheckedUpdateWithoutSearchCandidatesInput = {
@@ -795,6 +844,7 @@ export type RestaurantUncheckedUpdateWithoutSearchCandidatesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  matched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -809,6 +859,7 @@ export type RestaurantUncheckedUpdateWithoutSearchCandidatesInput = {
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
   identities?: Prisma.RestaurantIdentityUncheckedUpdateManyWithoutRestaurantNestedInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptUncheckedUpdateManyWithoutRestaurantNestedInput
 }
 
 export type RestaurantCreateWithoutIdentitiesInput = {
@@ -816,6 +867,7 @@ export type RestaurantCreateWithoutIdentitiesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
+  matched?: boolean
   name: string
   latitude: number
   longitude: number
@@ -830,6 +882,7 @@ export type RestaurantCreateWithoutIdentitiesInput = {
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
   searchCandidates?: Prisma.SearchCandidateCreateNestedManyWithoutRestaurantInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptCreateNestedManyWithoutRestaurantInput
 }
 
 export type RestaurantUncheckedCreateWithoutIdentitiesInput = {
@@ -837,6 +890,7 @@ export type RestaurantUncheckedCreateWithoutIdentitiesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
+  matched?: boolean
   name: string
   latitude: number
   longitude: number
@@ -851,6 +905,7 @@ export type RestaurantUncheckedCreateWithoutIdentitiesInput = {
   openingHours?: string | null
   tags?: Prisma.RestaurantCreatetagsInput | string[]
   searchCandidates?: Prisma.SearchCandidateUncheckedCreateNestedManyWithoutRestaurantInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptUncheckedCreateNestedManyWithoutRestaurantInput
 }
 
 export type RestaurantCreateOrConnectWithoutIdentitiesInput = {
@@ -874,6 +929,7 @@ export type RestaurantUpdateWithoutIdentitiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  matched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -888,6 +944,7 @@ export type RestaurantUpdateWithoutIdentitiesInput = {
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
   searchCandidates?: Prisma.SearchCandidateUpdateManyWithoutRestaurantNestedInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptUpdateManyWithoutRestaurantNestedInput
 }
 
 export type RestaurantUncheckedUpdateWithoutIdentitiesInput = {
@@ -895,6 +952,7 @@ export type RestaurantUncheckedUpdateWithoutIdentitiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  matched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -909,6 +967,115 @@ export type RestaurantUncheckedUpdateWithoutIdentitiesInput = {
   openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.RestaurantUpdatetagsInput | string[]
   searchCandidates?: Prisma.SearchCandidateUncheckedUpdateManyWithoutRestaurantNestedInput
+  matchingAttempts?: Prisma.RestaurantMatchingAttemptUncheckedUpdateManyWithoutRestaurantNestedInput
+}
+
+export type RestaurantCreateWithoutMatchingAttemptsInput = {
+  id?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  matched?: boolean
+  name: string
+  latitude: number
+  longitude: number
+  address?: string | null
+  countryCode?: string | null
+  state?: string | null
+  description?: string | null
+  imageUrl?: string | null
+  rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  phoneNumber?: string | null
+  priceRange?: number | null
+  openingHours?: string | null
+  tags?: Prisma.RestaurantCreatetagsInput | string[]
+  identities?: Prisma.RestaurantIdentityCreateNestedManyWithoutRestaurantInput
+  searchCandidates?: Prisma.SearchCandidateCreateNestedManyWithoutRestaurantInput
+}
+
+export type RestaurantUncheckedCreateWithoutMatchingAttemptsInput = {
+  id?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  matched?: boolean
+  name: string
+  latitude: number
+  longitude: number
+  address?: string | null
+  countryCode?: string | null
+  state?: string | null
+  description?: string | null
+  imageUrl?: string | null
+  rating?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  phoneNumber?: string | null
+  priceRange?: number | null
+  openingHours?: string | null
+  tags?: Prisma.RestaurantCreatetagsInput | string[]
+  identities?: Prisma.RestaurantIdentityUncheckedCreateNestedManyWithoutRestaurantInput
+  searchCandidates?: Prisma.SearchCandidateUncheckedCreateNestedManyWithoutRestaurantInput
+}
+
+export type RestaurantCreateOrConnectWithoutMatchingAttemptsInput = {
+  where: Prisma.RestaurantWhereUniqueInput
+  create: Prisma.XOR<Prisma.RestaurantCreateWithoutMatchingAttemptsInput, Prisma.RestaurantUncheckedCreateWithoutMatchingAttemptsInput>
+}
+
+export type RestaurantUpsertWithoutMatchingAttemptsInput = {
+  update: Prisma.XOR<Prisma.RestaurantUpdateWithoutMatchingAttemptsInput, Prisma.RestaurantUncheckedUpdateWithoutMatchingAttemptsInput>
+  create: Prisma.XOR<Prisma.RestaurantCreateWithoutMatchingAttemptsInput, Prisma.RestaurantUncheckedCreateWithoutMatchingAttemptsInput>
+  where?: Prisma.RestaurantWhereInput
+}
+
+export type RestaurantUpdateToOneWithWhereWithoutMatchingAttemptsInput = {
+  where?: Prisma.RestaurantWhereInput
+  data: Prisma.XOR<Prisma.RestaurantUpdateWithoutMatchingAttemptsInput, Prisma.RestaurantUncheckedUpdateWithoutMatchingAttemptsInput>
+}
+
+export type RestaurantUpdateWithoutMatchingAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  matched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  priceRange?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.RestaurantUpdatetagsInput | string[]
+  identities?: Prisma.RestaurantIdentityUpdateManyWithoutRestaurantNestedInput
+  searchCandidates?: Prisma.SearchCandidateUpdateManyWithoutRestaurantNestedInput
+}
+
+export type RestaurantUncheckedUpdateWithoutMatchingAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  matched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rating?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  priceRange?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  openingHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.RestaurantUpdatetagsInput | string[]
+  identities?: Prisma.RestaurantIdentityUncheckedUpdateManyWithoutRestaurantNestedInput
+  searchCandidates?: Prisma.SearchCandidateUncheckedUpdateManyWithoutRestaurantNestedInput
 }
 
 
@@ -919,11 +1086,13 @@ export type RestaurantUncheckedUpdateWithoutIdentitiesInput = {
 export type RestaurantCountOutputType = {
   identities: number
   searchCandidates: number
+  matchingAttempts: number
 }
 
 export type RestaurantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   identities?: boolean | RestaurantCountOutputTypeCountIdentitiesArgs
   searchCandidates?: boolean | RestaurantCountOutputTypeCountSearchCandidatesArgs
+  matchingAttempts?: boolean | RestaurantCountOutputTypeCountMatchingAttemptsArgs
 }
 
 /**
@@ -950,12 +1119,20 @@ export type RestaurantCountOutputTypeCountSearchCandidatesArgs<ExtArgs extends r
   where?: Prisma.SearchCandidateWhereInput
 }
 
+/**
+ * RestaurantCountOutputType without action
+ */
+export type RestaurantCountOutputTypeCountMatchingAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RestaurantMatchingAttemptWhereInput
+}
+
 
 export type RestaurantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   version?: boolean
+  matched?: boolean
   name?: boolean
   latitude?: boolean
   longitude?: boolean
@@ -971,6 +1148,7 @@ export type RestaurantSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   tags?: boolean
   identities?: boolean | Prisma.Restaurant$identitiesArgs<ExtArgs>
   searchCandidates?: boolean | Prisma.Restaurant$searchCandidatesArgs<ExtArgs>
+  matchingAttempts?: boolean | Prisma.Restaurant$matchingAttemptsArgs<ExtArgs>
   _count?: boolean | Prisma.RestaurantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["restaurant"]>
 
@@ -979,6 +1157,7 @@ export type RestaurantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   createdAt?: boolean
   updatedAt?: boolean
   version?: boolean
+  matched?: boolean
   name?: boolean
   latitude?: boolean
   longitude?: boolean
@@ -999,6 +1178,7 @@ export type RestaurantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   createdAt?: boolean
   updatedAt?: boolean
   version?: boolean
+  matched?: boolean
   name?: boolean
   latitude?: boolean
   longitude?: boolean
@@ -1019,6 +1199,7 @@ export type RestaurantSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   version?: boolean
+  matched?: boolean
   name?: boolean
   latitude?: boolean
   longitude?: boolean
@@ -1034,10 +1215,11 @@ export type RestaurantSelectScalar = {
   tags?: boolean
 }
 
-export type RestaurantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "version" | "name" | "latitude" | "longitude" | "address" | "countryCode" | "state" | "description" | "imageUrl" | "rating" | "phoneNumber" | "priceRange" | "openingHours" | "tags", ExtArgs["result"]["restaurant"]>
+export type RestaurantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "version" | "matched" | "name" | "latitude" | "longitude" | "address" | "countryCode" | "state" | "description" | "imageUrl" | "rating" | "phoneNumber" | "priceRange" | "openingHours" | "tags", ExtArgs["result"]["restaurant"]>
 export type RestaurantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   identities?: boolean | Prisma.Restaurant$identitiesArgs<ExtArgs>
   searchCandidates?: boolean | Prisma.Restaurant$searchCandidatesArgs<ExtArgs>
+  matchingAttempts?: boolean | Prisma.Restaurant$matchingAttemptsArgs<ExtArgs>
   _count?: boolean | Prisma.RestaurantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RestaurantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1048,12 +1230,14 @@ export type $RestaurantPayload<ExtArgs extends runtime.Types.Extensions.Internal
   objects: {
     identities: Prisma.$RestaurantIdentityPayload<ExtArgs>[]
     searchCandidates: Prisma.$SearchCandidatePayload<ExtArgs>[]
+    matchingAttempts: Prisma.$RestaurantMatchingAttemptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     createdAt: Date
     updatedAt: Date
     version: number
+    matched: boolean
     name: string
     latitude: number
     longitude: number
@@ -1463,6 +1647,7 @@ export interface Prisma__RestaurantClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   identities<T extends Prisma.Restaurant$identitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Restaurant$identitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RestaurantIdentityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   searchCandidates<T extends Prisma.Restaurant$searchCandidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Restaurant$searchCandidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SearchCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  matchingAttempts<T extends Prisma.Restaurant$matchingAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Restaurant$matchingAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RestaurantMatchingAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1496,6 +1681,7 @@ export interface RestaurantFieldRefs {
   readonly createdAt: Prisma.FieldRef<"Restaurant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Restaurant", 'DateTime'>
   readonly version: Prisma.FieldRef<"Restaurant", 'Int'>
+  readonly matched: Prisma.FieldRef<"Restaurant", 'Boolean'>
   readonly name: Prisma.FieldRef<"Restaurant", 'String'>
   readonly latitude: Prisma.FieldRef<"Restaurant", 'Float'>
   readonly longitude: Prisma.FieldRef<"Restaurant", 'Float'>
@@ -1942,6 +2128,30 @@ export type Restaurant$searchCandidatesArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.SearchCandidateScalarFieldEnum | Prisma.SearchCandidateScalarFieldEnum[]
+}
+
+/**
+ * Restaurant.matchingAttempts
+ */
+export type Restaurant$matchingAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RestaurantMatchingAttempt
+   */
+  select?: Prisma.RestaurantMatchingAttemptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RestaurantMatchingAttempt
+   */
+  omit?: Prisma.RestaurantMatchingAttemptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RestaurantMatchingAttemptInclude<ExtArgs> | null
+  where?: Prisma.RestaurantMatchingAttemptWhereInput
+  orderBy?: Prisma.RestaurantMatchingAttemptOrderByWithRelationInput | Prisma.RestaurantMatchingAttemptOrderByWithRelationInput[]
+  cursor?: Prisma.RestaurantMatchingAttemptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RestaurantMatchingAttemptScalarFieldEnum | Prisma.RestaurantMatchingAttemptScalarFieldEnum[]
 }
 
 /**

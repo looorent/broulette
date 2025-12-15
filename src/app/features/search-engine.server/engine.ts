@@ -1,29 +1,25 @@
 import prisma from "@features/db.server/prisma";
 import { SearchCandidateStatus, ServiceTimeslot, type RestaurantIdentity, type SearchCandidate } from "@persistence/client";
-import { RestaurantDiscoveryScanner, type SearchDiscoveryConfig } from "./discovery";
-import { enrichRestaurant } from "./enrich";
+import { RestaurantDiscoveryScanner } from "./discovery/core";
+import { enrichRestaurant } from "./matching/core";
 import { SearchNotFoundError } from "./error";
-import { randomize } from "./randomization";
-import { validateRestaurant } from "./validation";
+import { randomize } from "./randomization/randomizer";
+import { validateRestaurant } from "./validation/validator";
+import type { SearchEngineConfiguration } from "./types";
 
-const ENV_CONFIG: SearchDiscoveryConfig = {
-  initialDiscoveryRangeMeters: Number(import.meta.env.VITE_ENGINE_DEFAULT_INITIAL_DISCOVERY_RANGE_METERS ?? 5000),
-  discoveryRangeIncreaseMeters: Number(import.meta.env.VITE_ENGINE_DEFAULT_DISCOVERY_RANGE_INCREASE_METERS ?? 3000),
-  maxDiscoveryIterations: Number(import.meta.env.VITE_ENGINE_DEFAULT_MAX_DISCOVERY_ITERATIONS ?? 3)
-};
-
+// TODO profiling
 export async function searchCandidate(
   searchId: string,
-  discoveryConfiguration: SearchDiscoveryConfig = ENV_CONFIG
+  configuration: SearchEngineConfiguration
 ): Promise<SearchCandidate | null> {
-  const search = await prisma.search.findUniqueWithRestaurantAndIdentities(searchId);
+  const search = await prisma.search.findUniqueWithRestaurantAndIdentities(searchId); // TODO repository?
   if (!search) {
     throw new SearchNotFoundError(searchId);
   }
 
   const discovery = new RestaurantDiscoveryScanner(
     { latitude: search.latitude, longitude: search.longitude },
-    discoveryConfiguration,
+    configuration.discovery,
     (search.candidates || []).flatMap(({ restaurant }: { restaurant: { identities: RestaurantIdentity[] } | undefined | null }) => restaurant?.identities || [])
   );
 
@@ -38,7 +34,7 @@ export async function searchCandidate(
 
     // TODO logging
     while (randomized.length > 0 && (!candidateFound || candidateFound.status !== SearchCandidateStatus.Returned)) {
-      const restaurant = await enrichRestaurant(randomized.shift());
+      const restaurant = await enrichRestaurant(randomized.shift(), configuration.matching);
       if (restaurant) {
         const status = await validateRestaurant(restaurant, instant);
         candidateFound = await prisma.searchCandidate.create({
@@ -55,6 +51,7 @@ export async function searchCandidate(
     }
   }
 
+  // TODO if the restaurant is the same than the previous, mark the search as exhausted and do not create a new candidate, just go back to the previous one.
   await markSearchAsExhausted(search.id, candidateFound);
   return candidateFound;
 }

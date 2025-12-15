@@ -9,7 +9,7 @@ const prismaClientSingleton = () => {
   .$extends({
     model: {
       search: {
-        async findWithLatestCandidate(this: any, searchId: string) {
+        async findWithLatestCandidate(searchId: string) {
           return await prisma.search.findUnique({
             where: { id: searchId },
             include: {
@@ -23,7 +23,7 @@ const prismaClientSingleton = () => {
           });
         },
 
-        async findUniqueWithRestaurantAndIdentities(this: any, searchId: string) {
+        async findUniqueWithRestaurantAndIdentities(searchId: string) {
           return await prisma.search.findUnique({
             where: { id: searchId },
             include: {
@@ -32,6 +32,24 @@ const prismaClientSingleton = () => {
               }
             }
           });
+        }
+      },
+      restaurantMatchingAttempt: {
+        async existsSince(instant: Date, restaurantId: string, source: string) {
+          const recentAttempt = await prisma.restaurantMatchingAttempt.findFirst({
+            where: {
+              restaurantId: restaurantId,
+              source: source,
+              attemptedAt: {
+                gte: instant,
+              },
+            },
+            select: {
+              id: true
+            }
+          });
+
+          return !!recentAttempt;
         }
       }
     }

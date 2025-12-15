@@ -54,7 +54,8 @@ export const ModelName = {
   Search: 'Search',
   SearchCandidate: 'SearchCandidate',
   Restaurant: 'Restaurant',
-  RestaurantIdentity: 'RestaurantIdentity'
+  RestaurantIdentity: 'RestaurantIdentity',
+  RestaurantMatchingAttempt: 'RestaurantMatchingAttempt'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -107,6 +108,7 @@ export const RestaurantScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   version: 'version',
+  matched: 'matched',
   name: 'name',
   latitude: 'latitude',
   longitude: 'longitude',
@@ -134,6 +136,22 @@ export const RestaurantIdentityScalarFieldEnum = {
 } as const
 
 export type RestaurantIdentityScalarFieldEnum = (typeof RestaurantIdentityScalarFieldEnum)[keyof typeof RestaurantIdentityScalarFieldEnum]
+
+
+export const RestaurantMatchingAttemptScalarFieldEnum = {
+  id: 'id',
+  restaurantId: 'restaurantId',
+  queryType: 'queryType',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  radius: 'radius',
+  query: 'query',
+  source: 'source',
+  status: 'status',
+  attemptedAt: 'attemptedAt'
+} as const
+
+export type RestaurantMatchingAttemptScalarFieldEnum = (typeof RestaurantMatchingAttemptScalarFieldEnum)[keyof typeof RestaurantMatchingAttemptScalarFieldEnum]
 
 
 export const SortOrder = {

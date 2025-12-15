@@ -1,63 +1,15 @@
 import { PlacesClient, type protos } from "@googlemaps/places";
 import { GoogleRestaurant } from "./types";
 
-const GOOGLE_PLACE_API_KEY = import.meta.env.VITE_GOOGLE_PLACE_API_KEY;
-const GOOGLE_PLACE_API_TIMEOUT_IN_SECONDS = import.meta.env.VITE_GOOGLE_PLACE_API_TIMEOUT_IN_SECONDS || 10000;
-
-// TODO do something with this?
-const RESTAURANT_TYPES: string[] = [
-  "acai_shop",
-  "afghani_restaurant",
-  "african_restaurant",
-  "american_restaurant",
-  "asian_restaurant",
-  "bar_and_grill",
-  "barbecue_restaurant",
-  "brazilian_restaurant",
-  "breakfast_restaurant",
-  "brunch_restaurant",
-  "buffet_restaurant",
-  "chinese_restaurant",
-  "dessert_restaurant",
-  "dessert_shop",
-  "fast_food_restaurant",
-  "fine_dining_restaurant",
-  "french_restaurant",
-  "greek_restaurant",
-  "hamburger_restaurant",
-  "indian_restaurant",
-  "indonesian_restaurant",
-  "italian_restaurant",
-  "japanese_restaurant",
-  "korean_restaurant",
-  "lebanese_restaurant",
-  "meal_delivery",
-  "meal_takeaway",
-  "mediterranean_restaurant",
-  "mexican_restaurant",
-  "middle_eastern_restaurant",
-  "pizza_restaurant",
-  "pub",
-  "ramen_restaurant",
-  "restaurant",
-  "seafood_restaurant",
-  "spanish_restaurant",
-  "steak_house",
-  "sushi_restaurant",
-  "thai_restaurant",
-  "turkish_restaurant",
-  "vegan_restaurant",
-  "vegetarian_restaurant",
-  "vietnamese_restaurant"
-];
-
 const COMPLETE_FIELDS_FILTER = "*"; // TODO reduce this mask
 
 export async function findGoogleRestaurantById(
-  placeId: string
+  placeId: string,
+  apiKey: string,
+  retry: number
 ): Promise<GoogleRestaurant | undefined> {
   const placesClient = new PlacesClient({
-    apiKey: GOOGLE_PLACE_API_KEY
+    apiKey: apiKey
   });
 
   const response = await placesClient.getPlace(
@@ -65,7 +17,7 @@ export async function findGoogleRestaurantById(
       name: `places/${placeId}`
     },
     {
-      maxRetries: 3,
+      maxRetries: retry,
       otherArgs: {
         headers: {
           "X-Goog-FieldMask": COMPLETE_FIELDS_FILTER
@@ -88,10 +40,12 @@ async function findPlacesByText(
   longitude: number,
   radiusInMeters: number,
   maximumNumberOfResultsToQuery: number,
-  fieldMask: string
+  fieldMask: string,
+  apiKey: string,
+  timeout: number
 ): Promise<protos.google.maps.places.v1.IPlace[]> {
   const placesClient = new PlacesClient({
-    apiKey: GOOGLE_PLACE_API_KEY
+    apiKey: apiKey
   });
 
   const response = await placesClient.searchText(
@@ -110,7 +64,7 @@ async function findPlacesByText(
     },
     {
       maxResults: maximumNumberOfResultsToQuery,
-      timeout: GOOGLE_PLACE_API_TIMEOUT_IN_SECONDS,
+      timeout: timeout,
       otherArgs: {
         headers: {
           "X-Goog-FieldMask": fieldMask
@@ -125,7 +79,9 @@ export async function findGoogleRestaurantByText(
   searchableText: string,
   latitude: number,
   longitude: number,
-  radiusInMeters: number
+  radiusInMeters: number,
+  apiKey: string,
+  timeout: number
 ): Promise<GoogleRestaurant | undefined> {
   return (
     (
@@ -135,7 +91,9 @@ export async function findGoogleRestaurantByText(
         longitude,
         radiusInMeters,
         1,
-        COMPLETE_FIELDS_FILTER
+        COMPLETE_FIELDS_FILTER,
+        apiKey,
+        timeout
       )
     )
     .map(convertGooglePlaceToRestaurant)

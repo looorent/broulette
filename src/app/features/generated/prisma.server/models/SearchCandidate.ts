@@ -295,7 +295,7 @@ export type SearchCandidateCreateInput = {
   id?: string
   createdAt?: Date | string
   order: number
-  status?: $Enums.SearchCandidateStatus
+  status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
   search: Prisma.SearchCreateNestedOneWithoutCandidatesInput
   restaurant: Prisma.RestaurantCreateNestedOneWithoutSearchCandidatesInput
@@ -307,7 +307,7 @@ export type SearchCandidateUncheckedCreateInput = {
   order: number
   searchId: string
   restaurantId: string
-  status?: $Enums.SearchCandidateStatus
+  status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
 }
 
@@ -337,7 +337,7 @@ export type SearchCandidateCreateManyInput = {
   order: number
   searchId: string
   restaurantId: string
-  status?: $Enums.SearchCandidateStatus
+  status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
 }
 
@@ -511,7 +511,7 @@ export type SearchCandidateCreateWithoutSearchInput = {
   id?: string
   createdAt?: Date | string
   order: number
-  status?: $Enums.SearchCandidateStatus
+  status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
   restaurant: Prisma.RestaurantCreateNestedOneWithoutSearchCandidatesInput
 }
@@ -521,7 +521,7 @@ export type SearchCandidateUncheckedCreateWithoutSearchInput = {
   createdAt?: Date | string
   order: number
   restaurantId: string
-  status?: $Enums.SearchCandidateStatus
+  status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
 }
 
@@ -568,7 +568,7 @@ export type SearchCandidateCreateWithoutRestaurantInput = {
   id?: string
   createdAt?: Date | string
   order: number
-  status?: $Enums.SearchCandidateStatus
+  status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
   search: Prisma.SearchCreateNestedOneWithoutCandidatesInput
 }
@@ -578,7 +578,7 @@ export type SearchCandidateUncheckedCreateWithoutRestaurantInput = {
   createdAt?: Date | string
   order: number
   searchId: string
-  status?: $Enums.SearchCandidateStatus
+  status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
 }
 
@@ -613,7 +613,7 @@ export type SearchCandidateCreateManySearchInput = {
   createdAt?: Date | string
   order: number
   restaurantId: string
-  status?: $Enums.SearchCandidateStatus
+  status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
 }
 
@@ -649,7 +649,7 @@ export type SearchCandidateCreateManyRestaurantInput = {
   createdAt?: Date | string
   order: number
   searchId: string
-  status?: $Enums.SearchCandidateStatus
+  status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
 }
 

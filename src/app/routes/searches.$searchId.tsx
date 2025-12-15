@@ -28,7 +28,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
       done.current = true;
 
       if (latestCandidate) {
-        navigate(buildUrlForCandidate(search.id, latestCandidate.id), { replace: true });
+        navigate(buildUrlForCandidate(search.id, latestCandidate.id), { replace: true }); // TODO move this to the loader (the url build)
       } else if (loaderData.search) {
         submit({
           searchId: loaderData.search.id

@@ -1,20 +1,8 @@
-import type { Coordinates } from "@features/coordinate";
-import { isOpenAtTarget } from "./opening-hours";
-import { fetchAllRestaurantsNearbyWithRetry } from "@features/overpass.server";
 import { OVERPASS_SOURCE_NAME } from "@config";
-
-export type DiscoverySource = "osm";
-
-export interface DiscoveredRestaurantAddress {
-  countryCode: string;
-  state: string | undefined;
-}
-
-export interface DiscoveredRestaurantIdentity {
-  source: string;
-  type: string;
-  externalId: string;
-}
+import type { Coordinates } from "@features/coordinate";
+import { fetchAllRestaurantsNearbyWithRetry } from "@features/overpass.server";
+import { isOpenAtTarget } from "../validation/opening-hours";
+import type { DiscoveredRestaurantAddress, DiscoveredRestaurantIdentity, SearchDiscoveryConfig } from "./types";
 
 export class DiscoveredRestaurant {
   constructor(
@@ -37,12 +25,6 @@ export class DiscoveredRestaurant {
       instant
     );
   }
-}
-
-export interface SearchDiscoveryConfig {
-  initialDiscoveryRangeMeters: number;
-  discoveryRangeIncreaseMeters: number;
-  maxDiscoveryIterations: number;
 }
 
 export class RestaurantDiscoveryScanner {
@@ -132,8 +114,4 @@ async function findRestaurantsFromOverpass(
       restaurant.openingHours
     )
   );
-}
-
-function filterTags(tags: string[] | undefined): string[] {
-  return tags || []; // TODO
 }
