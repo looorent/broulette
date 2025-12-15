@@ -29,5 +29,5 @@ export async function action({
 }
 
 export async function loader() {
-  return redirect("/");
+  return redirect(href("/"));
 }

@@ -14,7 +14,7 @@ export async function action({
       return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: candidate.searchId, candidateId: candidate.id }));
     } else {
       // TODO manage error
-      return redirect("/"); // we should display a message
+      return redirect(href("/")); // we should display a message
     }
   } else {
     // TODO manage error

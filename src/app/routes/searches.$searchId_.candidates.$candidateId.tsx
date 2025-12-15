@@ -20,7 +20,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       throw redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: searchId, candidateId: searchWithLatestCandidate.candidates[0].id }), { status: 303 }); // TODO validate
     } else {
       // TODO manage error
-      throw redirect("/");
+      throw redirect(href("/"));
     }
   } else {
     // TODO manage error if not found
@@ -64,7 +64,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       };
     } else {
       // TODO manage error
-      throw redirect("/");
+      throw redirect(href("/"));
     }
   }
 }

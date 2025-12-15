@@ -9,7 +9,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       search: await prisma.search.findWithLatestCandidate(params.searchId)
     };
   } else {
-    return redirect("/");
+    return redirect(href("/"));
   }
 }
 
