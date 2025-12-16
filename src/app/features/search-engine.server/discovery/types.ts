@@ -1,10 +1,9 @@
 import type { Coordinates } from "@features/coordinate";
+import type { OverpassConfiguration } from "@features/overpass.server";
 
 export interface SearchDiscoveryConfig {
-  overpass: {
-    instanceUrl: string;
-    timeoutInSeconds: number;
-  },
+  overpass: OverpassConfiguration;
+  // TODO add a second provider
   initialDiscoveryRangeMeters: number;
   discoveryRangeIncreaseMeters: number;
   maxDiscoveryIterations: number;

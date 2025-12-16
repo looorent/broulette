@@ -1,40 +1,54 @@
+import { fetchLocationFromNominatim } from "@features/nominatim.server/client";
+import { fetchLocationFromPhoton } from "@features/photon.server/client";
 import type { LocationSuggestions } from "@features/search";
-import { fetchLocationFromNominatim } from "./nominatim/client";
-import { fetchLocationFromPhoton } from "./photon/client";
-
-const PROVIDER_CONFIG = {
-  MAX_RETRIES: 3,
-  INITIAL_BACKOFF_MS: 500,
-  LIMIT_OF_ITEMS: 5,
-  PROVIDER_SWITCH_DELAY_MS: 200
-};
+import { type GeocodingProviderConfiguration } from "./types";
 
 interface GeocodingProvider {
   name: string;
-  search(query: string, signal: AbortSignal): Promise<LocationSuggestions>;
+  search(query: string, configuration: GeocodingProviderConfiguration, signal: AbortSignal): Promise<LocationSuggestions>;
 }
 
 const photonProvider: GeocodingProvider = {
   name: "Photon",
-  async search(query: string, signal: AbortSignal): Promise<LocationSuggestions> {
-    return fetchLocationFromPhoton(query, PROVIDER_CONFIG.LIMIT_OF_ITEMS, signal);
-  },
+  async search(query: string, configuration: GeocodingProviderConfiguration, signal: AbortSignal): Promise<LocationSuggestions> {
+    if (configuration?.photon) {
+      return fetchLocationFromPhoton(query, configuration?.photon, signal);
+    } else {
+      return Promise.resolve({
+        locations: [],
+        note: ""
+      });
+    }
+  }
 };
 
 const nominatimProvider: GeocodingProvider = {
   name: "Nominatim",
-  async search(query: string, signal: AbortSignal): Promise<LocationSuggestions> {
-    return fetchLocationFromNominatim(query, PROVIDER_CONFIG.LIMIT_OF_ITEMS, signal);
-  },
+  async search(query: string, configuration: GeocodingProviderConfiguration, signal: AbortSignal): Promise<LocationSuggestions> {
+    if (configuration?.nominatim) {
+      return fetchLocationFromNominatim(query, configuration?.nominatim, signal);
+    } else {
+      return Promise.resolve({
+        locations: [],
+        note: ""
+      });
+    }
+  }
 };
 
-export async function searchLocations(query: string, signal?: AbortSignal): Promise<LocationSuggestions> {
-  const providers = Array(5).fill([photonProvider, nominatimProvider]).flat();
+export async function searchLocations(query: string, configuration: GeocodingProviderConfiguration, signal?: AbortSignal): Promise<LocationSuggestions> {
+  const providers = [
+    configuration.nominatim ? nominatimProvider : null,
+    configuration.photon ? photonProvider : null,
+  ].filter(Boolean)
+  .map(provider => provider!);
+
+  const replicatedProviders = Array(5).fill(providers).flat();
   let lastError: unknown;
 
   const operationSignal = signal || new AbortController().signal;
 
-  for (const provider of providers) {
+  for (const provider of replicatedProviders) {
     if (operationSignal.aborted) {
       throw new Error("Request cancelled by user");
     } else {
@@ -43,8 +57,8 @@ export async function searchLocations(query: string, signal?: AbortSignal): Prom
       } catch (error) {
         console.warn(`[Geocoding] ${provider.name} provider failed.`, error);
         lastError = error;
-        if (provider !== providers[providers.length - 1]) {
-          await new Promise(resolve => setTimeout(resolve, PROVIDER_CONFIG.PROVIDER_SWITCH_DELAY_MS));
+        if (provider !== replicatedProviders[replicatedProviders.length - 1]) {
+          await new Promise(resolve => setTimeout(resolve, configuration.providerSwitchDelay));
         }
       }
     }

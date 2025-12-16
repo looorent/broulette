@@ -1,15 +1,21 @@
+import type { FailoverConfiguration } from "@features/circuit-breaker.server/types";
 import type { Coordinates } from "@features/coordinate";
+import type { GoogleSimilarityConfiguration } from "./similarity";
 
 export interface GooglePlaceConfiguration {
   apiKey: string;
-  failover: {
-    retry: number;
-    timeoutInSeconds: number;
-  },
+  failover: FailoverConfiguration;
   photo: {
     maxWidthInPx: number
     maxHeightInPx: number
-  }
+  };
+  rateLimiting: {
+    maxNumberOfAttemptsPerMonth: number;
+  };
+  search: {
+    radiusInMeters: number;
+  };
+  similarity: GoogleSimilarityConfiguration;
 }
 
 export interface GoogleRestaurant {

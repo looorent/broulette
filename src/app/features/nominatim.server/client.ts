@@ -1,8 +1,8 @@
-import { NOMINATIM_CONFIG } from "@config/server";
 import { createCircuitBreaker } from "@features/circuit-breaker.server";
-import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { executeRequest } from "@features/http.server";
+import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { NominatimHttpError, NominatimServerError } from "./error";
+import type { GeocodingNominatimConfiguration } from "./types";
 
 interface NominatimPlace {
   place_id: number;
@@ -13,9 +13,11 @@ interface NominatimPlace {
   type: string;
 }
 
-export async function fetchLocationFromNominatim(query: string, limit: number, signal: AbortSignal): Promise<LocationSuggestions> {
-  const rawData = await createCircuitBreaker(() =>
-    fetchNominatimAddresses(query, limit, signal)
+export async function fetchLocationFromNominatim(query: string, configuration: GeocodingNominatimConfiguration, signal: AbortSignal): Promise<LocationSuggestions> {
+  const rawData = await createCircuitBreaker(
+    () => fetchNominatimAddresses(query, configuration, signal),
+    configuration.failover.retries,
+    configuration.failover.timeoutInMs
   );
 
   const locations = rawData
@@ -24,15 +26,15 @@ export async function fetchLocationFromNominatim(query: string, limit: number, s
 
   return {
     locations: locations,
-    note: NOMINATIM_CONFIG.BOTTOM_NOTE
+    note: configuration.bottomNote
   };
 }
 
-async function fetchNominatimAddresses(query: string, limit: number, signal: AbortSignal): Promise<NominatimPlace[]> {
+async function fetchNominatimAddresses(query: string, configuration: GeocodingNominatimConfiguration, signal: AbortSignal): Promise<NominatimPlace[]> {
   const params = new URLSearchParams({
     q: query,
     format: "json",
-    limit: limit.toString(),
+    limit: configuration.maxNumberOfAddresses.toString(),
     addressdetails: "1",
     extratags: "0",
     namedetails: "0",
@@ -40,15 +42,15 @@ async function fetchNominatimAddresses(query: string, limit: number, signal: Abo
     bounded: "0",
   });
 
-  const url = `${NOMINATIM_CONFIG.BASE_URL}?${params.toString()}`;
+  const url = `${configuration.baseUrl}?${params.toString()}`;
 
   const response = await executeRequest(url, {
     headers: {
-      "User-Agent": NOMINATIM_CONFIG.USER_AGENT,
+      "User-Agent": configuration.userAgent,
       "Accept": "application/json"
     }
   },
-    NOMINATIM_CONFIG.TIMEOUT_IN_MS,
+    configuration.timeoutInMs,
     signal
   );
 

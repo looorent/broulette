@@ -1,3 +1,4 @@
+import type { FailoverConfiguration } from "@features/circuit-breaker.server/types";
 import type { Coordinates } from "@features/coordinate";
 
 export type OverpassLocationType = "way" | "node" | "relation";
@@ -29,4 +30,9 @@ export interface OverpassResponse {
   timestampInUtc: string;
   durationInMs: number;
   restaurants: OverpassRestaurant[];
+}
+
+export interface OverpassConfiguration {
+  instanceUrls: string[];
+  failover: FailoverConfiguration;
 }

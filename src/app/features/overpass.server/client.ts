@@ -178,11 +178,13 @@ export async function fetchAllRestaurantsNearbyWithRetry(
   distanceRangeInMeters: number,
   idsToExclude: { osmId: string; osmType: string }[],
   instanceUrl: string,
-  timeoutInSeconds: number,
+  timeoutInSeconds: number, // TODO is this the same than "interval between retries"?
   signal: AbortSignal | undefined
 ): Promise<OverpassResponse | undefined> {
-  return await createCircuitBreaker(() =>
-    fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, instanceUrl, timeoutInSeconds, signal)
+  return await createCircuitBreaker(
+    () => fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, instanceUrl, timeoutInSeconds, signal),
+
+    timeoutInSeconds,
   );
 }
 

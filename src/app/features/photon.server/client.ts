@@ -1,8 +1,8 @@
-import { PHOTON_CONFIG } from "@config/server";
 import { createCircuitBreaker } from "@features/circuit-breaker.server";
 import { executeRequest } from "@features/http.server";
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { PhotonHttpError, PhotonServerError } from "./error";
+import type { GeocodingPhotonConfiguration } from "./types";
 
 interface PhotonFeature {
   geometry: {
@@ -25,8 +25,12 @@ interface PhotonResponse {
   features: PhotonFeature[];
 }
 
-export async function fetchLocationFromPhoton(query: string, limit: number, signal: AbortSignal): Promise<LocationSuggestions> {
-  const rawData = await createCircuitBreaker(() => fetchPhotonAddresses(query, limit, signal));
+export async function fetchLocationFromPhoton(query: string, configuration: GeocodingPhotonConfiguration, signal: AbortSignal): Promise<LocationSuggestions> {
+  const rawData = await createCircuitBreaker(
+    () => fetchPhotonAddresses(query, configuration, signal),
+    configuration.failover.retries,
+    configuration.failover.timeoutInMs
+  );
 
   const locations = rawData
     .filter((item) => item?.geometry?.coordinates?.length === 2)
@@ -34,23 +38,22 @@ export async function fetchLocationFromPhoton(query: string, limit: number, sign
 
   return {
     locations: locations,
-    note: PHOTON_CONFIG.BOTTOM_NOTE
+    note: configuration.bottomNote
   };
 }
 
-async function fetchPhotonAddresses(query: string, limit: number, signal: AbortSignal): Promise<PhotonFeature[]> {
+async function fetchPhotonAddresses(query: string, configuration: GeocodingPhotonConfiguration, signal: AbortSignal): Promise<PhotonFeature[]> {
   const params = new URLSearchParams({
     q: query,
-    limit: limit.toString()
+    limit: configuration.maxNumberOfAddresses.toString()
   });
-
-  const url = `${PHOTON_CONFIG.BASE_URL}?${params.toString()}`;
+  const url = `${configuration.baseUrl}?${params.toString()}`;
   const response = await executeRequest(url, {
     headers: {
       "Accept": "application/json"
     }
   },
-    PHOTON_CONFIG.TIMEOUT_IN_MS,
+    configuration.timeoutInMs,
     signal
   );
 
