@@ -1,4 +1,4 @@
-import { OVERPASS_SOURCE_NAME } from "@config";
+import { OVERPASS_SOURCE_NAME } from "@config/server";
 import type { Coordinates } from "@features/coordinate";
 import { buildMapLink } from "@features/map";
 import { fetchAllRestaurantsNearbyWithRetry } from "@features/overpass.server";

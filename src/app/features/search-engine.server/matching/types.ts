@@ -12,7 +12,7 @@ export interface RestaurantMatchingConfig {
   tags: RestaurantTagConfiguration;
   google: {
     enabled: boolean;
-    apiKey: string;
+    apiKey: string | undefined;
     rateLimiting: {
       maxNumberOfAttemptsPerMonth: number;
     };

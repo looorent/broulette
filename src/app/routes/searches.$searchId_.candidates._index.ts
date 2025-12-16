@@ -1,4 +1,4 @@
-import { DEFAULT_SEARCH_ENGINE_CONFIGURATION } from "@config";
+import { SEARCH_ENGINE_CONFIGURATION } from "@config/server";
 import { searchCandidate } from "@features/search-engine.server";
 import { href, redirect } from "react-router";
 import type { Route } from "./+types/searches.$searchId_.candidates._index";
@@ -9,7 +9,7 @@ export async function action({
   const formData = await request.formData();
   const searchId = formData.get("searchId")?.toString();
   if (searchId) {
-    const candidate = await searchCandidate(searchId, DEFAULT_SEARCH_ENGINE_CONFIGURATION);
+    const candidate = await searchCandidate(searchId, SEARCH_ENGINE_CONFIGURATION);
     if (candidate) {
       return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: candidate.searchId, candidateId: candidate.id }));
     } else {

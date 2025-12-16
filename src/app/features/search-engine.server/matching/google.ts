@@ -1,4 +1,4 @@
-import { GOOGLE_PLACE_SOURCE_NAME } from "@config";
+import { GOOGLE_PLACE_SOURCE_NAME } from "@config/server";
 import prisma from "@features/db.server/prisma";
 import { findGoogleRestaurantById, searchGoogleRestaurantByText, type GoogleRestaurant } from "@features/google.server";
 import { buildMapLink } from "@features/map";

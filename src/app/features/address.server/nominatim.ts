@@ -1,6 +1,6 @@
-import { NOMINATIM_CONFIG } from "@config";
-import { executeRequest } from "./http";
+import { NOMINATIM_CONFIG } from "@config/server";
 import type { LocationPreference, LocationSuggestions } from "@features/search";
+import { executeRequest } from "./http";
 
 interface NominatimPlace {
   place_id: number;

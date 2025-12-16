@@ -1,4 +1,4 @@
-import { GOOGLE_PLACE_SOURCE_NAME } from "@config";
+import { GOOGLE_PLACE_SOURCE_NAME } from "@config/server";
 import prisma from "@features/db.server/prisma";
 import type { GoogleRestaurant } from "@features/google.server";
 import type { RestaurantMatchingAttempt } from "@persistence/client";

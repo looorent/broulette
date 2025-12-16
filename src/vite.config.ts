@@ -11,7 +11,8 @@ export const baseConfigurationAlias = {
   "@features": path.resolve(__dirname, "./app/features"),
   "@routes": path.resolve(__dirname, "./app/routes"),
   "@components": path.resolve(__dirname, "./app/components/"),
-  "@config": path.resolve(__dirname, "./app/config.ts"),
+  "@config/server": path.resolve(__dirname, "./app/config.server.ts"),
+  "@config": path.resolve(__dirname, "./app/config.ts")
 };
 
 export default defineConfig({

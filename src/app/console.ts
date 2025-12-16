@@ -1,5 +1,9 @@
+import { APP_CONFIG } from "@config";
+import { SERVER_CONFIG } from "@config/server";
 import prisma from "@features/db.server/prisma";
 import { findGoogleRestaurantById, searchGoogleRestaurantByText } from "@features/google.server";
+import { searchCandidate } from "@features/search-engine.server";
+import "dotenv/config";
 import * as repl from "repl";
 
 async function start() {
@@ -9,11 +13,12 @@ async function start() {
     console.log("---");
 
     const context = {
-      prisma: prisma,
-      google: {
-        findGoogleRestaurantById: findGoogleRestaurantById,
-        searchGoogleRestaurantByText: searchGoogleRestaurantByText
-      }
+      prisma,
+      APP_CONFIG,
+      SERVER_CONFIG,
+      findGoogleRestaurantById, // example: findGoogleRestaurantById("ChIJkVjOGDmZwUcRA5MVWISkQfI", SERVER_CONFIG.search.matching.google)
+      searchGoogleRestaurantByText,
+      searchCandidate
     };
 
     const interactive = repl.start({

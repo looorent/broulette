@@ -8,7 +8,7 @@
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "build:console": "vite build --config vite.config.console.ts",
-    "console": "npm run build:console && node --experimental-modules build/console/console.mjs"
+    "console": "npm run build:console && node --experimental-repl-await build/console/console.mjs"
   },
   "dependencies": {
     "@googlemaps/places": "2.2.0",
@@ -52,6 +52,7 @@
     "@features": "./app/features",
     "@routes": "./app/routes",
     "@components": "./app/components",
+    "@config/server": "./app/config.server.ts",
     "@config": "./app/config.ts"
   }
 }

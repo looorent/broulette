@@ -4,7 +4,7 @@ import { withAccelerate } from "@prisma/extension-accelerate";
 
 const prismaClientSingleton = () => {
   const prisma = new PrismaClient({
-    accelerateUrl: import.meta.env.VITE_DATABASE_URL!
+    accelerateUrl: process.env.BROULETTE_DATABASE_URL!
   })
   .$extends({
     model: {

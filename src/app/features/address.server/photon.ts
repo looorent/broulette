@@ -1,4 +1,4 @@
-import { PHOTON_CONFIG } from "@config";
+import { PHOTON_CONFIG } from "@config/server";
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { executeRequest } from "./http";
 
