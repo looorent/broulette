@@ -6,7 +6,9 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "build:console": "vite build --config vite.config.console.ts",
+    "console": "npm run build:console && node --experimental-modules build/console/console.mjs"
   },
   "dependencies": {
     "@googlemaps/places": "2.2.0",
@@ -37,6 +39,7 @@
     "@types/react-dom": "^19.2.3",
     "@types/string-similarity": "4.0.2",
     "prisma": "^7.1.0",
+    "react-router-devtools": "6.0.0",
     "tailwindcss": "4.1.18",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",

@@ -11,3 +11,6 @@ Here are the source of data I plan to pull to get the most complete source of re
 * add TripAdvisor
 * Investigate why restaurant "Respire Restaurant" does not find any photo
 * Investigate why "La Terrasse de l'Abbaye de Notre-Dame du Vivier" does not find any equivalent on Google
+* filterTags seems to do the opposite operation
+* Fuzzy string comparison might be shitty
+* "Source tag" is ugly
