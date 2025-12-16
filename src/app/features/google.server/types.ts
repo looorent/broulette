@@ -1,9 +1,20 @@
 import type { Coordinates } from "@features/coordinate";
 
+export interface GooglePlaceConfiguration {
+  apiKey: string;
+  failover: {
+    retry: number;
+    timeoutInSeconds: number;
+  },
+  photo: {
+    maxWidthInPx: number
+    maxHeightInPx: number
+  }
+}
+
 export interface GoogleRestaurant {
   id: string;
   location: Coordinates | undefined | null;
-  name: string | undefined | null;
   displayName: string | undefined | null;
   types: string[];
   primaryType: string | undefined | null;
@@ -19,4 +30,6 @@ export interface GoogleRestaurant {
   openingHours: string | undefined;
   operational: boolean | undefined;
   priceLevel: number | undefined | null;
+  photoIds: string[];
+  photoUrl: string | undefined;
 }

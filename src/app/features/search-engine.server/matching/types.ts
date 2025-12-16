@@ -1,5 +1,6 @@
 import type { GoogleSimilarityConfiguration } from "@features/google.server";
 import type { Prisma } from "@persistence/client";
+import type { RestaurantTagConfiguration } from "../types";
 
 export type RestaurantWithIdentities = Prisma.RestaurantGetPayload<{
   include: {
@@ -8,13 +9,24 @@ export type RestaurantWithIdentities = Prisma.RestaurantGetPayload<{
 }>;
 
 export interface RestaurantMatchingConfig {
+  tags: RestaurantTagConfiguration;
   google: {
     enabled: boolean;
     apiKey: string;
-    searchRadiusInMeters: number;
-    maxNumberOfAttemptsPerMonth: number;
-    retry: number;
-    timeOutInMilliseconds: number;
+    rateLimiting: {
+      maxNumberOfAttemptsPerMonth: number;
+    };
+    search: {
+      radiusInMeters: number;
+    };
+    failover: {
+      retry: number;
+      timeoutInSeconds: number;
+    };
+    photo: {
+      maxWidthInPx: number;
+      maxHeightInPx: number;
+    }
     similarity: GoogleSimilarityConfiguration;
   }
 }

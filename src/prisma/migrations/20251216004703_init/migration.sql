@@ -51,6 +51,7 @@ CREATE TABLE "restaurant" (
     "state" VARCHAR(50),
     "description" TEXT,
     "imageUrl" TEXT,
+    "mapUrl" TEXT NOT NULL,
     "rating" DECIMAL(2,1),
     "ratingCount" INTEGER,
     "phoneNumber" VARCHAR(20),

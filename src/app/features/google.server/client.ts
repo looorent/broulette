@@ -2,34 +2,37 @@ import { computeViewportFromCircle } from "@features/coordinate";
 import { PlacesClient, type protos } from "@googlemaps/places";
 import { convertGooglePeriodsToOpeningHours } from "./opening-hours";
 import { compareSimilarity, type GoogleSimilarityConfiguration } from "./similarity";
-import type { GoogleRestaurant } from "./types";
+import type { GooglePlaceConfiguration, GoogleRestaurant } from "./types";
 
-const FIELDS_MASK = [
-  "places.id",
-  "places.name",
-  "places.displayName",
-  "places.location",
-  "places.formattedAddress",
-  "places.addressComponents",
-  "places.types",
-  "places.businessStatus",
-  "places.googleMapsUri",
-  "places.rating",
-  "places.regularOpeningHours",
-  "places.nationalPhoneNumber",
-  "places.internationalPhoneNumber",
-  "places.priceRange",
-  "places.userRatingCount",
-  "places.primaryType"
-].join(",");
+const FIELDS_TO_FETCH = [
+  "id",
+  "name",
+  "displayName",
+  "location",
+  "formattedAddress",
+  "addressComponents",
+  "types",
+  "businessStatus",
+  "googleMapsUri",
+  "rating",
+  "regularOpeningHours",
+  "nationalPhoneNumber",
+  "internationalPhoneNumber",
+  "priceRange",
+  "userRatingCount",
+  "primaryType",
+  "photos"
+]
+
+const SEARCH_FIELDS_MASK = FIELDS_TO_FETCH.map(field => `places.${field}`).join(",");
+const DETAIL_FIELDS_MASK = FIELDS_TO_FETCH.join(",");
 
 export async function findGoogleRestaurantById(
   placeId: string,
-  apiKey: string,
-  retry: number
+  configuration: GooglePlaceConfiguration
 ): Promise<GoogleRestaurant | undefined> {
   const placesClient = new PlacesClient({
-    apiKey: apiKey
+    apiKey: configuration.apiKey
   });
 
   const response = await placesClient.getPlace(
@@ -37,10 +40,10 @@ export async function findGoogleRestaurantById(
       name: `places/${placeId}`
     },
     {
-      maxRetries: retry,
+      maxRetries: configuration.failover.retry,
       otherArgs: {
         headers: {
-          "X-Goog-FieldMask": FIELDS_MASK
+          "X-Goog-FieldMask": DETAIL_FIELDS_MASK
         }
       }
     }
@@ -48,7 +51,7 @@ export async function findGoogleRestaurantById(
 
   const place = response?.[0];
   if (place) {
-    return convertGooglePlaceToRestaurant(place!);
+    return addPhotoUriOn(convertGooglePlaceToRestaurant(place!), configuration);
   } else {
     return undefined;
   }
@@ -61,11 +64,10 @@ async function findPlacesByText(
   radiusInMeters: number,
   maximumNumberOfResultsToQuery: number,
   fieldMask: string,
-  apiKey: string,
-  timeout: number
+  configuration: GooglePlaceConfiguration,
 ): Promise<protos.google.maps.places.v1.IPlace[]> {
   const placesClient = new PlacesClient({
-    apiKey: apiKey
+    apiKey: configuration.apiKey
   });
 
   // using the "locationRestrictions" is superior to "locationBias" that returns unwanted results (like far far far away from the origin point)
@@ -73,6 +75,7 @@ async function findPlacesByText(
   const response = await placesClient.searchText(
     {
       rankPreference: "RELEVANCE",
+      includedType: "restaurant", // TODO check if this is necessary
       locationRestriction: {
         rectangle: {
           low: {
@@ -89,7 +92,7 @@ async function findPlacesByText(
     },
     {
       maxResults: maximumNumberOfResultsToQuery,
-      timeout: timeout,
+      timeout: configuration.failover.timeoutInSeconds * 1000,
       otherArgs: {
         headers: {
           "X-Goog-FieldMask": fieldMask
@@ -105,11 +108,10 @@ export async function searchGoogleRestaurantByText(
   latitude: number,
   longitude: number,
   radiusInMeters: number,
-  apiKey: string,
-  timeout: number,
+  configuration: GooglePlaceConfiguration,
   similarityConfiguration: GoogleSimilarityConfiguration
 ): Promise<GoogleRestaurant | undefined> {
-  const comparable = { name: searchableText, location: { latitude: latitude, longitude: longitude } };
+  const comparable = { displayName: searchableText, location: { latitude: latitude, longitude: longitude } };
   return (
     (
       await findPlacesByText(
@@ -118,18 +120,48 @@ export async function searchGoogleRestaurantByText(
         longitude,
         radiusInMeters,
         3,
-        FIELDS_MASK,
-        apiKey,
-        timeout
+        SEARCH_FIELDS_MASK,
+        configuration
       )
     )
     .map(convertGooglePlaceToRestaurant)
     ?.filter(Boolean)
     ?.map((restaurant) => ({ restaurant: restaurant!, match: compareSimilarity(comparable, restaurant!, similarityConfiguration) }))
     ?.sort((a, b) => b.match.totalScore - a.match.totalScore)
-    ?.map(match => match.restaurant)
+    ?.map(match => addPhotoUriOn(match.restaurant, configuration))
     ?.[0]
   );
+}
+
+async function findGoogleImageUrl(
+  photoId: string,
+  apiKey: string,
+  maxWidthPx: number,
+  maxHeightPx: number,
+  retry: number
+): Promise<string | null | undefined> {
+  const placesClient = new PlacesClient({
+    apiKey: apiKey
+  });
+  // TODO handle error
+  try {
+    const resourceName = photoId?.endsWith("/media") ? photoId : `${photoId}/media`;
+    const placeResponse = await placesClient.getPhotoMedia(
+      {
+        name: resourceName,
+        maxWidthPx: maxWidthPx,
+        maxHeightPx: maxHeightPx,
+        skipHttpRedirect: true
+      },
+      {
+        maxRetries: retry
+      }
+    );
+    return placeResponse[0]?.photoUri;
+  } catch (e) {
+    console.error(`Error when loading the photo ${photoId}`, e);
+    return undefined;
+  }
 }
 
 function convertGooglePlaceToRestaurant(
@@ -138,7 +170,6 @@ function convertGooglePlaceToRestaurant(
   if (place && place.location) {
     return {
       id: place.id!,
-      name: place.displayName?.text,
       displayName: place.displayName?.text,
       types: place.types || [],
       primaryType: place.primaryType,
@@ -157,7 +188,9 @@ function convertGooglePlaceToRestaurant(
       websiteUri: place.websiteUri,
       openingHours: place.regularOpeningHours ? convertGooglePeriodsToOpeningHours(place.regularOpeningHours) : undefined,
       operational: convertBusinessStatusToOperational(place.businessStatus?.toString()),
-      priceLevel: convertPriceLevelToNumber(place.priceLevel?.toString())
+      priceLevel: convertPriceLevelToNumber(place.priceLevel?.toString()),
+      photoIds: place.photos?.map(photo => photo.name)?.filter(Boolean)?.map(id => id!) || [],
+      photoUrl: undefined
     }
   } else {
     return undefined;
@@ -190,3 +223,20 @@ function convertBusinessStatusToOperational(status: string | undefined | null): 
     return undefined;
   }
 }
+
+async function addPhotoUriOn(
+  restaurant: GoogleRestaurant | undefined,
+  configuration: GooglePlaceConfiguration
+): Promise<GoogleRestaurant | undefined> {
+  const photoId = restaurant?.photoIds?.[0];
+  if (photoId) {
+    const photoUrl = await findGoogleImageUrl(photoId, configuration.apiKey, configuration.photo.maxWidthInPx, configuration.photo.maxHeightInPx, configuration.failover.retry);
+    if (photoUrl) {
+      restaurant.photoUrl = photoUrl;
+    }
+    return restaurant;
+  } else {
+    return undefined;
+  }
+}
+

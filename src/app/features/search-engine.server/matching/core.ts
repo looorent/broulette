@@ -1,6 +1,8 @@
 import prisma from "@features/db.server/prisma";
 import { isOlderThanAMonth } from "@features/utils/date";
+import type { Restaurant } from "@persistence/client";
 import type { DiscoveredRestaurant, DiscoveredRestaurantIdentity } from "../discovery/types";
+import { filterTags } from "../tag-filter";
 import { GOOGLE_MATCHER } from "./google";
 import type { Matcher, Matching, RestaurantMatchingConfig, RestaurantWithIdentities } from "./types";
 
@@ -9,7 +11,7 @@ export async function enrichRestaurant(
   configuration: RestaurantMatchingConfig
 ): Promise<RestaurantWithIdentities | null> {
   if (discovered) {
-    const restaurant = await findRestaurantInDatabase(discovered.identity) || await saveRestaurantToDatabase(discovered);
+    const restaurant = await findRestaurantInDatabase(discovered.identity) || await saveRestaurantToDatabase(discovered, configuration);
     if (shouldBeMatched(restaurant)) {
       return await enrich(restaurant, configuration);
     } else {
@@ -44,17 +46,13 @@ async function enrich(
   return currentResult.restaurant;
 }
 
-function shouldBeMatched(restaurant: RestaurantWithIdentities): boolean {
+function shouldBeMatched(restaurant: Restaurant): boolean {
   return restaurant
     && (!restaurant.matched || isOlderThanAMonth(restaurant.updatedAt));
 }
 
-function filterTags(tags: string[] | undefined): string[] {
-  return tags || []; // TODO
-}
-
 async function findRestaurantInDatabase(identity: DiscoveredRestaurantIdentity) {
-  return await prisma.restaurant.findFirst({
+  return prisma.restaurant.findFirst({
     where: {
       identities: {
         some: {
@@ -69,13 +67,13 @@ async function findRestaurantInDatabase(identity: DiscoveredRestaurantIdentity) 
   });
 }
 
-async function saveRestaurantToDatabase(discovered: DiscoveredRestaurant) {
+async function saveRestaurantToDatabase(discovered: DiscoveredRestaurant, configuration: RestaurantMatchingConfig): Promise<RestaurantWithIdentities> {
   return await prisma.restaurant.create({
     data: {
       name: discovered.name!,
       latitude: discovered.coordinates.latitude!,
       longitude: discovered.coordinates.longitude!,
-      tags: filterTags(discovered.tags),
+      tags: filterTags(discovered.tags, configuration.tags),
       address: discovered.formattedAddress,
       countryCode: discovered.countryCode,
       internationalPhoneNumber: discovered.internationalPhoneNumber,
@@ -83,6 +81,7 @@ async function saveRestaurantToDatabase(discovered: DiscoveredRestaurant) {
       state: discovered.addressState,
       description: discovered.description,
       website: discovered.website,
+      mapUrl: discovered.mapUrl,
       matched: false,
       openingHours: discovered.openingHours,
       identities: { create: discovered.identity }

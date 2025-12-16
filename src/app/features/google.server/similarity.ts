@@ -18,7 +18,7 @@ export interface GoogleSimilarityConfiguration {
 }
 
 interface ComparableRestaurant {
-  name: string | undefined | null;
+  displayName: string | undefined | null;
   location: Coordinates | undefined | null;
 }
 
@@ -27,7 +27,7 @@ export function compareSimilarity(
   other: ComparableRestaurant,
   configuration: GoogleSimilarityConfiguration
 ): SimilarityResult {
-  const nameScore = stringSimilarity.compareTwoStrings(restaurant?.name || "", other?.name || "");
+  const nameScore = stringSimilarity.compareTwoStrings(restaurant?.displayName || "", other?.displayName || "");
 
   let distanceInMeters: number;
   if (!restaurant.location || !other.location) {

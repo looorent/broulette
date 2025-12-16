@@ -26,6 +26,7 @@ export interface DiscoveredRestaurant {
   addressState: string | undefined;
   formattedAddress: string | undefined;
   website: string | undefined;
+  mapUrl: string;
   description: string | undefined;
   phoneNumber: string | undefined;
   internationalPhoneNumber: string | undefined;

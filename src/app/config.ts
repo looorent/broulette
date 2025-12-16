@@ -33,9 +33,6 @@ export const RESTAURANT_TYPES_TO_EXCLUDE: string[] = [
 ];
 
 export const DEFAULT_SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
-  tags: {
-    toExclude: import.meta.env.VITE_TAGS_TO_EXCLUDE?.split(',')?.map((tag: string) => tag.trim()) || RESTAURANT_TYPES_TO_EXCLUDE
-  },
   discovery: {
     overpass: {
       instanceUrl: import.meta.env.VITE_OVERPASS_API_INSTANCE_URL || "https://overpass-api.de/api/interpreter",
@@ -46,13 +43,28 @@ export const DEFAULT_SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
     maxDiscoveryIterations: Number(import.meta.env.VITE_ENGINE_DEFAULT_MAX_DISCOVERY_ITERATIONS ?? 3)
   },
   matching: {
+    tags: {
+      hiddenTags: import.meta.env.VITE_TAGS_TO_EXCLUDE?.split(',')?.map((tag: string) => tag.trim()) || RESTAURANT_TYPES_TO_EXCLUDE,
+      priorityTags: import.meta.env.VITE_TAGS_TO_PRIORITIZE?.split(',')?.map((tag: string) => tag.trim()) || [],
+      maxTags: Number(import.meta.env.VITE_TAGS_MAXIMUM || 10)
+    },
     google: {
       enabled: import.meta.env.VITE_GOOGLE_PLACE_ENABLED?.toLowerCase() === "true",
       apiKey: import.meta.env.VITE_GOOGLE_PLACE_API_KEY,
-      searchRadiusInMeters: Number(import.meta.env.VITE_GOOGLE_SEARCH_RADIUS_IN_METERS || 50),
-      maxNumberOfAttemptsPerMonth: Number(import.meta.env.VITE_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || 200),
-      retry: Number(import.meta.env.VITE_GOOGLE_RETRY || 3),
-      timeOutInMilliseconds: Number(import.meta.env.VITE_GOOGLE_PLACE_API_TIMEOUT_IN_SECONDS || 10000),
+      rateLimiting: {
+        maxNumberOfAttemptsPerMonth: Number(import.meta.env.VITE_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || 200),
+      },
+      search: {
+        radiusInMeters: Number(import.meta.env.VITE_GOOGLE_SEARCH_RADIUS_IN_METERS || 50)
+      },
+      failover: {
+        retry: Number(import.meta.env.VITE_GOOGLE_RETRY || 3),
+        timeoutInSeconds: Number(import.meta.env.VITE_GOOGLE_PLACE_API_TIMEOUT_IN_SECONDS || 10),
+      },
+      photo: {
+        maxWidthInPx: 1024,
+        maxHeightInPx: 512
+      },
       similarity: {
         weight: {
           name: 0.4,

@@ -91,6 +91,7 @@ model Restaurant {
 
   description              String?
   imageUrl                 String?
+  mapUrl                   String
   rating                   Decimal? @db.Decimal(2, 1)
   ratingCount              Int?
   phoneNumber              String? @db.VarChar(20)

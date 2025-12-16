@@ -1,6 +1,7 @@
 import { GOOGLE_PLACE_SOURCE_NAME } from "@config";
 import prisma from "@features/db.server/prisma";
 import { findGoogleRestaurantById, searchGoogleRestaurantByText, type GoogleRestaurant } from "@features/google.server";
+import { buildMapLink } from "@features/map";
 import { registerAttemptToGooglePlaceById, registerAttemptToGooglePlaceByText } from "@features/rate-limiting.server";
 import { thirtyDaysAgo } from "@features/utils/date";
 import { Prisma } from "@persistence/client";
@@ -30,7 +31,7 @@ async function enrichWithGoogle(
   const googleIdentity = restaurant.identities.find(identity => identity.source === GOOGLE_PLACE_SOURCE_NAME);
   let googleRestaurant: GoogleRestaurant | undefined;
   if (googleIdentity) {
-    googleRestaurant = await findGoogleRestaurantById(googleIdentity.externalId, configuration.google.apiKey, configuration.google.retry);
+    googleRestaurant = await findGoogleRestaurantById(googleIdentity.externalId, configuration.google);
     await registerAttemptToGooglePlaceById(googleIdentity.externalId, restaurant.id, googleRestaurant);
   } else {
     const query = restaurant.name;
@@ -38,12 +39,11 @@ async function enrichWithGoogle(
       query,
       restaurant.latitude,
       restaurant.longitude,
-      configuration.google.searchRadiusInMeters,
-      configuration.google.apiKey,
-      configuration.google.timeOutInMilliseconds,
+      configuration.google.search.radiusInMeters,
+      configuration.google,
       configuration.google.similarity
     );
-    await registerAttemptToGooglePlaceByText(query, restaurant.latitude, restaurant.longitude, configuration.google.searchRadiusInMeters, restaurant.id, googleRestaurant);
+    await registerAttemptToGooglePlaceByText(query, restaurant.latitude, restaurant.longitude, configuration.google.search.radiusInMeters, restaurant.id, googleRestaurant);
 
     if (googleRestaurant) {
       const newIdentity = await prisma.restaurantIdentity.create({
@@ -66,12 +66,16 @@ async function updateRestaurantWithGoogle(
   restaurant: RestaurantWithIdentities
 ): Promise<RestaurantWithIdentities> {
   if (google) {
+    const name = google.displayName ?? restaurant.name;
+    const latitude = google.location?.latitude ?? restaurant.latitude;
+    const longitude = google.location?.longitude ?? restaurant.longitude;
+    const mapUrl = google.googleMapsUri ?? buildMapLink(latitude, longitude, name);
     return await prisma.restaurant.update({
       where: { id: restaurant.id },
       data: {
-        name: google.displayName ?? google.name ?? restaurant.name,
-        latitude: google.location?.latitude ?? restaurant.latitude,
-        longitude: google.location?.longitude ?? restaurant.longitude,
+        name: name,
+        latitude: latitude,
+        longitude: longitude,
         version: restaurant.version + 1,
         address: google.formattedAddress ?? google.shortFormattedAddress ?? restaurant.address,
         rating: (google.rating ? new Prisma.Decimal(google.rating) : null) ?? restaurant.rating,
@@ -82,12 +86,12 @@ async function updateRestaurantWithGoogle(
         tags: google.types ?? restaurant.tags,
         openingHours: google.openingHours || restaurant.openingHours,
         countryCode: google.countryCode || restaurant.countryCode,
-        sourceWebpage: google.googleMapsUri,
+        mapUrl: mapUrl ?? restaurant.mapUrl,
         website: google.websiteUri ?? restaurant.website,
         operational: google.operational,
         matched: true,
-        // description: restaurant.description,
-        // imageUrl: restaurant.imageUrl, TODO
+        description: restaurant.description,
+        imageUrl: google.photoUrl ?? restaurant.imageUrl
       },
       include: {
         identities: true

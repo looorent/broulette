@@ -1,5 +1,6 @@
 import { OVERPASS_SOURCE_NAME } from "@config";
 import type { Coordinates } from "@features/coordinate";
+import { buildMapLink } from "@features/map";
 import { fetchAllRestaurantsNearbyWithRetry } from "@features/overpass.server";
 import { type DiscoveredRestaurant, type DiscoveredRestaurantIdentity, type SearchDiscoveryConfig } from "./types";
 
@@ -32,7 +33,8 @@ export async function findRestaurantsFromOverpass(
       phoneNumber: restaurant.phoneNumber,
       internationalPhoneNumber: restaurant.phoneNumber,
       tags: restaurant.cuisine && restaurant.cuisine?.length > 0 ? restaurant.cuisine?.split(";") || [] : [],
-      openingHours: restaurant.openingHours
+      openingHours: restaurant.openingHours,
+      mapUrl: buildMapLink(restaurant.location.latitude, restaurant.location.longitude, restaurant.name)
     })
   );
 }

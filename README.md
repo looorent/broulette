@@ -9,10 +9,5 @@ Here are the source of data I plan to pull to get the most complete source of re
 ## TODO
 
 * add TripAdvisor
-
-
-Type to ignore: 
-* establishment
-* point_of_interest
-* food
-* restaurant
+* Investigate why restaurant "Respire Restaurant" does not find any photo
+* Investigate why "La Terrasse de l'Abbaye de Notre-Dame du Vivier" does not find any equivalent on Google

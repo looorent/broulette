@@ -1,4 +1,4 @@
-export function createMapLink(
+export function buildMapLink(
   latitude: number,
   longitude: number,
   name: string
