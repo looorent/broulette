@@ -1,4 +1,5 @@
 import { createCircuitBreaker } from "@features/circuit-breaker.server";
+import { executeRequest } from "@features/http.server";
 import { OsmEmptyResponseError, OsmHttpError, OsmServerError } from "./error";
 import type { OverpassResponse, OverpassRestaurant } from "./types";
 
@@ -84,6 +85,8 @@ function parseRestaurantFromResponse(
       street: street,
       city: city,
       postCode: postCode,
+      phoneNumber: body.tags["phone"],
+      addressState: body.tags["state"],
       formattedAddress: createFormattedAddress(street, houseNumber, city, postCode, countryCode),
       website: body.tags["website"] ?? body.tags["contact:facebook"],
       openingHours: body.tags["opening_hours"],
@@ -112,26 +115,28 @@ function parseResponse(
   }
 }
 
-export async function fetchAllRestaurantsNearby(
+async function fetchAllRestaurantsNearby(
   latitude: number,
   longitude: number,
   distanceRangeInMeters: number,
   idsToExclude: { osmId: string; osmType: string }[],
   instanceUrl: string,
-  timeoutInSeconds: number
+  timeoutInSeconds: number,
+  signal: AbortSignal | undefined
 ): Promise<OverpassResponse | undefined> {
   console.info(
     `[OSM] Fetching all OSM restaurants nearby '${latitude},${longitude}'...`
   );
   const query = createQueryToListAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, timeoutInSeconds);
   const start = Date.now();
-  const response = await fetch(instanceUrl, {
+
+  const response = await executeRequest(instanceUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
     },
     body: `data=${encodeURIComponent(query)}`
-  });
+  }, timeoutInSeconds, signal);
 
   const durationInMs = Date.now() - start;
 
@@ -173,10 +178,11 @@ export async function fetchAllRestaurantsNearbyWithRetry(
   distanceRangeInMeters: number,
   idsToExclude: { osmId: string; osmType: string }[],
   instanceUrl: string,
-  timeoutInSeconds: number
+  timeoutInSeconds: number,
+  signal: AbortSignal | undefined
 ): Promise<OverpassResponse | undefined> {
   return await createCircuitBreaker(() =>
-    fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, instanceUrl, timeoutInSeconds)
+    fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, instanceUrl, timeoutInSeconds, signal)
   );
 }
 

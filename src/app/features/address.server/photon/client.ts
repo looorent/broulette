@@ -1,6 +1,8 @@
 import { PHOTON_CONFIG } from "@config/server";
+import { createCircuitBreaker } from "@features/circuit-breaker.server";
+import { executeRequest } from "@features/http.server";
 import type { LocationPreference, LocationSuggestions } from "@features/search";
-import { executeRequest } from "./http";
+import { PhotonHttpError, PhotonServerError } from "./error";
 
 interface PhotonFeature {
   geometry: {
@@ -24,10 +26,12 @@ interface PhotonResponse {
 }
 
 export async function fetchLocationFromPhoton(query: string, limit: number, signal: AbortSignal): Promise<LocationSuggestions> {
-  const rawData = await fetchPhotonAddresses(query, limit, signal);
+  const rawData = await createCircuitBreaker(() => fetchPhotonAddresses(query, limit, signal));
+
   const locations = rawData
     .filter((item) => item?.geometry?.coordinates?.length === 2)
     .map(convertPhotonToLocation);
+
   return {
     locations: locations,
     note: PHOTON_CONFIG.BOTTOM_NOTE
@@ -44,13 +48,20 @@ async function fetchPhotonAddresses(query: string, limit: number, signal: AbortS
   const response = await executeRequest(url, {
     headers: {
       "Accept": "application/json"
-    }},
+    }
+  },
     PHOTON_CONFIG.TIMEOUT_IN_MS,
     signal
   );
 
-  const data: PhotonResponse = await response.json();
-  return data.features || [];
+  if (response.ok) {
+    const data: PhotonResponse = await response.json();
+    return data.features || [];
+  } else if (response.status >= 500) {
+    throw new PhotonServerError(response.status);
+  } else {
+    throw new PhotonHttpError(response.status);
+  }
 }
 
 function convertPhotonToLocation(feature: PhotonFeature): LocationPreference {

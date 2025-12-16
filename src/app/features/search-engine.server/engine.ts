@@ -10,7 +10,8 @@ import { validateRestaurant } from "./validation/validator";
 // TODO profiling
 export async function searchCandidate(
   searchId: string,
-  configuration: SearchEngineConfiguration
+  configuration: SearchEngineConfiguration,
+  signal?: AbortSignal | undefined
 ): Promise<SearchCandidate | null> {
   const search = await prisma.search.findUniqueWithRestaurantAndIdentities(searchId); // TODO repository?
   if (!search) {
@@ -20,6 +21,7 @@ export async function searchCandidate(
   const discovery = new RestaurantDiscoveryScanner(
     { latitude: search.latitude, longitude: search.longitude },
     configuration.discovery,
+    signal,
     (search.candidates || []).flatMap(({ restaurant }: { restaurant: { identities: RestaurantIdentity[] } | undefined | null }) => restaurant?.identities || [])
   );
 

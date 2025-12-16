@@ -9,6 +9,7 @@ export class RestaurantDiscoveryScanner {
   constructor(
     private readonly nearBy: Coordinates,
     private readonly configuration: SearchDiscoveryConfig,
+    private readonly signal: AbortSignal | undefined,
     initialIdentitiesToExclude: DiscoveredRestaurantIdentity[] = []
   ) {
     this.iteration = 0;
@@ -23,7 +24,7 @@ export class RestaurantDiscoveryScanner {
       this.iteration += 1;
       const range = this.currentRange;
       console.log(`Scanning range (iteration ${this.iteration}): ${range}m...`);
-      const result = await discoverNearbyRestaurants(this.nearBy, this.currentRange, this.identitiesToExclude, this.configuration);
+      const result = await discoverNearbyRestaurants(this.nearBy, this.currentRange, this.identitiesToExclude, this.configuration, this.signal);
       console.log(`Scanning range (iteration ${this.iteration}): ${range}m. Done.`);
       return result;
     }
@@ -52,8 +53,9 @@ async function discoverNearbyRestaurants(
   nearBy: Coordinates,
   rangeInMeters: number,
   identitiesToExclude: DiscoveredRestaurantIdentity[] = [],
-  configuration: SearchDiscoveryConfig
+  configuration: SearchDiscoveryConfig,
+  signal: AbortSignal | undefined
 ): Promise<DiscoveredRestaurant[]> {
   // TODO implement other sources than overpass
-  return await findRestaurantsFromOverpass(nearBy, rangeInMeters, identitiesToExclude, configuration);
+  return await findRestaurantsFromOverpass(nearBy, rangeInMeters, identitiesToExclude, configuration, signal);
 }

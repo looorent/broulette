@@ -1,6 +1,8 @@
 import { NOMINATIM_CONFIG } from "@config/server";
+import { createCircuitBreaker } from "@features/circuit-breaker.server";
 import type { LocationPreference, LocationSuggestions } from "@features/search";
-import { executeRequest } from "./http";
+import { executeRequest } from "@features/http.server";
+import { NominatimHttpError, NominatimServerError } from "./error";
 
 interface NominatimPlace {
   place_id: number;
@@ -12,7 +14,10 @@ interface NominatimPlace {
 }
 
 export async function fetchLocationFromNominatim(query: string, limit: number, signal: AbortSignal): Promise<LocationSuggestions> {
-  const rawData = await fetchNominatimAddresses(query, limit, signal);
+  const rawData = await createCircuitBreaker(() =>
+    fetchNominatimAddresses(query, limit, signal)
+  );
+
   const locations = rawData
     .filter((item) => item && item.lat && item.lon)
     .map(convertNominatimToLocation);
@@ -41,12 +46,19 @@ async function fetchNominatimAddresses(query: string, limit: number, signal: Abo
     headers: {
       "User-Agent": NOMINATIM_CONFIG.USER_AGENT,
       "Accept": "application/json"
-    }},
+    }
+  },
     NOMINATIM_CONFIG.TIMEOUT_IN_MS,
     signal
   );
 
-  return response.json();
+  if (response.ok) {
+    return response.json();
+  } else if (response.status >= 500) {
+    throw new NominatimServerError(response.status);
+  } else {
+    throw new NominatimHttpError(response.status);
+  }
 }
 
 function convertNominatimToLocation(place: NominatimPlace): LocationPreference {

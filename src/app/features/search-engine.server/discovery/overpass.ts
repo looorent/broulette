@@ -8,14 +8,15 @@ export async function findRestaurantsFromOverpass(
   nearBy: Coordinates,
   rangeInMeters: number,
   identitiesToExclude: DiscoveredRestaurantIdentity[],
-  configuration: SearchDiscoveryConfig
+  configuration: SearchDiscoveryConfig,
+  signal: AbortSignal | undefined
 ): Promise<DiscoveredRestaurant[]> {
   const idsToExclude = identitiesToExclude
     .filter(Boolean)
     .filter(id => id.source === OVERPASS_SOURCE_NAME)
     .map(id => ({ osmId: id.externalId, osmType: id.type }));
 
-  const response = await fetchAllRestaurantsNearbyWithRetry(nearBy.latitude, nearBy.longitude, rangeInMeters, idsToExclude, configuration.overpass.instanceUrl, configuration.overpass.timeoutInSeconds);
+  const response = await fetchAllRestaurantsNearbyWithRetry(nearBy.latitude, nearBy.longitude, rangeInMeters, idsToExclude, configuration.overpass.instanceUrl, configuration.overpass.timeoutInSeconds, signal);
   return (response?.restaurants || [])
     .map(restaurant => ({
       name: restaurant.name,
