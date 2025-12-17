@@ -3,87 +3,99 @@ import type { DistanceRangeOption } from "./distance";
 import { areLocationEquals, createDeviceLocation, hasCoordinates, type LocationPreference } from "./location";
 import type { ServicePreference } from "./service";
 
-export class Preference {
-  readonly id: string;
-  constructor(readonly service: ServicePreference,
-              readonly location: LocationPreference,
-              readonly isDeviceLocationAttempted: boolean,
-              readonly range: DistanceRangeOption) {
-    this.id = crypto.randomUUID();
-  }
+export function equalsPreferences(preference: Preference, other: Preference): boolean {
+  return preference && other && preference.id === other.id
+}
 
-  withService(service: ServicePreference): Preference | this {
-    if (this.service !== service && this.service?.id !== service?.id) {
-      return new Preference(
-        service,
-        this.location,
-        this.isDeviceLocationAttempted,
-        this.range
-      );
-    } else {
-      return this;
-    }
-  }
+function buildPreference(
+  service: ServicePreference,
+  location: LocationPreference,
+  isDeviceLocationAttempted: boolean,
+  range: DistanceRangeOption): Preference {
 
-  withLocation(location: LocationPreference): Preference | this {
-    if (this.location !== location && !areLocationEquals(this.location, location)) {
-      return new Preference(
-        this.service,
+  const hasValidLocation = hasCoordinates(location);
+  const isValid = service && range && hasValidLocation;
+
+  return {
+    id: crypto.randomUUID(),
+    service: service,
+    location: location,
+    isDeviceLocationAttempted: isDeviceLocationAttempted,
+    range: range,
+    isValid: isValid,
+    hasValidLocation
+  };
+}
+
+export interface Preference {
+  id: string;
+  service: ServicePreference;
+  location: LocationPreference;
+  isDeviceLocationAttempted: boolean;
+  range: DistanceRangeOption;
+  isValid: boolean;
+  hasValidLocation: boolean;
+}
+
+export const preferenceFactory = {
+  withLocation: (preference: Preference, location: LocationPreference) => {
+    if (preference.location !== location && !areLocationEquals(preference.location, location)) {
+      return buildPreference(
+        preference.service,
         location,
-        this.isDeviceLocationAttempted,
-        this.range
+        preference.isDeviceLocationAttempted,
+        preference.range
       );
     } else {
-      return this;
+      return preference;
     }
-  }
+  },
 
-  withRange(range: DistanceRangeOption): Preference | this {
-    if (this.range !== range && this.range?.id !== range?.id) {
-      return new Preference(
-        this.service,
-        this.location,
-        this.isDeviceLocationAttempted,
+  withService: (preference: Preference, service: ServicePreference) => {
+    if (preference.service !== service && preference.service?.id !== service?.id) {
+      return buildPreference(
+        service,
+        preference.location,
+        preference.isDeviceLocationAttempted,
+        preference.range
+      );
+    } else {
+      return preference;
+    }
+  },
+
+  withDeviceLocationAttempted: (preference: Preference) => {
+    if (preference.isDeviceLocationAttempted) {
+      return preference;
+    } else {
+      return buildPreference(
+        preference.service,
+        preference.location,
+        true,
+        preference.range
+      );
+    }
+  },
+
+  withRange: (preference: Preference, range: DistanceRangeOption) => {
+    if (preference.range !== range && preference.range?.id !== range?.id) {
+      return buildPreference(
+        preference.service,
+        preference.location,
+        preference.isDeviceLocationAttempted,
         range
       );
     } else {
-      return this;
+      return preference;
     }
-  }
+  },
 
-  withDeviceLocationAttempted(): Preference | this {
-    if (this.isDeviceLocationAttempted) {
-      return this;
-    } else {
-      return new Preference(
-        this.service,
-        this.location,
-        true,
-        this.range
-      );
-    }
+  createDefaultPreference: (services: ServicePreference[], ranges: DistanceRangeOption[], coordinates: Coordinates | null) => {
+    return buildPreference(
+      services[0],
+      createDeviceLocation(coordinates),
+      false,
+      ranges[1]
+    );
   }
-
-  equals(other: Preference): boolean {
-    return other && this.id === other.id;
-  }
-
-  hasValidLocation(): boolean {
-    return hasCoordinates(this.location);
-  }
-
-  isValid(): boolean {
-    return this.service && this.range && this.hasValidLocation();
-  }
-}
-
-export function createDefaultPreference(services: ServicePreference[],
-                                        ranges: DistanceRangeOption[],
-                                        coordinates: Coordinates | null): Preference {
-  return new Preference(
-    services[0],
-    createDeviceLocation(coordinates),
-    false,
-    ranges[1]
-  );
-}
+};

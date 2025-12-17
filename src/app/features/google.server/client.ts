@@ -1,5 +1,6 @@
 import { computeViewportFromCircle } from "@features/coordinate";
 import { PlacesClient, type protos } from "@googlemaps/places";
+import { googlePlaceCircuitBreaker } from "./circuit-breaker";
 import { convertGooglePeriodsToOpeningHours } from "./opening-hours";
 import { compareSimilarity, type GoogleSimilarityConfiguration } from "./similarity";
 import type { GooglePlaceConfiguration, GoogleRestaurant } from "./types";
@@ -29,29 +30,34 @@ const DETAIL_FIELDS_MASK = FIELDS_TO_FETCH.join(",");
 
 export async function findGoogleRestaurantById(
   placeId: string,
-  configuration: GooglePlaceConfiguration
+  configuration: GooglePlaceConfiguration,
+  signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
   const placesClient = new PlacesClient({
     apiKey: configuration.apiKey
   });
 
-  const response = await placesClient.getPlace(
-    {
-      name: `places/${placeId}`
-    },
-    {
-      maxRetries: configuration.failover.retry,
-      otherArgs: {
-        headers: {
-          "X-Goog-FieldMask": DETAIL_FIELDS_MASK
+  const response = await googlePlaceCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+    if (signal?.aborted) {
+      throw signal.reason;
+    }
+    return await placesClient.getPlace(
+      {
+        name: `places/${placeId}`
+      },
+      {
+        otherArgs: {
+          headers: {
+            "X-Goog-FieldMask": DETAIL_FIELDS_MASK
+          }
         }
       }
-    }
-  );
+    );
+  }, signal);
 
   const place = response?.[0];
   if (place) {
-    return addPhotoUriOn(convertGooglePlaceToRestaurant(place!), configuration);
+    return addPhotoUriOn(convertGooglePlaceToRestaurant(place!), configuration, signal);
   } else {
     return undefined;
   }
@@ -92,7 +98,6 @@ async function findPlacesByText(
     },
     {
       maxResults: maximumNumberOfResultsToQuery,
-      timeout: configuration.failover.timeoutInSeconds * 1000,
       otherArgs: {
         headers: {
           "X-Goog-FieldMask": fieldMask
@@ -109,7 +114,8 @@ export async function searchGoogleRestaurantByText(
   longitude: number,
   radiusInMeters: number,
   configuration: GooglePlaceConfiguration,
-  similarityConfiguration: GoogleSimilarityConfiguration
+  similarityConfiguration: GoogleSimilarityConfiguration,
+  signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
   const comparable = { displayName: searchableText, location: { latitude: latitude, longitude: longitude } };
   return (
@@ -128,7 +134,7 @@ export async function searchGoogleRestaurantByText(
     ?.filter(Boolean)
     ?.map((restaurant) => ({ restaurant: restaurant!, match: compareSimilarity(comparable, restaurant!, similarityConfiguration) }))
     ?.sort((a, b) => b.match.totalScore - a.match.totalScore)
-    ?.map(match => addPhotoUriOn(match.restaurant, configuration))
+    ?.map(match => addPhotoUriOn(match.restaurant, configuration, signal))
     ?.[0]
   );
 }
@@ -138,12 +144,11 @@ async function findGoogleImageUrl(
   apiKey: string,
   maxWidthPx: number,
   maxHeightPx: number,
-  retry: number
+  signal?: AbortSignal | undefined
 ): Promise<string | null | undefined> {
   const placesClient = new PlacesClient({
     apiKey: apiKey
   });
-  // TODO handle error
   try {
     const resourceName = photoId?.endsWith("/media") ? photoId : `${photoId}/media`;
     const placeResponse = await placesClient.getPhotoMedia(
@@ -152,9 +157,6 @@ async function findGoogleImageUrl(
         maxWidthPx: maxWidthPx,
         maxHeightPx: maxHeightPx,
         skipHttpRedirect: true
-      },
-      {
-        maxRetries: retry
       }
     );
     return placeResponse[0]?.photoUri;
@@ -226,11 +228,18 @@ function convertBusinessStatusToOperational(status: string | undefined | null): 
 
 async function addPhotoUriOn(
   restaurant: GoogleRestaurant | undefined,
-  configuration: GooglePlaceConfiguration
+  configuration: GooglePlaceConfiguration,
+  signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
   const photoId = restaurant?.photoIds?.[0];
   if (photoId) {
-    const photoUrl = await findGoogleImageUrl(photoId, configuration.apiKey, configuration.photo.maxWidthInPx, configuration.photo.maxHeightInPx, configuration.failover.retry);
+    const photoUrl = await googlePlaceCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+      if (signal?.aborted) {
+        throw signal.reason;
+      }
+      return findGoogleImageUrl(photoId, configuration.apiKey, configuration.photo.maxWidthInPx, configuration.photo.maxHeightInPx, signal);
+    }, signal);
+
     if (photoUrl) {
       restaurant.photoUrl = photoUrl;
     }

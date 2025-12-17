@@ -5,15 +5,11 @@ import { HelpButton, HelpModal } from "@components/help";
 import { SearchSubmitButton } from "@components/search";
 import { PreferenceChip, type PreferenceChipHandle } from "@components/search-preference";
 import { PreferencesForm, type PreferencesFormHandle } from "@components/search-preference-form";
+import { APP_CONFIG } from "@config/server";
 import { getDeviceLocation } from "@features/browser.client";
-import { createDefaultPreference, createDeviceLocation, createNextServices, DISTANCE_RANGES, type Preference, type ServicePreference } from "@features/search";
+import { createDeviceLocation, createNextServices, DISTANCE_RANGES, preferenceFactory, type Preference } from "@features/search";
 import { useEffect, useRef, useState } from "react";
-import { useLoaderData, useSearchParams, type ClientLoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router";
-
-interface LoaderData {
-  services: ServicePreference[];
-  defaultPreferences: Preference;
-}
+import { useLoaderData, useSearchParams, type ShouldRevalidateFunction } from "react-router";
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({
   currentUrl,
@@ -24,17 +20,18 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   return !isModalChange && defaultShouldRevalidate;
 };
 
-export async function clientLoader({ request }: ClientLoaderFunctionArgs): Promise<LoaderData> {
+export async function loader() {
   const services = createNextServices(new Date());
   return {
     services: services,
-    defaultPreferences: createDefaultPreference(services, DISTANCE_RANGES, null)
-  };
+    defaultPreferences: preferenceFactory.createDefaultPreference(services, DISTANCE_RANGES, null),
+    configuration: APP_CONFIG
+  } as const;
 }
 
 function HomeContent() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { services, defaultPreferences } = useLoaderData<typeof clientLoader>();
+  const { services, defaultPreferences, configuration } = useLoaderData<typeof loader>();
   const [preferences, setPreferences] = useState<Preference>(defaultPreferences);
   const preferenceFormRef = useRef<PreferencesFormHandle>(null);
   const preferenceChipRef = useRef<PreferenceChipHandle>(null);
@@ -45,15 +42,18 @@ function HomeContent() {
       try {
         const devicePosition = await getDeviceLocation();
         if (devicePosition?.coords) {
-          setPreferences((prev) => prev.withLocation(createDeviceLocation(devicePosition.coords)).withDeviceLocationAttempted());
+          setPreferences((prev) => {
+            const current = preferenceFactory.withLocation(prev, createDeviceLocation(devicePosition.coords));
+            return preferenceFactory.withDeviceLocationAttempted(current);
+          });
         }
       } catch (error) {
         console.warn("Location access denied or failed:", error);
-        setPreferences((prev) => prev.withDeviceLocationAttempted());
+        setPreferences((prev) => preferenceFactory.withDeviceLocationAttempted(prev));
       }
     }
 
-    if (!preferences.isValid()) {
+    if (preferences && !preferences.isValid) {
       fetchLocation();
     }
   }, []);
@@ -114,9 +114,9 @@ function HomeContent() {
           ref={preferenceFormRef}
           preferences={preferences}
           services={services}
-          onServiceChange={newService => setPreferences(preferences.withService(newService))}
-          onDistanceRangeChange={newDistanceRange => setPreferences(preferences.withRange(newDistanceRange))}
-          onLocationChange={newLocation => setPreferences(preferences.withLocation(newLocation))} />
+          onServiceChange={newService => setPreferences(preferenceFactory.withService(preferences, newService))}
+          onDistanceRangeChange={newDistanceRange => setPreferences(preferenceFactory.withRange(preferences, newDistanceRange)) }
+          onLocationChange={newLocation => setPreferences(preferenceFactory.withLocation(preferences, newLocation)) } />
       </BottomSheet>
 
       <AlertBox
@@ -131,6 +131,7 @@ function HomeContent() {
       </AlertBox>
 
       <HelpModal
+        configuration={configuration}
         isOpen={searchParams.get("modal") === "help"}
         onClose={closeModal}
       />

@@ -1,3 +1,4 @@
+import { GEOCODING_CONFIGURATION } from "@config/server";
 import { searchLocations } from "@features/address.server";
 import type { ActionFunctionArgs } from "react-router";
 
@@ -16,7 +17,7 @@ export async function action({ request }: ActionFunctionArgs) {
     };
   } else {
     try {
-      return await searchLocations(query, request.signal);
+      return await searchLocations(query, GEOCODING_CONFIGURATION, request.signal);
     } catch (error) {
       console.error("Address lookup failed:", error);
       return {

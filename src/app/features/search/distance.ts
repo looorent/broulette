@@ -6,7 +6,6 @@ export interface DistanceRangeOption {
     display: string;
     compact: string;
   };
-
 }
 
 export const DISTANCE_RANGES: DistanceRangeOption[] = [

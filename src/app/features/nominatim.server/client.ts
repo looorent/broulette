@@ -1,6 +1,5 @@
-import { createCircuitBreaker } from "@features/circuit-breaker.server";
-import { executeRequest } from "@features/http.server";
 import type { LocationPreference, LocationSuggestions } from "@features/search";
+import { nomatimCircuitBreaker } from "./circuit-breaker";
 import { NominatimHttpError, NominatimServerError } from "./error";
 import type { GeocodingNominatimConfiguration } from "./types";
 
@@ -13,12 +12,17 @@ interface NominatimPlace {
   type: string;
 }
 
-export async function fetchLocationFromNominatim(query: string, configuration: GeocodingNominatimConfiguration, signal: AbortSignal): Promise<LocationSuggestions> {
-  const rawData = await createCircuitBreaker(
-    () => fetchNominatimAddresses(query, configuration, signal),
-    configuration.failover.retries,
-    configuration.failover.timeoutInMs
-  );
+export async function fetchLocationFromNominatim(
+  query: string,
+  configuration: GeocodingNominatimConfiguration,
+  signal: AbortSignal
+): Promise<LocationSuggestions> {
+  const rawData = await nomatimCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+    if (signal?.aborted) {
+      throw signal.reason
+    };
+    return fetchNominatimAddresses(query, configuration, combinedSignal);
+  }, signal);
 
   const locations = rawData
     .filter((item) => item && item.lat && item.lon)
@@ -30,7 +34,11 @@ export async function fetchLocationFromNominatim(query: string, configuration: G
   };
 }
 
-async function fetchNominatimAddresses(query: string, configuration: GeocodingNominatimConfiguration, signal: AbortSignal): Promise<NominatimPlace[]> {
+async function fetchNominatimAddresses(
+  query: string,
+  configuration: GeocodingNominatimConfiguration,
+  signal: AbortSignal
+): Promise<NominatimPlace[]> {
   const params = new URLSearchParams({
     q: query,
     format: "json",
@@ -43,16 +51,13 @@ async function fetchNominatimAddresses(query: string, configuration: GeocodingNo
   });
 
   const url = `${configuration.baseUrl}?${params.toString()}`;
-
-  const response = await executeRequest(url, {
+  const response = await fetch(url, {
     headers: {
       "User-Agent": configuration.userAgent,
       "Accept": "application/json"
-    }
-  },
-    configuration.timeoutInMs,
-    signal
-  );
+    },
+    signal: signal
+  });
 
   if (response.ok) {
     return response.json();
@@ -67,7 +72,7 @@ function convertNominatimToLocation(place: NominatimPlace): LocationPreference {
   return {
     label: {
       display: place.display_name,
-      compact: place.name || place.display_name.split(',')[0] // Fallback if name is empty
+      compact: place.name || place.display_name.split(',')[0]
     },
     coordinates: {
       latitude: Number(place.lat),

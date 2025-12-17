@@ -22,5 +22,5 @@ export interface Matching {
 
 export interface Matcher {
   source: string;
-  matchAndEnrich: (restaurant: RestaurantWithIdentities, configuration: RestaurantMatchingConfig) => Promise<Matching>;
+  matchAndEnrich: (restaurant: RestaurantWithIdentities, configuration: RestaurantMatchingConfig, signal?: AbortSignal | undefined) => Promise<Matching>;
 }

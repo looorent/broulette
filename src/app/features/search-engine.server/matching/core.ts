@@ -28,7 +28,8 @@ const MATCHERS: Matcher[] = [
 
 async function enrich(
   restaurant: RestaurantWithIdentities,
-  configuration: RestaurantMatchingConfig
+  configuration: RestaurantMatchingConfig,
+  signal?: AbortSignal | undefined
 ): Promise<RestaurantWithIdentities> {
   let currentResult: Matching = {
     success: false,
@@ -39,7 +40,7 @@ async function enrich(
     if (currentResult.success) {
       break;
     } else {
-      currentResult = await matcher.matchAndEnrich(currentResult.restaurant, configuration);
+      currentResult = await matcher.matchAndEnrich(currentResult.restaurant, configuration, signal);
     }
   }
 

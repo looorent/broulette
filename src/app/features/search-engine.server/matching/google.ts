@@ -1,6 +1,5 @@
-import { GOOGLE_PLACE_SOURCE_NAME } from "@config/server";
 import prisma from "@features/db.server/prisma";
-import { findGoogleRestaurantById, searchGoogleRestaurantByText, type GoogleRestaurant } from "@features/google.server";
+import { findGoogleRestaurantById, GOOGLE_PLACE_SOURCE_NAME, searchGoogleRestaurantByText, type GooglePlaceConfiguration, type GoogleRestaurant } from "@features/google.server";
 import { buildMapLink } from "@features/map";
 import { registerAttemptToGooglePlaceById, registerAttemptToGooglePlaceByText } from "@features/rate-limiting.server";
 import { thirtyDaysAgo } from "@features/utils/date";
@@ -9,12 +8,12 @@ import type { Matcher, RestaurantMatchingConfig, RestaurantWithIdentities } from
 
 export const GOOGLE_MATCHER: Matcher = {
   source: GOOGLE_PLACE_SOURCE_NAME,
-  matchAndEnrich: async (restaurant: RestaurantWithIdentities, configuration: RestaurantMatchingConfig) => {
+  matchAndEnrich: async (restaurant: RestaurantWithIdentities, configuration: RestaurantMatchingConfig, signal?: AbortSignal | undefined) => {
     let enriched = restaurant;
-    if (configuration.google.enabled) {
+    if (configuration.google) {
       const alreadyAttemptedRecently = await prisma.restaurantMatchingAttempt.existsSince(thirtyDaysAgo(), restaurant.id, GOOGLE_PLACE_SOURCE_NAME);
       if (!alreadyAttemptedRecently) {
-        enriched = await enrichWithGoogle(restaurant, configuration);
+        enriched = await enrichWithGoogle(restaurant, configuration.google, signal);
       }
     }
     return {
@@ -26,12 +25,13 @@ export const GOOGLE_MATCHER: Matcher = {
 
 async function enrichWithGoogle(
   restaurant: RestaurantWithIdentities,
-  configuration: RestaurantMatchingConfig
+  configuration: GooglePlaceConfiguration,
+  signal?: AbortSignal | undefined
 ): Promise<RestaurantWithIdentities> {
   const googleIdentity = restaurant.identities.find(identity => identity.source === GOOGLE_PLACE_SOURCE_NAME);
   let googleRestaurant: GoogleRestaurant | undefined;
   if (googleIdentity) {
-    googleRestaurant = await findGoogleRestaurantById(googleIdentity.externalId, configuration.google);
+    googleRestaurant = await findGoogleRestaurantById(googleIdentity.externalId, configuration, signal);
     await registerAttemptToGooglePlaceById(googleIdentity.externalId, restaurant.id, googleRestaurant);
   } else {
     const query = restaurant.name;
@@ -39,11 +39,12 @@ async function enrichWithGoogle(
       query,
       restaurant.latitude,
       restaurant.longitude,
-      configuration.google.search.radiusInMeters,
-      configuration.google,
-      configuration.google.similarity
+      configuration.search.radiusInMeters,
+      configuration,
+      configuration.similarity,
+      signal
     );
-    await registerAttemptToGooglePlaceByText(query, restaurant.latitude, restaurant.longitude, configuration.google.search.radiusInMeters, restaurant.id, googleRestaurant);
+    await registerAttemptToGooglePlaceByText(query, restaurant.latitude, restaurant.longitude, configuration.search.radiusInMeters, restaurant.id, googleRestaurant);
 
     if (googleRestaurant) {
       const newIdentity = await prisma.restaurantIdentity.create({

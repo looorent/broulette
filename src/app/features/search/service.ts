@@ -1,5 +1,5 @@
 import { ServiceTimeslot } from "@persistence/enums";
-import { CalendarPlus, Clock, Moon, Sun, type LucideProps } from "lucide-react";
+export type ServicePreferenceIcon = "clock" | "moon" | "sun" | "calendar";
 
 export interface ServicePreference {
   id: string;
@@ -7,7 +7,7 @@ export interface ServicePreference {
     display: string;
     compact: string;
   };
-  icon: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
+  iconName: ServicePreferenceIcon;
   date: Date;
   timeslot: ServiceTimeslot | null;
   isAvailable: boolean;
@@ -84,7 +84,6 @@ export function createServiceEnd(day: Date, timeslot: ServiceTimeslot | null): D
   }
 }
 
-
 export function createNextServices(now: Date = new Date()): ServicePreference[] {
   const currentHour = now.getHours();
 
@@ -114,15 +113,15 @@ function addDay(originalDate: Date, numberOfDays: number): Date {
   return newDate;
 }
 
-function pickIcon(timeslot: ServiceTimeslot | null): React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>> {
+function pickIcon(timeslot: ServiceTimeslot | null): ServicePreferenceIcon {
   switch (timeslot) {
     case ServiceTimeslot.RightNow:
-      return Clock;
+      return "clock";
     case ServiceTimeslot.Dinner:
-      return Moon;
+      return "moon";
     case ServiceTimeslot.Lunch:
-      return Sun;
+      return "sun";
     default:
-      return CalendarPlus;
+      return "calendar";
   }
 }

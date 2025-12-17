@@ -1,6 +1,5 @@
-import { createCircuitBreaker } from "@features/circuit-breaker.server";
-import { executeRequest } from "@features/http.server";
 import type { LocationPreference, LocationSuggestions } from "@features/search";
+import { photonCircuitBreaker } from "./circuit-breaker";
 import { PhotonHttpError, PhotonServerError } from "./error";
 import type { GeocodingPhotonConfiguration } from "./types";
 
@@ -26,14 +25,15 @@ interface PhotonResponse {
 }
 
 export async function fetchLocationFromPhoton(query: string, configuration: GeocodingPhotonConfiguration, signal: AbortSignal): Promise<LocationSuggestions> {
-  const rawData = await createCircuitBreaker(
-    () => fetchPhotonAddresses(query, configuration, signal),
-    configuration.failover.retries,
-    configuration.failover.timeoutInMs
-  );
+  const rawData = await photonCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+    if (signal?.aborted) {
+      throw signal.reason
+    };
+    return fetchPhotonAddresses(query, configuration, combinedSignal);
+  }, signal);
 
   const locations = rawData
-    .filter((item) => item?.geometry?.coordinates?.length === 2)
+    .filter(item => item?.geometry?.coordinates?.length === 2)
     .map(convertPhotonToLocation);
 
   return {
@@ -48,14 +48,12 @@ async function fetchPhotonAddresses(query: string, configuration: GeocodingPhoto
     limit: configuration.maxNumberOfAddresses.toString()
   });
   const url = `${configuration.baseUrl}?${params.toString()}`;
-  const response = await executeRequest(url, {
+  const response = await fetch(url, {
     headers: {
       "Accept": "application/json"
-    }
-  },
-    configuration.timeoutInMs,
-    signal
-  );
+    },
+    signal: signal
+  });
 
   if (response.ok) {
     const data: PhotonResponse = await response.json();

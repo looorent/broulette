@@ -1,6 +1,6 @@
-import type { FailoverConfiguration } from "@features/circuit-breaker.server/types";
 import type { Coordinates } from "@features/coordinate";
 
+export const OVERPASS_SOURCE_NAME = "osm";
 export type OverpassLocationType = "way" | "node" | "relation";
 
 export interface OverpassRestaurant {
@@ -34,5 +34,5 @@ export interface OverpassResponse {
 
 export interface OverpassConfiguration {
   instanceUrls: string[];
-  failover: FailoverConfiguration;
+  timeoutInMs: number;
 }

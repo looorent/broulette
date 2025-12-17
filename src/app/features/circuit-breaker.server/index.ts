@@ -1,2 +1,3 @@
 export * from "./error";
-export * from "./circuit-breaker";
+export type { FailoverConfiguration } from "./types";
+export * from "./boot";

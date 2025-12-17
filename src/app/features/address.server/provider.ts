@@ -3,6 +3,8 @@ import { fetchLocationFromPhoton } from "@features/photon.server/client";
 import type { LocationSuggestions } from "@features/search";
 import { type GeocodingProviderConfiguration } from "./types";
 
+
+// TODO implement a better load balancer
 interface GeocodingProvider {
   name: string;
   search(query: string, configuration: GeocodingProviderConfiguration, signal: AbortSignal): Promise<LocationSuggestions>;
@@ -36,7 +38,11 @@ const nominatimProvider: GeocodingProvider = {
   }
 };
 
-export async function searchLocations(query: string, configuration: GeocodingProviderConfiguration, signal?: AbortSignal): Promise<LocationSuggestions> {
+export async function searchLocations(
+  query: string,
+  configuration: GeocodingProviderConfiguration,
+  signal?: AbortSignal | undefined
+): Promise<LocationSuggestions> {
   const providers = [
     configuration.nominatim ? nominatimProvider : null,
     configuration.photon ? photonProvider : null,
@@ -49,7 +55,7 @@ export async function searchLocations(query: string, configuration: GeocodingPro
   const operationSignal = signal || new AbortController().signal;
 
   for (const provider of replicatedProviders) {
-    if (operationSignal.aborted) {
+    if (operationSignal?.aborted) {
       throw new Error("Request cancelled by user");
     } else {
       try {

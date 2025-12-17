@@ -17,7 +17,7 @@ export function SearchSubmitButton({
 }: SearchSubmitButtonProps) {
   const submit = useSubmit();
   const [isBuzzing, setIsBuzzing] = useState(false);
-  const hasErrors = preferences ? !preferences.isValid() : false;
+  const hasErrors = preferences ? !preferences.isValid : false;
   const showErrors = preferences && preferences.isDeviceLocationAttempted && hasErrors;
 
   const triggerBuzz = () => {

@@ -1,8 +1,8 @@
-import { OVERPASS_SOURCE_NAME } from "@config/server";
 import type { Coordinates } from "@features/coordinate";
 import { buildMapLink } from "@features/map";
-import { fetchAllRestaurantsNearbyWithRetry } from "@features/overpass.server";
+import { fetchAllRestaurantsNearbyWithRetry, OVERPASS_SOURCE_NAME } from "@features/overpass.server";
 import { type DiscoveredRestaurant, type DiscoveredRestaurantIdentity, type SearchDiscoveryConfig } from "./types";
+
 
 export async function findRestaurantsFromOverpass(
   nearBy: Coordinates,
@@ -11,31 +11,35 @@ export async function findRestaurantsFromOverpass(
   configuration: SearchDiscoveryConfig,
   signal: AbortSignal | undefined
 ): Promise<DiscoveredRestaurant[]> {
-  const idsToExclude = identitiesToExclude
-    .filter(Boolean)
-    .filter(id => id.source === OVERPASS_SOURCE_NAME)
-    .map(id => ({ osmId: id.externalId, osmType: id.type }));
+  if (configuration.overpass) {
+    const idsToExclude = identitiesToExclude
+      .filter(Boolean)
+      .filter(id => id.source === OVERPASS_SOURCE_NAME)
+      .map(id => ({ osmId: id.externalId, osmType: id.type }));
 
-  const response = await fetchAllRestaurantsNearbyWithRetry(nearBy.latitude, nearBy.longitude, rangeInMeters, idsToExclude, configuration.overpass.instanceUrl, configuration.overpass.timeoutInSeconds, signal);
-  return (response?.restaurants || [])
-    .map(restaurant => ({
-      name: restaurant.name,
-      coordinates: restaurant.location,
-      identity: {
-        source: OVERPASS_SOURCE_NAME,
-        type: restaurant.type,
-        externalId: restaurant.id.toString()
-      },
-      countryCode: restaurant.countryCode,
-      addressState: restaurant.addressState,
-      formattedAddress: restaurant.formattedAddress,
-      website: restaurant.website,
-      description: restaurant.description,
-      phoneNumber: restaurant.phoneNumber,
-      internationalPhoneNumber: restaurant.phoneNumber,
-      tags: restaurant.cuisine && restaurant.cuisine?.length > 0 ? restaurant.cuisine?.split(";") || [] : [],
-      openingHours: restaurant.openingHours,
-      mapUrl: buildMapLink(restaurant.location.latitude, restaurant.location.longitude, restaurant.name)
-    })
-  );
+    const response = await fetchAllRestaurantsNearbyWithRetry(nearBy.latitude, nearBy.longitude, rangeInMeters, configuration.overpass, idsToExclude, signal);
+    return (response?.restaurants || [])
+      .map(restaurant => ({
+        name: restaurant.name,
+        coordinates: restaurant.location,
+        identity: {
+          source: OVERPASS_SOURCE_NAME,
+          type: restaurant.type,
+          externalId: restaurant.id.toString()
+        },
+        countryCode: restaurant.countryCode,
+        addressState: restaurant.addressState,
+        formattedAddress: restaurant.formattedAddress,
+        website: restaurant.website,
+        description: restaurant.description,
+        phoneNumber: restaurant.phoneNumber,
+        internationalPhoneNumber: restaurant.phoneNumber,
+        tags: restaurant.cuisine && restaurant.cuisine?.length > 0 ? restaurant.cuisine?.split(";") || [] : [],
+        openingHours: restaurant.openingHours,
+        mapUrl: buildMapLink(restaurant.location.latitude, restaurant.location.longitude, restaurant.name)
+      })
+    );
+  } else {
+    return [];
+  }
 }

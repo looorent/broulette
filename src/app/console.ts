@@ -1,5 +1,4 @@
-import { APP_CONFIG } from "@config";
-import { SERVER_CONFIG } from "@config/server";
+import { APP_CONFIG, SERVER_CONFIG } from "@config/server";
 import prisma from "@features/db.server/prisma";
 import { findGoogleRestaurantById, searchGoogleRestaurantByText } from "@features/google.server";
 import { searchCandidate } from "@features/search-engine.server";

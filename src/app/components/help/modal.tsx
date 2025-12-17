@@ -1,5 +1,5 @@
 import { AlertBox } from "@components/alert/box";
-import { APP_CONFIG } from "@config";
+import type { AppConfiguration } from "@config/server";
 import {
   AlertTriangle,
   Cookie,
@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 
 interface HelpModalProps {
+  configuration: AppConfiguration;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -28,7 +29,7 @@ function PhilosophyItem({ title, description }: { title: string, description: st
   );
 }
 
-export function HelpModal({ isOpen, onClose }: HelpModalProps) {
+export function HelpModal({ configuration, isOpen, onClose }: HelpModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>("about");
 
   const TabButton = ({ id, label, icon: Icon }: { id: TabType, label: string, icon: any }) => (
@@ -183,7 +184,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
               </div>
 
 
-              <p className="text-[10px] opacity-70 mt-1">Last Updated: {APP_CONFIG.privacy.updatedAt}</p>
+              <p className="text-[10px] opacity-70 mt-1">Last Updated: {configuration.privacy.updatedAt}</p>
             </section>
           )}
 
@@ -227,15 +228,15 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   <p className="text-xs opacity-80 leading-relaxed mb-2">
                     Found a bug? The dice got stuck? Or wish to request a data purge?
                   </p>
-                  <a href={"mailto:" + APP_CONFIG.privacy.contactEmail} className="text-sm font-bold text-fun-dark underline decoration-2 decoration-fun-red hover:decoration-fun-dark transition-all">
-                    {APP_CONFIG.privacy.contactEmail}
+                  <a href={"mailto:" + configuration.privacy.contactEmail} className="text-sm font-bold text-fun-dark underline decoration-2 decoration-fun-red hover:decoration-fun-dark transition-all">
+                    {configuration.privacy.contactEmail}
                   </a>
                 </div>
               </div>
 
               {/* Version */}
               <div className="text-center pt-8 opacity-30">
-                <p className="text-[10px] font-mono uppercase tracking-widest">v{APP_CONFIG.version}</p>
+                <p className="text-[10px] font-mono uppercase tracking-widest">v{configuration.version}</p>
               </div>
             </section>
           )}

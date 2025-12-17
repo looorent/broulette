@@ -1,6 +1,6 @@
 import type { ServicePreference } from "@features/search";
 import { useDrag } from "@use-gesture/react";
-import { Check } from "lucide-react";
+import { CalendarPlus, Check, Clock, Moon, Sun } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface ServiceSelectorProps {
@@ -9,6 +9,13 @@ interface ServiceSelectorProps {
   className?: string;
   onChange: (service: ServicePreference) => void;
 }
+
+const ICONS = {
+  calendar: CalendarPlus,
+  sun: Sun,
+  moon: Moon,
+  clock: Clock
+} as const;
 
 export default function ServiceSelector({ services, selectedService, className = "", onChange } : ServiceSelectorProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -60,7 +67,7 @@ export default function ServiceSelector({ services, selectedService, className =
         " role="radiogroup">
 
           {services.map((service) => {
-            const Icon = service.icon;
+            const Icon = ICONS[service.iconName];
             return (
             <label className={`
               cursor-pointer group relative flex-none w-32
@@ -81,7 +88,7 @@ export default function ServiceSelector({ services, selectedService, className =
                 peer-checked:border-fun-dark
                 peer-checked:bg-fun-yellow
                 peer-checked:shadow-hard">
-                  <Icon className="w-8 h-8 stroke-[2.5px] text-fun-dark" />
+                  { Icon && (<Icon className="w-8 h-8 stroke-[2.5px] text-fun-dark" />) }
                   <span className="font-sans font-bold text-fun-dark uppercase tracking-tight text-center leading-none">{service.label?.display}</span>
                 </div>
                 <div className="absolute -top-1 -right-1 bg-fun-green border-2 border-fun-dark rounded-full p-1 opacity-0 peer-checked:opacity-100 transition-opacity shadow-hard-hover scale-0 peer-checked:scale-100 duration-200 z-10">

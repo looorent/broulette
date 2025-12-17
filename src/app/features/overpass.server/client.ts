@@ -1,7 +1,23 @@
-import { createCircuitBreaker } from "@features/circuit-breaker.server";
-import { executeRequest } from "@features/http.server";
+import { overpassCircuitBreaker } from "./circuit-breaker";
 import { OsmEmptyResponseError, OsmHttpError, OsmServerError } from "./error";
-import type { OverpassResponse, OverpassRestaurant } from "./types";
+import type { OverpassConfiguration, OverpassResponse, OverpassRestaurant } from "./types";
+
+export async function fetchAllRestaurantsNearbyWithRetry(
+  latitude: number,
+  longitude: number,
+  distanceRangeInMeters: number,
+  configuration: OverpassConfiguration,
+  idsToExclude: { osmId: string; osmType: string }[],
+  signal: AbortSignal | undefined
+): Promise<OverpassResponse | undefined> {
+  // TODO manage multiple URLS
+  return await overpassCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+    if (signal?.aborted) {
+      throw signal.reason;
+    }
+    return fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, configuration.instanceUrls[0], configuration.timeoutInMs, combinedSignal);
+  }, signal);
+}
 
 function createQueryToListAllRestaurantsNearby(
   latitude: number,
@@ -121,22 +137,23 @@ async function fetchAllRestaurantsNearby(
   distanceRangeInMeters: number,
   idsToExclude: { osmId: string; osmType: string }[],
   instanceUrl: string,
-  timeoutInSeconds: number,
-  signal: AbortSignal | undefined
+  timeoutInMs: number,
+  signal: AbortSignal
 ): Promise<OverpassResponse | undefined> {
   console.info(
     `[OSM] Fetching all OSM restaurants nearby '${latitude},${longitude}'...`
   );
-  const query = createQueryToListAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, timeoutInSeconds);
+  const query = createQueryToListAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, timeoutInMs / 1000);
   const start = Date.now();
 
-  const response = await executeRequest(instanceUrl, {
-    method: "POST",
+  const response = await fetch(instanceUrl, {
+    method: "post",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
     },
-    body: `data=${encodeURIComponent(query)}`
-  }, timeoutInSeconds, signal);
+    body: `data=${encodeURIComponent(query)}`,
+    signal: signal
+  });
 
   const durationInMs = Date.now() - start;
 
@@ -169,31 +186,6 @@ async function fetchAllRestaurantsNearby(
       await response.text(),
       durationInMs
     );
-  }
-}
-
-export async function fetchAllRestaurantsNearbyWithRetry(
-  latitude: number,
-  longitude: number,
-  distanceRangeInMeters: number,
-  idsToExclude: { osmId: string; osmType: string }[],
-  instanceUrl: string,
-  timeoutInSeconds: number, // TODO is this the same than "interval between retries"?
-  signal: AbortSignal | undefined
-): Promise<OverpassResponse | undefined> {
-  return await createCircuitBreaker(
-    () => fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, instanceUrl, timeoutInSeconds, signal),
-
-    timeoutInSeconds,
-  );
-}
-
-export function parseOverpassId(id: string): number | undefined {
-  if (!/^\d+$/.test(id)) {
-    return undefined;
-  } else {
-    const parsed = parseInt(id, 10);
-    return isNaN(parsed) ? undefined : parsed;
   }
 }
 

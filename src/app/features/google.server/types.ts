@@ -1,10 +1,10 @@
-import type { FailoverConfiguration } from "@features/circuit-breaker.server/types";
 import type { Coordinates } from "@features/coordinate";
 import type { GoogleSimilarityConfiguration } from "./similarity";
 
+export const GOOGLE_PLACE_SOURCE_NAME = "google_place";
+
 export interface GooglePlaceConfiguration {
   apiKey: string;
-  failover: FailoverConfiguration;
   photo: {
     maxWidthInPx: number
     maxHeightInPx: number
