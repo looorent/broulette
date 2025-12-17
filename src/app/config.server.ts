@@ -1,6 +1,6 @@
-import type { GeocodingProviderConfiguration } from "@features/address.server";
+import { registerNominatim, registerPhoton } from "@features/address.server";
 import type { FailoverConfiguration } from "@features/circuit-breaker.server";
-import { initializeGooglePlace, type GooglePlaceConfiguration } from "@features/google.server";
+import { initializeGoogle, type GooglePlaceConfiguration } from "@features/google.server";
 import { initializeNominatim, type GeocodingNominatimConfiguration } from "@features/nominatim.server";
 import { initializeOverpass, type OverpassConfiguration } from "@features/overpass.server";
 import { initializePhoton, type GeocodingPhotonConfiguration } from "@features/photon.server";
@@ -18,7 +18,7 @@ export const APP_CONFIG = {
 export type AppConfiguration = typeof APP_CONFIG;
 
 export const NOMINATIM_CONFIG: GeocodingNominatimConfiguration = {
-  baseUrl: process.env.BROULETTE_NOMINATIM_URL ?? "https://nominatim.openstreetmap.org/search",
+  instanceUrls: (process.env.BROULETTE_NOMINATIM_INSTANCE_URLS || "https://nominatim.openstreetmap.org/search").split(","),
   userAgent: process.env.BROULETTE_NOMINATIM_USER_AGENT ?? `${APP_CONFIG.name}/${APP_CONFIG.version}`,
   bottomNote: process.env.BROULETTE_NOMINATIM_BOTTOM_NOTE ?? "by OpenStreetMap",
   maxNumberOfAddresses: Number(process.env.BROULETTE_NOMINATIM_NUMBER_0F_ADDRESSES || 5)
@@ -32,7 +32,7 @@ export const NOMINATIM_FAILOVER_CONFIG: FailoverConfiguration = {
 };
 
 export const PHOTON_CONFIG: GeocodingPhotonConfiguration = {
-  baseUrl: process.env.BROULETTE_PHOTON_BOTTOM_NOTE ?? "https://photon.komoot.io/api/",
+  instanceUrls: (process.env.BROULETTE_PHOTON_INSTANCE_URLS || "https://photon.komoot.io/api/").split(","),
   bottomNote: process.env.BROULETTE_PHOTON_BOTTOM_NOTE ?? "by Photon",
   maxNumberOfAddresses: Number(process.env.BROULETTE_PHOTON_NUMBER_0F_ADDRESSES || 5),
 };
@@ -80,15 +80,8 @@ export const OVERPASS_FAILOVER_CONFIG: FailoverConfiguration = {
 };
 
 export const OVERPASS_CONFIG: OverpassConfiguration = {
-  instanceUrls: [process.env.BROULETTE_OVERPASS_API_INSTANCE_URL || "https://overpass-api.de/api/interpreter"], // TODO parse env
+  instanceUrls: (process.env.BROULETTE_OVERPASS_API_INSTANCE_URLS || "https://overpass-api.de/api/interpreter").split(","),
   timeoutInMs: OVERPASS_FAILOVER_CONFIG.timeoutInMs
-};
-
-
-export const GEOCODING_CONFIGURATION: GeocodingProviderConfiguration = {
-  nominatim: NOMINATIM_CONFIG,
-  photon: PHOTON_CONFIG,
-  providerSwitchDelay: 300
 };
 
 export const RESTAURANT_TYPES_TO_EXCLUDE: string[] = [
@@ -116,15 +109,20 @@ export const SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
 };
 
 export const SERVER_CONFIG = {
-  geocoding: GEOCODING_CONFIGURATION,
+  // TODO add service provider
   search: SEARCH_ENGINE_CONFIGURATION
 } as const;
 
 function initialize() {
+  // TODO we should initialize conditionnally
   initializeNominatim(NOMINATIM_FAILOVER_CONFIG);
   initializePhoton(PHOTON_FAILOVER_CONFIG);
   initializeOverpass(OVERPASS_FAILOVER_CONFIG);
-  initializeGooglePlace(GOOGLE_PLACE_FAILOVER_CONFIG);
+  initializeGoogle(GOOGLE_PLACE_FAILOVER_CONFIG);
+
+  // TODO we should registered conditionnally
+  registerNominatim(NOMINATIM_CONFIG);
+  registerPhoton(PHOTON_CONFIG);
 }
 
 initialize();

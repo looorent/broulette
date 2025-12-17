@@ -1,6 +1,6 @@
 import { computeViewportFromCircle } from "@features/coordinate";
 import { PlacesClient, type protos } from "@googlemaps/places";
-import { googlePlaceCircuitBreaker } from "./circuit-breaker";
+import { googleCircuitBreaker } from "./circuit-breaker";
 import { convertGooglePeriodsToOpeningHours } from "./opening-hours";
 import { compareSimilarity, type GoogleSimilarityConfiguration } from "./similarity";
 import type { GooglePlaceConfiguration, GoogleRestaurant } from "./types";
@@ -37,7 +37,7 @@ export async function findGoogleRestaurantById(
     apiKey: configuration.apiKey
   });
 
-  const response = await googlePlaceCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+  const response = await googleCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
     if (signal?.aborted) {
       throw signal.reason;
     }

@@ -1,7 +1,7 @@
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { photonCircuitBreaker } from "./circuit-breaker";
 import { PhotonHttpError, PhotonServerError } from "./error";
-import type { GeocodingPhotonConfiguration } from "./types";
+import { DEFAULT_CONFIGURATION, type GeocodingPhotonConfiguration } from "./types";
 
 interface PhotonFeature {
   geometry: {
@@ -24,12 +24,17 @@ interface PhotonResponse {
   features: PhotonFeature[];
 }
 
-export async function fetchLocationFromPhoton(query: string, configuration: GeocodingPhotonConfiguration, signal: AbortSignal): Promise<LocationSuggestions> {
+export async function fetchLocationFromPhoton(
+  query: string,
+  instanceUrl: string,
+  configuration: GeocodingPhotonConfiguration = DEFAULT_CONFIGURATION,
+  signal?: AbortSignal | undefined
+): Promise<LocationSuggestions> {
   const rawData = await photonCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
     if (signal?.aborted) {
       throw signal.reason
     };
-    return fetchPhotonAddresses(query, configuration, combinedSignal);
+    return fetchPhotonAddresses(query, instanceUrl, configuration.maxNumberOfAddresses, combinedSignal);
   }, signal);
 
   const locations = rawData
@@ -42,12 +47,17 @@ export async function fetchLocationFromPhoton(query: string, configuration: Geoc
   };
 }
 
-async function fetchPhotonAddresses(query: string, configuration: GeocodingPhotonConfiguration, signal: AbortSignal): Promise<PhotonFeature[]> {
+async function fetchPhotonAddresses(
+  query: string,
+  instanceUrl: string,
+  maxNumberOfAddresses: number,
+  signal: AbortSignal | undefined
+): Promise<PhotonFeature[]> {
   const params = new URLSearchParams({
     q: query,
-    limit: configuration.maxNumberOfAddresses.toString()
+    limit: maxNumberOfAddresses.toString()
   });
-  const url = `${configuration.baseUrl}?${params.toString()}`;
+  const url = `${instanceUrl}?${params.toString()}`;
   const response = await fetch(url, {
     headers: {
       "Accept": "application/json"

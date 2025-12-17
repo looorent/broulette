@@ -1,7 +1,7 @@
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { nomatimCircuitBreaker } from "./circuit-breaker";
 import { NominatimHttpError, NominatimServerError } from "./error";
-import type { GeocodingNominatimConfiguration } from "./types";
+import { DEFAULT_CONFIGURATION, type GeocodingNominatimConfiguration } from "./types";
 
 interface NominatimPlace {
   place_id: number;
@@ -14,14 +14,15 @@ interface NominatimPlace {
 
 export async function fetchLocationFromNominatim(
   query: string,
-  configuration: GeocodingNominatimConfiguration,
-  signal: AbortSignal
+  instanceUrl: string = DEFAULT_CONFIGURATION.instanceUrls[0],
+  configuration: GeocodingNominatimConfiguration = DEFAULT_CONFIGURATION,
+  signal?: AbortSignal | undefined
 ): Promise<LocationSuggestions> {
-  const rawData = await nomatimCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+  const rawData = await nomatimCircuitBreaker(instanceUrl).execute(async ({ signal: combinedSignal }) => {
     if (signal?.aborted) {
       throw signal.reason
     };
-    return fetchNominatimAddresses(query, configuration, combinedSignal);
+    return fetchNominatimAddresses(query, instanceUrl, configuration.maxNumberOfAddresses, configuration.userAgent, combinedSignal);
   }, signal);
 
   const locations = rawData
@@ -36,13 +37,15 @@ export async function fetchLocationFromNominatim(
 
 async function fetchNominatimAddresses(
   query: string,
-  configuration: GeocodingNominatimConfiguration,
-  signal: AbortSignal
+  instanceUrl: string,
+  maxNumberOfAddresses: number,
+  userAgent: string,
+  signal: AbortSignal | undefined
 ): Promise<NominatimPlace[]> {
   const params = new URLSearchParams({
     q: query,
     format: "json",
-    limit: configuration.maxNumberOfAddresses.toString(),
+    limit: maxNumberOfAddresses.toString(),
     addressdetails: "1",
     extratags: "0",
     namedetails: "0",
@@ -50,10 +53,10 @@ async function fetchNominatimAddresses(
     bounded: "0",
   });
 
-  const url = `${configuration.baseUrl}?${params.toString()}`;
+  const url = `${instanceUrl}?${params.toString()}`;
   const response = await fetch(url, {
     headers: {
-      "User-Agent": configuration.userAgent,
+      "User-Agent": userAgent,
       "Accept": "application/json"
     },
     signal: signal

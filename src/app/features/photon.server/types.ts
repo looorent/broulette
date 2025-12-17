@@ -1,5 +1,13 @@
+// TODO rename "PhotonConfiguration" ?
+
+export const DEFAULT_CONFIGURATION: GeocodingPhotonConfiguration = {
+  instanceUrls: ["https://photon.komoot.io/api/"],
+  bottomNote: "by Photon",
+  maxNumberOfAddresses: 5
+}
+
 export interface GeocodingPhotonConfiguration {
-  baseUrl: string;
+  instanceUrls: string[];
   bottomNote: string;
   maxNumberOfAddresses: number;
 }

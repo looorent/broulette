@@ -1,8 +1,9 @@
 import { initializeCircuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
 import { noop, type IPolicy } from "cockatiel";
 
-let circuitBreakerSingleton: IPolicy | null = null;
+const circuitBreakerSingletonPerInstanceUrl: { [instanceUrl: string]: IPolicy } = {};
 let failoverConfiguration: FailoverConfiguration | null;
+
 
 export function initializeNominatim(configuration: FailoverConfiguration) {
   if (!configuration) {
@@ -14,13 +15,13 @@ export function initializeNominatim(configuration: FailoverConfiguration) {
   }
 }
 
-export function nomatimCircuitBreaker(): IPolicy {
+export function nomatimCircuitBreaker(instanceUrl: string): IPolicy {
   if (!failoverConfiguration) {
     return noop;
-  } else if (circuitBreakerSingleton) {
-    return circuitBreakerSingleton;
+  } else if (circuitBreakerSingletonPerInstanceUrl[instanceUrl]) {
+    return circuitBreakerSingletonPerInstanceUrl[instanceUrl];
   } else {
-    circuitBreakerSingleton = initializeCircuitBreaker(failoverConfiguration);
-    return circuitBreakerSingleton;
+    circuitBreakerSingletonPerInstanceUrl[instanceUrl] = initializeCircuitBreaker(failoverConfiguration);
+    return circuitBreakerSingletonPerInstanceUrl[instanceUrl];
   }
 }
