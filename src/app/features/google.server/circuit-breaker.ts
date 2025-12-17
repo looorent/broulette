@@ -2,13 +2,25 @@ import { initializeCircuitBreaker, type FailoverConfiguration } from "@features/
 import { noop, type IPolicy } from "cockatiel";
 
 let circuitBreakerSingleton: IPolicy | null = null;
+let failoverConfiguration: FailoverConfiguration | null;
 
-export function initializeGooglePlace(configuration: FailoverConfiguration) {
-  if (!circuitBreakerSingleton && configuration) {
-    circuitBreakerSingleton = initializeCircuitBreaker(configuration);
+export function initializeGoogle(configuration: FailoverConfiguration) {
+  if (!configuration) {
+    if (failoverConfiguration) {
+      console.warn("Google is already configured. Skip this operation.");
+    } else {
+      failoverConfiguration = configuration;
+    }
   }
 }
 
-export function googlePlaceCircuitBreaker(): IPolicy {
-  return circuitBreakerSingleton || noop;
+export function googleCircuitBreaker(): IPolicy {
+  if (!failoverConfiguration) {
+    return noop;
+  } else if (circuitBreakerSingleton) {
+    return circuitBreakerSingleton;
+  } else {
+    circuitBreakerSingleton = initializeCircuitBreaker(failoverConfiguration);
+    return circuitBreakerSingleton;
+  }
 }
