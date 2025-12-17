@@ -1,7 +1,9 @@
 // TODO rename "NominatimConfiguration" ?
 
-export const DEFAULT_CONFIGURATION: GeocodingNominatimConfiguration = {
-  instanceUrls: ["https://nominatim.openstreetmap.org/search"],
+export const DEFAULT_NOMINATIM_CONFIGURATION: GeocodingNominatimConfiguration = {
+  instanceUrls: [
+    "https://nominatim.openstreetmap.org/search"
+  ],
   userAgent: "Any/App",
   bottomNote: "by OpenStreetMap",
   maxNumberOfAddresses: 5

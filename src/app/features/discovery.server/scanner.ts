@@ -1,6 +1,6 @@
 import type { Coordinates } from "@features/coordinate";
 import { findRestaurantsFromOverpass } from "./overpass";
-import type { DiscoveredRestaurant, DiscoveredRestaurantIdentity, SearchDiscoveryConfig } from "./types";
+import type { DiscoveredRestaurant, DiscoveredRestaurantIdentity, DiscoveryConfiguration } from "./types";
 
 export class RestaurantDiscoveryScanner {
   private iteration: number;
@@ -8,7 +8,9 @@ export class RestaurantDiscoveryScanner {
 
   constructor(
     private readonly nearBy: Coordinates,
-    private readonly configuration: SearchDiscoveryConfig,
+    private readonly initialRangeInMeters: number,
+    private readonly timeoutInMs: number,
+    private readonly configuration: DiscoveryConfiguration,
     private readonly signal: AbortSignal | undefined,
     initialIdentitiesToExclude: DiscoveredRestaurantIdentity[] = []
   ) {
@@ -22,16 +24,20 @@ export class RestaurantDiscoveryScanner {
       return [];
     } else {
       this.iteration += 1;
-      const range = this.currentRange;
+      const range = this.initialRangeInMeters + this.iteration * this.configuration.search.discoveryRangeIncreaseMeters;
       console.log(`Scanning range (iteration ${this.iteration}): ${range}m...`);
-      const result = await discoverNearbyRestaurants(this.nearBy, this.currentRange, this.identitiesToExclude, this.configuration, this.signal);
+      const result = await discoverNearbyRestaurants(this.nearBy, range, this.timeoutInMs, this.identitiesToExclude, this.configuration, this.signal);
       console.log(`Scanning range (iteration ${this.iteration}): ${range}m. Done.`);
       return result;
     }
   }
 
   get isOver(): boolean {
-    return this.iteration >= this.configuration.maxDiscoveryIterations;
+    return this.iteration >= this.configuration.search.maxDiscoveryIterations;
+  }
+
+  get timeoutInSeconds(): number {
+    return this.timeoutInMs / 1_000;
   }
 
   addIdentityToExclude(identity: DiscoveredRestaurantIdentity): this {
@@ -43,19 +49,16 @@ export class RestaurantDiscoveryScanner {
     }
     return this;
   }
-
-  private get currentRange(): number {
-    return this.configuration.initialDiscoveryRangeMeters + this.iteration * this.configuration.discoveryRangeIncreaseMeters;
-  }
 }
 
 async function discoverNearbyRestaurants(
   nearBy: Coordinates,
   rangeInMeters: number,
+  timeoutInMs: number,
   identitiesToExclude: DiscoveredRestaurantIdentity[] = [],
-  configuration: SearchDiscoveryConfig,
+  configuration: DiscoveryConfiguration,
   signal: AbortSignal | undefined
 ): Promise<DiscoveredRestaurant[]> {
   // TODO implement other sources than overpass
-  return await findRestaurantsFromOverpass(nearBy, rangeInMeters, identitiesToExclude, configuration, signal);
+  return await findRestaurantsFromOverpass(nearBy, rangeInMeters, timeoutInMs, identitiesToExclude, configuration, signal);
 }

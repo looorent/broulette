@@ -20,7 +20,7 @@ export class NominatimAddressProvider implements AddressProvider {
 }
 
 export class PhotonAddressProvider implements AddressProvider {
-  readonly name: string = "nominatim";
+  readonly name: string = "photon";
   constructor(readonly id: string,
               readonly instanceUrl: string,
               readonly configuration: GeocodingPhotonConfiguration) {}

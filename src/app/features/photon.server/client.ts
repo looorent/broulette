@@ -1,7 +1,7 @@
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { photonCircuitBreaker } from "./circuit-breaker";
 import { PhotonHttpError, PhotonServerError } from "./error";
-import { DEFAULT_CONFIGURATION, type GeocodingPhotonConfiguration } from "./types";
+import { DEFAULT_PHOTON_CONFIGURATION, type GeocodingPhotonConfiguration } from "./types";
 
 interface PhotonFeature {
   geometry: {
@@ -27,10 +27,10 @@ interface PhotonResponse {
 export async function fetchLocationFromPhoton(
   query: string,
   instanceUrl: string,
-  configuration: GeocodingPhotonConfiguration = DEFAULT_CONFIGURATION,
+  configuration: GeocodingPhotonConfiguration = DEFAULT_PHOTON_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<LocationSuggestions> {
-  const rawData = await photonCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+  const rawData = await photonCircuitBreaker(instanceUrl).execute(async ({ signal: combinedSignal }) => {
     if (signal?.aborted) {
       throw signal.reason
     };

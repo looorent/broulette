@@ -1,12 +1,26 @@
 import type { Coordinates } from "@features/coordinate";
-import type { OverpassConfiguration } from "@features/overpass.server";
+import { DEFAULT_OVERPASS_CONFIGURATION, type OverpassConfiguration } from "@features/overpass.server";
 
-export interface SearchDiscoveryConfig {
-  overpass: OverpassConfiguration;
-  // TODO add a second provider
-  initialDiscoveryRangeMeters: number;
-  discoveryRangeIncreaseMeters: number;
-  maxDiscoveryIterations: number;
+export const DEFAULT_DISCOVERY_CONFIGURATION: DiscoveryConfiguration = {
+  search: {
+    discoveryRangeIncreaseMeters: 2_000,
+    maxDiscoveryIterations: 3
+  },
+
+  engine: {
+    overpass: DEFAULT_OVERPASS_CONFIGURATION
+  }
+};
+
+export interface DiscoveryConfiguration {
+  search: {
+    discoveryRangeIncreaseMeters: number;
+    maxDiscoveryIterations: number;
+  };
+
+  engine: {
+    overpass: OverpassConfiguration;
+  };
 }
 
 export type DiscoverySource = "osm";

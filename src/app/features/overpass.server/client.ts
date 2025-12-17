@@ -1,22 +1,77 @@
 import { overpassCircuitBreaker } from "./circuit-breaker";
 import { OsmEmptyResponseError, OsmHttpError, OsmServerError } from "./error";
-import type { OverpassConfiguration, OverpassResponse, OverpassRestaurant } from "./types";
+import type { OverpassResponse, OverpassRestaurant } from "./types";
 
 export async function fetchAllRestaurantsNearbyWithRetry(
   latitude: number,
   longitude: number,
   distanceRangeInMeters: number,
-  configuration: OverpassConfiguration,
+  instanceUrl: string,
+  timeoutInSeconds: number,
   idsToExclude: { osmId: string; osmType: string }[],
-  signal: AbortSignal | undefined
+  signal?: AbortSignal | undefined
 ): Promise<OverpassResponse | undefined> {
-  // TODO manage multiple URLS
-  return await overpassCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+  return await overpassCircuitBreaker(instanceUrl).execute(async ({ signal: combinedSignal }) => {
     if (signal?.aborted) {
       throw signal.reason;
     }
-    return fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, configuration.instanceUrls[0], configuration.timeoutInMs, combinedSignal);
+    return fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, instanceUrl, timeoutInSeconds, combinedSignal);
   }, signal);
+}
+
+async function fetchAllRestaurantsNearby(
+  latitude: number,
+  longitude: number,
+  distanceRangeInMeters: number,
+  idsToExclude: { osmId: string; osmType: string }[],
+  instanceUrl: string,
+  timeoutInSeconds: number,
+  signal: AbortSignal
+): Promise<OverpassResponse | undefined> {
+  console.info(`[OSM] Fetching all OSM restaurants nearby '${latitude},${longitude}'...`);
+  const query = createQueryToListAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, timeoutInSeconds);
+  const start = Date.now();
+
+  const response = await fetch(instanceUrl, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+    },
+    body: `data=${encodeURIComponent(query)}`,
+    signal: signal
+  });
+
+  const durationInMs = Date.now() - start;
+
+  if (response.ok) {
+    console.info(`[OSM] Fetching all OSM restaurants nearby '${latitude},${longitude}': done in ${durationInMs} ms.`);
+
+    const body = (await response.json()) as any;
+    if (body) {
+      return parseResponse(body, durationInMs);
+    } else {
+      throw new OsmEmptyResponseError(
+        query,
+        response.status,
+        await response.text(),
+        durationInMs
+      );
+    }
+  } else if (response.status >= 500) {
+    throw new OsmServerError(
+      query,
+      response.status,
+      await response.text(),
+      durationInMs
+    );
+  } else {
+    throw new OsmHttpError(
+      query,
+      response.status,
+      await response.text(),
+      durationInMs
+    );
+  }
 }
 
 function createQueryToListAllRestaurantsNearby(
@@ -131,65 +186,7 @@ function parseResponse(
   }
 }
 
-async function fetchAllRestaurantsNearby(
-  latitude: number,
-  longitude: number,
-  distanceRangeInMeters: number,
-  idsToExclude: { osmId: string; osmType: string }[],
-  instanceUrl: string,
-  timeoutInMs: number,
-  signal: AbortSignal
-): Promise<OverpassResponse | undefined> {
-  console.info(
-    `[OSM] Fetching all OSM restaurants nearby '${latitude},${longitude}'...`
-  );
-  const query = createQueryToListAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, timeoutInMs / 1000);
-  const start = Date.now();
-
-  const response = await fetch(instanceUrl, {
-    method: "post",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-    },
-    body: `data=${encodeURIComponent(query)}`,
-    signal: signal
-  });
-
-  const durationInMs = Date.now() - start;
-
-  if (response.ok) {
-    console.info(
-      `[OSM] Fetching all OSM restaurants nearby '${latitude},${longitude}': done in ${durationInMs} ms.`
-    );
-    const body = (await response.json()) as any;
-    if (body) {
-      return parseResponse(body, durationInMs);
-    } else {
-      throw new OsmEmptyResponseError(
-        query,
-        response.status,
-        await response.text(),
-        durationInMs
-      );
-    }
-  } else if (response.status >= 500) {
-    throw new OsmServerError(
-      query,
-      response.status,
-      await response.text(),
-      durationInMs
-    );
-  } else {
-    throw new OsmHttpError(
-      query,
-      response.status,
-      await response.text(),
-      durationInMs
-    );
-  }
-}
-
-// TODO Review
+const EURO_CODES = ["be", "fr", "de", "nl", "es", "it", "at", "ch", "pl", "dk", "no", "se", "fi"];
 function createFormattedAddress(
   street?: string,
   houseNumber?: string,
@@ -205,7 +202,7 @@ function createFormattedAddress(
     const cleanCity = city?.trim() || "";
     const cleanPostCode = postCode?.trim() || "";
     const code = countryCode?.toLowerCase()?.trim();
-    const isEuroStyle = ["be", "fr", "de", "nl", "es", "it", "at", "ch", "pl", "dk", "no", "se", "fi"].includes(code || "");
+    const isEuroStyle = EURO_CODES.includes(code || "");
     if (isEuroStyle) {
       const cityPart = [cleanPostCode, cleanCity].filter(Boolean).join(" ");
       return [cleanStreet, cleanHouseNumber, cityPart].filter(Boolean).join(", ");

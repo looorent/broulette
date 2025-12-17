@@ -1,11 +1,24 @@
 import prisma from "@features/db.server/prisma";
-import { SearchCandidateStatus, ServiceTimeslot, type RestaurantIdentity, type SearchCandidate } from "@persistence/client";
+import { DistanceRange, SearchCandidateStatus, ServiceTimeslot, type RestaurantIdentity, type SearchCandidate } from "@persistence/client";
 import { RestaurantDiscoveryScanner } from "./discovery/scanner";
 import { SearchNotFoundError } from "./error";
 import { enrichRestaurant } from "./matching/core";
 import { randomize } from "./randomization/randomizer";
 import type { SearchEngineConfiguration } from "./types";
 import { validateRestaurant } from "./validation/validator";
+import type { DiscoveryConfiguration, DiscoveryConfigurationRange } from "@features/discovery.server";
+
+function defineRange(range: DistanceRange, configuration: DiscoveryConfiguration): DiscoveryConfigurationRange {
+  switch (range) {
+    case DistanceRange.Far:
+      return configuration.range.far;
+    case DistanceRange.MidRange:
+      return configuration.range.midRange;
+    default:
+    case DistanceRange.Close:
+      return configuration.range.close;
+  }
+}
 
 // TODO profiling
 export async function searchCandidate(
@@ -17,6 +30,9 @@ export async function searchCandidate(
   if (!search) {
     throw new SearchNotFoundError(searchId);
   }
+
+
+  const { timeoutInMs, rangeInMeters } = defineRange(range, configuration);
 
   const discovery = new RestaurantDiscoveryScanner(
     { latitude: search.latitude, longitude: search.longitude },

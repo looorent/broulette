@@ -4,7 +4,6 @@ import { noop, type IPolicy } from "cockatiel";
 const circuitBreakerSingletonPerInstanceUrl: { [instanceUrl: string]: IPolicy } = {};
 let failoverConfiguration: FailoverConfiguration | null;
 
-
 export function initializeNominatim(configuration: FailoverConfiguration) {
   if (!configuration) {
     if (failoverConfiguration) {

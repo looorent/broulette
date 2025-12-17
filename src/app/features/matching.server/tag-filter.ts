@@ -1,7 +1,10 @@
 import type { RestaurantTagConfiguration } from "./types";
 
 // TODO review
-export function filterTags(tags: string[] | undefined, configuration: RestaurantTagConfiguration): string[] {
+export function filterTags(
+  tags: string[] | undefined,
+  configuration: RestaurantTagConfiguration
+): string[] {
   if (tags) {
     let result = [...tags];
     if (configuration.hiddenTags && configuration.hiddenTags.length > 0) {

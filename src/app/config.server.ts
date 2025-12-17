@@ -1,9 +1,11 @@
 import { registerNominatim, registerPhoton } from "@features/address.server";
 import type { FailoverConfiguration } from "@features/circuit-breaker.server";
+import { DEFAULT_FAILOVER } from "@features/circuit-breaker.server/types";
 import { initializeGoogle, type GooglePlaceConfiguration } from "@features/google.server";
-import { initializeNominatim, type GeocodingNominatimConfiguration } from "@features/nominatim.server";
-import { initializeOverpass, type OverpassConfiguration } from "@features/overpass.server";
+import { DEFAULT_NOMINATIM_CONFIGURATION, initializeNominatim, type GeocodingNominatimConfiguration } from "@features/nominatim.server";
+import { DEFAULT_OVERPASS_CONFIGURATION, initializeOverpass, type OverpassConfiguration } from "@features/overpass.server";
 import { initializePhoton, type GeocodingPhotonConfiguration } from "@features/photon.server";
+import { DEFAULT_PHOTON_CONFIGURATION } from "@features/photon.server/types";
 import type { SearchEngineConfiguration } from "@features/search-engine.server";
 
 export const APP_CONFIG = {
@@ -15,33 +17,41 @@ export const APP_CONFIG = {
   }
 } as const;
 
+function readArray(text: string | undefined): string[] | undefined {
+  if (text && text?.length > 0) {
+    return text.split(",");
+  } else {
+    return undefined;
+  }
+}
+
 export type AppConfiguration = typeof APP_CONFIG;
 
 export const NOMINATIM_CONFIG: GeocodingNominatimConfiguration = {
-  instanceUrls: (process.env.BROULETTE_NOMINATIM_INSTANCE_URLS || "https://nominatim.openstreetmap.org/search").split(","),
+  instanceUrls: readArray(process.env.BROULETTE_NOMINATIM_INSTANCE_URLS) || DEFAULT_NOMINATIM_CONFIGURATION.instanceUrls,
   userAgent: process.env.BROULETTE_NOMINATIM_USER_AGENT ?? `${APP_CONFIG.name}/${APP_CONFIG.version}`,
-  bottomNote: process.env.BROULETTE_NOMINATIM_BOTTOM_NOTE ?? "by OpenStreetMap",
-  maxNumberOfAddresses: Number(process.env.BROULETTE_NOMINATIM_NUMBER_0F_ADDRESSES || 5)
+  bottomNote: process.env.BROULETTE_NOMINATIM_BOTTOM_NOTE ?? DEFAULT_NOMINATIM_CONFIGURATION.bottomNote,
+  maxNumberOfAddresses: Number(process.env.BROULETTE_NOMINATIM_NUMBER_0F_ADDRESSES || DEFAULT_NOMINATIM_CONFIGURATION.maxNumberOfAddresses)
 };
 
 export const NOMINATIM_FAILOVER_CONFIG: FailoverConfiguration = {
-  retry: Number(process.env.BROULETTE_NOMINATIM_API_RETRIES || 3),
-  halfOpenAfterInMs: Number(process.env.BROULETTE_NOMINATIM_API_TIMEOUT || 5_000),
-  closeAfterNumberOfFailures: Number(process.env.BROULETTE_NOMINATIM_API_CLOSE_AFTER || 5),
-  timeoutInMs: Number(process.env.BROULETTE_NOMINATIM_API_TIMEOUT || 5000)
+  retry: Number(process.env.BROULETTE_NOMINATIM_API_RETRIES || DEFAULT_FAILOVER.retry),
+  halfOpenAfterInMs: Number(process.env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+  closeAfterNumberOfFailures: Number(process.env.BROULETTE_NOMINATIM_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+  timeoutInMs: Number(process.env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
 };
 
 export const PHOTON_CONFIG: GeocodingPhotonConfiguration = {
-  instanceUrls: (process.env.BROULETTE_PHOTON_INSTANCE_URLS || "https://photon.komoot.io/api/").split(","),
-  bottomNote: process.env.BROULETTE_PHOTON_BOTTOM_NOTE ?? "by Photon",
-  maxNumberOfAddresses: Number(process.env.BROULETTE_PHOTON_NUMBER_0F_ADDRESSES || 5),
+  instanceUrls: readArray(process.env.BROULETTE_PHOTON_INSTANCE_URLS) || DEFAULT_PHOTON_CONFIGURATION.instanceUrls,
+  bottomNote: process.env.BROULETTE_PHOTON_BOTTOM_NOTE ?? DEFAULT_PHOTON_CONFIGURATION.bottomNote,
+  maxNumberOfAddresses: Number(process.env.BROULETTE_PHOTON_NUMBER_0F_ADDRESSES || DEFAULT_PHOTON_CONFIGURATION.maxNumberOfAddresses),
 };
 
 export const PHOTON_FAILOVER_CONFIG: FailoverConfiguration = {
-  retry: Number(process.env.BROULETTE_PHOTON_API_RETRIES || 3),
-  halfOpenAfterInMs: Number(process.env.BROULETTE_PHOTON_API_TIMEOUT || 5_000),
-  closeAfterNumberOfFailures: Number(process.env.BROULETTE_PHOTON_API_CLOSE_AFTER || 5),
-  timeoutInMs: Number(process.env.BROULETTE_PHOTON_API_TIMEOUT || 5000)
+  retry: Number(process.env.BROULETTE_PHOTON_API_RETRIES || DEFAULT_FAILOVER.retry),
+  halfOpenAfterInMs: Number(process.env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+  closeAfterNumberOfFailures: Number(process.env.BROULETTE_PHOTON_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+  timeoutInMs: Number(process.env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
 };
 
 export const GOOGLE_PLACE_CONFIG: GooglePlaceConfiguration = {
@@ -66,22 +76,21 @@ export const GOOGLE_PLACE_CONFIG: GooglePlaceConfiguration = {
 };
 
 export const GOOGLE_PLACE_FAILOVER_CONFIG: FailoverConfiguration = {
-  retry: Number(process.env.BROULETTE_GOOGLE_PLACE_API_RETRIES || 3),
-  halfOpenAfterInMs: Number(process.env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || 5_000),
-  closeAfterNumberOfFailures: Number(process.env.BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER || 5),
-  timeoutInMs: Number(process.env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || 5000)
+  retry: Number(process.env.BROULETTE_GOOGLE_PLACE_API_RETRIES || DEFAULT_FAILOVER.retry),
+  halfOpenAfterInMs: Number(process.env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+  closeAfterNumberOfFailures: Number(process.env.BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+  timeoutInMs: Number(process.env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
 };
 
 export const OVERPASS_FAILOVER_CONFIG: FailoverConfiguration = {
-  retry: Number(process.env.BROULETTE_OVERPASS_API_RETRIES || 3),
-  halfOpenAfterInMs: Number(process.env.BROULETTE_OVERPASS_API_TIMEOUT || 2_000),
-  closeAfterNumberOfFailures: Number(process.env.BROULETTE_OVERPASS_API_CLOSE_AFTER || 5),
-  timeoutInMs: Number(process.env.BROULETTE_OVERPASS_API_TIMEOUT || 10_000)
+  retry: Number(process.env.BROULETTE_OVERPASS_API_RETRIES || DEFAULT_FAILOVER.retry),
+  halfOpenAfterInMs: Number(process.env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+  closeAfterNumberOfFailures: Number(process.env.BROULETTE_OVERPASS_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+  timeoutInMs: Number(process.env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
 };
 
 export const OVERPASS_CONFIG: OverpassConfiguration = {
-  instanceUrls: (process.env.BROULETTE_OVERPASS_API_INSTANCE_URLS || "https://overpass-api.de/api/interpreter").split(","),
-  timeoutInMs: OVERPASS_FAILOVER_CONFIG.timeoutInMs
+  instanceUrls: readArray(process.env.BROULETTE_OVERPASS_API_INSTANCE_URLS) || DEFAULT_OVERPASS_CONFIGURATION.instanceUrls
 };
 
 export const RESTAURANT_TYPES_TO_EXCLUDE: string[] = [
@@ -123,6 +132,9 @@ function initialize() {
   // TODO we should registered conditionnally
   registerNominatim(NOMINATIM_CONFIG);
   registerPhoton(PHOTON_CONFIG);
+
+
+  registerOverpass(OVERPASS_CONFIG);
 }
 
 initialize();

@@ -3,6 +3,14 @@ import type { Coordinates } from "@features/coordinate";
 export const OVERPASS_SOURCE_NAME = "osm";
 export type OverpassLocationType = "way" | "node" | "relation";
 
+export const DEFAULT_OVERPASS_CONFIGURATION: OverpassConfiguration = {
+  instanceUrls: [
+    "https://overpass-api.de/api/interpreter",
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter"
+  ]
+};
+
 export interface OverpassRestaurant {
   id: number;
   type: OverpassLocationType;
@@ -34,5 +42,4 @@ export interface OverpassResponse {
 
 export interface OverpassConfiguration {
   instanceUrls: string[];
-  timeoutInMs: number;
 }

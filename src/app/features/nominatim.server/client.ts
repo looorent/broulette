@@ -1,7 +1,7 @@
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { nomatimCircuitBreaker } from "./circuit-breaker";
 import { NominatimHttpError, NominatimServerError } from "./error";
-import { DEFAULT_CONFIGURATION, type GeocodingNominatimConfiguration } from "./types";
+import { DEFAULT_NOMINATIM_CONFIGURATION, type GeocodingNominatimConfiguration } from "./types";
 
 interface NominatimPlace {
   place_id: number;
@@ -14,8 +14,8 @@ interface NominatimPlace {
 
 export async function fetchLocationFromNominatim(
   query: string,
-  instanceUrl: string = DEFAULT_CONFIGURATION.instanceUrls[0],
-  configuration: GeocodingNominatimConfiguration = DEFAULT_CONFIGURATION,
+  instanceUrl: string = DEFAULT_NOMINATIM_CONFIGURATION.instanceUrls[0],
+  configuration: GeocodingNominatimConfiguration = DEFAULT_NOMINATIM_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<LocationSuggestions> {
   const rawData = await nomatimCircuitBreaker(instanceUrl).execute(async ({ signal: combinedSignal }) => {
