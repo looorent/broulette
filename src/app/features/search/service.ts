@@ -143,3 +143,41 @@ function pickIcon(timeslot: ServiceTimeslot | null): ServicePreferenceIcon {
       return "calendar";
   }
 }
+
+export function formatServiceTime(serviceTimeslot: ServiceTimeslot, serviceInstant: Date): string {
+  if (serviceTimeslot === ServiceTimeslot.RightNow) {
+    return formatMonthDatetime(serviceInstant);
+  } else {
+    return `${formatMonthDate(serviceInstant) } ${formatDayService(serviceTimeslot)}`;
+  }
+}
+
+function formatDayService(serviceTimeslot: ServiceTimeslot): string | undefined {
+  switch (serviceTimeslot) {
+    case ServiceTimeslot.Dinner:
+      return "Dinner";
+    case ServiceTimeslot.Lunch:
+      return "Lunch";
+    case ServiceTimeslot.RightNow:
+      return "Right Now";
+    default:
+      return undefined;
+  }
+}
+function pad2(value: number): string {
+  return value.toString().padStart(2, "0");
+}
+
+function formatMonthDatetime(instant: Date) {
+  const day = pad2(instant.getDate());
+  const month = pad2(instant.getMonth() + 1);
+  const hours = pad2(instant.getHours());
+  const mins = pad2(instant.getMinutes());
+  return `${day}/${month} ${hours}:${mins}`;
+}
+
+function formatMonthDate(instant: Date) {
+  const day = pad2(instant.getDate());
+  const monthName = instant.toLocaleString("default", { month: "short" });
+  return `${day} ${monthName}`;
+}

@@ -92,6 +92,13 @@
     40% { transform: scale(1.1); opacity: 1; }
     100% { transform: scale(0); opacity: 0; }
   }
+
+  --animate-slide-in-from-top-right: slideInFromTopRight 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  @keyframes slideInFromTopRight {
+    0% { transform: translate(30px, -30px) rotate(12deg); opacity: 0; }
+    100% { transform: translate(0, 0) rotate(6deg); opacity: 1; }
+  }
+
 }
 
 .background-blend {

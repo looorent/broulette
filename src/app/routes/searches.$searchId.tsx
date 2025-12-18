@@ -1,4 +1,5 @@
 import prisma from "@features/db.server/prisma";
+import { formatSearchLabel } from "@features/search";
 import { useEffect, useRef } from "react";
 import { href, redirect, useSubmit } from "react-router";
 import type { Route } from "./+types/searches.$searchId";
@@ -44,5 +45,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
     }
   }, [search.id, submit]);
 
-  return null;
+  return (
+    <title>{`BiteRoulette - ${formatSearchLabel(search)} - Searching...`}</title>
+  );
 }
