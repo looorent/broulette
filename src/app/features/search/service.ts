@@ -36,7 +36,6 @@ function createService(
   };
 };
 
-// TODO we should move that to the server side
 export const SERVICE_DEFAULTS = {
   [ServiceTimeslot.Lunch]: {
     start:  { hour: 11, minute: 30 },

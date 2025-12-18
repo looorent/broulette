@@ -2,7 +2,8 @@ import { SourceBadge } from "@components/candidate";
 import { shareSocial, triggerHaptics } from "@features/browser.client";
 import prisma from "@features/db.server/prisma";
 import { findSourceIn } from "@features/discovery.server";
-import { tagToDisplay } from "@features/tag.server";
+import { findTagIcon } from "@features/tag";
+import { tagToLabel } from "@features/tag.server";
 import { MapPin, Navigation, Phone, RefreshCw, Share2, Star } from "lucide-react";
 import { useEffect } from "react";
 import { href, redirect, useSubmit } from "react-router";
@@ -53,7 +54,7 @@ export async function loader({ params }: Route.LoaderArgs) {
           imageUrl: candidate.restaurant.imageUrl ?? "https://placehold.co/600x400?text=No+Image",
           source: findSourceIn(candidate.restaurant.identities),
           rating: candidate.restaurant.rating?.toFixed(1),
-          tags: candidate.restaurant.tags?.map(tagToDisplay)?.filter(Boolean) || [],
+          tags: candidate.restaurant.tags?.map(tagToLabel) || [],
           phoneNumber: candidate.restaurant.phoneNumber,
           internationalPhoneNumber: candidate.restaurant.internationalPhoneNumber,
           address: candidate.restaurant.address,
@@ -178,11 +179,18 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
 
               {restaurant.tags.length > 0 && (
                 <div id="candidate-tags" className="flex gap-2 flex-wrap pt-2">
-                  {restaurant.tags.map(tagName => (
-                    <span key={tagName} className="px-2 py-1 bg-fun-cream border-2 border-fun-dark rounded-lg text-xs font-bold">
-                      {tagName}
-                    </span>
-                  ))}
+                  {restaurant.tags.map(tag => {
+                    const Icon = findTagIcon(tag.id);
+                    return (
+                      <>
+                        {Icon && (<Icon className="w-2 h-2 mr-1" />) }
+
+                        <span key={tag.id} className="px-2 py-1 bg-fun-cream border-2 border-fun-dark rounded-lg text-xs font-bold">
+                          {tag.label}
+                        </span>
+                      </>
+                    );
+                  })}
                 </div>
               )}
             </div>

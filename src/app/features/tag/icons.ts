@@ -1,0 +1,76 @@
+import {
+  Beef,
+  Beer,
+  Bike,
+  Cake,
+  ChefHat,
+  Coffee,
+  Croissant,
+  Fish,
+  Flame,
+  Globe,
+  IceCream,
+  Leaf,
+  Pizza,
+  Sandwich,
+  ShoppingBag,
+  Soup,
+  Utensils,
+  UtensilsCrossed,
+  Wine,
+  type LucideIcon,
+} from "lucide-react";
+
+const RESTAURANT_ICONS: Record<string, LucideIcon> = {
+  // --- Regional / Ethnic ---
+  afghani: Globe,
+  african: Globe,
+  american: UtensilsCrossed,
+  asian: UtensilsCrossed,
+  brazilian: Beef,
+  chinese: UtensilsCrossed,
+  french: Wine,
+  greek: ChefHat,
+  indian: Soup,
+  indonesian: UtensilsCrossed,
+  italian: Pizza,
+  japanese: UtensilsCrossed,
+  korean: UtensilsCrossed,
+  lebanese: ChefHat,
+  mediterranean: Fish,
+  mexican: UtensilsCrossed,
+  middle_eastern: ChefHat,
+  spanish: UtensilsCrossed,
+  thai: Soup,
+  turkish: ChefHat,
+  vietnamese: Soup,
+
+  // --- Food Types ---
+  barbecue: Flame,
+  breakfast: Coffee,
+  brunch: Croissant,
+  buffet: Utensils,
+  dessert: Cake,
+  dessert_shop: IceCream,
+  fast_food: Sandwich,
+  fine_dining: Wine,
+  hamburger: Sandwich,
+  pizza: Pizza,
+  ramen: Soup,
+  seafood: Fish,
+  steak_house: Beef,
+  sushi: Fish,
+  vegan: Leaf,
+  vegetarian: Leaf,
+
+  // --- Venues / Service ---
+  bar_and_grill: Beer,
+  meal_delivery: Bike,
+  meal_takeaway: ShoppingBag,
+  pub: Beer,
+  restaurant: Utensils,
+};
+
+export function findTagIcon(tag: string): LucideIcon | undefined {
+  return RESTAURANT_ICONS[tag] || undefined;
+}

@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+
 export const DEFAULT_TAG_CONFIGURATION: RestaurantTagConfiguration = {
   hiddenTags: [
     "restaurant",
@@ -15,3 +17,7 @@ export interface RestaurantTagConfiguration {
   priorityTags: string[];
 }
 
+export interface RestaurantTagDisplay {
+  id: string;
+  label: string;
+}

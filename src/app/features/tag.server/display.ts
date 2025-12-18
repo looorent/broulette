@@ -1,51 +1,64 @@
-export function tagToDisplay(tag: string): string {
-  return tag; // TODO
+const RESTAURANT_LABELS: Record<string, string> = {
+  // --- Regional / Ethnic ---
+  afghani: "Afghani",
+  african: "African",
+  american: "American",
+  asian: "Asian",
+  brazilian: "Brazilian",
+  chinese: "Chinese",
+  french: "French",
+  greek: "Greek",
+  indian: "Indian",
+  indonesian: "Indonesian",
+  italian: "Italian",
+  japanese: "Japanese",
+  korean: "Korean",
+  lebanese: "Lebanese",
+  mediterranean: "Mediterranean",
+  mexican: "Mexican",
+  middle_eastern: "Middle Eastern",
+  spanish: "Spanish",
+  thai: "Thai",
+  turkish: "Turkish",
+  vietnamese: "Vietnamese",
+
+  // --- Food Types ---
+  barbecue: "BBQ",
+  breakfast: "Breakfast",
+  brunch: "Brunch",
+  buffet: "Buffet",
+  dessert: "Dessert",
+  dessert_shop: "Desserts",
+  fast_food: "Fast Food",
+  fine_dining: "Fine Dining",
+  hamburger: "Burgers",
+  pizza: "Pizza",
+  ramen: "Ramen",
+  seafood: "Seafood",
+  steak_house: "Steakhouse",
+  sushi: "Sushi",
+  vegan: "Vegan",
+  vegetarian: "Vegetarian",
+
+  // --- Venues / Service ---
+  bar_and_grill: "Bar & Grill",
+  meal_delivery: "Delivery",
+  meal_takeaway: "Takeaway",
+  pub: "Pub",
+  restaurant: "Restaurant",
+};
+
+export function tagToLabel(tag: string): { id: string; label: string } {
+  return {
+    id: tag,
+    label: RESTAURANT_LABELS[tag] || createDefaultLabel(tag)
+  };
 }
 
+function createDefaultLabel(tag: string): string {
+  return tag
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+}
 
-// TODO do something with this?
-
-// export const RESTAURANT_TYPES_TO_EXCLUDE: string[] = [
-//   "afghani_restaurant",
-//   "african_restaurant",
-//   "american_restaurant",
-//   "asian_restaurant",
-//   "bar_and_grill",
-//   "barbecue_restaurant",
-//   "brazilian_restaurant",
-//   "breakfast_restaurant",
-//   "brunch_restaurant",
-//   "buffet_restaurant",
-//   "chinese_restaurant",
-//   "dessert_restaurant",
-//   "dessert_shop",
-//   "fast_food_restaurant",
-//   "fine_dining_restaurant",
-//   "french_restaurant",
-//   "greek_restaurant",
-//   "hamburger_restaurant",
-//   "indian_restaurant",
-//   "indonesian_restaurant",
-//   "italian_restaurant",
-//   "japanese_restaurant",
-//   "korean_restaurant",
-//   "lebanese_restaurant",
-//   "meal_delivery",
-//   "meal_takeaway",
-//   "mediterranean_restaurant",
-//   "mexican_restaurant",
-//   "middle_eastern_restaurant",
-//   "pizza_restaurant",
-//   "pub",
-//   "ramen_restaurant",
-//   "restaurant",
-//   "seafood_restaurant",
-//   "spanish_restaurant",
-//   "steak_house",
-//   "sushi_restaurant",
-//   "thai_restaurant",
-//   "turkish_restaurant",
-//   "vegan_restaurant",
-//   "vegetarian_restaurant",
-//   "vietnamese_restaurant"
-// ];

@@ -6,6 +6,7 @@ export function filterTags(
 ): string[] {
   let processedTags = tags ? [...tags] : [];
   if (processedTags.length > 0) {
+    processedTags = removeSuffixes(processedTags),
     processedTags = removeHiddenTags(processedTags, configuration.hiddenTags);
     processedTags = applyPrioritySorting(processedTags, configuration.priorityTags);
     processedTags = limitTagCount(processedTags, configuration.maxTags);
@@ -42,3 +43,8 @@ function limitTagCount(tags: string[], maxTags?: number): string[] {
     return tags;
   }
 }
+
+function removeSuffixes(tags: string[]): string[] {
+  return tags.map(tag => tag.replace("_restaurant", "")).filter(tag => tag.trim()).filter(Boolean);
+}
+

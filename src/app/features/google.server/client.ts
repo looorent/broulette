@@ -23,7 +23,7 @@ const FIELDS_TO_FETCH = [
   "userRatingCount",
   "primaryType",
   "photos"
-]
+];
 
 const SEARCH_FIELDS_MASK = FIELDS_TO_FETCH.map(field => `places.${field}`).join(",");
 const DETAIL_FIELDS_MASK = FIELDS_TO_FETCH.join(",");

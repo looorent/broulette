@@ -2,8 +2,6 @@ import opening_hours from "opening_hours";
 
 const DEFAULT_COUNTRY_CODE = "be";
 
-// TODO investigate https://openingh.openstreetmap.de/evaluation_tool/
-
 export function isOpenAtTarget(
   openingHours: string | null | undefined,
   latitude: number,

@@ -13,7 +13,7 @@ export async function action({
     if (candidate) {
       return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: candidate.searchId, candidateId: candidate.id }));
     } else {
-      // TODO manage error
+      // TODO manage error (for example, if there is NO candidate, display something)
       return redirect(href("/")); // we should display a message
     }
   } else {

@@ -21,7 +21,6 @@ export function AlertProvider({ children }: { children: ReactNode }) {
 
   const closeAlert = () => {
     setIsAlertOpen(false);
-    // TODO should we reset the options after rendering?
   };
 
   return (

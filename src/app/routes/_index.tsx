@@ -1,6 +1,6 @@
 import { AlertBox, AlertProvider, useAlertContext } from "@components/alert";
 import { BottomSheet } from "@components/bottom-sheet-modal";
-import { BrandTitle, FoodRain } from "@components/brand";
+import { BrandTitle } from "@components/brand";
 import { HelpButton, HelpModal } from "@components/help";
 import { SearchSubmitButton } from "@components/search";
 import { PreferenceChip, type PreferenceChipHandle } from "@components/search-preference";
@@ -90,8 +90,6 @@ function HomeContent() {
           }
           } />
       </section>
-
-      <FoodRain />
 
       <BottomSheet
         isOpen={searchParams.get("modal") === "preferences"}
