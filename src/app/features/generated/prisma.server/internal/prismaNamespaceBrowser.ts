@@ -123,6 +123,7 @@ export const RestaurantScalarFieldEnum = {
   phoneNumber: 'phoneNumber',
   internationalPhoneNumber: 'internationalPhoneNumber',
   priceRange: 'priceRange',
+  priceLabel: 'priceLabel',
   openingHours: 'openingHours',
   tags: 'tags',
   operational: 'operational',

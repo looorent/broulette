@@ -58,6 +58,7 @@ export interface GoogleRestaurant {
   openingHours: string | undefined;
   operational: boolean | undefined;
   priceLevel: number | undefined | null;
+  priceLabel: string | undefined | null;
   photoIds: string[];
   photoUrl: string | undefined;
 }

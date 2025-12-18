@@ -39,6 +39,7 @@ const RESTAURANT_LABELS: Record<string, string> = {
   sushi: "Sushi",
   vegan: "Vegan",
   vegetarian: "Vegetarian",
+  friture: "Fry",
 
   // --- Venues / Service ---
   bar_and_grill: "Bar & Grill",

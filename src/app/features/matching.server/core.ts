@@ -15,7 +15,7 @@ export async function enrichRestaurant(
   if (discovered) {
     const restaurant = await findRestaurantInDatabase(discovered.identity) || await saveRestaurantToDatabase(discovered, configuration);
     if (shouldBeMatched(restaurant)) {
-      return await enrich(restaurant, signal);
+      return await enrich(restaurant, configuration, signal);
     } else {
       return restaurant;
     }
@@ -26,6 +26,7 @@ export async function enrichRestaurant(
 
 async function enrich(
   restaurant: RestaurantWithIdentities,
+  configuration: RestaurantMatchingConfiguration,
   signal?: AbortSignal | undefined
 ): Promise<RestaurantWithIdentities> {
 
@@ -42,7 +43,7 @@ async function enrich(
     if (currentResult.success) {
       break;
     } else if (!await matcher.hasReachedQuota()) {
-      currentResult = await matcher.matchAndEnrich(currentResult.restaurant, signal);
+      currentResult = await matcher.matchAndEnrich(currentResult.restaurant, configuration, signal);
     }
   }
 

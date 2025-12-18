@@ -53,6 +53,9 @@ export function SearchLoaderProvider({ children }: { children: React.ReactNode }
 
       // Show immediately or update message
       if (!state.visible) {
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
         setState({ visible: true, message });
       } else {
         // Only trigger a re-render if the message actually changed

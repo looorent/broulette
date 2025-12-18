@@ -9,15 +9,12 @@ import { useEffect } from "react";
 import { href, redirect, useSubmit } from "react-router";
 import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId";
 
-function formatPriceRange(range: number | null | undefined): string {
-  return "$".repeat(range ?? 0);
-}
-
+//TODO add title
 const LATEST = "latest";
 export async function loader({ params }: Route.LoaderArgs) {
   const { searchId, candidateId } = params;
 
-  if (LATEST === searchId.toLowerCase()) {
+  if (LATEST === candidateId.toLowerCase()) {
     const search = await prisma.search.findWithLatestCandidate(params.searchId);
     const latestId = search?.candidates?.[0]?.id;
 
@@ -50,7 +47,7 @@ export async function loader({ params }: Route.LoaderArgs) {
         restaurant: {
           name: candidate.restaurant.name,
           description: candidate.restaurant.description,
-          priceRange: formatPriceRange(candidate.restaurant.priceRange),
+          priceRange: candidate.restaurant.priceLabel,
           imageUrl: candidate.restaurant.imageUrl ?? "https://placehold.co/600x400?text=No+Image",
           source: findSourceIn(candidate.restaurant.identities),
           rating: candidate.restaurant.rating?.toFixed(1),
@@ -65,6 +62,16 @@ export async function loader({ params }: Route.LoaderArgs) {
       return redirect(href("/"));
     }
   }
+}
+
+function Tag({id, label}: {id: string, label: string}) {
+  const Icon = findTagIcon(id);
+  return (
+    <span className="inline-flex items-center px-2 py-1 bg-fun-cream border-2 border-fun-dark rounded-lg text-xs font-bold">
+      {Icon && (<Icon className="w-3 h-3 mr-1.5" />)}
+      {label}
+    </span>
+  );
 }
 
 export default function CandidatePage({ loaderData }: Route.ComponentProps) {
@@ -157,10 +164,15 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
             <div className="mt-auto space-y-3">
               <address className="flex flex-col gap-2 text-fun-dark font-bold font-sans text-sm not-italic">
                 {restaurant.address && (
-                  <div className="flex items-center gap-2">
+                  <a
+                    href={restaurant.mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
                     <MapPin className="w-5 h-5 text-fun-red shrink-0" />
                     <span id="candidate-address">{restaurant.address}</span>
-                  </div>
+                  </a>
                 )}
 
                 {(restaurant.internationalPhoneNumber || restaurant.phoneNumber) && (
@@ -179,18 +191,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
 
               {restaurant.tags.length > 0 && (
                 <div id="candidate-tags" className="flex gap-2 flex-wrap pt-2">
-                  {restaurant.tags.map(tag => {
-                    const Icon = findTagIcon(tag.id);
-                    return (
-                      <>
-                        {Icon && (<Icon className="w-2 h-2 mr-1" />) }
-
-                        <span key={tag.id} className="px-2 py-1 bg-fun-cream border-2 border-fun-dark rounded-lg text-xs font-bold">
-                          {tag.label}
-                        </span>
-                      </>
-                    );
-                  })}
+                  {restaurant.tags.map(tag => <Tag key={tag.id} id={tag.id} label={tag.label} />)}
                 </div>
               )}
             </div>

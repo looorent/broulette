@@ -6,6 +6,7 @@ interface SourceBadgeStyle {
 function defineStyle(source: string): SourceBadgeStyle {
   switch(source?.toLowerCase()) {
     case "google":
+    case "google_place":
       return {
         style: "bg-fun-blue text-white",
         label: "Google"

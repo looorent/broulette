@@ -1,4 +1,3 @@
-import type { LucideIcon } from "lucide-react";
 
 export const DEFAULT_TAG_CONFIGURATION: RestaurantTagConfiguration = {
   hiddenTags: [
@@ -6,6 +5,7 @@ export const DEFAULT_TAG_CONFIGURATION: RestaurantTagConfiguration = {
     "establishment",
     "point_of_interest",
     "food",
+    "restaurant"
   ],
   maxTags: 5,
   priorityTags: []

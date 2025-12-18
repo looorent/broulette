@@ -43,7 +43,7 @@ async function findNextValidCandidate(
     const randomized = await randomize(restaurants);
 
     for (const restaurant of randomized) {
-      if (!shouldContinueSearching(candidate, scanner)) {
+      if (shouldContinueSearching(candidate, scanner)) {
         const processed = await processRestaurant(restaurant, searchId, orderTracker++, config, targetTime, scanner);
         if (processed) {
           candidate = processed;

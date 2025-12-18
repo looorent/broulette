@@ -7,7 +7,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: env("VITE_DATABASE_URL"),
+    url: env("BROULETTE_DATABASE_URL"),
   },
 });
 

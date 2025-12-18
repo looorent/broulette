@@ -97,6 +97,7 @@ model Restaurant {
   phoneNumber              String? @db.VarChar(20)
   internationalPhoneNumber String? @db.VarChar(25)
   priceRange               Int?
+  priceLabel               String?
   openingHours             String?
   tags                     String[] @db.VarChar(30)
   operational              Boolean?

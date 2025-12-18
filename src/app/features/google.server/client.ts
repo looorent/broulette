@@ -1,6 +1,7 @@
 import { computeViewportFromCircle } from "@features/coordinate";
 import { PlacesClient, type protos } from "@googlemaps/places";
 import { googleCircuitBreaker } from "./circuit-breaker";
+import { convertBusinessStatusToOperational, formatPrices } from "./formatter";
 import { convertGooglePeriodsToOpeningHours } from "./opening-hours";
 import { compareSimilarity, type GoogleSimilarityConfiguration } from "./similarity";
 import type { GooglePlaceConfiguration, GoogleRestaurant } from "./types";
@@ -12,6 +13,7 @@ const FIELDS_TO_FETCH = [
   "location",
   "formattedAddress",
   "addressComponents",
+  "shortFormattedAddress",
   "types",
   "businessStatus",
   "googleMapsUri",
@@ -22,6 +24,7 @@ const FIELDS_TO_FETCH = [
   "priceRange",
   "userRatingCount",
   "primaryType",
+  "websiteUri",
   "photos"
 ];
 
@@ -170,6 +173,9 @@ function convertGooglePlaceToRestaurant(
   place: protos.google.maps.places.v1.IPlace
 ): GoogleRestaurant | undefined {
   if (place && place.location) {
+
+    const { priceLevel, priceLabel } = formatPrices(place);
+
     return {
       id: place.id!,
       displayName: place.displayName?.text,
@@ -190,37 +196,11 @@ function convertGooglePlaceToRestaurant(
       websiteUri: place.websiteUri,
       openingHours: place.regularOpeningHours ? convertGooglePeriodsToOpeningHours(place.regularOpeningHours) : undefined,
       operational: convertBusinessStatusToOperational(place.businessStatus?.toString()),
-      priceLevel: convertPriceLevelToNumber(place.priceLevel?.toString()),
+      priceLevel: priceLevel,
+      priceLabel: priceLabel,
       photoIds: place.photos?.map(photo => photo.name)?.filter(Boolean)?.map(id => id!) || [],
       photoUrl: undefined
     }
-  } else {
-    return undefined;
-  }
-}
-
-function convertPriceLevelToNumber(priceLevel: string | undefined | null): number | null {
-  switch (priceLevel) {
-    case "PRICE_LEVEL_INEXPENSIVE":
-      return 1;
-    case "PRICE_LEVEL_MODERATE":
-      return 2;
-    case "PRICE_LEVEL_EXPENSIVE":
-      return 3;
-    case "PRICE_LEVEL_VERY_EXPENSIVE":
-      return 4;
-    case "PRICE_LEVEL_FREE":
-      return 0;
-    case "PRICE_LEVEL_UNSPECIFIED":
-    default:
-      return null;
-  }
-}
-
-const OPERATIONAL_BUSINESS_STATUS = "OPERATIONAL";
-function convertBusinessStatusToOperational(status: string | undefined | null): boolean | undefined {
-  if (status) {
-    return status === OPERATIONAL_BUSINESS_STATUS;
   } else {
     return undefined;
   }
@@ -248,4 +228,3 @@ async function addPhotoUriOn(
     return undefined;
   }
 }
-
