@@ -1,14 +1,15 @@
-import { SourceBadge } from "@components/candidate";
-import { shareSocial, triggerHaptics } from "@features/browser.client";
+import { AddressLink, OpenMapButton, RerollButton, RestaurantDescription, RestaurantPrice, RestaurantRating, RestaurantTags, ShareButton, SourceBadge, WebsiteLink } from "@components/candidate";
+import { PhoneLink } from "@components/candidate/phone-link";
+import { triggerHaptics } from "@features/browser.client";
 import prisma from "@features/db.server/prisma";
 import { findSourceIn } from "@features/discovery.server";
 import { formatSearchLabel } from "@features/search";
-import { findTagIcon } from "@features/tag";
 import { tagToLabel } from "@features/tag.server";
-import { ArrowLeft, MapPin, Navigation, Phone, RefreshCw, Share2, Star } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
-import { href, redirect, useSubmit } from "react-router";
+import { href, redirect } from "react-router";
 import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId";
+
 
 const LATEST = "latest";
 export async function loader({ params }: Route.LoaderArgs) {
@@ -40,9 +41,10 @@ export async function loader({ params }: Route.LoaderArgs) {
     if (candidate) {
       const hasExpired = new Date() > candidate.search.serviceEnd;
       return {
-        currentUrl: href("/searches/:searchId/candidates/:candidateId", { searchId: candidate.searchId, candidateId: candidate.id }),
-        newCandidateUrl: href("/searches/:searchId/candidates", { searchId: candidate.searchId }),
         reRollEnabled: !candidate.search.exhausted && !hasExpired,
+        candidate: {
+          id: candidate.id
+        },
         search: {
           id: candidate.search.id,
           label: formatSearchLabel(candidate.search)
@@ -58,7 +60,8 @@ export async function loader({ params }: Route.LoaderArgs) {
           phoneNumber: candidate.restaurant.phoneNumber,
           internationalPhoneNumber: candidate.restaurant.internationalPhoneNumber,
           address: candidate.restaurant.address,
-          mapUrl: candidate.restaurant.mapUrl
+          mapUrl: candidate.restaurant.mapUrl,
+          website: candidate.restaurant.website
         }
       };
     } else {
@@ -67,39 +70,9 @@ export async function loader({ params }: Route.LoaderArgs) {
   }
 }
 
-function Tag({id, label}: {id: string, label: string}) {
-  const Icon = findTagIcon(id);
-  return (
-    <span className="inline-flex items-center px-2 py-1 bg-fun-cream border-2 border-fun-dark rounded-lg text-xs font-bold">
-      {Icon && (<Icon className="w-3 h-3 mr-1.5" />)}
-      {label}
-    </span>
-  );
-}
 
 export default function CandidatePage({ loaderData }: Route.ComponentProps) {
-  const { currentUrl, newCandidateUrl, reRollEnabled, restaurant, search } = loaderData;
-  const submit = useSubmit();
-
-  const shareResult = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    shareSocial(restaurant.name || "", restaurant.description, currentUrl);
-    triggerHaptics();
-  };
-
-  const reRoll = () => {
-    if (reRollEnabled) {
-      triggerHaptics();
-      submit({
-        searchId: search.id
-      }, {
-        method: "POST",
-        action: newCandidateUrl,
-        replace: true,
-        viewTransition: true
-      });
-    }
-  };
+  const { reRollEnabled, restaurant, search, candidate } = loaderData;
 
   useEffect(() => {
     triggerHaptics();
@@ -112,8 +85,15 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
       <BackToHomeButton />
 
       <main
-        className="h-full flex flex-col justify-between py-8 relative animate-bounce-in transform transition-transform duration-300"
-        aria-label="Restaurant Result"
+        className="
+          h-full
+          flex flex-col justify-between
+          py-8
+          relative
+          animate-bounce-in
+          transform transition-transform duration-300
+        "
+        aria-label={`Result: ${restaurant.name}`}
       >
         <div className="flex-1 flex flex-col w-full max-w-md mx-auto p-8 no-scrollbar">
 
@@ -133,105 +113,47 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
                 src={restaurant.imageUrl}
                 className="w-full h-full object-cover animate-photo"
                 alt={`Photo of ${restaurant.name}`}
+                loading="lazy"
+                decoding="async"
               />
 
-              {restaurant.source && <SourceBadge source={restaurant.source} />}
+              <SourceBadge source={restaurant.source} />
 
-              {restaurant.priceRange && (
-                <div className="absolute top-3 right-3 bg-fun-yellow border-[3px] border-fun-dark px-3 py-1 rounded-xl font-bold text-fun-dark shadow-hard-hover text-sm z-10">
-                  <span id="candidate-price">{restaurant.priceRange}</span>
-                </div>
-              )}
+              <RestaurantPrice range={restaurant.priceRange} />
 
-              <button
-                onClick={shareResult}
-                className="absolute top-3 left-3 bg-fun-cream/95 backdrop-blur-md border-[3px] border-fun-dark p-3 rounded-xl shadow-hard-hover text-fun-dark active:scale-95 transition-transform z-20 cursor-pointer"
-                title="Share"
-                aria-label="Share Restaurant"
-              >
-                <Share2 className="w-6 h-6 stroke-[2.5px]" />
-              </button>
+              <ShareButton
+                searchId={search.id}
+                candidateId={candidate.id}
+                restaurantName={restaurant.name}
+                restaurantDescription={restaurant.description} />
             </figure>
 
             <div className="p-6 flex-1 flex flex-col relative">
-              {restaurant.rating && (
-                <div className="absolute -top-5 left-6 bg-fun-green border-[3px] border-fun-dark rounded-full px-3 py-1 font-bold text-white shadow-hard-hover flex items-center gap-1 transform -rotate-3 z-20">
-                  <Star className="w-4 h-4 fill-fun-cream" />
-                  <span id="candidate-rating">{restaurant.rating}</span>
-                </div>
-              )}
+              <RestaurantRating rating={restaurant.rating} />
 
               <h3 id="candidate-name" className="font-pop text-3xl text-fun-dark leading-tight mb-2 mt-2">
                 {restaurant.name}
               </h3>
 
-              {restaurant.description && (
-                <p id="candidate-desc" className="font-sans font-medium text-fun-dark/70 text-lg leading-snug mb-4 line-clamp-3">
-                  {restaurant.description}
-                </p>
-              )}
+              <RestaurantDescription description={restaurant.description} />
 
               <div className="mt-auto space-y-3">
-                <address className="flex flex-col gap-2 text-fun-dark font-bold font-sans text-sm not-italic">
-                  {restaurant.address && (
-                    <a
-                      href={restaurant.mapUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <MapPin className="w-5 h-5 text-fun-red shrink-0" />
-                      <span id="candidate-address">{restaurant.address}</span>
-                    </a>
-                  )}
-
-                  {(restaurant.internationalPhoneNumber || restaurant.phoneNumber) && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="w-5 h-5 text-fun-blue shrink-0" />
-                      <a
-                        id="candidate-phone"
-                        href={`tel:${restaurant.internationalPhoneNumber ?? restaurant.phoneNumber}`}
-                        className="hover:underline decoration-2 decoration-fun-blue"
-                      >
-                        {restaurant.phoneNumber || restaurant.internationalPhoneNumber}
-                      </a>
-                    </div>
-                  )}
+                <address className="flex flex-col gap-4 text-fun-dark font-bold font-sans text-sm not-italic">
+                  <AddressLink formattedAddress={restaurant.address} mapUrl={restaurant.mapUrl} />
+                  <WebsiteLink url={restaurant.website} />
+                  <PhoneLink nationalPhoneNumber={restaurant.phoneNumber} internationalPhoneNumber={restaurant.internationalPhoneNumber} />
                 </address>
 
-                {restaurant.tags.length > 0 && (
-                  <div id="candidate-tags" className="flex gap-2 flex-wrap pt-2">
-                    {restaurant.tags.map(tag => <Tag key={tag.id} id={tag.id} label={tag.label} />)}
-                  </div>
-                )}
+                <RestaurantTags tags={restaurant.tags} />
               </div>
             </div>
           </article>
 
           {/* Actions */}
           <div className="flex gap-3">
-            {reRollEnabled && (
-              <button
-                onClick={reRoll}
-                className="w-20 bg-fun-yellow border-4 border-fun-dark rounded-2xl flex items-center justify-center shadow-hard transition-transform active:translate-y-1 active:shadow-none hover:brightness-110 cursor-pointer"
-                title="Spin Again"
-                aria-label="Reroll"
-              >
-                <RefreshCw className="w-8 h-8 stroke-[3px] text-fun-dark" />
-              </button>
-            )}
+            <RerollButton enabled={reRollEnabled} searchId={search.id} />
 
-            {restaurant.mapUrl && (
-              <a
-                href={restaurant.mapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 bg-fun-green border-4 border-fun-dark rounded-2xl py-4 shadow-hard flex items-center justify-center gap-2 transition-transform active:translate-y-1 active:shadow-none hover:brightness-110 cursor-pointer"
-              >
-                <span className="font-pop text-2xl text-fun-dark uppercase tracking-wide">Let's Eat!</span>
-                <Navigation className="w-6 h-6 stroke-[3px] text-fun-dark" />
-              </a>
-            )}
+            <OpenMapButton mapUrl={restaurant.mapUrl} />
           </div>
         </div>
       </main>

@@ -84,7 +84,7 @@ async function findPlacesByText(
   const response = await placesClient.searchText(
     {
       rankPreference: "RELEVANCE",
-      includedType: "restaurant", // TODO check if this is necessary
+      includedType: "restaurant",
       locationRestriction: {
         rectangle: {
           low: {

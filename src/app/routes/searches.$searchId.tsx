@@ -34,9 +34,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
-      submit({
-        searchId: search.id
-      }, {
+      submit({}, {
         method: "POST",
         action: newCandidateUrl,
         replace: true,

@@ -26,6 +26,11 @@ function defineStyle(source: string): SourceBadgeStyle {
         style: "bg-fun-red text-white",
         label: "Yelp"
       };
+    case "osm":
+      return {
+        style: "bg-fun-dark text-white",
+        label: "OpenStreetMap"
+      };
     default:
       return {
         style: "bg-fun-red text-white",
@@ -33,7 +38,6 @@ function defineStyle(source: string): SourceBadgeStyle {
       };
   }
 }
-
 
 export function SourceBadge({ source }: { source?: string }) {
   if (source && source.length > 0) {
