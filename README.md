@@ -10,6 +10,7 @@ Here are the source of data I plan to pull to get the most complete source of re
 
 
 * PRIORITY : manage the "registered providers" , they are not sent properly to the right load balancers.
+* THe home page requires a refresh to display
 * add TripAdvisor
 * Investigate why restaurant "Respire Restaurant" does not find any photo
 * Investigate why "La Terrasse de l'Abbaye de Notre-Dame du Vivier" does not find any equivalent on Google

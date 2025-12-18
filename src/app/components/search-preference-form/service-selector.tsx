@@ -1,6 +1,6 @@
-import type { ServicePreference } from "@features/search";
+import { findIconFor, type ServicePreference } from "@features/search";
 import { useDrag } from "@use-gesture/react";
-import { CalendarPlus, Check, Clock, Moon, Sun } from "lucide-react";
+import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface ServiceSelectorProps {
@@ -10,12 +10,6 @@ interface ServiceSelectorProps {
   onChange: (service: ServicePreference) => void;
 }
 
-const ICONS = {
-  calendar: CalendarPlus,
-  sun: Sun,
-  moon: Moon,
-  clock: Clock
-} as const;
 
 export default function ServiceSelector({ services, selectedService, className = "", onChange } : ServiceSelectorProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -67,7 +61,7 @@ export default function ServiceSelector({ services, selectedService, className =
         " role="radiogroup">
 
           {services.map((service) => {
-            const Icon = ICONS[service.iconName];
+            const Icon = findIconFor(service);
             return (
             <label className={`
               cursor-pointer group relative flex-none w-32

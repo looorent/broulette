@@ -233,7 +233,7 @@ async function addPhotoUriOn(
 ): Promise<GoogleRestaurant | undefined> {
   const photoId = restaurant?.photoIds?.[0];
   if (photoId) {
-    const photoUrl = await googlePlaceCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+    const photoUrl = await googleCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
       if (signal?.aborted) {
         throw signal.reason;
       }

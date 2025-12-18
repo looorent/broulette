@@ -25,7 +25,7 @@ export class RestaurantDiscoveryScanner {
       return [];
     } else {
       this.iteration += 1;
-      const range = this.initialRangeInMeters + this.iteration * this.configuration.search.rangeIncreaseMeters;
+      const range = this.initialRangeInMeters + this.iteration * this.configuration.rangeIncreaseMeters;
       console.log(`Scanning range (iteration ${this.iteration}): ${range}m...`);
       const result = await this.discoverNearbyRestaurants(range, signal);
       console.log(`Scanning range (iteration ${this.iteration}): ${range}m. Done.`);
@@ -34,7 +34,7 @@ export class RestaurantDiscoveryScanner {
   }
 
   get isOver(): boolean {
-    return this.iteration >= this.configuration.search.maxDiscoveryIterations;
+    return this.iteration >= this.configuration.maxDiscoveryIterations;
   }
 
   get timeoutInSeconds(): number {

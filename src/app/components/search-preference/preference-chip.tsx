@@ -1,4 +1,4 @@
-import type { Preference } from "@features/search";
+import { findIconFor, type Preference } from "@features/search";
 import { useDrag } from "@use-gesture/react";
 import { Footprints, MapPin } from "lucide-react";
 import { forwardRef, useImperativeHandle, useState } from "react";
@@ -76,7 +76,7 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
             <PreferenceChipValue
               label={preferences?.service?.label?.compact}
               className="-rotate-2 hover:rotate-0 -mt-1"
-              icon={preferences?.service?.icon}
+              icon={findIconFor(preferences?.service)}
               />
           </div>
         </button>

@@ -4,6 +4,7 @@ export const OVERPASS_SOURCE_NAME = "osm";
 export type OverpassLocationType = "way" | "node" | "relation";
 
 export const DEFAULT_OVERPASS_CONFIGURATION: OverpassConfiguration = {
+  enabled: true,
   instanceUrls: [
     "https://overpass-api.de/api/interpreter",
     "https://maps.mail.ru/osm/tools/overpass/api/interpreter",

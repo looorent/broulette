@@ -5,7 +5,7 @@ import { countMatchingAttemptsDuringMonth } from "./core";
 
 export async function hasGooglePlaceReachedQuota(maxNumberOfAttemptsPerMonth: number): Promise<boolean> {
   const numberOfAttemptsThisMonth = await countMatchingAttemptsDuringMonth(GOOGLE_PLACE_SOURCE_NAME, new Date());
-  if (numberOfAttemptsThisMonth < maxNumberOfAttemptsPerMonth) {
+  if (numberOfAttemptsThisMonth > maxNumberOfAttemptsPerMonth) {
     console.warn(`We have exceeded the monthly quota of Google: ${numberOfAttemptsThisMonth}/${maxNumberOfAttemptsPerMonth}`);
     return true;
   } else {
