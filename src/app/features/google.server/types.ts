@@ -25,6 +25,7 @@ export const DEFAULT_GOOGLE_PLACE_CONFIGURATION = {
 }
 
 export interface GooglePlaceConfiguration {
+  enabled: boolean;
   apiKey: string;
   photo: {
     maxWidthInPx: number

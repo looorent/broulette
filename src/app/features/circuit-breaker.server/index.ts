@@ -1,3 +1,5 @@
-export * from "./error";
-export type { FailoverConfiguration } from "./types";
 export * from "./boot";
+export * from "./error";
+export { DEFAULT_FAILOVER } from "./types";
+export type { FailoverConfiguration } from "./types";
+

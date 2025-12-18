@@ -1,4 +1,4 @@
-import { APP_CONFIG, SERVER_CONFIG } from "@config/server";
+import { APP_CONFIG, CONTEXT } from "@config/server";
 import prisma from "@features/db.server/prisma";
 import { findGoogleRestaurantById, searchGoogleRestaurantByText } from "@features/google.server";
 import { searchCandidate } from "@features/search-engine.server";
@@ -14,8 +14,8 @@ async function start() {
     const context = {
       prisma,
       APP_CONFIG,
-      SERVER_CONFIG,
-      findGoogleRestaurantById, // example: findGoogleRestaurantById("ChIJkVjOGDmZwUcRA5MVWISkQfI", SERVER_CONFIG.search.google)
+      CONTEXT,
+      findGoogleRestaurantById, // example: findGoogleRestaurantById("ChIJkVjOGDmZwUcRA5MVWISkQfI", CONTEXT.google)
       searchGoogleRestaurantByText,
       searchCandidate
     };

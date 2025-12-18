@@ -25,7 +25,7 @@ export class RestaurantDiscoveryScanner {
       return [];
     } else {
       this.iteration += 1;
-      const range = this.initialRangeInMeters + this.iteration * this.configuration.search.discoveryRangeIncreaseMeters;
+      const range = this.initialRangeInMeters + this.iteration * this.configuration.search.rangeIncreaseMeters;
       console.log(`Scanning range (iteration ${this.iteration}): ${range}m...`);
       const result = await this.discoverNearbyRestaurants(range, signal);
       console.log(`Scanning range (iteration ${this.iteration}): ${range}m. Done.`);

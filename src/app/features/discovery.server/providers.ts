@@ -12,7 +12,7 @@ export const registeredProviders: ServiceStrategy<[
   AbortSignal?
 ], DiscoveredRestaurant[]>[] = [];
 
-export function registerOverpass(configuration: OverpassConfiguration) {
+export function registerOverpass(configuration: OverpassConfiguration | undefined) {
   if (configuration) {
     configuration.instanceUrls
       .map(instanceUrl => ({

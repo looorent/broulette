@@ -41,5 +41,6 @@ export interface OverpassResponse {
 }
 
 export interface OverpassConfiguration {
+  enabled: boolean;
   instanceUrls: string[];
 }

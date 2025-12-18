@@ -1,4 +1,4 @@
-import type { DiscoveredRestaurant } from "../discovery/types";
+import type { DiscoveredRestaurant } from "@features/discovery.server";
 
 export async function randomize(restaurants: DiscoveredRestaurant[]): Promise<DiscoveredRestaurant[]> {
   const shuffled = [...restaurants];

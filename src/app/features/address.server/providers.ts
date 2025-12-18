@@ -1,11 +1,11 @@
 import type { ServiceStrategy } from "@features/balancer.server";
-import { fetchLocationFromNominatim, type GeocodingNominatimConfiguration } from "@features/nominatim.server";
-import { fetchLocationFromPhoton, type GeocodingPhotonConfiguration } from "@features/photon.server";
+import { fetchLocationFromNominatim, type NominatimConfiguration } from "@features/nominatim.server";
+import { fetchLocationFromPhoton, type PhotonConfiguration } from "@features/photon.server";
 import type { LocationSuggestions } from "@features/search";
 
 export const registeredProviders: ServiceStrategy<[string, AbortSignal?], LocationSuggestions>[] = [];
 
-export function registerNominatim(configuration: GeocodingNominatimConfiguration) {
+export function registerNominatim(configuration: NominatimConfiguration | undefined) {
   if (configuration) {
     configuration.instanceUrls
       .map(instanceUrl => ({
@@ -16,7 +16,7 @@ export function registerNominatim(configuration: GeocodingNominatimConfiguration
   }
 }
 
-export function registerPhoton(configuration: GeocodingPhotonConfiguration) {
+export function registerPhoton(configuration: PhotonConfiguration | undefined) {
   if (configuration) {
     configuration.instanceUrls
       .map(instanceUrl => ({

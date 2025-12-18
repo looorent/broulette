@@ -5,9 +5,9 @@ export class LoadBalancer<TArgs extends any[], TResult> {
   private currentOffset: number = 0;
 
   constructor(providers: ServiceStrategy<TArgs, TResult>[]) {
-    if (providers.length === 0) {
-      throw new Error("LoadBalancer must have at least one provider.");
-    }
+    // if (providers.length === 0) {
+    //   throw new Error("LoadBalancer must have at least one provider.");
+    // }
     this.providers = providers;
   }
 

@@ -4,7 +4,7 @@ import type { Matcher } from "./types";
 
 export const registeredMatchers: Matcher[] = [];
 
-export function registerGooglePlace(configuration: GooglePlaceConfiguration) {
+export function registerGooglePlace(configuration: GooglePlaceConfiguration | undefined) {
   if (configuration) {
     registeredMatchers.push(new GoogleMatcher(configuration));
   }

@@ -7,7 +7,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: "./app/console.ts",
+      entry: "./app/console.server.ts",
       fileName: "console",
       formats: ["es"]
     },

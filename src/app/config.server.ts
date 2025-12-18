@@ -1,14 +1,12 @@
 import { registerNominatim, registerPhoton } from "@features/address.server";
 import type { FailoverConfiguration } from "@features/circuit-breaker.server";
-import { DEFAULT_FAILOVER } from "@features/circuit-breaker.server/types";
+import { DEFAULT_FAILOVER } from "@features/circuit-breaker.server";
 import { DEFAULT_DISCOVERY_CONFIGURATION, registerOverpass } from "@features/discovery.server";
 import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, initializeGoogle, type GooglePlaceConfiguration } from "@features/google.server";
-import { registerGooglePlace } from "@features/matching.server";
-import { DEFAULT_TAG_CONFIGURATION } from "@features/matching.server/types";
-import { DEFAULT_NOMINATIM_CONFIGURATION, initializeNominatim, type GeocodingNominatimConfiguration } from "@features/nominatim.server";
+import { DEFAULT_TAG_CONFIGURATION, registerGooglePlace } from "@features/matching.server";
+import { DEFAULT_NOMINATIM_CONFIGURATION, initializeNominatim, type NominatimConfiguration } from "@features/nominatim.server";
 import { DEFAULT_OVERPASS_CONFIGURATION, initializeOverpass, type OverpassConfiguration } from "@features/overpass.server";
-import { initializePhoton, type GeocodingPhotonConfiguration } from "@features/photon.server";
-import { DEFAULT_PHOTON_CONFIGURATION } from "@features/photon.server/types";
+import { DEFAULT_PHOTON_CONFIGURATION, initializePhoton, type PhotonConfiguration } from "@features/photon.server";
 import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration } from "@features/search-engine.server";
 
 export const APP_CONFIG = {
@@ -30,7 +28,8 @@ function readArray(text: string | undefined): string[] | undefined {
 
 export type AppConfiguration = typeof APP_CONFIG;
 
-export const NOMINATIM_CONFIG: GeocodingNominatimConfiguration = {
+export const NOMINATIM_CONFIG: NominatimConfiguration = {
+  enabled: process.env.BROULETTE_NOMINATIM_ENABLED?.toLowerCase() === "true",
   instanceUrls: readArray(process.env.BROULETTE_NOMINATIM_INSTANCE_URLS) || DEFAULT_NOMINATIM_CONFIGURATION.instanceUrls,
   userAgent: process.env.BROULETTE_NOMINATIM_USER_AGENT ?? `${APP_CONFIG.name}/${APP_CONFIG.version}`,
   bottomNote: process.env.BROULETTE_NOMINATIM_BOTTOM_NOTE ?? DEFAULT_NOMINATIM_CONFIGURATION.bottomNote,
@@ -44,7 +43,8 @@ export const NOMINATIM_FAILOVER_CONFIG: FailoverConfiguration = {
   timeoutInMs: Number(process.env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
 };
 
-export const PHOTON_CONFIG: GeocodingPhotonConfiguration = {
+export const PHOTON_CONFIG: PhotonConfiguration = {
+  enabled: process.env.BROULETTE_PHOTON_ENABLED?.toLowerCase() === "true",
   instanceUrls: readArray(process.env.BROULETTE_PHOTON_INSTANCE_URLS) || DEFAULT_PHOTON_CONFIGURATION.instanceUrls,
   bottomNote: process.env.BROULETTE_PHOTON_BOTTOM_NOTE ?? DEFAULT_PHOTON_CONFIGURATION.bottomNote,
   maxNumberOfAddresses: Number(process.env.BROULETTE_PHOTON_NUMBER_0F_ADDRESSES || DEFAULT_PHOTON_CONFIGURATION.maxNumberOfAddresses),
@@ -58,6 +58,7 @@ export const PHOTON_FAILOVER_CONFIG: FailoverConfiguration = {
 };
 
 export const GOOGLE_PLACE_CONFIG: GooglePlaceConfiguration = {
+  enabled: process.env.BROULETTE_GOOGLE_PLACE_ENABLED?.toLowerCase() === "true",
   apiKey: process.env.BROULETTE_GOOGLE_PLACE_API_KEY ?? "",
   rateLimiting: {
     maxNumberOfAttemptsPerMonth: Number(process.env.BROULETTE_GOOGLE_PLACE_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || DEFAULT_GOOGLE_PLACE_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),
@@ -93,26 +94,21 @@ export const OVERPASS_FAILOVER_CONFIG: FailoverConfiguration = {
 };
 
 export const OVERPASS_CONFIG: OverpassConfiguration = {
+  enabled: process.env.BROULETTE_OVERPASS_ENABLED?.toLowerCase() === "true",
   instanceUrls: readArray(process.env.BROULETTE_OVERPASS_API_INSTANCE_URLS) || DEFAULT_OVERPASS_CONFIGURATION.instanceUrls
 };
 
 export const SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
   discovery: {
-    search: {
-      discoveryRangeIncreaseMeters: Number(process.env.BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS ?? DEFAULT_DISCOVERY_CONFIGURATION.search.discoveryRangeIncreaseMeters),
-      maxDiscoveryIterations: Number(process.env.BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS ?? DEFAULT_DISCOVERY_CONFIGURATION.search.maxDiscoveryIterations)
-    },
-    engine: {
-      overpass: OVERPASS_CONFIG
-    }
+    rangeIncreaseMeters: Number(process.env.BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS ?? DEFAULT_DISCOVERY_CONFIGURATION.rangeIncreaseMeters),
+    maxDiscoveryIterations: Number(process.env.BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS ?? DEFAULT_DISCOVERY_CONFIGURATION.maxDiscoveryIterations)
   },
   matching: {
     tags: {
       hiddenTags: readArray(process.env.BROULETTE_TAGS_TO_EXCLUDE) || DEFAULT_TAG_CONFIGURATION.hiddenTags,
       priorityTags: readArray(process.env.BROULETTE_TAGS_TO_PRIORITIZE) || DEFAULT_TAG_CONFIGURATION.priorityTags,
       maxTags: Number(process.env.BROULETTE_TAGS_MAXIMUM || readArray(process.env.BROULETTE_TAGS_TO_EXCLUDE) || DEFAULT_TAG_CONFIGURATION.maxTags)
-    },
-    google: GOOGLE_PLACE_CONFIG
+    }
   },
   range: {
     close: {
@@ -130,27 +126,39 @@ export const SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
   }
 };
 
-export const SERVER_CONFIG = {
-  // TODO add service provider
-  search: SEARCH_ENGINE_CONFIGURATION
-} as const;
-
-function initialize() {
-  // TODO we should initialize conditionnally
-  initializeNominatim(NOMINATIM_FAILOVER_CONFIG);
-  initializePhoton(PHOTON_FAILOVER_CONFIG);
-  initializeOverpass(OVERPASS_FAILOVER_CONFIG);
-  initializeGoogle(GOOGLE_PLACE_FAILOVER_CONFIG);
-
-  // TODO we should registered conditionnally
-  registerNominatim(NOMINATIM_CONFIG);
-  registerPhoton(PHOTON_CONFIG);
-
-  // discovery
-  registerOverpass(OVERPASS_CONFIG);
-
-  // matching
-  registerGooglePlace(GOOGLE_PLACE_CONFIG)
+interface Context {
+  nominatim: NominatimConfiguration | undefined;
+  photon: PhotonConfiguration | undefined;
+  overpass: OverpassConfiguration | undefined;
+  google: GooglePlaceConfiguration | undefined;
+  search: SearchEngineConfiguration;
 }
 
-initialize();
+function initializeContext(): Context {
+  return {
+    nominatim: NOMINATIM_CONFIG.enabled ? NOMINATIM_CONFIG : undefined,
+    photon: PHOTON_CONFIG.enabled ? PHOTON_CONFIG : undefined,
+    overpass: OVERPASS_CONFIG.enabled ? OVERPASS_CONFIG : undefined,
+    google: GOOGLE_PLACE_CONFIG.enabled ? GOOGLE_PLACE_CONFIG : undefined,
+    search: SEARCH_ENGINE_CONFIGURATION
+  };
+}
+
+function initializeApp(): Context {
+  const context = initializeContext();
+
+  initializeNominatim(NOMINATIM_FAILOVER_CONFIG);
+  registerNominatim(context?.nominatim);
+
+  initializePhoton(PHOTON_FAILOVER_CONFIG);
+  registerPhoton(context?.photon);
+
+  initializeOverpass(OVERPASS_FAILOVER_CONFIG);
+  registerOverpass(context.overpass);
+
+  initializeGoogle(GOOGLE_PLACE_FAILOVER_CONFIG);
+  registerGooglePlace(context?.google);
+  return context;
+}
+
+export const CONTEXT = initializeApp();
