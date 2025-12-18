@@ -93,13 +93,6 @@ export const OVERPASS_CONFIG: OverpassConfiguration = {
   instanceUrls: readArray(process.env.BROULETTE_OVERPASS_API_INSTANCE_URLS) || DEFAULT_OVERPASS_CONFIGURATION.instanceUrls
 };
 
-export const RESTAURANT_TYPES_TO_EXCLUDE: string[] = [
-  "restaurant",
-  "establishment",
-  "point_of_interest",
-  "food",
-];
-
 export const SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
   discovery: {
     overpass: OVERPASS_CONFIG,

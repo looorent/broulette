@@ -1,7 +1,9 @@
+import { LoadBalancer } from "@features/balancer.server";
 import type { Coordinates } from "@features/coordinate";
-import { findRestaurantsFromOverpass } from "./overpass";
+import { registeredProviders } from "./providers";
 import type { DiscoveredRestaurant, DiscoveredRestaurantIdentity, DiscoveryConfiguration } from "./types";
 
+const LOAD_BALANCER = new LoadBalancer(registeredProviders);
 export class RestaurantDiscoveryScanner {
   private iteration: number;
   private readonly identitiesToExclude: DiscoveredRestaurantIdentity[];
@@ -11,14 +13,13 @@ export class RestaurantDiscoveryScanner {
     private readonly initialRangeInMeters: number,
     private readonly timeoutInMs: number,
     private readonly configuration: DiscoveryConfiguration,
-    private readonly signal: AbortSignal | undefined,
     initialIdentitiesToExclude: DiscoveredRestaurantIdentity[] = []
   ) {
     this.iteration = 0;
     this.identitiesToExclude = [...initialIdentitiesToExclude];
   }
 
-  async nextRestaurants(): Promise<DiscoveredRestaurant[]> {
+  async nextRestaurants(signal: AbortSignal | undefined): Promise<DiscoveredRestaurant[]> {
     if (this.isOver) {
       console.log("The discovery scanner has reached its limits. It is not going to ");
       return [];
@@ -26,7 +27,7 @@ export class RestaurantDiscoveryScanner {
       this.iteration += 1;
       const range = this.initialRangeInMeters + this.iteration * this.configuration.search.discoveryRangeIncreaseMeters;
       console.log(`Scanning range (iteration ${this.iteration}): ${range}m...`);
-      const result = await discoverNearbyRestaurants(this.nearBy, range, this.timeoutInMs, this.identitiesToExclude, this.configuration, this.signal);
+      const result = await this.discoverNearbyRestaurants(range, signal);
       console.log(`Scanning range (iteration ${this.iteration}): ${range}m. Done.`);
       return result;
     }
@@ -49,16 +50,9 @@ export class RestaurantDiscoveryScanner {
     }
     return this;
   }
+
+  private discoverNearbyRestaurants(rangeInMeters: number, signal: AbortSignal | undefined): Promise<DiscoveredRestaurant[]> {
+    return LOAD_BALANCER.execute(this.nearBy, rangeInMeters, this.timeoutInMs, this.identitiesToExclude, signal);
+  }
 }
 
-async function discoverNearbyRestaurants(
-  nearBy: Coordinates,
-  rangeInMeters: number,
-  timeoutInMs: number,
-  identitiesToExclude: DiscoveredRestaurantIdentity[] = [],
-  configuration: DiscoveryConfiguration,
-  signal: AbortSignal | undefined
-): Promise<DiscoveredRestaurant[]> {
-  // TODO implement other sources than overpass
-  return await findRestaurantsFromOverpass(nearBy, rangeInMeters, timeoutInMs, identitiesToExclude, configuration, signal);
-}
