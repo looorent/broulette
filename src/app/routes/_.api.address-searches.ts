@@ -9,6 +9,8 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const query = formData.get("query");
 
+  // TODO implement CSRF
+
   if (!query || typeof query !== "string" || query.length < 2) {
     return {
       locations: [],

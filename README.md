@@ -8,15 +8,14 @@ Here are the source of data I plan to pull to get the most complete source of re
 
 ## TODO
 
-
-* PRIORITY : manage the "registered providers" , they are not sent properly to the right load balancers.
-* THe home page requires a refresh to display
+* The "reroll" seems buggy (especially with "right now") --> look at service.ts, we do not have defined the form sent properly about the date
+* Use localstorage for the preferences 
+* Add a tag "unknow opening hours"
+* Add a tag "Reservation possible"
 * add TripAdvisor
 * Investigate why restaurant "Respire Restaurant" does not find any photo
 * Investigate why "La Terrasse de l'Abbaye de Notre-Dame du Vivier" does not find any equivalent on Google
-* filterTags seems to do the opposite operation
 * Fuzzy string comparison might be shitty
-
 * "Source tag" is ugly
 * Error that is not catched by the circuit breaker: ```
     Error: [OSM] Fetching OSM restaurants: server failed after 4054 ms with status code 504

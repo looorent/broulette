@@ -5,11 +5,12 @@ import type { Route } from "./+types/searches.$searchId_.candidates._index";
 
 export async function action({
   request,
+  params
 }: Route.ActionArgs) {
   const formData = await request.formData();
-  const searchId = formData.get("searchId")?.toString();
-  if (searchId) {
-    const candidate = await searchCandidate(searchId, SEARCH_ENGINE_CONFIGURATION, request.signal);
+  // TODO CSRF
+  if (params.searchId) {
+    const candidate = await searchCandidate(params.searchId, SEARCH_ENGINE_CONFIGURATION, request.signal);
     if (candidate) {
       return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: candidate.searchId, candidateId: candidate.id }));
     } else {
