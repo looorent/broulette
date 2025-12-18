@@ -3,11 +3,29 @@ import {
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration
+  ScrollRestoration,
+  type ShouldRevalidateFunction
 } from "react-router";
 
-import "./app.css";
 import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components/search-loader";
+import "./app.css";
+
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  currentUrl,
+  nextUrl,
+  defaultShouldRevalidate,
+}) => {
+  if (!defaultShouldRevalidate) {
+    return false;
+  } else {
+    const currentSearch = new URLSearchParams(currentUrl.search);
+    const nextSearch = new URLSearchParams(nextUrl.search);
+    currentSearch.delete("modal");
+    nextSearch.delete("modal");
+
+    return currentSearch.toString() !== nextSearch.toString() || defaultShouldRevalidate;
+  }
+};
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -31,7 +49,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="
           relative
           w-full h-full
-          md:max-w-[480px]
+          md:max-w-120
           md:shadow-2xl
           md:h-[85vh]
           md:rounded-3xl

@@ -1,4 +1,7 @@
-export * from "./source";
+export function tagToDisplay(tag: string): string {
+  return tag; // TODO
+}
+
 
 // TODO do something with this?
 

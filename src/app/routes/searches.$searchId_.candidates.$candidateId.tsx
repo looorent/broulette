@@ -1,7 +1,8 @@
 import { SourceBadge } from "@components/candidate";
 import { shareSocial, triggerHaptics } from "@features/browser.client";
 import prisma from "@features/db.server/prisma";
-import { findSourceIn } from "@features/restaurant.server";
+import { findSourceIn } from "@features/discovery.server";
+import { tagToDisplay } from "@features/tag.server";
 import { MapPin, Navigation, Phone, RefreshCw, Share2, Star } from "lucide-react";
 import { useEffect } from "react";
 import { href, redirect, useSubmit } from "react-router";
@@ -52,7 +53,7 @@ export async function loader({ params }: Route.LoaderArgs) {
           imageUrl: candidate.restaurant.imageUrl ?? "https://placehold.co/600x400?text=No+Image",
           source: findSourceIn(candidate.restaurant.identities),
           rating: candidate.restaurant.rating?.toFixed(1),
-          tags: candidate.restaurant.tags,
+          tags: candidate.restaurant.tags?.map(tagToDisplay)?.filter(Boolean) || [],
           phoneNumber: candidate.restaurant.phoneNumber,
           internationalPhoneNumber: candidate.restaurant.internationalPhoneNumber,
           address: candidate.restaurant.address,

@@ -1,11 +1,11 @@
 import prisma from "@features/db.server/prisma";
 import type { DiscoveredRestaurant, DiscoveredRestaurantIdentity } from "@features/discovery.server";
+import { filterTags } from "@features/tag.server";
 import { isOlderThanAMonth } from "@features/utils/date";
 import type { Restaurant } from "@persistence/client";
-import { filterTags } from "./tag-filter";
-import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantMatchingConfiguration, type RestaurantWithIdentities } from "./types";
-import type { Matching } from "./matchers/types";
 import { registeredMatchers } from "./matchers/registry";
+import type { Matching } from "./matchers/types";
+import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantMatchingConfiguration, type RestaurantWithIdentities } from "./types";
 
 export async function enrichRestaurant(
   discovered: DiscoveredRestaurant | undefined,

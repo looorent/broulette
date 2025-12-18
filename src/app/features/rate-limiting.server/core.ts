@@ -1,15 +1,18 @@
 import prisma from "@features/db.server/prisma";
+import { computeMonthBounds } from "@features/utils/date";
 
-// TODO use this in a circuit breaker
-export async function countMatchingAttemptsDuringMonth(source: string, month: Date): Promise<number> {
-  const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
-  const startOfNextMonth = new Date(month.getFullYear(), month.getMonth() + 1, 1);
+export async function countMatchingAttemptsDuringMonth(
+  source: string,
+  month: Date
+): Promise<number> {
+  const { start, end } = computeMonthBounds(month);
+
   return await prisma.restaurantMatchingAttempt.count({
     where: {
       source: source,
       attemptedAt: {
-        gte: startOfMonth,
-        lt: startOfNextMonth,
+        gte: start,
+        lt: end
       }
     }
   });

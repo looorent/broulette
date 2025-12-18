@@ -9,16 +9,7 @@ import { APP_CONFIG } from "@config/server";
 import { getDeviceLocation } from "@features/browser.client";
 import { createDeviceLocation, createNextServices, DISTANCE_RANGES, preferenceFactory, type Preference } from "@features/search";
 import { useEffect, useRef, useState } from "react";
-import { useLoaderData, useSearchParams, type ShouldRevalidateFunction } from "react-router";
-
-export const shouldRevalidate: ShouldRevalidateFunction = ({
-  currentUrl,
-  nextUrl,
-  defaultShouldRevalidate,
-}) => {
-  const isModalChange = currentUrl.searchParams.get("modal") !== nextUrl.searchParams.get("modal");
-  return !isModalChange && defaultShouldRevalidate;
-};
+import { useLoaderData, useSearchParams } from "react-router";
 
 export async function loader() {
   const services = createNextServices(new Date());

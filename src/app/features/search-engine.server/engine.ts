@@ -13,16 +13,13 @@ export async function searchCandidate(
   configuration: SearchEngineConfiguration,
   signal?: AbortSignal | undefined
 ): Promise<SearchCandidate | null> {
-  const search = await prisma.search.findUniqueWithRestaurantAndIdentities(searchId); // TODO repository?
-  if (!search) {
-    throw new SearchNotFoundError(searchId);
-  }
+  const search = await findSearchOrThrow(searchId);
 
   const discovery = createDiscoveryScanner(search, configuration);
 
   const instant = computeTargetInstant(search.serviceDate, search.serviceTimeslot);
-  let order = (search.candidates || []).reduce((max, candidate) => Math.max(max, candidate.order), 0) + 1;
 
+  let order = (search.candidates || []).reduce((max, candidate) => Math.max(max, candidate.order), 0) + 1;
   let candidateFound: SearchCandidate | null = null;
   while ((!candidateFound || candidateFound.status !== SearchCandidateStatus.Returned) && !discovery.isOver) {
     const restaurants = await discovery.nextRestaurants(signal);
@@ -100,4 +97,12 @@ function createDiscoveryScanner(
     configuration.discovery,
     (search.candidates || []).flatMap(({ restaurant }: { restaurant: { identities: RestaurantIdentity[] } | undefined | null }) => restaurant?.identities || [])
   );
+}
+
+async function findSearchOrThrow(searchId: string) {
+  const search = await prisma.search.findUniqueWithRestaurantAndIdentities(searchId);
+  if (!search) {
+    throw new SearchNotFoundError(searchId);
+  }
+  return search;
 }

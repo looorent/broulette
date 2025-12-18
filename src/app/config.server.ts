@@ -3,11 +3,12 @@ import type { FailoverConfiguration } from "@features/circuit-breaker.server";
 import { DEFAULT_FAILOVER } from "@features/circuit-breaker.server";
 import { DEFAULT_DISCOVERY_CONFIGURATION, registerOverpass } from "@features/discovery.server";
 import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, initializeGoogle, type GooglePlaceConfiguration } from "@features/google.server";
-import { DEFAULT_TAG_CONFIGURATION, registerGooglePlace } from "@features/matching.server";
+import { registerGooglePlace } from "@features/matching.server";
 import { DEFAULT_NOMINATIM_CONFIGURATION, initializeNominatim, type NominatimConfiguration } from "@features/nominatim.server";
 import { DEFAULT_OVERPASS_CONFIGURATION, initializeOverpass, type OverpassConfiguration } from "@features/overpass.server";
 import { DEFAULT_PHOTON_CONFIGURATION, initializePhoton, type PhotonConfiguration } from "@features/photon.server";
 import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration } from "@features/search-engine.server";
+import { DEFAULT_TAG_CONFIGURATION } from "@features/tag.server";
 
 export const APP_CONFIG = {
   name: "BiteRoulette",
