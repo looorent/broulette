@@ -1,19 +1,21 @@
 import prisma from "@features/db.server/prisma";
+import type { DiscoveredRestaurant, DiscoveredRestaurantIdentity } from "@features/discovery.server";
 import { isOlderThanAMonth } from "@features/utils/date";
 import type { Restaurant } from "@persistence/client";
-import type { DiscoveredRestaurant, DiscoveredRestaurantIdentity } from "../discovery/types";
-import { filterTags } from "../tag-filter";
-import { GOOGLE_MATCHER } from "./google";
-import type { Matcher, Matching, RestaurantMatchingConfig, RestaurantWithIdentities } from "./types";
+import { filterTags } from "./tag-filter";
+import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantMatchingConfiguration, type RestaurantWithIdentities } from "./types";
+import type { Matching } from "./matchers/types";
+import { registeredMatchers } from "./matchers/registry";
 
 export async function enrichRestaurant(
   discovered: DiscoveredRestaurant | undefined,
-  configuration: RestaurantMatchingConfig
+  configuration: RestaurantMatchingConfiguration = DEFAULT_MATCHING_CONFIGURATION,
+  signal?: AbortSignal | undefined
 ): Promise<RestaurantWithIdentities | null> {
   if (discovered) {
     const restaurant = await findRestaurantInDatabase(discovered.identity) || await saveRestaurantToDatabase(discovered, configuration);
     if (shouldBeMatched(restaurant)) {
-      return await enrich(restaurant, configuration);
+      return await enrich(restaurant, signal);
     } else {
       return restaurant;
     }
@@ -22,25 +24,25 @@ export async function enrichRestaurant(
   }
 }
 
-const MATCHERS: Matcher[] = [
-  GOOGLE_MATCHER
-];
-
 async function enrich(
   restaurant: RestaurantWithIdentities,
-  configuration: RestaurantMatchingConfig,
   signal?: AbortSignal | undefined
 ): Promise<RestaurantWithIdentities> {
+
   let currentResult: Matching = {
     success: false,
     restaurant: restaurant
   };
 
-  for (const matcher of MATCHERS) {
+  for (const matcher of registeredMatchers) {
+    if (signal?.aborted) {
+      throw signal.reason;
+    }
+
     if (currentResult.success) {
       break;
-    } else {
-      currentResult = await matcher.matchAndEnrich(currentResult.restaurant, configuration, signal);
+    } else if (!await matcher.hasReachedQuota()) {
+      currentResult = await matcher.matchAndEnrich(currentResult.restaurant, signal);
     }
   }
 
@@ -68,7 +70,10 @@ async function findRestaurantInDatabase(identity: DiscoveredRestaurantIdentity) 
   });
 }
 
-async function saveRestaurantToDatabase(discovered: DiscoveredRestaurant, configuration: RestaurantMatchingConfig): Promise<RestaurantWithIdentities> {
+async function saveRestaurantToDatabase(
+  discovered: DiscoveredRestaurant,
+  configuration: RestaurantMatchingConfiguration
+): Promise<RestaurantWithIdentities> {
   return await prisma.restaurant.create({
     data: {
       name: discovered.name!,

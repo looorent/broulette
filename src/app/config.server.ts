@@ -1,12 +1,15 @@
 import { registerNominatim, registerPhoton } from "@features/address.server";
 import type { FailoverConfiguration } from "@features/circuit-breaker.server";
 import { DEFAULT_FAILOVER } from "@features/circuit-breaker.server/types";
-import { initializeGoogle, type GooglePlaceConfiguration } from "@features/google.server";
+import { DEFAULT_DISCOVERY_CONFIGURATION, registerOverpass } from "@features/discovery.server";
+import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, initializeGoogle, type GooglePlaceConfiguration } from "@features/google.server";
+import { registerGooglePlace } from "@features/matching.server";
+import { DEFAULT_TAG_CONFIGURATION } from "@features/matching.server/types";
 import { DEFAULT_NOMINATIM_CONFIGURATION, initializeNominatim, type GeocodingNominatimConfiguration } from "@features/nominatim.server";
 import { DEFAULT_OVERPASS_CONFIGURATION, initializeOverpass, type OverpassConfiguration } from "@features/overpass.server";
 import { initializePhoton, type GeocodingPhotonConfiguration } from "@features/photon.server";
 import { DEFAULT_PHOTON_CONFIGURATION } from "@features/photon.server/types";
-import type { SearchEngineConfiguration } from "@features/search-engine.server";
+import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration } from "@features/search-engine.server";
 
 export const APP_CONFIG = {
   name: "BiteRoulette",
@@ -57,21 +60,21 @@ export const PHOTON_FAILOVER_CONFIG: FailoverConfiguration = {
 export const GOOGLE_PLACE_CONFIG: GooglePlaceConfiguration = {
   apiKey: process.env.BROULETTE_GOOGLE_PLACE_API_KEY ?? "",
   rateLimiting: {
-    maxNumberOfAttemptsPerMonth: Number(process.env.BROULETTE_GOOGLE_PLACE_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || 200),
+    maxNumberOfAttemptsPerMonth: Number(process.env.BROULETTE_GOOGLE_PLACE_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || DEFAULT_GOOGLE_PLACE_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),
   },
   search: {
-    radiusInMeters: Number(process.env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS || 50)
+    radiusInMeters: Number(process.env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS || DEFAULT_GOOGLE_PLACE_CONFIGURATION.search.radiusInMeters)
   },
   photo: {
-    maxWidthInPx: Number(process.env.BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_WIDTH_IN_PX || 1024),
-    maxHeightInPx: Number(process.env.BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_HEIGHT_IN_PX || 512)
+    maxWidthInPx: Number(process.env.BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_WIDTH_IN_PX || DEFAULT_GOOGLE_PLACE_CONFIGURATION.photo.maxWidthInPx),
+    maxHeightInPx: Number(process.env.BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_HEIGHT_IN_PX || DEFAULT_GOOGLE_PLACE_CONFIGURATION.photo.maxHeightInPx)
   },
   similarity: {
     weight: {
-      name: Number(process.env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_NAME || 0.4),
-      location: Number(process.env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_LOCATION || 0.6),
+      name: Number(process.env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_NAME || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.weight.name),
+      location: Number(process.env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_LOCATION || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.weight.location),
     },
-    maxDistanceInMeters: Number(process.env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS || 50)
+    maxDistanceInMeters: Number(process.env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.maxDistanceInMeters)
   }
 };
 
@@ -95,18 +98,35 @@ export const OVERPASS_CONFIG: OverpassConfiguration = {
 
 export const SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
   discovery: {
-    overpass: OVERPASS_CONFIG,
-    initialDiscoveryRangeMeters: Number(process.env.BROULETTE_SEARCH_ENGINE_INITIAL_DISCOVERY_RANGE_METERS ?? 5000),
-    discoveryRangeIncreaseMeters: Number(process.env.BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS ?? 3000),
-    maxDiscoveryIterations: Number(process.env.BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS ?? 3)
+    search: {
+      discoveryRangeIncreaseMeters: Number(process.env.BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS ?? DEFAULT_DISCOVERY_CONFIGURATION.search.discoveryRangeIncreaseMeters),
+      maxDiscoveryIterations: Number(process.env.BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS ?? DEFAULT_DISCOVERY_CONFIGURATION.search.maxDiscoveryIterations)
+    },
+    engine: {
+      overpass: OVERPASS_CONFIG
+    }
   },
   matching: {
     tags: {
-      hiddenTags: process.env.BROULETTE_TAGS_TO_EXCLUDE?.split(',')?.map(tag => tag.trim()) || RESTAURANT_TYPES_TO_EXCLUDE,
-      priorityTags: process.env.BROULETTE_TAGS_TO_PRIORITIZE?.split(',')?.map(tag => tag.trim()) || [],
-      maxTags: Number(process.env.BROULETTE_TAGS_MAXIMUM || 10)
+      hiddenTags: readArray(process.env.BROULETTE_TAGS_TO_EXCLUDE) || DEFAULT_TAG_CONFIGURATION.hiddenTags,
+      priorityTags: readArray(process.env.BROULETTE_TAGS_TO_PRIORITIZE) || DEFAULT_TAG_CONFIGURATION.priorityTags,
+      maxTags: Number(process.env.BROULETTE_TAGS_MAXIMUM || readArray(process.env.BROULETTE_TAGS_TO_EXCLUDE) || DEFAULT_TAG_CONFIGURATION.maxTags)
     },
     google: GOOGLE_PLACE_CONFIG
+  },
+  range: {
+    close: {
+      rangeInMeters: Number(process.env.BROULETTE_SEARCH_ENGINE_CLOSE_RANGE_IN_METERS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.close.rangeInMeters),
+      timeoutInMs: Number(process.env.BROULETTE_SEARCH_ENGINE_CLOSE_TIMEOUT_IN_MS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.close.timeoutInMs)
+    },
+    midRange: {
+      rangeInMeters: Number(process.env.BROULETTE_SEARCH_ENGINE_MID_RANGE_IN_METERS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.midRange.rangeInMeters),
+      timeoutInMs: Number(process.env.BROULETTE_SEARCH_ENGINE_MID_TIMEOUT_IN_MS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.midRange.timeoutInMs)
+    },
+    far: {
+      rangeInMeters: Number(process.env.BROULETTE_SEARCH_ENGINE_FAR_RANGE_IN_METERS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.far.rangeInMeters),
+      timeoutInMs: Number(process.env.BROULETTE_SEARCH_ENGINE_FAR_TIMEOUT_IN_MS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.far.timeoutInMs)
+    }
   }
 };
 
@@ -126,8 +146,11 @@ function initialize() {
   registerNominatim(NOMINATIM_CONFIG);
   registerPhoton(PHOTON_CONFIG);
 
-
+  // discovery
   registerOverpass(OVERPASS_CONFIG);
+
+  // matching
+  registerGooglePlace(GOOGLE_PLACE_CONFIG)
 }
 
 initialize();

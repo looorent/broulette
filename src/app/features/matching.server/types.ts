@@ -1,7 +1,7 @@
-import type { GooglePlaceConfiguration } from "@features/google.server";
+import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlaceConfiguration } from "@features/google.server";
 import type { Prisma } from "@persistence/client";
 
-type RestaurantWithIdentities = Prisma.RestaurantGetPayload<{
+export type RestaurantWithIdentities = Prisma.RestaurantGetPayload<{
   include: {
     identities: true;
   }
@@ -18,6 +18,11 @@ export const DEFAULT_TAG_CONFIGURATION: RestaurantTagConfiguration = {
   priorityTags: []
 };
 
+export const DEFAULT_MATCHING_CONFIGURATION: RestaurantMatchingConfiguration = {
+  google: DEFAULT_GOOGLE_PLACE_CONFIGURATION,
+  tags: DEFAULT_TAG_CONFIGURATION
+};
+
 export interface RestaurantTagConfiguration {
   hiddenTags: string[];
   maxTags: number;
@@ -28,10 +33,4 @@ export interface RestaurantMatchingConfiguration {
   tags: RestaurantTagConfiguration;
   google: GooglePlaceConfiguration | undefined;
   // TODO add source of data (tripadvisor, etc)
-}
-
-export interface Matching {
-  success: boolean;
-  restaurant: RestaurantWithIdentities;
-  reason?: string | undefined;
 }

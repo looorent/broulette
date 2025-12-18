@@ -1,25 +1,31 @@
 import prisma from "@features/db.server/prisma";
 import { findGoogleRestaurantById, GOOGLE_PLACE_SOURCE_NAME, searchGoogleRestaurantByText, type GooglePlaceConfiguration, type GoogleRestaurant } from "@features/google.server";
 import { buildMapLink } from "@features/map";
-import { registerAttemptToGooglePlaceById, registerAttemptToGooglePlaceByText } from "@features/rate-limiting.server";
+import { hasGooglePlaceReachedQuota, registerAttemptToGooglePlaceById, registerAttemptToGooglePlaceByText } from "@features/rate-limiting.server";
 import { thirtyDaysAgo } from "@features/utils/date";
 import { Prisma } from "@persistence/client";
-import type { Matcher, RestaurantMatchingConfig, RestaurantWithIdentities } from "./types";
+import type { RestaurantWithIdentities } from "../types";
+import type { Matcher, Matching } from "./types";
 
-export const GOOGLE_MATCHER: Matcher = {
-  source: GOOGLE_PLACE_SOURCE_NAME,
-  matchAndEnrich: async (restaurant: RestaurantWithIdentities, configuration: RestaurantMatchingConfig, signal?: AbortSignal | undefined) => {
+export class GoogleMatcher implements Matcher {
+  readonly source = GOOGLE_PLACE_SOURCE_NAME;
+
+  constructor(readonly configuration: GooglePlaceConfiguration) {}
+
+  async matchAndEnrich(restaurant: RestaurantWithIdentities, signal?: AbortSignal | undefined): Promise<Matching> {
     let enriched = restaurant;
-    if (configuration.google) {
-      const alreadyAttemptedRecently = await prisma.restaurantMatchingAttempt.existsSince(thirtyDaysAgo(), restaurant.id, GOOGLE_PLACE_SOURCE_NAME);
-      if (!alreadyAttemptedRecently) {
-        enriched = await enrichWithGoogle(restaurant, configuration.google, signal);
-      }
+    const alreadyAttemptedRecently = await prisma.restaurantMatchingAttempt.existsSince(thirtyDaysAgo(), restaurant.id, GOOGLE_PLACE_SOURCE_NAME);
+    if (!alreadyAttemptedRecently) {
+      enriched = await enrichWithGoogle(restaurant, this.configuration, signal);
     }
     return {
       success: enriched.matched,
       restaurant: enriched
     };
+  }
+
+  async hasReachedQuota(): Promise<boolean> {
+    return await hasGooglePlaceReachedQuota(this.configuration.rateLimiting.maxNumberOfAttemptsPerMonth);
   }
 }
 
@@ -51,7 +57,7 @@ async function enrichWithGoogle(
         data: {
           source: GOOGLE_PLACE_SOURCE_NAME,
           restaurantId: restaurant.id,
-          type: "google_place_api", // Other APIs have a "type" (node, way, etc)
+          type: "poi", // Other APIs have a "type" (node, way, etc)
           externalId: googleRestaurant.id
         }
       })

@@ -1,4 +1,5 @@
-import { DEFAULT_DISCOVERY_CONFIGURATION } from "@features/discovery.server";
+import { DEFAULT_DISCOVERY_CONFIGURATION, type DiscoveryConfiguration } from "@features/discovery.server";
+import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantMatchingConfiguration } from "@features/matching.server";
 
 export interface SearchEngineRange {
   rangeInMeters: number;
@@ -26,8 +27,8 @@ export const DEFAULT_SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
 
 
 export interface SearchEngineConfiguration {
-  discovery: SearchDiscoveryConfig;
-  matching: RestaurantMatchingConfig;
+  discovery: DiscoveryConfiguration;
+  matching: RestaurantMatchingConfiguration;
   range: {
     close: SearchEngineRange;
     midRange: SearchEngineRange;

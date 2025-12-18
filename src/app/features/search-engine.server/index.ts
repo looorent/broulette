@@ -1,3 +1,3 @@
 export * from "./types";
-export * from "./engine";
 export * from "./error";
+export { searchCandidate } from "./engine";

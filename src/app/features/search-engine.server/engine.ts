@@ -1,24 +1,11 @@
 import prisma from "@features/db.server/prisma";
-import { DistanceRange, SearchCandidateStatus, ServiceTimeslot, type RestaurantIdentity, type SearchCandidate } from "@persistence/client";
-import { RestaurantDiscoveryScanner } from "./discovery/scanner";
+import { RestaurantDiscoveryScanner } from "@features/discovery.server";
+import { enrichRestaurant } from "@features/matching.server";
+import { DistanceRange, Prisma, SearchCandidateStatus, ServiceTimeslot, type RestaurantIdentity, type SearchCandidate } from "@persistence/client";
 import { SearchNotFoundError } from "./error";
-import { enrichRestaurant } from "./matching/core";
 import { randomize } from "./randomization/randomizer";
-import type { SearchEngineConfiguration } from "./types";
+import type { SearchEngineConfiguration, SearchEngineRange } from "./types";
 import { validateRestaurant } from "./validation/validator";
-import type { DiscoveryConfiguration, DiscoveryConfigurationRange } from "@features/discovery.server";
-
-function defineRange(range: DistanceRange, configuration: DiscoveryConfiguration): DiscoveryConfigurationRange {
-  switch (range) {
-    case DistanceRange.Far:
-      return configuration.range.far;
-    case DistanceRange.MidRange:
-      return configuration.range.midRange;
-    default:
-    case DistanceRange.Close:
-      return configuration.range.close;
-  }
-}
 
 // TODO profiling
 export async function searchCandidate(
@@ -31,23 +18,14 @@ export async function searchCandidate(
     throw new SearchNotFoundError(searchId);
   }
 
-
-  const { timeoutInMs, rangeInMeters } = defineRange(range, configuration);
-
-  const discovery = new RestaurantDiscoveryScanner(
-    { latitude: search.latitude, longitude: search.longitude },
-    configuration.discovery,
-    signal,
-    (search.candidates || []).flatMap(({ restaurant }: { restaurant: { identities: RestaurantIdentity[] } | undefined | null }) => restaurant?.identities || [])
-  );
+  const discovery = createDiscoveryScanner(search, configuration);
 
   const instant = computeTargetInstant(search.serviceDate, search.serviceTimeslot);
-  const latestOrder = (search.candidates || []).reduce((max: number, candidate: { order: number }) => Math.max(max, candidate.order), 0);
-  let order = latestOrder;
+  let order = (search.candidates || []).reduce((max, candidate) => Math.max(max, candidate.order), 0) + 1;
 
   let candidateFound: SearchCandidate | null = null;
   while ((!candidateFound || candidateFound.status !== SearchCandidateStatus.Returned) && !discovery.isOver) {
-    const restaurants = await discovery.nextRestaurants();
+    const restaurants = await discovery.nextRestaurants(signal);
     const randomized = await randomize(restaurants);
 
     // TODO logging
@@ -96,4 +74,30 @@ function computeTargetInstant(date: Date, timeslot: ServiceTimeslot): Date {
       return new Date();
   }
   return target;
+}
+
+function defineRange(range: DistanceRange, configuration: SearchEngineConfiguration): SearchEngineRange {
+  switch (range) {
+    case DistanceRange.Far:
+      return configuration.range.far;
+    case DistanceRange.MidRange:
+      return configuration.range.midRange;
+    default:
+    case DistanceRange.Close:
+      return configuration.range.close;
+  }
+}
+
+function createDiscoveryScanner(
+  search: Prisma.SearchGetPayload<{ include: { candidates: { include: { restaurant: { include: { identities: true } } } }}}>,
+  configuration: SearchEngineConfiguration
+): RestaurantDiscoveryScanner {
+  const { timeoutInMs, rangeInMeters } = defineRange(search.distanceRange, configuration);
+  return new RestaurantDiscoveryScanner(
+    { latitude: search.latitude, longitude: search.longitude },
+    rangeInMeters,
+    timeoutInMs,
+    configuration.discovery,
+    (search.candidates || []).flatMap(({ restaurant }: { restaurant: { identities: RestaurantIdentity[] } | undefined | null }) => restaurant?.identities || [])
+  );
 }

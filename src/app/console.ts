@@ -15,7 +15,7 @@ async function start() {
       prisma,
       APP_CONFIG,
       SERVER_CONFIG,
-      findGoogleRestaurantById, // example: findGoogleRestaurantById("ChIJkVjOGDmZwUcRA5MVWISkQfI", SERVER_CONFIG.search.matching.google)
+      findGoogleRestaurantById, // example: findGoogleRestaurantById("ChIJkVjOGDmZwUcRA5MVWISkQfI", SERVER_CONFIG.search.google)
       searchGoogleRestaurantByText,
       searchCandidate
     };

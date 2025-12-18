@@ -1,0 +1,13 @@
+import type { GooglePlaceConfiguration } from "@features/google.server";
+import { GoogleMatcher } from "./google";
+import type { Matcher } from "./types";
+
+export const registeredMatchers: Matcher[] = [];
+
+export function registerGooglePlace(configuration: GooglePlaceConfiguration) {
+  if (configuration) {
+    registeredMatchers.push(new GoogleMatcher(configuration));
+  }
+}
+
+// TODO register Tripadvisor
