@@ -71,8 +71,9 @@ export function createServiceDatetime(day: Date, timeslot: ServiceTimeslot | nul
     case ServiceTimeslot.Lunch:
     case ServiceTimeslot.Dinner:
       const hour = SERVICE_DEFAULTS[timeslot].middle.hour;
-      const minute = SERVICE_DEFAULTS[timeslot].middle.hour;
+      const minute = SERVICE_DEFAULTS[timeslot].middle.minute;
       date.setHours(hour, minute, 0);
+      return date;
     case ServiceTimeslot.RightNow:
       return new Date();
     case ServiceTimeslot.Custom:

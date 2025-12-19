@@ -8,7 +8,6 @@ Here are the source of data I plan to pull to get the most complete source of re
 
 ## TODO
 
-* The "reroll" seems buggy (especially with "right now") --> look at service.ts, we do not have defined the form sent properly about the date
 * Use localstorage for the preferences 
 * Add a tag "unknow opening hours"
 * Add a tag "Reservation possible"
