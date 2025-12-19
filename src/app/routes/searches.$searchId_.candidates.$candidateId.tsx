@@ -1,5 +1,5 @@
 import { BackToHomeButton } from "@components/back-to-home-button";
-import { AddressLink, OpenMapButton, RerollButton, RestaurantDescription, RestaurantPrice, RestaurantRating, RestaurantTags, ShareButton, SourceBadge, WebsiteLink } from "@components/candidate";
+import { AddressLink, OpenMapButton, RerollButton, RestaurantPrice, RestaurantRating, RestaurantTags, ShareButton, SourceBadge, WebsiteLink } from "@components/candidate";
 import { OpeningHoursCard } from "@components/candidate/opening-hour-card";
 import { PhoneLink } from "@components/candidate/phone-link";
 import { triggerHaptics } from "@features/browser.client";
@@ -148,8 +148,6 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
               <h3 id="candidate-name" className="font-pop text-3xl text-fun-dark leading-tight mb-2 mt-2">
                 {restaurant.name}
               </h3>
-
-              {/* <RestaurantDescription description={restaurant.description} /> */}
 
               <OpeningHoursCard openingHoursOfTheDay={restaurant.openingHoursOfTheDay} />
 

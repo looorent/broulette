@@ -20,4 +20,3 @@ $ openssl rand -hex 32
 * Investigate why restaurant "Respire Restaurant" does not find any photo
 * Investigate why "La Terrasse de l'Abbaye de Notre-Dame du Vivier" does not find any equivalent on Google
 * Fuzzy string comparison might be shitty
-* "Source tag" is ugly
