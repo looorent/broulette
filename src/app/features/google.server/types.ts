@@ -3,7 +3,8 @@ import type { GoogleSimilarityConfiguration } from "./similarity";
 
 export const GOOGLE_PLACE_SOURCE_NAME = "google_place";
 
-export const DEFAULT_GOOGLE_PLACE_CONFIGURATION = {
+export const DEFAULT_GOOGLE_PLACE_CONFIGURATION: GooglePlaceConfiguration = {
+  enabled: false,
   apiKey: "",
   rateLimiting: {
     maxNumberOfAttemptsPerMonth: 200

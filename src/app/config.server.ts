@@ -3,12 +3,13 @@ import type { FailoverConfiguration } from "@features/circuit-breaker.server";
 import { DEFAULT_FAILOVER } from "@features/circuit-breaker.server";
 import { DEFAULT_DISCOVERY_CONFIGURATION, registerOverpass } from "@features/discovery.server";
 import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, initializeGoogle, type GooglePlaceConfiguration } from "@features/google.server";
-import { registerGooglePlace } from "@features/matching.server";
+import { registerGooglePlace, registerTripAdvisor } from "@features/matching.server";
 import { DEFAULT_NOMINATIM_CONFIGURATION, initializeNominatim, type NominatimConfiguration } from "@features/nominatim.server";
 import { DEFAULT_OVERPASS_CONFIGURATION, initializeOverpass, type OverpassConfiguration } from "@features/overpass.server";
 import { DEFAULT_PHOTON_CONFIGURATION, initializePhoton, type PhotonConfiguration } from "@features/photon.server";
 import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration } from "@features/search-engine.server";
 import { DEFAULT_TAG_CONFIGURATION } from "@features/tag.server";
+import { DEFAULT_TRIPADVISOR_CONFIGURATION, initializeTripAdvisor, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
 
 export const APP_CONFIG = {
   name: "BiteRoulette",
@@ -87,6 +88,31 @@ export const GOOGLE_PLACE_FAILOVER_CONFIG: FailoverConfiguration = {
   timeoutInMs: Number(process.env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
 };
 
+export const TRIPADVISOR_FAILOVER_CONFIG: FailoverConfiguration = {
+  retry: Number(process.env.BROULETTE_TRIPADVISOR_API_RETRIES || DEFAULT_FAILOVER.retry),
+  halfOpenAfterInMs: Number(process.env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+  closeAfterNumberOfFailures: Number(process.env.BROULETTE_TRIPADVISOR_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+  timeoutInMs: Number(process.env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+};
+
+export const TRIPADVISOR_CONFIG: TripAdvisorConfiguration = {
+  enabled: process.env.BROULETTE_TRIPADVISOR_ENABLED?.toLowerCase() === "true",
+  apiKey: process.env.BROULETTE_TRIPADVISOR_API_KEY ?? "",
+  rateLimiting: {
+    maxNumberOfAttemptsPerMonth: Number(process.env.BROULETTE_TRIPADVISOR_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || DEFAULT_TRIPADVISOR_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),
+  },
+  search: {
+    radiusInMeters: Number(process.env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS || DEFAULT_TRIPADVISOR_CONFIGURATION.search.radiusInMeters)
+  },
+  similarity: {
+    weight: {
+      name: Number(process.env.BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_NAME || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.weight.name),
+      location: Number(process.env.BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_LOCATION || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.weight.location),
+    },
+    maxDistanceInMeters: Number(process.env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.maxDistanceInMeters)
+  }
+};
+
 export const OVERPASS_FAILOVER_CONFIG: FailoverConfiguration = {
   retry: Number(process.env.BROULETTE_OVERPASS_API_RETRIES || DEFAULT_FAILOVER.retry),
   halfOpenAfterInMs: Number(process.env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
@@ -132,6 +158,7 @@ interface Context {
   photon: PhotonConfiguration | undefined;
   overpass: OverpassConfiguration | undefined;
   google: GooglePlaceConfiguration | undefined;
+  tripAdvisor: TripAdvisorConfiguration | undefined;
   search: SearchEngineConfiguration;
 }
 
@@ -141,6 +168,7 @@ function initializeContext(): Context {
     photon: PHOTON_CONFIG.enabled ? PHOTON_CONFIG : undefined,
     overpass: OVERPASS_CONFIG.enabled ? OVERPASS_CONFIG : undefined,
     google: GOOGLE_PLACE_CONFIG.enabled ? GOOGLE_PLACE_CONFIG : undefined,
+    tripAdvisor: TRIPADVISOR_CONFIG.enabled ? TRIPADVISOR_CONFIG : undefined,
     search: SEARCH_ENGINE_CONFIGURATION
   };
 }
@@ -159,6 +187,10 @@ function initializeApp(): Context {
 
   initializeGoogle(GOOGLE_PLACE_FAILOVER_CONFIG);
   registerGooglePlace(context?.google);
+
+  initializeTripAdvisor(GOOGLE_PLACE_FAILOVER_CONFIG);
+  registerTripAdvisor(context?.tripAdvisor);
+
   return context;
 }
 
