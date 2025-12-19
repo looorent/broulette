@@ -6,6 +6,8 @@ import { convertGooglePeriodsToOpeningHours } from "./opening-hours";
 import { compareSimilarity, type GoogleSimilarityConfiguration } from "./similarity";
 import type { GooglePlaceConfiguration, GoogleRestaurant } from "./types";
 
+// pay attention to the fields we import, we currently do not require the "Enterprise + Atmosphere" SKU.
+// https://developers.google.com/maps/documentation/places/web-service/data-fields
 const FIELDS_TO_FETCH = [
   "id",
   "name",
