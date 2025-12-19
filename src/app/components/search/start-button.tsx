@@ -2,7 +2,8 @@ import { triggerHaptics } from "@features/browser.client";
 import type { Preference } from "@features/search";
 import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
-import { Form, useSubmit } from "react-router";
+import type { loader as rootLoader } from "app/root";
+import { Form, useRouteLoaderData, useSubmit } from "react-router";
 
 interface SearchSubmitButtonProps {
   preferences: Preference;
@@ -16,6 +17,7 @@ export function SearchSubmitButton({
   className = ""
 }: SearchSubmitButtonProps) {
   const submit = useSubmit();
+  const session = useRouteLoaderData<typeof rootLoader>("root");
   const [isBuzzing, setIsBuzzing] = useState(false);
   const hasErrors = preferences ? !preferences.isValid : false;
   const showErrors = preferences && preferences.isDeviceLocationAttempted && hasErrors;
@@ -39,7 +41,8 @@ export function SearchSubmitButton({
         serviceTimeslot: preferences.service.timeslot,
         locationLatitude: preferences.location.coordinates!.latitude,
         locationLongitude: preferences.location.coordinates!.longitude,
-        distanceRangeId: preferences.range.id
+        distanceRangeId: preferences.range.id,
+        csrf: session?.csrfToken ?? ""
       }, {
         action: "/searches",
         method: "post",

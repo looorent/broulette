@@ -1,18 +1,24 @@
 import { triggerHaptics } from "@features/browser.client";
+import type { loader as rootLoader } from "app/root";
 import { RefreshCw } from "lucide-react";
-import { href, useSubmit } from "react-router";
+import { href, useRouteLoaderData, useSubmit } from "react-router";
 
-export function RerollButton({ enabled, searchId }: {
+interface RerollButtonProps {
   enabled: boolean;
   searchId: string;
-}) {
+}
+
+export function RerollButton({ enabled, searchId }: RerollButtonProps) {
   if (enabled) {
     const submit = useSubmit();
+    const session = useRouteLoaderData<typeof rootLoader>("root");
 
     const reRoll = () => {
       if (enabled) {
         triggerHaptics();
-        submit({}, {
+        submit({
+          csrf: session?.csrfToken ?? ""
+        }, {
           method: "POST",
           action: href("/searches/:searchId/candidates", { searchId: searchId }),
           replace: true,

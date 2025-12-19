@@ -1,4 +1,4 @@
-import { AddressLink, OpenMapButton, RerollButton, RestaurantDescription, RestaurantPrice, RestaurantRating, RestaurantTags, ShareButton, SourceBadge, WebsiteLink } from "@components/candidate";
+import { AddressLink, OpenMapButton, RerollButton, RestaurantDescription, RestaurantPrice, RestaurantRating, RestaurantTags, ShareButton, SourceBadge, WarningTag, WebsiteLink } from "@components/candidate";
 import { PhoneLink } from "@components/candidate/phone-link";
 import { triggerHaptics } from "@features/browser.client";
 import prisma from "@features/db.server/prisma";
@@ -9,7 +9,6 @@ import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { href, redirect } from "react-router";
 import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId";
-import { WarningTag } from "@components/candidate/warning-tag";
 
 
 const LATEST = "latest";

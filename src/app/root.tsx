@@ -1,4 +1,5 @@
 import {
+  data,
   Links,
   Meta,
   Outlet,
@@ -9,6 +10,8 @@ import {
 
 import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components/search-loader";
 import "./app.css";
+import type { Route } from "./+types/root";
+import { createCSRFToken } from "@features/session.server";
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({
   currentUrl,
@@ -26,6 +29,14 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
     return currentSearch.toString() !== nextSearch.toString() || defaultShouldRevalidate;
   }
 };
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const { token, headers } = await createCSRFToken(request.headers);
+  return data(
+    { csrfToken: token },
+    { headers: headers || undefined }
+  );
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

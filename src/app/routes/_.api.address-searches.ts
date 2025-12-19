@@ -1,4 +1,5 @@
 import { searchLocations } from "@features/address.server";
+import { validateCSRF } from "@features/session.server";
 import type { ActionFunctionArgs } from "react-router";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -8,8 +9,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const formData = await request.formData();
   const query = formData.get("query");
-
-  // TODO implement CSRF
+  await validateCSRF(formData, request.headers);
 
   if (!query || typeof query !== "string" || query.length < 2) {
     return {

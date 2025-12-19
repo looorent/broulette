@@ -1,7 +1,8 @@
 import prisma from "@features/db.server/prisma";
 import { formatSearchLabel } from "@features/search";
+import type { loader as rootLoader } from "app/root";
 import { useEffect, useRef } from "react";
-import { href, redirect, useSubmit } from "react-router";
+import { href, redirect, useRouteLoaderData, useSubmit } from "react-router";
 import type { Route } from "./+types/searches.$searchId";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -29,12 +30,15 @@ export async function loader({ params }: Route.LoaderArgs) {
 export default function SearchPage({ loaderData }: Route.ComponentProps) {
   const submit = useSubmit();
   const initialized = useRef(false);
+  const session = useRouteLoaderData<typeof rootLoader>("root");
 
   const { search, newCandidateUrl } = loaderData;
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
-      submit({}, {
+      submit({
+        csrf: session?.csrfToken ?? ""
+      }, {
         method: "POST",
         action: newCandidateUrl,
         replace: true,

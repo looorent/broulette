@@ -1,11 +1,12 @@
+import { useAlertContext } from "@components/alert/context";
+import { getDeviceLocation, isGeolocationSupported, useDebounce } from "@features/browser.client";
+import { createDeviceLocation, hasCoordinates, type LocationPreference } from "@features/search";
+import type { action as addressLoader } from "@routes/_.api.address-searches";
 import { Crosshair, Loader2, MapPin, XCircle } from "lucide-react";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { useFetcher } from "react-router";
+import { useFetcher, useRouteLoaderData } from "react-router";
+import type { loader as rootLoader } from "app/root";
 import { LocationSuggestionSelector } from "./location-suggestion-selector";
-import { createDeviceLocation, hasCoordinates, type LocationPreference } from "@features/search";
-import { getDeviceLocation, isGeolocationSupported, useDebounce } from "@features/browser.client";
-import { useAlertContext } from "@components/alert/context";
-import type { action as addressLoader } from "@routes/_.api.address-searches";
 
 export interface LocationSelectorHandle {
   handleClose: () => void;
@@ -30,6 +31,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
     const wrapperRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const fetcher = useFetcher<typeof addressLoader>();
+    const session = useRouteLoaderData<typeof rootLoader>("root");
 
     useImperativeHandle(ref, () => ({
       handleClose: () => {
@@ -55,7 +57,10 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
         setShowSuggestions(false);
       } else {
         fetcher.submit(
-          { query: debouncedSearchText },
+          {
+            query: debouncedSearchText,
+            csrf: session?.csrfToken ?? ""
+          },
           {
             method: "post",
             action: "/api/address-searches"

@@ -9,3 +9,4 @@ export * from "./restaurant-price";
 export * from "./share-button";
 export * from "./reroll-button";
 export * from "./open-map-button";
+export * from "./warning-tag";

@@ -1,5 +1,6 @@
 import { SEARCH_ENGINE_CONFIGURATION } from "@config/server";
 import { searchCandidate } from "@features/search-engine.server";
+import { validateCSRF } from "@features/session.server";
 import { href, redirect } from "react-router";
 import type { Route } from "./+types/searches.$searchId_.candidates._index";
 
@@ -8,7 +9,7 @@ export async function action({
   params
 }: Route.ActionArgs) {
   const formData = await request.formData();
-  // TODO CSRF
+  await validateCSRF(formData, request.headers);
   if (params.searchId) {
     const candidate = await searchCandidate(params.searchId, SEARCH_ENGINE_CONFIGURATION, request.signal);
     if (candidate) {

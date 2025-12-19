@@ -3,6 +3,7 @@ import { createServiceDatetime, createServiceEnd } from "@features/search";
 import { DistanceRange, ServiceTimeslot } from "@persistence/client";
 import { data, href, redirect } from "react-router";
 import type { Route } from "./+types/searches._index";
+import { validateCSRF } from "@features/session.server";
 
 // GET -> noop
 export async function loader() {
@@ -12,8 +13,8 @@ export async function loader() {
 // POST
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
+  await validateCSRF(formData, request.headers);
   const validation = validateSearchInput(formData);
-
   if (!validation.success) {
     return data({ errors: validation.errors }, { status: 400 });
   } else {
