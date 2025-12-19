@@ -9,6 +9,7 @@ import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { href, redirect } from "react-router";
 import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId";
+import { WarningTag } from "@components/candidate/warning-tag";
 
 
 const LATEST = "latest";
@@ -59,6 +60,7 @@ export async function loader({ params }: Route.LoaderArgs) {
           tags: candidate.restaurant.tags?.map(tagToLabel) || [],
           phoneNumber: candidate.restaurant.phoneNumber,
           internationalPhoneNumber: candidate.restaurant.internationalPhoneNumber,
+          openingHoursKnown: candidate.restaurant.openingHours && candidate.restaurant.openingHours?.length > 0,
           address: candidate.restaurant.address,
           mapUrl: candidate.restaurant.mapUrl,
           website: candidate.restaurant.website
@@ -105,9 +107,19 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
           </header>
 
           {/* Card */}
-          <article className="bg-fun-cream border-[5px] border-fun-dark rounded-3xl shadow-hard overflow-hidden flex-1 flex flex-col mb-6 transform rotate-1 hover:rotate-0 transition-transform duration-300 relative group min-h-[300px]">
-
-            <figure className="h-48 bg-gray-200 relative border-b-[5px] border-fun-dark overflow-hidden m-0">
+          <article className="
+            bg-fun-cream
+            border-4 border-fun-dark rounded-3xl
+            shadow-hard
+            overflow-hidden
+            flex-1
+            flex flex-col
+            mb-6
+            transform rotate-1 hover:rotate-0 transition-transform duration-300
+            relative group
+            min-h-75
+          ">
+            <figure className="h-56 bg-fun-cream relative border-b-4 border-fun-dark overflow-hidden m-0">
               <img
                 id="candidate-image"
                 src={restaurant.imageUrl}
@@ -134,6 +146,8 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
               <h3 id="candidate-name" className="font-pop text-3xl text-fun-dark leading-tight mb-2 mt-2">
                 {restaurant.name}
               </h3>
+
+              { !restaurant.openingHoursKnown && <WarningTag label="Unknown opening hours!" /> }
 
               <RestaurantDescription description={restaurant.description} />
 

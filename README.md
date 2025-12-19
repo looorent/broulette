@@ -9,7 +9,6 @@ Here are the source of data I plan to pull to get the most complete source of re
 ## TODO
 
 * Use localstorage for the preferences 
-* Add a tag "unknow opening hours"
 * Add a tag "Reservation possible"
 * add TripAdvisor
 * Investigate why restaurant "Respire Restaurant" does not find any photo
