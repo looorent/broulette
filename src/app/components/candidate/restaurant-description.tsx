@@ -1,12 +1,23 @@
-export function RestaurantDescription({description}: { description: string | null | undefined }) {
+// TODO useless?
+interface RestaurantDescriptionProps {
+  description: string | null | undefined;
+  className?: string;
+}
+
+export function RestaurantDescription({
+  description,
+  className = ""
+}: RestaurantDescriptionProps) {
   if (description && description.length > 0) {
     return (
       <p id="candidate-description"
-        className="
+        className={`
           font-sans font-medium
-          text-fun-dark/70 text-lg
+          text-fun-dark/70 text-md
           leading-snug
-          mb-4 line-clamp-3">
+          mb-4 line-clamp-3
+          ${className}
+        `}>
         {description}
       </p>
     );

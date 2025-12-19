@@ -93,7 +93,6 @@ export function createServiceEnd(day: Date, timeslot: ServiceTimeslot | null): D
       date.setHours(hour, minute, 0);
       return date;
     case ServiceTimeslot.RightNow:
-      // TODO Lorent completely messed up
       const tomorrow = addDay(date, 1)
       tomorrow.setHours(0, 0, 0);
       return tomorrow;

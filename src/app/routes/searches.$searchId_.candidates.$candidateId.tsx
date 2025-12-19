@@ -1,15 +1,18 @@
-import { AddressLink, OpenMapButton, RerollButton, RestaurantDescription, RestaurantPrice, RestaurantRating, RestaurantTags, ShareButton, SourceBadge, WarningTag, WebsiteLink } from "@components/candidate";
+import { BackToHomeButton } from "@components/back-to-home-button";
+import { AddressLink, OpenMapButton, RerollButton, RestaurantDescription, RestaurantPrice, RestaurantRating, RestaurantTags, ShareButton, SourceBadge, WebsiteLink } from "@components/candidate";
+import { OpeningHoursCard } from "@components/candidate/opening-hour-card";
 import { PhoneLink } from "@components/candidate/phone-link";
 import { triggerHaptics } from "@features/browser.client";
+import { formatOpeningHoursFor } from "@features/candidate.server";
 import prisma from "@features/db.server/prisma";
 import { findSourceIn } from "@features/discovery.server";
 import { formatSearchLabel } from "@features/search";
 import { tagToLabel } from "@features/tag.server";
-import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { href, redirect } from "react-router";
 import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId";
 
+const locale = "en-US"; // TODO manage locale
 
 const LATEST = "latest";
 export async function loader({ params }: Route.LoaderArgs) {
@@ -59,7 +62,7 @@ export async function loader({ params }: Route.LoaderArgs) {
           tags: candidate.restaurant.tags?.map(tagToLabel) || [],
           phoneNumber: candidate.restaurant.phoneNumber,
           internationalPhoneNumber: candidate.restaurant.internationalPhoneNumber,
-          openingHoursKnown: candidate.restaurant.openingHours && candidate.restaurant.openingHours?.length > 0,
+          openingHoursOfTheDay: formatOpeningHoursFor(candidate.search.serviceInstant, candidate.restaurant.openingHours, locale),
           address: candidate.restaurant.address,
           mapUrl: candidate.restaurant.mapUrl,
           website: candidate.restaurant.website
@@ -146,9 +149,9 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
                 {restaurant.name}
               </h3>
 
-              { !restaurant.openingHoursKnown && <WarningTag label="Unknown opening hours!" /> }
+              {/* <RestaurantDescription description={restaurant.description} /> */}
 
-              <RestaurantDescription description={restaurant.description} />
+              <OpeningHoursCard openingHoursOfTheDay={restaurant.openingHoursOfTheDay} />
 
               <div className="mt-auto space-y-3">
                 <address className="flex flex-col gap-4 text-fun-dark font-bold font-sans text-sm not-italic">
@@ -171,32 +174,5 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
         </div>
       </main>
     </>
-  );
-}
-
-function BackToHomeButton() {
-  return (
-    <a
-      href="/"
-      aria-label="Back to Lobby"
-      className="
-        fixed z-100 top-4 right-4
-
-        flex items-center gap-2 justify-center
-        px-2 py-2
-
-        bg-fun-cream/95 backdrop-blur-md
-        border-[3px] border-fun-dark rounded-md shadow-hard-hover
-        text-fun-dark font-bold font-pop uppercase text-sm tracking-wide
-
-        animate-slide-in-from-top-right
-
-        cursor-pointer transition-transform duration-500
-        hover:rotate-0 hover:brightness-115 active:scale-120
-      "
-    >
-      <ArrowLeft className="w-4 h-4" />
-      <span>Lobby</span>
-    </a>
   );
 }

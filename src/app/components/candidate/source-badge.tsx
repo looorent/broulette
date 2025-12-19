@@ -28,7 +28,7 @@ function defineStyle(source: string): SourceBadgeStyle {
       };
     case "osm":
       return {
-        style: "bg-fun-dark text-white",
+        style: "bg-[#654321] text-white",
         label: "OpenStreetMap"
       };
     default:

@@ -103,7 +103,7 @@ export class GoogleMatcher implements Matcher {
           website: google.websiteUri ?? restaurant.website,
           operational: google.operational,
           matched: true,
-          description: restaurant.description, // TODO no way to get a nice description?
+          description: restaurant.description, // no way to get a nice description from Google
           sourceWebpage: google.googleMapsUri ?? restaurant.sourceWebpage,
           imageUrl: google.photoUrl ?? restaurant.imageUrl
         },
