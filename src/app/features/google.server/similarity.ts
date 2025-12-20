@@ -9,6 +9,14 @@ interface SimilarityResult {
   distanceMeters: number;
 }
 
+export const DEFAULT_GOOGLE_PLACE_SIMILARITY_CONFIGURATION: GoogleSimilarityConfiguration = {
+  weight: {
+    name: 0.4,
+    location: 0.6
+  },
+  maxDistanceInMeters: 50
+};
+
 export interface GoogleSimilarityConfiguration {
   weight: {
     name: number;
@@ -25,7 +33,7 @@ interface ComparableRestaurant {
 export function compareSimilarity(
   restaurant: ComparableRestaurant,
   other: ComparableRestaurant,
-  configuration: GoogleSimilarityConfiguration
+  configuration: GoogleSimilarityConfiguration = DEFAULT_GOOGLE_PLACE_SIMILARITY_CONFIGURATION
 ): SimilarityResult {
   const nameScore = stringSimilarity.compareTwoStrings(restaurant?.displayName || "", other?.displayName || "");
 

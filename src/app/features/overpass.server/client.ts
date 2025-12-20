@@ -12,8 +12,8 @@ export async function fetchAllRestaurantsNearbyWithRetry(
   signal?: AbortSignal | undefined
 ): Promise<OverpassResponse | undefined> {
   return await overpassCircuitBreaker(instanceUrl).execute(async ({ signal: combinedSignal }) => {
-    if (signal?.aborted) {
-      throw signal.reason;
+    if (combinedSignal?.aborted) {
+      throw combinedSignal.reason;
     }
     return fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, instanceUrl, timeoutInSeconds, combinedSignal);
   }, signal);

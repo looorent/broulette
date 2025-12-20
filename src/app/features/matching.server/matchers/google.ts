@@ -49,9 +49,7 @@ export class GoogleMatcher implements Matcher {
         query,
         restaurant.latitude,
         restaurant.longitude,
-        this.configuration.search.radiusInMeters,
         this.configuration,
-        this.configuration.similarity,
         signal
       );
       await registerAttemptToGooglePlaceByText(query, restaurant.latitude, restaurant.longitude, this.configuration.search.radiusInMeters, restaurant.id, googleRestaurant);

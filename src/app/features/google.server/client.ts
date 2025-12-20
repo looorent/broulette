@@ -3,8 +3,8 @@ import { PlacesClient, type protos } from "@googlemaps/places";
 import { googleCircuitBreaker } from "./circuit-breaker";
 import { convertBusinessStatusToOperational, formatPrices } from "./formatter";
 import { convertGooglePeriodsToOpeningHours } from "./opening-hours";
-import { compareSimilarity, type GoogleSimilarityConfiguration } from "./similarity";
-import type { GooglePlaceConfiguration, GoogleRestaurant } from "./types";
+import { compareSimilarity } from "./similarity";
+import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlaceConfiguration, type GoogleRestaurant } from "./types";
 
 // pay attention to the fields we import, we currently do not require the "Enterprise + Atmosphere" SKU.
 // https://developers.google.com/maps/documentation/places/web-service/data-fields
@@ -35,7 +35,7 @@ const DETAIL_FIELDS_MASK = FIELDS_TO_FETCH.join(",");
 
 export async function findGoogleRestaurantById(
   placeId: string,
-  configuration: GooglePlaceConfiguration,
+  configuration: GooglePlaceConfiguration = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
   const placesClient = new PlacesClient({
@@ -43,8 +43,8 @@ export async function findGoogleRestaurantById(
   });
 
   const response = await googleCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
-    if (signal?.aborted) {
-      throw signal.reason;
+    if (combinedSignal?.aborted) {
+      throw combinedSignal.reason;
     }
     return await placesClient.getPlace(
       {
@@ -72,17 +72,16 @@ async function findPlacesByText(
   searchableText: string,
   latitude: number,
   longitude: number,
-  radiusInMeters: number,
   maximumNumberOfResultsToQuery: number,
   fieldMask: string,
-  configuration: GooglePlaceConfiguration,
+  configuration: GooglePlaceConfiguration, // TODO "radiusInMeters and maximumNumberOfResultsToQuery is also part of the configuration"
 ): Promise<protos.google.maps.places.v1.IPlace[]> {
   const placesClient = new PlacesClient({
     apiKey: configuration.apiKey
   });
 
   // using the "locationRestrictions" is superior to "locationBias" that returns unwanted results (like far far far away from the origin point)
-  const viewport = computeViewportFromCircle({ latitude: latitude, longitude: longitude }, radiusInMeters);
+  const viewport = computeViewportFromCircle({ latitude: latitude, longitude: longitude }, configuration.search.radiusInMeters);
   const response = await placesClient.searchText(
     {
       rankPreference: "RELEVANCE",
@@ -117,9 +116,7 @@ export async function searchGoogleRestaurantByText(
   searchableText: string,
   latitude: number,
   longitude: number,
-  radiusInMeters: number,
-  configuration: GooglePlaceConfiguration,
-  similarityConfiguration: GoogleSimilarityConfiguration,
+  configuration: GooglePlaceConfiguration = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
   const comparable = { displayName: searchableText, location: { latitude: latitude, longitude: longitude } };
@@ -129,7 +126,6 @@ export async function searchGoogleRestaurantByText(
         searchableText,
         latitude,
         longitude,
-        radiusInMeters,
         3,
         SEARCH_FIELDS_MASK,
         configuration
@@ -137,7 +133,7 @@ export async function searchGoogleRestaurantByText(
     )
     .map(convertGooglePlaceToRestaurant)
     ?.filter(Boolean)
-    ?.map((restaurant) => ({ restaurant: restaurant!, match: compareSimilarity(comparable, restaurant!, similarityConfiguration) }))
+    ?.map((restaurant) => ({ restaurant: restaurant!, match: compareSimilarity(comparable, restaurant!, configuration.similarity) }))
     ?.sort((a, b) => b.match.totalScore - a.match.totalScore)
     ?.map(match => addPhotoUriOn(match.restaurant, configuration, signal))
     ?.[0]
@@ -216,10 +212,10 @@ async function addPhotoUriOn(
   const photoId = restaurant?.photoIds?.[0];
   if (photoId) {
     const photoUrl = await googleCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
-      if (signal?.aborted) {
-        throw signal.reason;
+      if (combinedSignal?.aborted) {
+        throw combinedSignal.reason;
       }
-      return findGoogleImageUrl(photoId, configuration.apiKey, configuration.photo.maxWidthInPx, configuration.photo.maxHeightInPx, signal);
+      return findGoogleImageUrl(photoId, configuration.apiKey, configuration.photo.maxWidthInPx, configuration.photo.maxHeightInPx, combinedSignal);
     }, signal);
 
     if (photoUrl) {

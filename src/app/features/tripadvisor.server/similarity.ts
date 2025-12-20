@@ -3,7 +3,7 @@ import { getDistance } from "geolib";
 import stringSimilarity from "string-similarity";
 
 // TODO check if this is the same implementation than google
-
+// THe name should have almost all the weight
 interface SimilarityResult {
   totalScore: number; // [0..1]
   nameScore: number; // [0..1]

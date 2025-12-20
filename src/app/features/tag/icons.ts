@@ -13,7 +13,6 @@ import {
   Globe,
   Hamburger,
   IceCream,
-  Leaf,
   Pizza,
   Sandwich,
   ShoppingBag,
@@ -23,7 +22,7 @@ import {
   UtensilsCrossed,
   Vegan,
   Wine,
-  type LucideIcon,
+  type LucideIcon
 } from "lucide-react";
 
 const RESTAURANT_ICONS: Record<string, LucideIcon> = {

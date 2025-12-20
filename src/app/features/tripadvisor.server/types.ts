@@ -3,6 +3,7 @@ import type { TripAdvisorSimilarityConfiguration } from "./similarity";
 export const TRIPADVISOR_SOURCE_NAME = "tripadvisor";
 
 export const DEFAULT_TRIPADVISOR_CONFIGURATION: TripAdvisorConfiguration = {
+  instanceUrl: "https://api.content.tripadvisor.com/api/v1",
   enabled: false,
   apiKey: "",
   rateLimiting: {
@@ -21,6 +22,7 @@ export const DEFAULT_TRIPADVISOR_CONFIGURATION: TripAdvisorConfiguration = {
 }
 
 export interface TripAdvisorConfiguration {
+  instanceUrl: string;
   enabled: boolean;
   apiKey: string;
   rateLimiting: {
@@ -124,4 +126,12 @@ export interface TripAdvisorLocation {
   neighborhood_info: any[]; // Kept loose as source data is empty
   trip_types: TripType[];
   awards: any[]; // Kept loose as source data is empty
+}
+
+export interface TripAdvisorLocationNearby {
+  locationId: string;
+  name: string;
+  distance: number;
+  bearing: string;
+  address: AddressInfo;
 }

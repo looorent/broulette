@@ -31,8 +31,8 @@ export async function fetchLocationFromPhoton(
   signal?: AbortSignal | undefined
 ): Promise<LocationSuggestions> {
   const rawData = await photonCircuitBreaker(instanceUrl).execute(async ({ signal: combinedSignal }) => {
-    if (signal?.aborted) {
-      throw signal.reason
+    if (combinedSignal?.aborted) {
+      throw combinedSignal.reason
     };
     return fetchPhotonAddresses(query, instanceUrl, configuration.maxNumberOfAddresses, combinedSignal);
   }, signal);

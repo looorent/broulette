@@ -15,7 +15,12 @@ export const baseConfigurationAlias = {
 };
 
 export default defineConfig({
-  plugins: [reactRouterDevTools(), tailwindcss(), reactRouter(), devtoolsJson()],
+  plugins: [
+    reactRouterDevTools(),
+    tailwindcss(),
+    reactRouter(),
+    devtoolsJson()
+  ],
   resolve: {
     alias: baseConfigurationAlias
   }

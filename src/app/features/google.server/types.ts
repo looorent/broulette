@@ -1,5 +1,5 @@
 import type { Coordinates } from "@features/coordinate";
-import type { GoogleSimilarityConfiguration } from "./similarity";
+import { DEFAULT_GOOGLE_PLACE_SIMILARITY_CONFIGURATION, type GoogleSimilarityConfiguration } from "./similarity";
 
 export const GOOGLE_PLACE_SOURCE_NAME = "google_place";
 
@@ -16,13 +16,7 @@ export const DEFAULT_GOOGLE_PLACE_CONFIGURATION: GooglePlaceConfiguration = {
     maxWidthInPx: 1024,
     maxHeightInPx: 512
   },
-  similarity: {
-    weight: {
-      name: 0.4,
-      location: 0.6
-    },
-    maxDistanceInMeters: 50
-  }
+  similarity: DEFAULT_GOOGLE_PLACE_SIMILARITY_CONFIGURATION
 }
 
 export interface GooglePlaceConfiguration {

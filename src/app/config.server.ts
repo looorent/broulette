@@ -97,6 +97,7 @@ export const TRIPADVISOR_FAILOVER_CONFIG: FailoverConfiguration = {
 
 export const TRIPADVISOR_CONFIG: TripAdvisorConfiguration = {
   enabled: process.env.BROULETTE_TRIPADVISOR_ENABLED?.toLowerCase() === "true",
+  instanceUrl: process.env.BROULETTE_TRIPADVISOR_INSTANCE_URL ?? DEFAULT_TRIPADVISOR_CONFIGURATION.instanceUrl,
   apiKey: process.env.BROULETTE_TRIPADVISOR_API_KEY ?? "",
   rateLimiting: {
     maxNumberOfAttemptsPerMonth: Number(process.env.BROULETTE_TRIPADVISOR_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || DEFAULT_TRIPADVISOR_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),
@@ -188,7 +189,7 @@ function initializeApp(): Context {
   initializeGoogle(GOOGLE_PLACE_FAILOVER_CONFIG);
   registerGooglePlace(context?.google);
 
-  initializeTripAdvisor(GOOGLE_PLACE_FAILOVER_CONFIG);
+  initializeTripAdvisor(TRIPADVISOR_FAILOVER_CONFIG);
   registerTripAdvisor(context?.tripAdvisor);
 
   return context;
