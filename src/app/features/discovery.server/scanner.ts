@@ -1,25 +1,26 @@
 import { LoadBalancer } from "@features/balancer.server";
 import type { Coordinates } from "@features/coordinate";
+import type { RestaurantProfile } from "@persistence/client";
 import { registeredProviders } from "./providers";
-import type { DiscoveredRestaurant, DiscoveredRestaurantIdentity, DiscoveryConfiguration } from "./types";
+import { type DiscoveryConfiguration, type DiscoveryRestaurantIdentity } from "./types";
 
 const LOAD_BALANCER = new LoadBalancer(registeredProviders);
 export class RestaurantDiscoveryScanner {
   private iteration: number;
-  private readonly identitiesToExclude: DiscoveredRestaurantIdentity[];
+  private readonly identitiesToExclude: DiscoveryRestaurantIdentity[];
 
   constructor(
     private readonly nearBy: Coordinates,
     private readonly initialRangeInMeters: number,
     private readonly timeoutInMs: number,
     private readonly configuration: DiscoveryConfiguration,
-    initialIdentitiesToExclude: DiscoveredRestaurantIdentity[] = []
+    initialIdentitiesToExclude: DiscoveryRestaurantIdentity[] = []
   ) {
     this.iteration = 0;
     this.identitiesToExclude = [...initialIdentitiesToExclude];
   }
 
-  async nextRestaurants(signal: AbortSignal | undefined): Promise<DiscoveredRestaurant[]> {
+  async nextRestaurants(signal: AbortSignal | undefined): Promise<RestaurantProfile[]> {
     if (this.isOver) {
       console.log("The discovery scanner has reached its limits. It is not going to ");
       return [];
@@ -41,9 +42,9 @@ export class RestaurantDiscoveryScanner {
     return this.timeoutInMs / 1_000;
   }
 
-  addIdentityToExclude(identity: DiscoveredRestaurantIdentity): this {
+  addIdentityToExclude(identity: RestaurantProfile): this {
     if (identity) {
-      const exists = this.identitiesToExclude.some(id => id.source === identity.source && id.externalId === identity.source);
+      const exists = this.identitiesToExclude.some(id => id.source === identity.source && id.externalId === identity.source && id.externalType === identity.externalType);
       if (!exists) {
         this.identitiesToExclude.push(identity);
       }
@@ -51,8 +52,7 @@ export class RestaurantDiscoveryScanner {
     return this;
   }
 
-  private discoverNearbyRestaurants(rangeInMeters: number, signal: AbortSignal | undefined): Promise<DiscoveredRestaurant[]> {
+  private discoverNearbyRestaurants(rangeInMeters: number, signal: AbortSignal | undefined): Promise<RestaurantProfile[]> {
     return LOAD_BALANCER.execute(this.nearBy, rangeInMeters, this.timeoutInMs, this.identitiesToExclude, signal);
   }
 }
-

@@ -2,7 +2,7 @@ import prisma from "@features/db.server/prisma";
 import { hasTripAdvisorReachedQuota } from "@features/rate-limiting.server";
 import { TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
 import { thirtyDaysAgo } from "@features/utils/date";
-import type { RestaurantMatchingConfiguration, RestaurantWithIdentities } from "../types";
+import type { RestaurantAndProfiles, RestaurantMatchingConfiguration } from "../types";
 import type { Matcher, Matching } from "./types";
 
 export class TripAdvisorMatcher implements Matcher {
@@ -11,7 +11,7 @@ export class TripAdvisorMatcher implements Matcher {
   constructor(readonly configuration: TripAdvisorConfiguration) {}
 
   async matchAndEnrich(
-    restaurant: RestaurantWithIdentities,
+    restaurant: RestaurantAndProfiles,
     matchingConfiguration: RestaurantMatchingConfiguration,
     signal?: AbortSignal | undefined
   ): Promise<Matching> {
@@ -31,10 +31,10 @@ export class TripAdvisorMatcher implements Matcher {
   }
 
   private async enrichWithTripAdvisor(
-    restaurant: RestaurantWithIdentities,
+    restaurant: RestaurantAndProfiles,
     matchingConfiguration: RestaurantMatchingConfiguration,
     signal?: AbortSignal | undefined
-  ): Promise<RestaurantWithIdentities> {
+  ): Promise<RestaurantAndProfiles> {
     return restaurant; // TODO
   }
 }

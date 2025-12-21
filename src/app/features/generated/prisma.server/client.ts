@@ -55,10 +55,10 @@ export type SearchCandidate = Prisma.SearchCandidateModel
  */
 export type Restaurant = Prisma.RestaurantModel
 /**
- * Model RestaurantIdentity
+ * Model RestaurantProfile
  * 
  */
-export type RestaurantIdentity = Prisma.RestaurantIdentityModel
+export type RestaurantProfile = Prisma.RestaurantProfileModel
 /**
  * Model RestaurantMatchingAttempt
  * 

@@ -93,7 +93,7 @@ function createQueryToListAllRestaurantsNearby(
     [out:json][timeout:${timeoutInSeconds}];
 
     (
-      nwr["amenity"~"restaurant|fast_food"]["name"](around:${distanceRangeInMeters}, ${latitude}, ${longitude});
+      nwr["amenity"~"^(restaurant|fast_food|food_court|cafe)$"]["name"](around:${distanceRangeInMeters}, ${latitude}, ${longitude});
     )->.allRestaurants;
 
     ${exclusionBlock}
@@ -135,33 +135,36 @@ function parseRestaurantFromResponse(
   const latitude = body?.lat || body?.center?.lat;
   const longitude = body?.lon || body?.center?.lon;
   if (latitude && longitude) {
-    const countryCode = body.tags["addr:country"];
-    const street = body.tags["addr:street"];
-    const houseNumber = body.tags["addr:housenumber"];
-    const city = body.tags["addr:city"];
-    const postCode = body.tags["addr:postcode"];
+    const tags = body.tags || [];
+    const countryCode = tags["addr:country"];
+    const street = tags["addr:street"];
+    const houseNumber = tags["addr:housenumber"];
+    const city = tags["addr:city"];
+    const postCode = tags["addr:postcode"];
 
     return {
       id: body.id,
       type: body.type,
-      name: body.tags?.name,
-      location: {
-        latitude: latitude,
-        longitude: longitude
-      },
-      tags: body.tags || [],
-      amenity: body.tags["amenity"],
-      cuisine: body.tags["cuisine"],
+      name: tags.name,
+      latitude: latitude,
+      longitude: longitude,
+      amenity: tags["amenity"],
+      cuisine: tags["cuisine"]?.split(",") || [],
+      vegan: tags["diet:vegan"] || undefined,
+      vegetarian: tags["diet:vegetarian"] || undefined,
       countryCode: countryCode?.toLowerCase(),
       street: street,
       city: city,
       postCode: postCode,
-      phoneNumber: body.tags["phone"],
-      addressState: body.tags["state"],
+      phoneNumber: tags["phone"] || tags["contact:phone"],
+      addressState: tags["state"] || tags["addr:state"],
       formattedAddress: createFormattedAddress(street, houseNumber, city, postCode, countryCode),
-      website: body.tags["website"] ?? body.tags["contact:facebook"],
-      openingHours: body.tags["opening_hours"],
-      description: body.tags["description"]
+      website: tags["website"] || tags["contact:website"] || tags["contact:facebook"] || tags["url"],
+      openingHours: tags["opening_hours"],
+      description: tags["description"],
+      imageUrl: tags["image"] || tags["mapillary"],
+      openStreetMapUrl: buildOpenStreetMapUrl(body.id, body.type),
+      operational: true // otherwise Overpass would not return it with the requested
     }
   } else {
     return undefined;
@@ -211,4 +214,8 @@ function createFormattedAddress(
       return [cleanStreet, cleanHouseNumber, locationPart].filter(Boolean).join(", ");
     }
   }
+}
+
+function buildOpenStreetMapUrl(id: string, type: string): string {
+  return `https://www.openstreetmap.org/${type}/${id}`;
 }

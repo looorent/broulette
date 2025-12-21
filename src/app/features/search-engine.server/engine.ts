@@ -1,7 +1,6 @@
 import prisma from "@features/db.server/prisma";
-import { RestaurantDiscoveryScanner } from "@features/discovery.server";
+import { RestaurantDiscoveryScanner, type DiscoveredRestaurantProfile } from "@features/discovery.server";
 import { enrichRestaurant } from "@features/matching.server";
-import type { RestaurantIdentity } from "@persistence/browser";
 import { DistanceRange, SearchCandidateStatus, ServiceTimeslot, type SearchCandidate } from "@persistence/client";
 import { SearchNotFoundError } from "./error";
 import { randomize } from "./randomization/randomizer";
@@ -57,14 +56,14 @@ async function findNextValidCandidate(
 }
 
 async function processRestaurant(
-  rawRestaurant: any,
+  discovered: DiscoveredRestaurantProfile,
   searchId: string,
   order: number,
   config: SearchEngineConfiguration,
   targetTime: Date,
   scanner: RestaurantDiscoveryScanner
 ): Promise<SearchCandidate | undefined> {
-  const restaurant = await enrichRestaurant(rawRestaurant, config.matching);
+  const restaurant = await enrichRestaurant(discovered, config.matching);
   if (restaurant) {
     const validation = await validateRestaurant(restaurant, targetTime);
     const newCandidate = await prisma.searchCandidate.create({
@@ -76,7 +75,7 @@ async function processRestaurant(
         rejectionReason: validation.rejectionReason
       }
     });
-    restaurant.identities.forEach(id => scanner.addIdentityToExclude(id));
+    restaurant.p.forEach(id => scanner.addIdentityToExclude(id));
     return newCandidate;
   } else {
     return undefined;

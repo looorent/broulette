@@ -1,5 +1,3 @@
-import type { Coordinates } from "@features/coordinate";
-
 export const OVERPASS_SOURCE_NAME = "osm";
 export type OverpassLocationType = "way" | "node" | "relation";
 
@@ -16,12 +14,14 @@ export interface OverpassRestaurant {
   id: number;
   type: OverpassLocationType;
   name: string;
-  location: Coordinates;
-  tags: { [tagName: string]: string };
+  latitude: number;
+  longitude: number;
   phoneNumber: string | undefined;
   amenity: string | undefined;
-  cuisine: string | undefined;
+  cuisine: string[];
   countryCode: string | undefined;
+  vegan: string | undefined;
+  vegetarian: string | undefined;
   street: string | undefined;
   city: string | undefined;
   addressState: string | undefined;
@@ -30,6 +30,9 @@ export interface OverpassRestaurant {
   website: string | undefined;
   openingHours: string | undefined;
   description: string | undefined;
+  imageUrl: string | undefined;
+  openStreetMapUrl: string;
+  operational: boolean;
 }
 
 export interface OverpassResponse {

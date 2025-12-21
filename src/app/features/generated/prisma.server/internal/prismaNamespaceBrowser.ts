@@ -54,7 +54,7 @@ export const ModelName = {
   Search: 'Search',
   SearchCandidate: 'SearchCandidate',
   Restaurant: 'Restaurant',
-  RestaurantIdentity: 'RestaurantIdentity',
+  RestaurantProfile: 'RestaurantProfile',
   RestaurantMatchingAttempt: 'RestaurantMatchingAttempt'
 } as const
 
@@ -111,7 +111,21 @@ export const RestaurantScalarFieldEnum = {
   matched: 'matched',
   name: 'name',
   latitude: 'latitude',
-  longitude: 'longitude',
+  longitude: 'longitude'
+} as const
+
+export type RestaurantScalarFieldEnum = (typeof RestaurantScalarFieldEnum)[keyof typeof RestaurantScalarFieldEnum]
+
+
+export const RestaurantProfileScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  restaurantId: 'restaurantId',
+  source: 'source',
+  externalId: 'externalId',
+  externalType: 'externalType',
+  name: 'name',
   address: 'address',
   countryCode: 'countryCode',
   state: 'state',
@@ -128,21 +142,10 @@ export const RestaurantScalarFieldEnum = {
   tags: 'tags',
   operational: 'operational',
   website: 'website',
-  sourceWebpage: 'sourceWebpage'
+  sourceUrl: 'sourceUrl'
 } as const
 
-export type RestaurantScalarFieldEnum = (typeof RestaurantScalarFieldEnum)[keyof typeof RestaurantScalarFieldEnum]
-
-
-export const RestaurantIdentityScalarFieldEnum = {
-  id: 'id',
-  restaurantId: 'restaurantId',
-  source: 'source',
-  externalId: 'externalId',
-  type: 'type'
-} as const
-
-export type RestaurantIdentityScalarFieldEnum = (typeof RestaurantIdentityScalarFieldEnum)[keyof typeof RestaurantIdentityScalarFieldEnum]
+export type RestaurantProfileScalarFieldEnum = (typeof RestaurantProfileScalarFieldEnum)[keyof typeof RestaurantProfileScalarFieldEnum]
 
 
 export const RestaurantMatchingAttemptScalarFieldEnum = {

@@ -1,19 +1,19 @@
 import prisma from "@features/db.server/prisma";
-import type { DiscoveredRestaurant, DiscoveredRestaurantIdentity } from "@features/discovery.server";
 import { filterTags } from "@features/tag.server";
 import { isOlderThanAMonth } from "@features/utils/date";
 import type { Restaurant } from "@persistence/client";
 import { registeredMatchers } from "./matchers/registry";
 import type { Matching } from "./matchers/types";
-import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantMatchingConfiguration, type RestaurantWithIdentities } from "./types";
+import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantMatchingConfiguration, type RestaurantAndProfiles } from "./types";
+import type { DiscoveredRestaurantProfile } from "@features/discovery.server";
 
 export async function enrichRestaurant(
-  discovered: DiscoveredRestaurant | undefined,
+  discovered: DiscoveredRestaurantProfile | undefined,
   configuration: RestaurantMatchingConfiguration = DEFAULT_MATCHING_CONFIGURATION,
   signal?: AbortSignal | undefined
-): Promise<RestaurantWithIdentities | null> {
+): Promise<RestaurantAndProfiles | null> {
   if (discovered) {
-    const restaurant = await findRestaurantInDatabase(discovered.identity) || await saveRestaurantToDatabase(discovered, configuration);
+    const restaurant = await findRestaurantInDatabase(discovered) || await saveRestaurantToDatabase(discovered, configuration);
     if (shouldBeMatched(restaurant)) {
       return await enrich(restaurant, configuration, signal);
     } else {
@@ -25,11 +25,10 @@ export async function enrichRestaurant(
 }
 
 async function enrich(
-  restaurant: RestaurantWithIdentities,
+  restaurant: RestaurantAndProfiles,
   configuration: RestaurantMatchingConfiguration,
   signal?: AbortSignal | undefined
-): Promise<RestaurantWithIdentities> {
-
+): Promise<RestaurantAndProfiles> {
   let currentResult: Matching = {
     success: false,
     restaurant: restaurant
@@ -55,26 +54,28 @@ function shouldBeMatched(restaurant: Restaurant): boolean {
     && (!restaurant.matched || isOlderThanAMonth(restaurant.updatedAt));
 }
 
-async function findRestaurantInDatabase(identity: DiscoveredRestaurantIdentity) {
+async function findRestaurantInDatabase(identity: DiscoveredRestaurantProfile) {
   return prisma.restaurant.findFirst({
     where: {
-      identities: {
+      profiles: {
         some: {
           externalId: identity.externalId,
+          externalType: identity.externalType,
           source: identity.source
         }
       }
     },
     include: {
-      identities: true
+      profiles: true
     }
   });
 }
 
 async function saveRestaurantToDatabase(
-  discovered: DiscoveredRestaurant,
+  discovered: DiscoveredRestaurantProfile,
   configuration: RestaurantMatchingConfiguration
-): Promise<RestaurantWithIdentities> {
+): Promise<RestaurantAndProfiles> {
+  // TODO we should save the profile
   return await prisma.restaurant.create({
     data: {
       name: discovered.name!,
@@ -94,7 +95,7 @@ async function saveRestaurantToDatabase(
       identities: { create: discovered.identity }
     },
     include: {
-      identities: true
+      profiles: true
     }
   });
 }

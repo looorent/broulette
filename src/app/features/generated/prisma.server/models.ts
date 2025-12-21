@@ -11,6 +11,6 @@
 export type * from './models/Search'
 export type * from './models/SearchCandidate'
 export type * from './models/Restaurant'
-export type * from './models/RestaurantIdentity'
+export type * from './models/RestaurantProfile'
 export type * from './models/RestaurantMatchingAttempt'
 export type * from './commonInputTypes'

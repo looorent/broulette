@@ -1,25 +1,42 @@
-import { buildMapLink } from "@features/map";
 import { OVERPASS_SOURCE_NAME, type OverpassRestaurant } from "@features/overpass.server";
-import type { DiscoveredRestaurant } from "./types";
+import type { DiscoveredRestaurantProfile } from "./types";
 
-export function fromOverpass(restaurant: OverpassRestaurant): DiscoveredRestaurant {
+export function fromOverpass(overpass: OverpassRestaurant): DiscoveredRestaurantProfile {
   return {
-    name: restaurant.name,
-    coordinates: restaurant.location,
-    identity: {
-      source: OVERPASS_SOURCE_NAME,
-      type: restaurant.type,
-      externalId: restaurant.id.toString()
-    },
-    countryCode: restaurant.countryCode,
-    addressState: restaurant.addressState,
-    formattedAddress: restaurant.formattedAddress,
-    website: restaurant.website,
-    description: restaurant.description,
-    phoneNumber: restaurant.phoneNumber,
-    internationalPhoneNumber: restaurant.phoneNumber,
-    tags: restaurant.cuisine && restaurant.cuisine?.length > 0 ? restaurant.cuisine?.split(";") || [] : [],
-    openingHours: restaurant.openingHours,
-    mapUrl: buildMapLink(restaurant.location.latitude, restaurant.location.longitude, restaurant.name)
+    source: OVERPASS_SOURCE_NAME,
+    externalType: overpass.type,
+    externalId: overpass.id.toString(),
+
+    name: overpass.name || null,
+    address: overpass.formattedAddress || null,
+    countryCode: overpass.countryCode || null,
+    state: overpass.addressState || null,
+    description: overpass.description || null,
+    imageUrl: overpass.imageUrl || null,
+    mapUrl: overpass.openStreetMapUrl || null,
+    rating: null,
+    ratingCount: null,
+    phoneNumber: overpass.phoneNumber || null,
+    internationalPhoneNumber: overpass.phoneNumber || null,
+    priceRange: null,
+    priceLabel: null,
+    openingHours: overpass.openingHours || null,
+    tags: buildTagsFrom(overpass),
+    operational: overpass.operational,
+    website: overpass.website || null,
+    sourceUrl: overpass.openStreetMapUrl || null
   };
+}
+
+function buildTagsFrom(overpass: OverpassRestaurant): string[] {
+  const tags = overpass.cuisine || [];
+  if (overpass.vegan === "yes" || overpass.vegan === "only") {
+    tags.push("vegan");
+  }
+
+  if (overpass.vegetarian === "yes" || overpass.vegetarian === "only") {
+    tags.push("vegetarian");
+  }
+
+  return Array.from(new Set(tags));
 }

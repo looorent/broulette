@@ -1,13 +1,13 @@
-import type { RestaurantMatchingConfiguration, RestaurantWithIdentities } from "../types";
+import type { RestaurantAndProfiles, RestaurantMatchingConfiguration } from "../types";
 
 export interface Matching {
   success: boolean;
-  restaurant: RestaurantWithIdentities;
+  restaurant: RestaurantAndProfiles;
   reason?: string | undefined;
 }
 
 export interface Matcher {
   source: string;
-  matchAndEnrich(restaurant: RestaurantWithIdentities, matchingConfiguration: RestaurantMatchingConfiguration, signal?: AbortSignal | undefined): Promise<Matching>;
+  matchAndEnrich(restaurant: RestaurantAndProfiles, matchingConfiguration: RestaurantMatchingConfiguration, signal?: AbortSignal | undefined): Promise<Matching>;
   hasReachedQuota(): Promise<boolean>;
 }
