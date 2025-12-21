@@ -79,3 +79,10 @@ export class TripAdvisorEmptyResponseError extends TripAdvisorError {
     return true;
   }
 }
+
+// TODO
+export interface TripAdvisorResponseError {
+  message: string;
+  type: string;
+  code: number;
+}

@@ -34,98 +34,83 @@ export interface TripAdvisorConfiguration {
   similarity: TripAdvisorSimilarityConfiguration;
 }
 
+
 export interface TripAdvisorLocation {
   id: string;
   name: string;
-  webUrl: string | undefined;
+  tripAdvisorUrl: string | undefined;
+  latitude: number | undefined;
+  longitude: number | undefined;
+  timezone: string;
+  address: AddressInfo | undefined;
+  website: string | undefined;
+  phone: string | undefined;
+  rankingData: RankingData | undefined;
+  rating: number | undefined;
+  numberOfReviews: number;
+  numberOfReviewsPerRating: {[rating: number]: number};
+  photoCount: number;
+  priceLevel: string | undefined;
+  cuisine: LocalizedName[];
+  category: LocalizedName | undefined;
+  subcategories: LocalizedName[];
+  hours: LocationHours | undefined;
+  openingHours: string | undefined;
+  features: string[];
+  tripTypes: TripType[];
+  awards: Award[];
 }
 
-
-interface AddressInfo {
-  street1: string;
-  city: string;
-  state: string;
-  country: string;
-  postalcode: string;
-  address_string: string;
+export interface Award {
+  type: string;
+  year: number;
+  categories: string[];
+  displayName: string;
 }
 
-interface RankingData {
-  geo_location_id: string;
-  ranking_string: string;
-  geo_location_name: string;
-  ranking_out_of: string;
-  ranking: string;
+export interface AddressInfo {
+  street1: string | undefined;
+  street2: string | undefined;
+  city: string | undefined;
+  state: string | undefined;
+  country: string | undefined;
+  postalcode: string | undefined;
+  addressString: string | undefined;
 }
 
-interface ReviewRatingCount {
-  "1": string;
-  "2": string;
-  "3": string;
-  "4": string;
-  "5": string;
+export interface RankingData {
+  geoLocationId: string | undefined;
+  geoLocationName: string | undefined;
+  ranking: number;
+  rankingString: string | undefined;
+  rankingOutOf: number;
 }
 
-/**
- * Detailed rating categories (Food, Service, Value, etc.).
- */
-export interface SubRating {
+export interface LocalizedName {
   name: string;
-  localized_name: string;
-  rating_image_url: string;
-  value: string;
+  localizedName: string;
 }
 
-/**
- * Generic category structure used for Cuisine, Category, etc.
- */
-export interface CategoryInfo {
-  name: string;
-  localized_name: string;
+// TODO parser and converter to OpeningHours
+export interface TimeInterval {
+  day: number;
+  time: string;
 }
 
-/**
- * Demographics of travelers visiting the location.
- */
+export interface OperatingPeriod {
+  open: TimeInterval | undefined;
+  close?: TimeInterval | undefined;
+}
+
+export interface LocationHours {
+  periods: OperatingPeriod[];
+  weekdayText?: string[];
+}
+
 export interface TripType {
   name: string;
-  localized_name: string;
-  value: string;
-}
-
-/**
- * The main interface for the Restaurant/Location object.
- */
-export interface TripAdvisorLocation {
-  location_id: string;
-  name: string;
-  web_url: string;
-  address_obj: AddressInfo;
-  latitude: string;
-  longitude: string;
-  timezone: string;
-  phone: string;
-  website: string;
-  write_review: string;
-  ranking_data: RankingData;
-  rating: string;
-  rating_image_url: string;
-  num_reviews: string;
-  review_rating_count: ReviewRatingCount;
-  /**
-   * Subratings are indexed by stringified integers ("0", "1", etc.)
-   */
-  subratings: Record<string, SubRating>;
-  photo_count: string;
-  see_all_photos: string;
-  price_level: string;
-  features: string[]; // Assumed string array based on common API patterns, though empty in JSON
-  cuisine: CategoryInfo[];
-  category: CategoryInfo;
-  subcategory: CategoryInfo[];
-  neighborhood_info: any[]; // Kept loose as source data is empty
-  trip_types: TripType[];
-  awards: any[]; // Kept loose as source data is empty
+  localizedName: string;
+  value: number;
 }
 
 export interface TripAdvisorLocationNearby {
@@ -133,5 +118,5 @@ export interface TripAdvisorLocationNearby {
   name: string;
   distance: number;
   bearing: string;
-  address: AddressInfo;
+  address: AddressInfo | undefined;
 }
