@@ -47,12 +47,12 @@ export class GoogleMatcher implements Matcher {
       const query = restaurant.name;
       googleRestaurant = await searchGoogleRestaurantByText(
         query,
-        restaurant.latitude,
-        restaurant.longitude,
+        restaurant.latitude?.toNumber(),
+        restaurant.longitude?.toNumber(),
         this.configuration,
         signal
       );
-      await registerAttemptToGooglePlaceByText(query, restaurant.latitude, restaurant.longitude, this.configuration.search.radiusInMeters, restaurant.id, googleRestaurant);
+      await registerAttemptToGooglePlaceByText(query, restaurant.latitude?.toNumber(), restaurant.longitude?.toNumber(), this.configuration.search.radiusInMeters, restaurant.id, googleRestaurant);
 
       if (googleRestaurant) {
         const newIdentity = await prisma.restaurantIdentity.create({
@@ -77,8 +77,8 @@ export class GoogleMatcher implements Matcher {
   ): Promise<RestaurantWithIdentities> {
     if (google) {
       const name = google.displayName ?? restaurant.name;
-      const latitude = google.location?.latitude ?? restaurant.latitude;
-      const longitude = google.location?.longitude ?? restaurant.longitude;
+      const latitude = google.location?.latitude ?? restaurant.latitude?.toNumber();
+      const longitude = google.location?.longitude ?? restaurant.longitude?.toNumber();
       const mapUrl = google.googleMapsUri ?? buildMapLink(latitude, longitude, name);
       return await prisma.restaurant.update({
         where: { id: restaurant.id },

@@ -62,7 +62,7 @@ model SearchCandidate {
 
   status          SearchCandidateStatus
 
-  rejectionReason String? @db.VarChar(50)
+  rejectionReason String? @db.VarChar(200)
 
   @@index([searchId, status])
 
@@ -83,8 +83,8 @@ model Restaurant {
   matchingAttempts         RestaurantMatchingAttempt[]
 
   name                     String @db.VarChar(100)
-  latitude                 Float
-  longitude                Float
+  latitude                 Decimal
+  longitude                Decimal
   address                  String?
   countryCode              String? @db.VarChar(20)
   state                    String? @db.VarChar(50)
