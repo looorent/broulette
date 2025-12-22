@@ -124,7 +124,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
                 id="candidate-image"
                 src={restaurant.imageUrl}
                 className="w-full h-full object-cover animate-photo"
-                alt={`Photo of ${restaurant.name}`}
+                alt={`Restaurant named '${restaurant.name}'`}
                 loading="lazy"
                 decoding="async"
               />

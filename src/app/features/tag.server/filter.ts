@@ -7,7 +7,7 @@ export function filterTags(
   let processedTags = tags ? [...tags] : [];
   if (processedTags.length > 0) {
     processedTags = removeHiddenTags(processedTags, configuration.hiddenTags);
-    processedTags = removeSuffixes(processedTags),
+    processedTags = removeSuffixes(processedTags);
     processedTags = applyPrioritySorting(processedTags, configuration.priorityTags);
     processedTags = limitTagCount(processedTags, configuration.maxTags);
   }

@@ -69,11 +69,12 @@ export function createServiceDatetime(day: Date, timeslot: ServiceTimeslot | nul
   const date = new Date(day);
   switch (timeslot) {
     case ServiceTimeslot.Lunch:
-    case ServiceTimeslot.Dinner:
+    case ServiceTimeslot.Dinner: {
       const hour = SERVICE_DEFAULTS[timeslot].middle.hour;
       const minute = SERVICE_DEFAULTS[timeslot].middle.minute;
       date.setHours(hour, minute, 0);
       return date;
+    }
     case ServiceTimeslot.RightNow:
       return new Date();
     case ServiceTimeslot.Custom:
@@ -87,15 +88,16 @@ export function createServiceEnd(day: Date, timeslot: ServiceTimeslot | null): D
   const date = new Date(day);
   switch (timeslot) {
     case ServiceTimeslot.Lunch:
-    case ServiceTimeslot.Dinner:
-      const hour = SERVICE_DEFAULTS[timeslot].end.hour;
+    case ServiceTimeslot.Dinner: { const hour = SERVICE_DEFAULTS[timeslot].end.hour;
       const minute = SERVICE_DEFAULTS[timeslot].end.hour;
       date.setHours(hour, minute, 0);
       return date;
-    case ServiceTimeslot.RightNow:
+    }
+    case ServiceTimeslot.RightNow: {
       const tomorrow = addDay(date, 1)
       tomorrow.setHours(0, 0, 0);
       return tomorrow;
+    }
     case ServiceTimeslot.Custom:
       return new Date(date.getTime() + 60 * 60 * 1000);
     default:
