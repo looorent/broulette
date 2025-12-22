@@ -119,7 +119,7 @@ export async function searchGoogleRestaurantByText(
   configuration: GooglePlaceConfiguration = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
-  const comparable = { displayName: searchableText, location: { latitude: latitude, longitude: longitude } };
+  const comparable = { displayName: searchableText, latitude: latitude, longitude: longitude };
   return (
     (
       await findPlacesByText(
@@ -184,10 +184,8 @@ function convertGooglePlaceToRestaurant(
       formattedAddress: place.formattedAddress,
       countryCode: place.addressComponents?.find(component => component?.types?.includes("country"))?.shortText?.toLowerCase(),
       shortFormattedAddress: place.shortFormattedAddress,
-      location: place.location?.latitude && place.location?.longitude ? {
-        latitude: place?.location!.latitude,
-        longitude: place?.location!.longitude
-      } : undefined,
+      latitude: place.location!.latitude!,
+      longitude: place.location!.longitude!,
       rating: place.rating,
       userRatingCount: place.userRatingCount,
       googleMapsUri: place.googleMapsUri,

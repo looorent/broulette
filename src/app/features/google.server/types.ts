@@ -1,4 +1,3 @@
-import type { Coordinates } from "@features/coordinate";
 import { DEFAULT_GOOGLE_PLACE_SIMILARITY_CONFIGURATION, type GoogleSimilarityConfiguration } from "./similarity";
 
 export const GOOGLE_PLACE_SOURCE_NAME = "google_place";
@@ -37,15 +36,16 @@ export interface GooglePlaceConfiguration {
 
 export interface GoogleRestaurant {
   id: string;
-  location: Coordinates | undefined | null;
+  latitude: number;
+  longitude: number;
   displayName: string | undefined | null;
   types: string[];
   primaryType: string | undefined | null;
   nationalPhoneNumber: string | undefined | null;
   internationalPhoneNumber: string | undefined | null;
   formattedAddress: string | undefined | null;
-  countryCode: string | undefined | null;
   shortFormattedAddress: string | undefined | null;
+  countryCode: string | undefined | null;
   rating: number | undefined | null;
   userRatingCount: number | undefined | null;
   googleMapsUri: string | undefined | null;

@@ -9,17 +9,21 @@ const prismaClientSingleton = () => {
   .$extends({
     model: {
       search: {
-        async findWithLatestCandidate(searchId: string) {
+        async findWithLatestCandidateId(searchId: string) {
           return await prisma.search.findUnique({
-            where: { id: searchId },
-            include: {
+            select: {
+              id: true,
+              exhausted: true,
               candidates: {
                 select: { id: true, order: true },
                 orderBy: { order: "desc" as const },
                 where: { status: SearchCandidateStatus.Returned },
                 take: 1
-              },
+              }
             },
+            where: {
+              id: searchId
+            }
           });
         },
 

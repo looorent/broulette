@@ -850,8 +850,6 @@ export const RestaurantScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  version: 'version',
-  matched: 'matched',
   name: 'name',
   latitude: 'latitude',
   longitude: 'longitude'
@@ -868,6 +866,9 @@ export const RestaurantProfileScalarFieldEnum = {
   source: 'source',
   externalId: 'externalId',
   externalType: 'externalType',
+  version: 'version',
+  latitude: 'latitude',
+  longitude: 'longitude',
   name: 'name',
   address: 'address',
   countryCode: 'countryCode',

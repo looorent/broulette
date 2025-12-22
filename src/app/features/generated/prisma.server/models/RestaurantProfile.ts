@@ -27,12 +27,18 @@ export type AggregateRestaurantProfile = {
 }
 
 export type RestaurantProfileAvgAggregateOutputType = {
+  version: number | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
   rating: runtime.Decimal | null
   ratingCount: number | null
   priceRange: number | null
 }
 
 export type RestaurantProfileSumAggregateOutputType = {
+  version: number | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
   rating: runtime.Decimal | null
   ratingCount: number | null
   priceRange: number | null
@@ -46,6 +52,9 @@ export type RestaurantProfileMinAggregateOutputType = {
   source: string | null
   externalId: string | null
   externalType: string | null
+  version: number | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
   name: string | null
   address: string | null
   countryCode: string | null
@@ -73,6 +82,9 @@ export type RestaurantProfileMaxAggregateOutputType = {
   source: string | null
   externalId: string | null
   externalType: string | null
+  version: number | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
   name: string | null
   address: string | null
   countryCode: string | null
@@ -100,6 +112,9 @@ export type RestaurantProfileCountAggregateOutputType = {
   source: number
   externalId: number
   externalType: number
+  version: number
+  latitude: number
+  longitude: number
   name: number
   address: number
   countryCode: number
@@ -123,12 +138,18 @@ export type RestaurantProfileCountAggregateOutputType = {
 
 
 export type RestaurantProfileAvgAggregateInputType = {
+  version?: true
+  latitude?: true
+  longitude?: true
   rating?: true
   ratingCount?: true
   priceRange?: true
 }
 
 export type RestaurantProfileSumAggregateInputType = {
+  version?: true
+  latitude?: true
+  longitude?: true
   rating?: true
   ratingCount?: true
   priceRange?: true
@@ -142,6 +163,9 @@ export type RestaurantProfileMinAggregateInputType = {
   source?: true
   externalId?: true
   externalType?: true
+  version?: true
+  latitude?: true
+  longitude?: true
   name?: true
   address?: true
   countryCode?: true
@@ -169,6 +193,9 @@ export type RestaurantProfileMaxAggregateInputType = {
   source?: true
   externalId?: true
   externalType?: true
+  version?: true
+  latitude?: true
+  longitude?: true
   name?: true
   address?: true
   countryCode?: true
@@ -196,6 +223,9 @@ export type RestaurantProfileCountAggregateInputType = {
   source?: true
   externalId?: true
   externalType?: true
+  version?: true
+  latitude?: true
+  longitude?: true
   name?: true
   address?: true
   countryCode?: true
@@ -311,6 +341,9 @@ export type RestaurantProfileGroupByOutputType = {
   source: string
   externalId: string
   externalType: string
+  version: number
+  latitude: runtime.Decimal
+  longitude: runtime.Decimal
   name: string | null
   address: string | null
   countryCode: string | null
@@ -362,6 +395,9 @@ export type RestaurantProfileWhereInput = {
   source?: Prisma.StringFilter<"RestaurantProfile"> | string
   externalId?: Prisma.StringFilter<"RestaurantProfile"> | string
   externalType?: Prisma.StringFilter<"RestaurantProfile"> | string
+  version?: Prisma.IntFilter<"RestaurantProfile"> | number
+  latitude?: Prisma.DecimalFilter<"RestaurantProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude?: Prisma.DecimalFilter<"RestaurantProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: Prisma.StringNullableFilter<"RestaurantProfile"> | string | null
   address?: Prisma.StringNullableFilter<"RestaurantProfile"> | string | null
   countryCode?: Prisma.StringNullableFilter<"RestaurantProfile"> | string | null
@@ -391,6 +427,9 @@ export type RestaurantProfileOrderByWithRelationInput = {
   source?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
   externalType?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   countryCode?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -423,6 +462,9 @@ export type RestaurantProfileWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.StringFilter<"RestaurantProfile"> | string
   externalId?: Prisma.StringFilter<"RestaurantProfile"> | string
   externalType?: Prisma.StringFilter<"RestaurantProfile"> | string
+  version?: Prisma.IntFilter<"RestaurantProfile"> | number
+  latitude?: Prisma.DecimalFilter<"RestaurantProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude?: Prisma.DecimalFilter<"RestaurantProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: Prisma.StringNullableFilter<"RestaurantProfile"> | string | null
   address?: Prisma.StringNullableFilter<"RestaurantProfile"> | string | null
   countryCode?: Prisma.StringNullableFilter<"RestaurantProfile"> | string | null
@@ -452,6 +494,9 @@ export type RestaurantProfileOrderByWithAggregationInput = {
   source?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
   externalType?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   countryCode?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -488,6 +533,9 @@ export type RestaurantProfileScalarWhereWithAggregatesInput = {
   source?: Prisma.StringWithAggregatesFilter<"RestaurantProfile"> | string
   externalId?: Prisma.StringWithAggregatesFilter<"RestaurantProfile"> | string
   externalType?: Prisma.StringWithAggregatesFilter<"RestaurantProfile"> | string
+  version?: Prisma.IntWithAggregatesFilter<"RestaurantProfile"> | number
+  latitude?: Prisma.DecimalWithAggregatesFilter<"RestaurantProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude?: Prisma.DecimalWithAggregatesFilter<"RestaurantProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: Prisma.StringNullableWithAggregatesFilter<"RestaurantProfile"> | string | null
   address?: Prisma.StringNullableWithAggregatesFilter<"RestaurantProfile"> | string | null
   countryCode?: Prisma.StringNullableWithAggregatesFilter<"RestaurantProfile"> | string | null
@@ -515,6 +563,9 @@ export type RestaurantProfileCreateInput = {
   source: string
   externalId: string
   externalType: string
+  version: number
+  latitude: runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude: runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: string | null
   address?: string | null
   countryCode?: string | null
@@ -544,6 +595,9 @@ export type RestaurantProfileUncheckedCreateInput = {
   source: string
   externalId: string
   externalType: string
+  version: number
+  latitude: runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude: runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: string | null
   address?: string | null
   countryCode?: string | null
@@ -571,6 +625,9 @@ export type RestaurantProfileUpdateInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   externalType?: Prisma.StringFieldUpdateOperationsInput | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  latitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -600,6 +657,9 @@ export type RestaurantProfileUncheckedUpdateInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   externalType?: Prisma.StringFieldUpdateOperationsInput | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  latitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -628,6 +688,9 @@ export type RestaurantProfileCreateManyInput = {
   source: string
   externalId: string
   externalType: string
+  version: number
+  latitude: runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude: runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: string | null
   address?: string | null
   countryCode?: string | null
@@ -655,6 +718,9 @@ export type RestaurantProfileUpdateManyMutationInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   externalType?: Prisma.StringFieldUpdateOperationsInput | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  latitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -683,6 +749,9 @@ export type RestaurantProfileUncheckedUpdateManyInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   externalType?: Prisma.StringFieldUpdateOperationsInput | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  latitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -729,6 +798,9 @@ export type RestaurantProfileCountOrderByAggregateInput = {
   source?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
   externalType?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrder
   countryCode?: Prisma.SortOrder
@@ -750,6 +822,9 @@ export type RestaurantProfileCountOrderByAggregateInput = {
 }
 
 export type RestaurantProfileAvgOrderByAggregateInput = {
+  version?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   ratingCount?: Prisma.SortOrder
   priceRange?: Prisma.SortOrder
@@ -763,6 +838,9 @@ export type RestaurantProfileMaxOrderByAggregateInput = {
   source?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
   externalType?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrder
   countryCode?: Prisma.SortOrder
@@ -790,6 +868,9 @@ export type RestaurantProfileMinOrderByAggregateInput = {
   source?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
   externalType?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrder
   countryCode?: Prisma.SortOrder
@@ -810,6 +891,9 @@ export type RestaurantProfileMinOrderByAggregateInput = {
 }
 
 export type RestaurantProfileSumOrderByAggregateInput = {
+  version?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   ratingCount?: Prisma.SortOrder
   priceRange?: Prisma.SortOrder
@@ -893,6 +977,9 @@ export type RestaurantProfileCreateWithoutRestaurantInput = {
   source: string
   externalId: string
   externalType: string
+  version: number
+  latitude: runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude: runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: string | null
   address?: string | null
   countryCode?: string | null
@@ -920,6 +1007,9 @@ export type RestaurantProfileUncheckedCreateWithoutRestaurantInput = {
   source: string
   externalId: string
   externalType: string
+  version: number
+  latitude: runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude: runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: string | null
   address?: string | null
   countryCode?: string | null
@@ -977,6 +1067,9 @@ export type RestaurantProfileScalarWhereInput = {
   source?: Prisma.StringFilter<"RestaurantProfile"> | string
   externalId?: Prisma.StringFilter<"RestaurantProfile"> | string
   externalType?: Prisma.StringFilter<"RestaurantProfile"> | string
+  version?: Prisma.IntFilter<"RestaurantProfile"> | number
+  latitude?: Prisma.DecimalFilter<"RestaurantProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude?: Prisma.DecimalFilter<"RestaurantProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: Prisma.StringNullableFilter<"RestaurantProfile"> | string | null
   address?: Prisma.StringNullableFilter<"RestaurantProfile"> | string | null
   countryCode?: Prisma.StringNullableFilter<"RestaurantProfile"> | string | null
@@ -1004,6 +1097,9 @@ export type RestaurantProfileCreateManyRestaurantInput = {
   source: string
   externalId: string
   externalType: string
+  version: number
+  latitude: runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude: runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: string | null
   address?: string | null
   countryCode?: string | null
@@ -1031,6 +1127,9 @@ export type RestaurantProfileUpdateWithoutRestaurantInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   externalType?: Prisma.StringFieldUpdateOperationsInput | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  latitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1058,6 +1157,9 @@ export type RestaurantProfileUncheckedUpdateWithoutRestaurantInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   externalType?: Prisma.StringFieldUpdateOperationsInput | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  latitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1085,6 +1187,9 @@ export type RestaurantProfileUncheckedUpdateManyWithoutRestaurantInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   externalType?: Prisma.StringFieldUpdateOperationsInput | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  latitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  longitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1115,6 +1220,9 @@ export type RestaurantProfileSelect<ExtArgs extends runtime.Types.Extensions.Int
   source?: boolean
   externalId?: boolean
   externalType?: boolean
+  version?: boolean
+  latitude?: boolean
+  longitude?: boolean
   name?: boolean
   address?: boolean
   countryCode?: boolean
@@ -1144,6 +1252,9 @@ export type RestaurantProfileSelectCreateManyAndReturn<ExtArgs extends runtime.T
   source?: boolean
   externalId?: boolean
   externalType?: boolean
+  version?: boolean
+  latitude?: boolean
+  longitude?: boolean
   name?: boolean
   address?: boolean
   countryCode?: boolean
@@ -1173,6 +1284,9 @@ export type RestaurantProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   source?: boolean
   externalId?: boolean
   externalType?: boolean
+  version?: boolean
+  latitude?: boolean
+  longitude?: boolean
   name?: boolean
   address?: boolean
   countryCode?: boolean
@@ -1202,6 +1316,9 @@ export type RestaurantProfileSelectScalar = {
   source?: boolean
   externalId?: boolean
   externalType?: boolean
+  version?: boolean
+  latitude?: boolean
+  longitude?: boolean
   name?: boolean
   address?: boolean
   countryCode?: boolean
@@ -1222,7 +1339,7 @@ export type RestaurantProfileSelectScalar = {
   sourceUrl?: boolean
 }
 
-export type RestaurantProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "restaurantId" | "source" | "externalId" | "externalType" | "name" | "address" | "countryCode" | "state" | "description" | "imageUrl" | "mapUrl" | "rating" | "ratingCount" | "phoneNumber" | "internationalPhoneNumber" | "priceRange" | "priceLabel" | "openingHours" | "tags" | "operational" | "website" | "sourceUrl", ExtArgs["result"]["restaurantProfile"]>
+export type RestaurantProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "restaurantId" | "source" | "externalId" | "externalType" | "version" | "latitude" | "longitude" | "name" | "address" | "countryCode" | "state" | "description" | "imageUrl" | "mapUrl" | "rating" | "ratingCount" | "phoneNumber" | "internationalPhoneNumber" | "priceRange" | "priceLabel" | "openingHours" | "tags" | "operational" | "website" | "sourceUrl", ExtArgs["result"]["restaurantProfile"]>
 export type RestaurantProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
 }
@@ -1246,6 +1363,9 @@ export type $RestaurantProfilePayload<ExtArgs extends runtime.Types.Extensions.I
     source: string
     externalId: string
     externalType: string
+    version: number
+    latitude: runtime.Decimal
+    longitude: runtime.Decimal
     name: string | null
     address: string | null
     countryCode: string | null
@@ -1695,6 +1815,9 @@ export interface RestaurantProfileFieldRefs {
   readonly source: Prisma.FieldRef<"RestaurantProfile", 'String'>
   readonly externalId: Prisma.FieldRef<"RestaurantProfile", 'String'>
   readonly externalType: Prisma.FieldRef<"RestaurantProfile", 'String'>
+  readonly version: Prisma.FieldRef<"RestaurantProfile", 'Int'>
+  readonly latitude: Prisma.FieldRef<"RestaurantProfile", 'Decimal'>
+  readonly longitude: Prisma.FieldRef<"RestaurantProfile", 'Decimal'>
   readonly name: Prisma.FieldRef<"RestaurantProfile", 'String'>
   readonly address: Prisma.FieldRef<"RestaurantProfile", 'String'>
   readonly countryCode: Prisma.FieldRef<"RestaurantProfile", 'String'>

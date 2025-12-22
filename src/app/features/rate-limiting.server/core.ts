@@ -17,3 +17,16 @@ export async function countMatchingAttemptsDuringMonth(
     }
   });
 }
+
+export async function hasReachedQuota(
+  maxNumberOfAttemptsPerMonth: number,
+  source: string
+): Promise<boolean> {
+  const numberOfAttemptsThisMonth = await countMatchingAttemptsDuringMonth(source, new Date());
+  if (numberOfAttemptsThisMonth > maxNumberOfAttemptsPerMonth) {
+    console.warn(`We have exceeded the monthly quota of ${source}: ${numberOfAttemptsThisMonth}/${maxNumberOfAttemptsPerMonth}`);
+    return true;
+  } else {
+    return false;
+  }
+}

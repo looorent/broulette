@@ -5,7 +5,6 @@ import { PhoneLink } from "@components/candidate/phone-link";
 import { triggerHaptics } from "@features/browser.client";
 import { formatOpeningHoursFor } from "@features/candidate.server";
 import prisma from "@features/db.server/prisma";
-import { findSourceIn } from "@features/discovery.server";
 import { formatSearchLabel } from "@features/search";
 import { tagToLabel } from "@features/tag.server";
 import { useEffect } from "react";
@@ -19,8 +18,7 @@ export async function loader({ params }: Route.LoaderArgs) {
   const { searchId, candidateId } = params;
 
   if (LATEST === candidateId.toLowerCase()) {
-    const search = await prisma.search.findWithLatestCandidate(params.searchId);
-    const latestId = search?.candidates?.[0]?.id;
+
 
     if (latestId) {
       return redirect(

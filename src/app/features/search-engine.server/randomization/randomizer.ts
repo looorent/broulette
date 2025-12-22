@@ -1,6 +1,6 @@
-import type { DiscoveredRestaurant } from "@features/discovery.server";
+import type { DiscoveredRestaurantProfile } from "@features/discovery.server";
 
-export async function randomize(restaurants: DiscoveredRestaurant[]): Promise<DiscoveredRestaurant[]> {
+export async function randomize(restaurants: DiscoveredRestaurantProfile[]): Promise<DiscoveredRestaurantProfile[]> {
   const shuffled = [...restaurants];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));

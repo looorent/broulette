@@ -1,18 +1,6 @@
 import prisma from "@features/db.server/prisma";
 import { GOOGLE_PLACE_SOURCE_NAME, type GoogleRestaurant } from "@features/google.server";
 import type { RestaurantMatchingAttempt } from "@persistence/client";
-import { countMatchingAttemptsDuringMonth } from "./core";
-
-export async function hasGooglePlaceReachedQuota(maxNumberOfAttemptsPerMonth: number): Promise<boolean> {
-  const numberOfAttemptsThisMonth = await countMatchingAttemptsDuringMonth(GOOGLE_PLACE_SOURCE_NAME, new Date());
-  if (numberOfAttemptsThisMonth > maxNumberOfAttemptsPerMonth) {
-    console.warn(`We have exceeded the monthly quota of Google: ${numberOfAttemptsThisMonth}/${maxNumberOfAttemptsPerMonth}`);
-    return true;
-  } else {
-    return false;
-  }
-}
-
 
 export function registerAttemptToGooglePlaceById(
   placeId: string,

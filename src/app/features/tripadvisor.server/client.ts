@@ -1,10 +1,12 @@
 import { tripAdvisorCircuitBreaker } from "./circuit-breaker";
 import { TripAdvisorEmptyResponseError, TripAdvisorHttpError, TripAdvisorServerError } from "./error";
 import { convertTripAdvisorHoursToOpeningHours } from "./opening-hours";
+import { findBestTripAdvisorMatch } from "./similarity";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, type AddressInfo, type Award, type LocalizedName, type LocationHours, type OperatingPeriod, type RankingData, type TripAdvisorConfiguration, type TripAdvisorLocation, type TripAdvisorLocationNearby, type TripType } from "./types";
 
 export async function findTripAdvisorLocationByIdWithRetry(
   locationId: string,
+  language: string = "en",
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocation | undefined> {
@@ -12,17 +14,18 @@ export async function findTripAdvisorLocationByIdWithRetry(
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
-    return await findTripAdvisorLocationById(locationId, configuration, combinedSignal);
+    return await findTripAdvisorLocationById(locationId, language, configuration, combinedSignal);
   }, signal);
 }
 
 async function findTripAdvisorLocationById(
   locationId: string,
+  language: string = "en",
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocation | undefined> {
   console.info(`[TripAdvisor] Finding the location with id='${locationId}'...`);
-  const url = buildUrlToFindLocationById(locationId, configuration);
+  const url = buildUrlToFindLocationById(locationId, language, configuration);
   const authenticatedUrl = addAuthenticationOn(url, configuration);
   const start = Date.now();
 
@@ -64,32 +67,47 @@ async function findTripAdvisorLocationById(
   }
 }
 
-export async function searchTripAdvisorLocationsNearbyWithRetry(
-  address: string, // TODO useless?
+export async function searchTripAdvisorLocationIdNearbyWithRetry(
+  name: string,
   latitude: number,
   longitude: number,
   radiusInMeters: number,
+  language: string = "en",
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
-): Promise<TripAdvisorLocationNearby[]> {
+): Promise<number | undefined> {
   return await tripAdvisorCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
-    return await searchTripAdvisorLocationsNearby(address, latitude, longitude, radiusInMeters, configuration, combinedSignal);
+    return await searchTripAdvisorLocationIdNearby(name, latitude, longitude, radiusInMeters, language, configuration, combinedSignal);
   }, signal);
 }
 
-async function searchTripAdvisorLocationsNearby(
-  address: string, // TODO useless?
+async function searchTripAdvisorLocationIdNearby(
+  name: string,
   latitude: number,
   longitude: number,
   radiusInMeters: number,
+  language: string = "en",
+  configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
+  signal?: AbortSignal | undefined
+): Promise<TripAdvisorLocation | undefined> {
+  const locationsNearby = await findTripAdvisorLocationsNearby(latitude, longitude, radiusInMeters, language, configuration, signal);
+  const bestLocation = findBestTripAdvisorMatch(name, locationsNearby, configuration.similarity);
+  return bestLocation ? findTripAdvisorLocationById(bestLocation.locationId, language, configuration, signal) : undefined;
+}
+
+async function findTripAdvisorLocationsNearby(
+  latitude: number,
+  longitude: number,
+  radiusInMeters: number,
+  language: string = "en",
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocationNearby[]> {
   console.info(`[TripAdvisor] Finding the location nearby '${latitude},${longitude}' within ${radiusInMeters}m'...`);
-  const url = buildUrlToFindLocationNearby(address, latitude, longitude, radiusInMeters, configuration);
+  const url = buildUrlToFindLocationNearby(latitude, longitude, radiusInMeters, language, configuration);
   const authenticatedUrl = addAuthenticationOn(url, configuration);
   const start = Date.now();
 
@@ -129,23 +147,26 @@ async function searchTripAdvisorLocationsNearby(
   }
 }
 
-function buildUrlToFindLocationById(locationId: string, configuration: TripAdvisorConfiguration): string {
+function buildUrlToFindLocationById(
+  locationId: string,
+  language: string,
+  configuration: TripAdvisorConfiguration
+): string {
   const params = new URLSearchParams({
-    language: "en", // TODO make this configurable?
+    language: language
   });
   return `${configuration.instanceUrl}/location/${locationId}/details?${params.toString()}`;
 }
 
 function buildUrlToFindLocationNearby(
-  address: string,
   latitude: number,
   longitude: number,
   radiusInMeters: number,
+  language: string,
   configuration: TripAdvisorConfiguration
 ): string {
   const params = new URLSearchParams({
-    address: address,
-    language: "en", // TODO make this configurable?
+    language: language,
     latLong: `${latitude},${longitude}`,
     category: "restaurants",
     radius: radiusInMeters.toString(),
@@ -168,6 +189,7 @@ function parseLocationDetails(
     return {
       id: typeof body.location_id === "string" ? parseInt(body.location_id) : body.location_id,
       name: body.name,
+      description: body.description || undefined,
       latitude: typeof body.latitude === "string" ? parseFloat(body.latitude) : body.latitude || undefined,
       longitude: typeof body.longitude === "string" ? parseFloat(body.longitude) : body.longitude || undefined,
       address: parseAddress(body.address_obj),
@@ -193,6 +215,7 @@ function parseLocationDetails(
       openingHours: convertTripAdvisorHoursToOpeningHours(hours),
       features: body.features || [],
       tripTypes: parseTripTypes(body.trip_types),
+      imageUrl: undefined, // TODO
       awards: parseAwards(body.awards)
     };
   }
@@ -203,7 +226,7 @@ function parseLocationNearby(body: any): TripAdvisorLocationNearby | undefined {
     return {
       locationId: body.location_id,
       name: body.name,
-      distance: typeof body.distance === "string" ? parseFloat(body.distance) : body.distance,
+      distanceInMeters: parseDistanceInMeters(body.distance),
       bearing: body.bearing,
       address: parseAddress(body.address_obj)
     };
@@ -261,7 +284,6 @@ function parseRankingData(body: any | undefined): RankingData | undefined {
     return undefined;
   }
 }
-
 
 function parseLocalizedNames(body: any): LocalizedName[] {
   if (body && Array.isArray(body)) {
@@ -334,6 +356,7 @@ function parseHours(body: any): LocationHours | undefined {
     return undefined;
   }
 }
+
 function parseAwards(body: any): Award[] {
   if (body && Array.isArray(body)) {
     return body.map(parseAward).filter(Boolean).map(award => award!);
@@ -354,3 +377,8 @@ function parseAward(body: any): Award | undefined {
     return undefined;
   }
 }
+function parseDistanceInMeters(distance: any): number {
+  const distanceInMiles = typeof distance === "string" ? parseFloat(distance) : distance;
+  return distanceInMiles / 16 * 10;
+}
+

@@ -1,7 +1,7 @@
 import prisma from "@features/db.server/prisma";
 import { RestaurantDiscoveryScanner, type DiscoveredRestaurantProfile } from "@features/discovery.server";
 import { enrichRestaurant } from "@features/matching.server";
-import { DistanceRange, SearchCandidateStatus, ServiceTimeslot, type SearchCandidate } from "@persistence/client";
+import { DistanceRange, SearchCandidateStatus, ServiceTimeslot, type RestaurantProfile, type SearchCandidate } from "@persistence/client";
 import { SearchNotFoundError } from "./error";
 import { randomize } from "./randomization/randomizer";
 import type { SearchEngineConfiguration, SearchEngineRange } from "./types";
@@ -75,7 +75,7 @@ async function processRestaurant(
         rejectionReason: validation.rejectionReason
       }
     });
-    restaurant.p.forEach(id => scanner.addIdentityToExclude(id));
+    restaurant.profiles.forEach(profile => scanner.addIdentityToExclude(profile));
     return newCandidate;
   } else {
     return undefined;
@@ -135,7 +135,7 @@ function createDiscoveryScanner(
     distanceRange: DistanceRange;
     candidates: {
       restaurant: {
-        identities: RestaurantIdentity[]
+        profiles: RestaurantProfile[]
       }
     }[] | undefined
   },
@@ -147,21 +147,21 @@ function createDiscoveryScanner(
     rangeInMeters,
     timeoutInMs,
     configuration.discovery,
-    (search.candidates || []).flatMap(candidate => candidate?.restaurant?.identities || [])
+    (search.candidates || []).flatMap(candidate => candidate?.restaurant?.profiles || [])
   );
 }
 
 async function findSearchOrThrow(searchId: string) {
-  const search = await prisma.search.findUniqueWithRestaurantAndIdentities(searchId);
+  const search = await prisma.search.findUniqueWithRestaurantAndProfiles(searchId);
   if (!search) {
     throw new SearchNotFoundError(searchId);
   }
   return search;
 }
 
+// TODO useful?
 async function findLatestCandidateOf(searchId: string): Promise<SearchCandidate | undefined> {
-  const finalCandidateId = (await prisma.search.findWithLatestCandidate(searchId))?.candidates?.[0]?.id;
+  const finalCandidateId = (await prisma.search.findWithLatestCandidateId(searchId))?.candidates?.[0]?.id;
   const finalCandidate = await prisma.searchCandidate.findUnique({ where: { id: finalCandidateId } });
   return finalCandidate ?? undefined;
 }
-

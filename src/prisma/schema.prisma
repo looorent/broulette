@@ -74,18 +74,14 @@ model Restaurant {
   id                       String @id @default(uuid()) @db.Uuid
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
-  version                  Int @default(1)
+
+  name                     String? @db.VarChar(100)
+  latitude                 Decimal
+  longitude                Decimal
 
   profiles                 RestaurantProfile[]
   searchCandidates         SearchCandidate[]
-
-  matched                  Boolean @default(false)
   matchingAttempts         RestaurantMatchingAttempt[]
-
-  name                     String @db.VarChar(100)
-
-  latitude                 Decimal
-  longitude                Decimal
 
   @@map("restaurant")
 }
@@ -101,8 +97,11 @@ model RestaurantProfile {
   source                   String @db.VarChar(50)
   externalId               String @db.VarChar(255)
   externalType             String @db.VarChar(50)
+  version                  Int
 
   // attributes from the source
+  latitude                 Decimal
+  longitude                Decimal
   name                     String?
   address                  String?
   countryCode              String? @db.VarChar(20)

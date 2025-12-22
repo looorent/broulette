@@ -38,6 +38,7 @@ export interface TripAdvisorConfiguration {
 export interface TripAdvisorLocation {
   id: string;
   name: string;
+  description: string | undefined;
   tripAdvisorUrl: string | undefined;
   latitude: number | undefined;
   longitude: number | undefined;
@@ -58,6 +59,7 @@ export interface TripAdvisorLocation {
   openingHours: string | undefined;
   features: string[];
   tripTypes: TripType[];
+  imageUrl: string | undefined;
   awards: Award[];
 }
 
@@ -116,7 +118,7 @@ export interface TripType {
 export interface TripAdvisorLocationNearby {
   locationId: string;
   name: string;
-  distance: number;
+  distanceInMeters: number;
   bearing: string;
   address: AddressInfo | undefined;
 }

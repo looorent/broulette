@@ -1,9 +1,8 @@
-import type { Coordinates } from "@features/coordinate";
-import { getDistance } from "geolib";
 import stringSimilarity from "string-similarity";
+import type { TripAdvisorLocationNearby } from "./types"; // Assuming your types are here
 
-// TODO check if this is the same implementation than google
-// THe name should have almost all the weight
+// TODO review
+
 interface SimilarityResult {
   totalScore: number; // [0..1]
   nameScore: number; // [0..1]
@@ -11,42 +10,66 @@ interface SimilarityResult {
   distanceMeters: number;
 }
 
+export const DEFAULT_TRIPADVISOR_SIMILARITY_CONFIGURATION: TripAdvisorSimilarityConfiguration = {
+  weight: {
+    name: 0.5,
+    location: 0.5
+  },
+  maxDistanceInMeters: 100,
+  minScoreThreshold: 0.6
+};
+
 export interface TripAdvisorSimilarityConfiguration {
   weight: {
     name: number;
     location: number;
   };
   maxDistanceInMeters: number;
+  minScoreThreshold: number;
 }
 
-interface ComparableRestaurant {
-  displayName: string | undefined | null;
-  location: Coordinates | undefined | null;
+export function findBestTripAdvisorMatch(
+  targetName: string,
+  candidates: TripAdvisorLocationNearby[],
+  configuration: TripAdvisorSimilarityConfiguration = DEFAULT_TRIPADVISOR_SIMILARITY_CONFIGURATION
+): TripAdvisorLocationNearby | undefined {
+  if (!candidates.length || !targetName) {
+    return undefined;
+  } else {
+    const scoredCandidates = candidates.map(candidate => {
+      return {
+        candidate,
+        result: compareSimilarity(targetName, candidate, configuration)
+      };
+    });
+    scoredCandidates.sort((a, b) => b.result.totalScore - a.result.totalScore);
+    const best = scoredCandidates[0];
+
+    if (best && best.result.totalScore >= configuration.minScoreThreshold) {
+      return best.candidate;
+    } else {
+      return undefined;
+    }
+  }
 }
 
 export function compareSimilarity(
-  restaurant: ComparableRestaurant,
-  other: ComparableRestaurant,
+  targetName: string,
+  candidate: TripAdvisorLocationNearby,
   configuration: TripAdvisorSimilarityConfiguration
 ): SimilarityResult {
-  const nameScore = stringSimilarity.compareTwoStrings(restaurant?.displayName || "", other?.displayName || "");
-
-  let distanceInMeters: number;
-  if (!restaurant.location || !other.location) {
-    distanceInMeters = 0;
-  } else {
-    distanceInMeters = getDistance(
-      { latitude: restaurant.location.latitude, longitude: restaurant.location.longitude },
-      { latitude: other.location.latitude, longitude: other.location.longitude }
-    );
-  }
+  const nameScore = stringSimilarity.compareTwoStrings(
+    targetName || "",
+    candidate.name || ""
+  );
+  const distanceInMeters = candidate.distanceInMeters ?? Infinity;
   const distanceScore = Math.max(0, 1 - distanceInMeters / configuration.maxDistanceInMeters);
   const totalScore = (nameScore * configuration.weight.name) + (distanceScore * configuration.weight.location);
 
   return {
-    totalScore: totalScore,
-    nameScore: nameScore,
-    distanceScore: distanceScore,
+    totalScore,
+    nameScore,
+    distanceScore,
     distanceMeters: distanceInMeters
   };
 }

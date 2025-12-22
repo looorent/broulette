@@ -1,4 +1,3 @@
-import type { Coordinates } from "@features/coordinate";
 import { getDistance } from "geolib";
 import stringSimilarity from "string-similarity";
 
@@ -27,7 +26,8 @@ export interface GoogleSimilarityConfiguration {
 
 interface ComparableRestaurant {
   displayName: string | undefined | null;
-  location: Coordinates | undefined | null;
+  latitude: number;
+  longitude: number;
 }
 
 export function compareSimilarity(
@@ -38,12 +38,12 @@ export function compareSimilarity(
   const nameScore = stringSimilarity.compareTwoStrings(restaurant?.displayName || "", other?.displayName || "");
 
   let distanceInMeters: number;
-  if (!restaurant.location || !other.location) {
+  if (!restaurant.latitude || !other.latitude || !restaurant.longitude || !other.longitude) {
     distanceInMeters = 0;
   } else {
     distanceInMeters = getDistance(
-      { latitude: restaurant.location.latitude, longitude: restaurant.location.longitude },
-      { latitude: other.location.latitude, longitude: other.location.longitude }
+      { latitude: restaurant.latitude, longitude: restaurant.longitude },
+      { latitude: other.latitude, longitude: other.longitude }
     );
   }
   const distanceScore = Math.max(0, 1 - distanceInMeters / configuration.maxDistanceInMeters);
