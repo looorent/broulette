@@ -5,6 +5,9 @@ import { isOlderThanAMonth, thirtyDaysAgo } from "@features/utils/date";
 import { registeredMatchers } from "./matchers/registry";
 import type { Matcher } from "./matchers/types";
 import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantAndProfiles, type RestaurantMatchingConfiguration } from "./types";
+import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
+import { TRIPADVISOR_SOURCE_NAME } from "@features/tripadvisor.server";
+import { GOOGLE_PLACE_SOURCE_NAME } from "@features/google.server";
 
 // TODO we should find the best language based on the location?
 export async function enrichRestaurant(
@@ -40,18 +43,20 @@ async function enrich(
     }
   }
 
-  return result;
+  return completeRestaurantFromProfiles(result);
 }
 
 async function shouldBeMatched(
   restaurant: RestaurantAndProfiles,
   matcher: Matcher
 ): Promise<boolean> {
-  const lastUpdate = restaurant
-    .profiles
+  const relevantDates = restaurant.profiles
     .filter(profile => profile.source === matcher.source)
-    .map(profile => profile.updatedAt)
-    .reduce((updatedAt, otherUpdatedAt) => (updatedAt > otherUpdatedAt ? updatedAt : otherUpdatedAt));
+    .map(profile => profile.updatedAt);
+
+  const lastUpdate = relevantDates.length > 0
+    ? relevantDates.reduce((latest, current) => (current > latest ? current : latest))
+    : undefined;
 
   return (!lastUpdate || !isOlderThanAMonth(lastUpdate))
     && !await matcher.hasReachedQuota()
@@ -96,4 +101,16 @@ async function saveRestaurantToDatabase(
       profiles: true
     }
   });
+}
+
+function completeRestaurantFromProfiles(restaurant: RestaurantAndProfiles): RestaurantAndProfiles {
+  const overpass = restaurant.profiles.find(profile => profile.source === OVERPASS_SOURCE_NAME);
+  const tripAdvisor = restaurant.profiles.find(profile => profile.source === TRIPADVISOR_SOURCE_NAME);
+  const google = restaurant.profiles.find(profile => profile.source === GOOGLE_PLACE_SOURCE_NAME);
+  return {
+    ...restaurant,
+    name: google?.name || tripAdvisor?.name || overpass?.name || restaurant?.name,
+    latitude: google?.latitude || tripAdvisor?.latitude || overpass?.latitude || restaurant?.latitude,
+    longitude: google?.longitude || tripAdvisor?.longitude || overpass?.longitude || restaurant?.longitude
+  };
 }

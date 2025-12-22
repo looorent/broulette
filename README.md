@@ -15,8 +15,12 @@ $ openssl rand -hex 32
 
 ## TODO
 
+* Observations:
+    * TripAdvisor does not work?
+    * TripAdvisor addresses are bof
+    * TripAdvisor: no countryCode
+    * no description?
 * Use localstorage for the preferences 
-* add TripAdvisor
 * Investigate why restaurant "Respire Restaurant" does not find any photo
 * Investigate why "La Terrasse de l'Abbaye de Notre-Dame du Vivier" does not find any equivalent on Google
 * Fuzzy string comparison might be shitty
