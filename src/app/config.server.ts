@@ -110,7 +110,8 @@ export const TRIPADVISOR_CONFIG: TripAdvisorConfiguration = {
       name: Number(process.env.BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_NAME || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.weight.name),
       location: Number(process.env.BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_LOCATION || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.weight.location),
     },
-    maxDistanceInMeters: Number(process.env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.maxDistanceInMeters)
+    maxDistanceInMeters: Number(process.env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.maxDistanceInMeters),
+    minScoreThreshold: Number(process.env.BROULETTE_TRIPADVISOR_API_SEARCH_MIN_SCORE_TRESHOLD || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.minScoreThreshold)
   }
 };
 

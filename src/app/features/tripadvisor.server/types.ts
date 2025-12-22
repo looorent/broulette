@@ -17,7 +17,8 @@ export const DEFAULT_TRIPADVISOR_CONFIGURATION: TripAdvisorConfiguration = {
       name: 0.4,
       location: 0.6
     },
-    maxDistanceInMeters: 50
+    maxDistanceInMeters: 50,
+    minScoreThreshold: 0.6
   }
 }
 
@@ -33,7 +34,6 @@ export interface TripAdvisorConfiguration {
   };
   similarity: TripAdvisorSimilarityConfiguration;
 }
-
 
 export interface TripAdvisorLocation {
   id: string;
