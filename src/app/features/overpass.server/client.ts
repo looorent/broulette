@@ -93,8 +93,8 @@ function createQueryToListAllRestaurantsNearby(
     [out:json][timeout:${timeoutInSeconds}];
 
     (
-      nwr["amenity"~"^(restaurant|fast_food|food_court|cafe)$"]["name"](around:${distanceRangeInMeters}, ${latitude}, ${longitude});
-    )->.allRestaurants;
+      nwr["amenity"~"^(restaurant|fast_food|food_court)$"]["name"](around:${distanceRangeInMeters}, ${latitude}, ${longitude});
+    )->.allRestaurants;$
 
     ${exclusionBlock}
 

@@ -2,6 +2,7 @@ import { searchLocations } from "@features/address.server";
 import { validateCSRF } from "@features/session.server";
 import type { ActionFunctionArgs } from "react-router";
 
+// TODO this returns too many duplicates (ex: Namur)
 export async function action({ request }: ActionFunctionArgs) {
   if (request.method !== "POST") {
     throw new Response("Method Not Allowed", { status: 405 });

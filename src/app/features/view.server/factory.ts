@@ -144,6 +144,7 @@ function buildAddress({ overpass, tripAdvisor, google }: RestaurantProfiles): st
   return google?.address || tripAdvisor?.address || overpass?.address || undefined;
 }
 
+// TODO is it required to add the Google source url? it is usually the same than the mapUrl
 function buildUrls({ tripAdvisor, google, overpass }: RestaurantProfiles): string[] {
   return [
     tripAdvisor?.sourceUrl,
