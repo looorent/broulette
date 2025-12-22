@@ -2,7 +2,7 @@ import { LoadBalancer } from "@features/balancer.server";
 import type { Coordinates } from "@features/coordinate";
 import type { RestaurantProfile } from "@persistence/client";
 import { registeredProviders } from "./providers";
-import { type DiscoveryConfiguration, type DiscoveryRestaurantIdentity } from "./types";
+import { type DiscoveredRestaurantProfile, type DiscoveryConfiguration, type DiscoveryRestaurantIdentity } from "./types";
 
 const LOAD_BALANCER = new LoadBalancer(registeredProviders);
 export class RestaurantDiscoveryScanner {
@@ -20,7 +20,7 @@ export class RestaurantDiscoveryScanner {
     this.identitiesToExclude = [...initialIdentitiesToExclude];
   }
 
-  async nextRestaurants(signal: AbortSignal | undefined): Promise<RestaurantProfile[]> {
+  async nextRestaurants(signal: AbortSignal | undefined): Promise<DiscoveredRestaurantProfile[]> {
     if (this.isOver) {
       console.log("The discovery scanner has reached its limits. It is not going to ");
       return [];
@@ -52,7 +52,7 @@ export class RestaurantDiscoveryScanner {
     return this;
   }
 
-  private discoverNearbyRestaurants(rangeInMeters: number, signal: AbortSignal | undefined): Promise<RestaurantProfile[]> {
+  private discoverNearbyRestaurants(rangeInMeters: number, signal: AbortSignal | undefined): Promise<DiscoveredRestaurantProfile[]> {
     return LOAD_BALANCER.execute(this.nearBy, rangeInMeters, this.timeoutInMs, this.identitiesToExclude, signal);
   }
 }

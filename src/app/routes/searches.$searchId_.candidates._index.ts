@@ -4,6 +4,8 @@ import { validateCSRF } from "@features/session.server";
 import { href, redirect } from "react-router";
 import type { Route } from "./+types/searches.$searchId_.candidates._index";
 
+const locale = "en-US"; // TODO manage locale
+
 export async function action({
   request,
   params
@@ -11,7 +13,7 @@ export async function action({
   const formData = await request.formData();
   await validateCSRF(formData, request.headers);
   if (params.searchId) {
-    const candidate = await searchCandidate(params.searchId, SEARCH_ENGINE_CONFIGURATION, request.signal);
+    const candidate = await searchCandidate(params.searchId, locale, SEARCH_ENGINE_CONFIGURATION, request.signal);
     if (candidate) {
       return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: candidate.searchId, candidateId: candidate.id }));
     } else {

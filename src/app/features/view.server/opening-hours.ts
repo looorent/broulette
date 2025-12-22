@@ -1,11 +1,5 @@
+import type { OpeningHoursOfTheDay } from "@features/view";
 import opening_hours from "opening_hours";
-
-export interface OpeningHoursOfTheDay {
-  unknown: boolean;
-  dayLabel: string;
-  open: boolean | undefined;
-  hoursLabel?: string | undefined;
-}
 
 export function formatOpeningHoursFor(
   instant: Date,

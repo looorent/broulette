@@ -1,6 +1,11 @@
+import type { TagView } from "@features/tag";
 import { RestaurantTag } from "./restaurant-tag";
 
-export function RestaurantTags({ tags }: { tags: { id: string; label: string }[] | undefined | null }) {
+export interface RestaurantTagsProps {
+  tags: TagView[] | undefined | null;
+}
+
+export function RestaurantTags({ tags }: RestaurantTagsProps) {
   if (tags && tags?.length > 0) {
     return (
       <div id="candidate-tags" className="flex gap-2 flex-wrap pt-2">

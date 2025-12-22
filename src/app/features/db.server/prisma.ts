@@ -1,5 +1,5 @@
 import { PrismaClient } from "@persistence/client";
-import { SearchCandidateStatus } from "@persistence/enums";
+import { DistanceRange, SearchCandidateStatus, ServiceTimeslot } from "@persistence/enums";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 const prismaClientSingleton = () => {
@@ -9,22 +9,49 @@ const prismaClientSingleton = () => {
   .$extends({
     model: {
       search: {
-        async findWithLatestCandidateId(searchId: string) {
-          return await prisma.search.findUnique({
-            select: {
-              id: true,
-              exhausted: true,
-              candidates: {
-                select: { id: true, order: true },
-                orderBy: { order: "desc" as const },
-                where: { status: SearchCandidateStatus.Returned },
-                take: 1
+        async findWithLatestCandidateId(searchId: string | undefined | null): Promise<{
+          searchId: string;
+          exhausted: boolean;
+          serviceTimeslot: ServiceTimeslot;
+          serviceInstant: Date;
+          distanceRange: DistanceRange;
+          latestCandidateId: string | undefined;
+        } | undefined> {
+          if (searchId) {
+            const search = await prisma.search.findUnique({
+              select: {
+                id: true,
+                exhausted: true,
+                serviceTimeslot: true,
+                serviceInstant: true,
+                distanceRange: true,
+                candidates: {
+                  select: { id: true, order: true },
+                  orderBy: { order: "desc" as const },
+                  where: { status: SearchCandidateStatus.Returned },
+                  take: 1
+                }
+              },
+              where: {
+                id: searchId
               }
-            },
-            where: {
-              id: searchId
+            });
+
+            if (search) {
+              return {
+                searchId: search.id,
+                exhausted: search.exhausted,
+                serviceTimeslot: search.serviceTimeslot,
+                serviceInstant: search.serviceInstant,
+                distanceRange: search.distanceRange,
+                latestCandidateId: search.candidates?.[0]?.id || undefined
+              };
+            } else {
+              return undefined;
             }
-          });
+          } else {
+            return undefined;
+          }
         },
 
         async findUniqueWithRestaurantAndProfiles(searchId: string) {

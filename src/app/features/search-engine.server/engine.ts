@@ -1,15 +1,16 @@
 import prisma from "@features/db.server/prisma";
 import { RestaurantDiscoveryScanner, type DiscoveredRestaurantProfile } from "@features/discovery.server";
 import { enrichRestaurant } from "@features/matching.server";
-import { DistanceRange, SearchCandidateStatus, ServiceTimeslot, type RestaurantProfile, type SearchCandidate } from "@persistence/client";
+import { DistanceRange, SearchCandidateStatus, type RestaurantProfile, type Search, type SearchCandidate } from "@persistence/client";
 import { SearchNotFoundError } from "./error";
-import { randomize } from "./randomization/randomizer";
-import type { SearchEngineConfiguration, SearchEngineRange } from "./types";
-import { validateRestaurant } from "./validation/validator";
+import { randomize } from "./randomizer";
+import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration, type SearchEngineRange } from "./types";
+import { validateRestaurant } from "./validator";
 
 export async function searchCandidate(
   searchId: string,
-  configuration: SearchEngineConfiguration,
+  locale: string,
+  configuration: SearchEngineConfiguration = DEFAULT_SEARCH_ENGINE_CONFIGURATION,
   signal?: AbortSignal
 ): Promise<SearchCandidate | undefined> {
   const search = await findSearchOrThrow(searchId);
@@ -18,20 +19,19 @@ export async function searchCandidate(
     return await findLatestCandidateOf(search.id);
   } else {
     const scanner = createDiscoveryScanner(search, configuration);
-    const targetTime = computeTargetInstant(search.serviceDate, search.serviceTimeslot);
     const startingOrder = computeNextCandidateOrder(search.candidates);
-    const finalCandidate = await findNextValidCandidate( searchId, scanner, configuration, targetTime, startingOrder, signal);
+    const finalCandidate = await findNextValidCandidate(search, scanner, configuration, startingOrder, locale, signal);
     await markSearchAsExhaustedIfNecessary(search.id, finalCandidate);
     return finalCandidate;
   }
 }
 
 async function findNextValidCandidate(
-  searchId: string,
+  search: Search,
   scanner: RestaurantDiscoveryScanner,
   config: SearchEngineConfiguration,
-  targetTime: Date,
   currentOrder: number,
+  locale: string,
   signal?: AbortSignal
 ): Promise<SearchCandidate | undefined> {
   let candidate: SearchCandidate | undefined = undefined;
@@ -43,7 +43,7 @@ async function findNextValidCandidate(
 
     for (const restaurant of randomized) {
       if (shouldContinueSearching(candidate, scanner)) {
-        const processed = await processRestaurant(restaurant, searchId, orderTracker++, config, targetTime, scanner);
+        const processed = await processRestaurant(restaurant, search, orderTracker++, config, locale, scanner);
         if (processed) {
           candidate = processed;
         }
@@ -57,18 +57,18 @@ async function findNextValidCandidate(
 
 async function processRestaurant(
   discovered: DiscoveredRestaurantProfile,
-  searchId: string,
+  search: Search,
   order: number,
   config: SearchEngineConfiguration,
-  targetTime: Date,
+  locale: string,
   scanner: RestaurantDiscoveryScanner
 ): Promise<SearchCandidate | undefined> {
-  const restaurant = await enrichRestaurant(discovered, config.matching);
+  const restaurant = await enrichRestaurant(discovered, locale, config.matching);
   if (restaurant) {
-    const validation = await validateRestaurant(restaurant, targetTime);
+    const validation = await validateRestaurant(restaurant, search, locale);
     const newCandidate = await prisma.searchCandidate.create({
       data: {
-        searchId,
+        searchId: search.id,
         restaurantId: restaurant.id,
         order,
         status: validation.valid ? SearchCandidateStatus.Returned : SearchCandidateStatus.Rejected,
@@ -99,21 +99,6 @@ async function markSearchAsExhaustedIfNecessary(searchId: string, finalCandidate
       where: { id: searchId }
     });
   }
-}
-
-function computeTargetInstant(date: Date, timeslot: ServiceTimeslot): Date {
-  const target = new Date(date);
-  switch (timeslot) {
-    case ServiceTimeslot.Lunch:
-      target.setHours(12, 30, 0, 0);
-      break;
-    case ServiceTimeslot.Dinner:
-      target.setHours(19, 30, 0, 0);
-      break;
-    default:
-      return new Date();
-  }
-  return target;
 }
 
 function defineRange(range: DistanceRange, configuration: SearchEngineConfiguration): SearchEngineRange {
@@ -160,8 +145,8 @@ async function findSearchOrThrow(searchId: string) {
 }
 
 // TODO useful?
-async function findLatestCandidateOf(searchId: string): Promise<SearchCandidate | undefined> {
-  const finalCandidateId = (await prisma.search.findWithLatestCandidateId(searchId))?.candidates?.[0]?.id;
+async function findLatestCandidateOf(searchId: string | undefined): Promise<SearchCandidate | undefined> {
+  const finalCandidateId = (await prisma.search.findWithLatestCandidateId(searchId))?.latestCandidateId;
   const finalCandidate = await prisma.searchCandidate.findUnique({ where: { id: finalCandidateId } });
   return finalCandidate ?? undefined;
 }

@@ -1,4 +1,3 @@
-
 export const DEFAULT_TAG_CONFIGURATION: RestaurantTagConfiguration = {
   hiddenTags: [
     "restaurant",
@@ -15,9 +14,4 @@ export interface RestaurantTagConfiguration {
   hiddenTags: string[];
   maxTags: number;
   priorityTags: string[];
-}
-
-export interface RestaurantTagDisplay {
-  id: string;
-  label: string;
 }

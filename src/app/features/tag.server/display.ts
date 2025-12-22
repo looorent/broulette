@@ -1,3 +1,5 @@
+import type { TagView } from "@features/tag";
+
 const RESTAURANT_LABELS: Record<string, string> = {
   // --- Regional / Ethnic ---
   afghani: "Afghani",
@@ -49,7 +51,7 @@ const RESTAURANT_LABELS: Record<string, string> = {
   restaurant: "Restaurant",
 };
 
-export function tagToLabel(tag: string): { id: string; label: string } {
+export function tagToLabel(tag: string): TagView {
   return {
     id: tag,
     label: RESTAURANT_LABELS[tag] || createDefaultLabel(tag)

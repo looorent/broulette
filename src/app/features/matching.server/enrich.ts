@@ -6,7 +6,7 @@ import { registeredMatchers } from "./matchers/registry";
 import type { Matcher } from "./matchers/types";
 import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantAndProfiles, type RestaurantMatchingConfiguration } from "./types";
 
-// TODO we should find the best language based on the location
+// TODO we should find the best language based on the location?
 export async function enrichRestaurant(
   discovered: DiscoveredRestaurantProfile | undefined,
   language: string,

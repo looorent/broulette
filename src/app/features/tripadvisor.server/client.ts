@@ -75,7 +75,7 @@ export async function searchTripAdvisorLocationIdNearbyWithRetry(
   language: string = "en",
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
-): Promise<number | undefined> {
+): Promise<TripAdvisorLocation | undefined> {
   return await tripAdvisorCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;

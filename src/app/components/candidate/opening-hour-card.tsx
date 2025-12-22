@@ -1,9 +1,8 @@
-import type { OpeningHoursOfTheDay } from "@features/candidate.server";
+import type { OpeningHoursOfTheDay } from "@features/view";
 import { CircleQuestionMark, Clock, ClockAlert } from "lucide-react";
-import { WarningTag } from "./warning-tag";
 
 interface OpeningHoursCardProps {
-  openingHoursOfTheDay: OpeningHoursOfTheDay;
+  openingHoursOfTheDay: OpeningHoursOfTheDay | undefined;
   className?: string;
 }
 

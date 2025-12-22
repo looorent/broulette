@@ -1,7 +1,7 @@
 import prisma from "@features/db.server/prisma";
 import { hasReachedQuota, registerAttemptToFindTripAdvisorLocationById, registerAttemptToFindTripAdvisorLocationNearBy } from "@features/rate-limiting.server";
 import { filterTags } from "@features/tag.server";
-import { findTripAdvisorLocationByIdWithRetry, searchTripAdvisorLocationsNearbyWithRetry, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration, type TripAdvisorLocation } from "@features/tripadvisor.server";
+import { findTripAdvisorLocationByIdWithRetry, searchTripAdvisorLocationIdNearbyWithRetry, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration, type TripAdvisorLocation } from "@features/tripadvisor.server";
 import { type Restaurant, type RestaurantProfile } from "@persistence/client";
 import type { RestaurantAndProfiles, RestaurantMatchingConfiguration } from "../types";
 import { toDecimal, type Matcher, type Matching } from "./types";
@@ -50,7 +50,7 @@ export class TripAdvisorMatcher implements Matcher {
     } else {
       const textQuery = restaurant.name;
       if (textQuery && textQuery.length > 0) {
-        const found = await searchTripAdvisorLocationsNearbyWithRetry(
+        const found = await searchTripAdvisorLocationIdNearbyWithRetry(
           textQuery,
           restaurant.latitude?.toNumber(),
           restaurant.longitude?.toNumber(),

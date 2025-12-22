@@ -4,10 +4,8 @@ export class LoadBalancer<TArgs extends any[], TResult> {
   private providers: ServiceStrategy<TArgs, TResult>[];
   private currentOffset: number = 0;
 
+  // TODO we should allow the "providers" to be populated after the creation, without mutating the init object
   constructor(providers: ServiceStrategy<TArgs, TResult>[]) {
-    // if (providers.length === 0) {
-    //   throw new Error("LoadBalancer must have at least one provider.");
-    // }
     this.providers = providers;
   }
 

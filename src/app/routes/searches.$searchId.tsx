@@ -1,28 +1,23 @@
-import prisma from "@features/db.server/prisma";
-import { formatSearchLabel } from "@features/search";
+import { findSearchViewModel } from "@features/view.server";
 import type { loader as rootLoader } from "app/root";
 import { useEffect, useRef } from "react";
 import { href, redirect, useRouteLoaderData, useSubmit } from "react-router";
 import type { Route } from "./+types/searches.$searchId";
 
+const locale = "en-US"; // TODO manage locale
 export async function loader({ params }: Route.LoaderArgs) {
-  if (params.searchId) {
-    const search = await prisma.search.findWithLatestCandidate(params.searchId);
-    if (search) {
-      const latestCandidate = search.candidates?.[0];
-      if (latestCandidate) {
-        return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: search.id, candidateId: latestCandidate.id }))
-      } else {
-        return {
-          search: search,
-          newCandidateUrl: href("/searches/:searchId/candidates", { searchId: search.id })
-        };
-      }
+  const view = await findSearchViewModel(params.searchId, locale);
+  if (view) {
+    if (view.redirectRequired) {
+      return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: view.searchId, candidateId: view.latestCandidateId }))
     } else {
-      // TODO manage if search is null (error handling)
-      return redirect(href("/"));
+      return {
+        view: view,
+        newCandidateUrl: href("/searches/:searchId/candidates", { searchId: view.id })
+      };
     }
   } else {
+    // TODO manage error
     return redirect(href("/"));
   }
 }
@@ -32,7 +27,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
   const initialized = useRef(false);
   const session = useRouteLoaderData<typeof rootLoader>("root");
 
-  const { search, newCandidateUrl } = loaderData;
+  const { view, newCandidateUrl } = loaderData;
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
@@ -45,9 +40,9 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
         viewTransition: true
       });
     }
-  }, [search.id, submit]);
+  }, [view.id, submit]);
 
   return (
-    <title>{`BiteRoulette - ${formatSearchLabel(search)} - Searching...`}</title>
+    <title>{`BiteRoulette - ${view.label} - Searching...`}</title>
   );
 }
