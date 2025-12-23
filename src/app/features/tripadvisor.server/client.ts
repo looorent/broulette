@@ -3,10 +3,29 @@ import { tripAdvisorCircuitBreaker } from "./circuit-breaker";
 import { TripAdvisorAuthorizationError, TripAdvisorEmptyResponseError, TripAdvisorError, TripAdvisorHttpError, TripAdvisorServerError, type TripAdvisorErrorPayload } from "./error";
 import { convertTripAdvisorHoursToOpeningHours } from "./opening-hours";
 import { findBestTripAdvisorMatch } from "./similarity";
-import { DEFAULT_TRIPADVISOR_CONFIGURATION, type AddressInfo, type Award, type LocalizedName, type LocationHours, type OperatingPeriod, type RankingData, type TripAdvisorConfiguration, type TripAdvisorLocation, type TripAdvisorLocationNearby, type TripType } from "./types";
+import { DEFAULT_TRIPADVISOR_CONFIGURATION, TRIPADVISOR_DEFAULT_PHOTO_SIZE, TRIPADVISOR_PHOTO_SIZES, type AddressInfo, type Award, type LocalizedName, type LocationHours, type OperatingPeriod, type RankingData, type TripAdvisorConfiguration, type TripAdvisorImageSet, type TripAdvisorImageVariant, type TripAdvisorLocation, type TripAdvisorLocationNearby, type TripAdvisorPhoto, type TripAdvisorPhotoSize, type TripType } from "./types";
 
 export async function findTripAdvisorLocationByIdWithRetry(
   locationId: string,
+  locale: string = "en",
+  configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
+  signal?: AbortSignal | undefined
+): Promise<TripAdvisorLocation | undefined> {
+  const location = await tripAdvisorCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+    if (combinedSignal?.aborted) {
+      throw combinedSignal.reason;
+    }
+    return await findTripAdvisorLocationById(locationId, locale, configuration, combinedSignal);
+  }, signal);
+
+  return addPhotoUriOn(location, locale, configuration, signal);
+}
+
+export async function searchTripAdvisorLocationNearbyWithRetry(
+  name: string,
+  latitude: number,
+  longitude: number,
+  radiusInMeters: number,
   locale: string = "en",
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
@@ -15,8 +34,35 @@ export async function findTripAdvisorLocationByIdWithRetry(
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
-    return await findTripAdvisorLocationById(locationId, locale, configuration, combinedSignal);
+    return await searchTripAdvisorLocationNearby(name, latitude, longitude, radiusInMeters, locale, configuration, combinedSignal);
   }, signal);
+}
+
+export async function findBestTripAdvisorLocationPictureWithRetry(
+  locationId: string,
+  locale: string = "en",
+  configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
+  signal?: AbortSignal | undefined
+): Promise<TripAdvisorPhoto | undefined> {
+  return await tripAdvisorCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+    if (combinedSignal?.aborted) {
+      throw combinedSignal.reason;
+    }
+    return await findBestTripAdvisorLocationPicture(locationId, locale, configuration, combinedSignal);
+  }, signal);
+}
+
+export function parseTripAdvisorPhotoSize(value: string | undefined): TripAdvisorPhotoSize | undefined {
+  if (value && value?.length > 0) {
+    if ((TRIPADVISOR_PHOTO_SIZES as readonly string[]).includes(value)) {
+      return value as TripAdvisorPhotoSize;
+    } else {
+      console.warn(`Invalid photo size found in env: "${value}". Default to '${TRIPADVISOR_DEFAULT_PHOTO_SIZE}'`);
+      return TRIPADVISOR_DEFAULT_PHOTO_SIZE;
+    }
+  } else {
+    return undefined;
+  }
 }
 
 async function findTripAdvisorLocationById(
@@ -51,23 +97,6 @@ async function findTripAdvisorLocationById(
   } else {
     throw await parseError(url, response, durationInMs);
   }
-}
-
-export async function searchTripAdvisorLocationNearbyWithRetry(
-  name: string,
-  latitude: number,
-  longitude: number,
-  radiusInMeters: number,
-  locale: string = "en",
-  configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
-  signal?: AbortSignal | undefined
-): Promise<TripAdvisorLocation | undefined> {
-  return await tripAdvisorCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
-    if (combinedSignal?.aborted) {
-      throw combinedSignal.reason;
-    }
-    return await searchTripAdvisorLocationNearby(name, latitude, longitude, radiusInMeters, locale, configuration, combinedSignal);
-  }, signal);
 }
 
 async function searchTripAdvisorLocationNearby(
@@ -120,6 +149,72 @@ async function findTripAdvisorLocationsNearby(
   }
 }
 
+async function findBestTripAdvisorLocationPicture(
+  locationId: string,
+  locale: string = "en",
+  configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
+  signal?: AbortSignal | undefined
+): Promise<TripAdvisorPhoto | undefined> {
+  console.info(`[TripAdvisor] Finding the best picture for location with id='${locationId}'...`);
+  const url = buildUrlToFindPhotoForLocation(locationId, locale, configuration);
+  const authenticatedUrl = addAuthenticationOn(url, configuration);
+  const start = Date.now();
+
+  const response = await fetch(authenticatedUrl, {
+    method: "get",
+    signal: signal
+  });
+
+  const durationInMs = Date.now() - start;
+  if (response.ok) {
+    console.info(`[TripAdvisor] Finding the best picture for location with id='${locationId}': done in ${durationInMs} ms.`);
+    const body = (await response.json()) as any;
+    if (body) {
+      const photos = parseLocationPhotos(body.data);
+      return findBestPhotoIn(photos);
+    } else {
+      throw new TripAdvisorEmptyResponseError(
+        url,
+        response.status,
+        durationInMs
+      );
+    }
+  } else {
+    throw await parseError(url, response, durationInMs);
+  }
+}
+
+async function addPhotoUriOn(
+  location: TripAdvisorLocation | undefined,
+  locale: string,
+  configuration: TripAdvisorConfiguration,
+  signal?: AbortSignal | undefined
+): Promise<TripAdvisorLocation | undefined> {
+  if (location) {
+    const photo = await findBestTripAdvisorLocationPictureWithRetry(location.id, locale, configuration, signal);
+    if (photo) {
+      location.imageUrl = (photo.images[configuration.photo] || photo.images.large || photo.images.original || photo.images.medium || photo.images.small)?.url;
+    }
+    return location;
+  } else {
+    return undefined;
+  }
+}
+
+const MANAGEMENT = "management";
+const EXPERT = "expert";
+function findBestPhotoIn(photos: TripAdvisorPhoto[]): TripAdvisorPhoto | undefined {
+  if (photos && photos?.length > 0) {
+    return photos.filter(photo => photo.blessed)?.[0]
+      || photos.filter(photo => photo.source?.name?.toLowerCase() === MANAGEMENT)?.[0]
+      || photos.filter(photo => photo.source?.name?.toLowerCase() === EXPERT)?.[0]
+      || photos?.[0]
+      || undefined;
+  } else {
+    return undefined;
+  }
+}
+
 function buildUrlToFindLocationById(
   locationId: string,
   locale: string,
@@ -146,6 +241,17 @@ function buildUrlToFindLocationNearby(
     radiusUnit: "m"
   });
   return `${configuration.instanceUrl}/location/nearby_search?${params.toString()}`;
+}
+
+function buildUrlToFindPhotoForLocation(
+  locationId: string,
+  locale: string,
+  configuration: TripAdvisorConfiguration
+): string {
+  const params = new URLSearchParams({
+    language: convertLocaleToLanguage(locale)
+  });
+  return `${configuration.instanceUrl}/location/${locationId}/details?${params.toString()}`;
 }
 
 function addAuthenticationOn(url: string, configuration: TripAdvisorConfiguration): string {
@@ -216,6 +322,55 @@ function parseLocationsNearby(body: any): TripAdvisorLocationNearby[] {
     return body.map(parseLocationNearby).filter(Boolean).map(location => location!);
   }
 }
+
+function parseLocationPhotos(body: any): TripAdvisorPhoto[] {
+  if (body && Array.isArray(body)) {
+    return body.map(parseLocationPhoto).filter(Boolean).map(photo => photo!);
+  } else {
+    return [];
+  }
+}
+
+function parseLocationPhoto(body: any): TripAdvisorPhoto | undefined {
+  if (body) {
+    return {
+      id: body.id,
+      blessed: body.is_blessed,
+      caption: body.caption,
+      source: parseLocalizedName(body.source),
+      images: parseImageSet(body.images)
+    };
+  } else {
+    return undefined;
+  }
+}
+
+function parseImageSet(body: any): TripAdvisorImageSet {
+  if (body) {
+    return {
+      thumbnail: parseImageVariant(body.thumbnail),
+      small: parseImageVariant(body.small),
+      medium: parseImageVariant(body.medium),
+      large: parseImageVariant(body.large),
+      original: parseImageVariant(body.original)
+    }
+  } else {
+    return {};
+  }
+}
+
+function parseImageVariant(body: any): TripAdvisorImageVariant | undefined {
+  if (body) {
+    return {
+      height: body.height,
+      width: body.width,
+      url: body.url
+    }
+  } else {
+    return undefined;
+  }
+}
+
 
 function parseAddress(body: any): AddressInfo | undefined {
   if (body) {
@@ -437,7 +592,3 @@ const ALLOWED_LANGUAGES = [
   "tr",
   "vi"
 ];
-
-
-
-// TODO Implement findPhoto :

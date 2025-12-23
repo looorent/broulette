@@ -2,6 +2,10 @@ import type { TripAdvisorSimilarityConfiguration } from "./similarity";
 
 export const TRIPADVISOR_SOURCE_NAME = "tripadvisor";
 
+export const TRIPADVISOR_PHOTO_SIZES = ["thumbnail", "small", "medium", "large", "original"] as const;
+export type TripAdvisorPhotoSize = typeof TRIPADVISOR_PHOTO_SIZES[number];
+export const TRIPADVISOR_DEFAULT_PHOTO_SIZE: TripAdvisorPhotoSize = "large";
+
 export const DEFAULT_TRIPADVISOR_CONFIGURATION: TripAdvisorConfiguration = {
   instanceUrl: "https://api.content.tripadvisor.com/api/v1",
   enabled: false,
@@ -19,7 +23,8 @@ export const DEFAULT_TRIPADVISOR_CONFIGURATION: TripAdvisorConfiguration = {
     },
     maxDistanceInMeters: 50,
     minScoreThreshold: 0.6
-  }
+  },
+  photo: TRIPADVISOR_DEFAULT_PHOTO_SIZE
 }
 
 export interface TripAdvisorConfiguration {
@@ -33,6 +38,7 @@ export interface TripAdvisorConfiguration {
     radiusInMeters: number;
   };
   similarity: TripAdvisorSimilarityConfiguration;
+  photo: TripAdvisorPhotoSize;
 }
 
 export interface TripAdvisorLocation {
@@ -61,6 +67,22 @@ export interface TripAdvisorLocation {
   tripTypes: TripType[];
   imageUrl: string | undefined;
   awards: Award[];
+}
+
+export interface TripAdvisorLocationNearby {
+  locationId: string;
+  name: string;
+  distanceInMeters: number;
+  bearing: string;
+  address: AddressInfo | undefined;
+}
+
+export interface TripAdvisorPhoto {
+  id: number;
+  blessed: boolean;
+  caption: string;
+  source: LocalizedName | undefined;
+  images: TripAdvisorImageSet;
 }
 
 export interface Award {
@@ -93,8 +115,7 @@ export interface LocalizedName {
   localizedName: string;
 }
 
-// TODO parser and converter to OpeningHours
-export interface TimeInterval {
+interface TimeInterval {
   day: number;
   time: string;
 }
@@ -115,10 +136,16 @@ export interface TripType {
   value: number;
 }
 
-export interface TripAdvisorLocationNearby {
-  locationId: string;
-  name: string;
-  distanceInMeters: number;
-  bearing: string;
-  address: AddressInfo | undefined;
+export interface TripAdvisorImageVariant {
+  height: number;
+  width: number;
+  url: string;
+}
+
+export interface TripAdvisorImageSet {
+  thumbnail?: TripAdvisorImageVariant | undefined;
+  small?: TripAdvisorImageVariant | undefined;
+  medium?: TripAdvisorImageVariant | undefined;
+  large?: TripAdvisorImageVariant | undefined;
+  original?: TripAdvisorImageVariant | undefined;
 }

@@ -1,5 +1,5 @@
 import stringSimilarity from "string-similarity";
-import type { TripAdvisorLocationNearby } from "./types"; // Assuming your types are here
+import type { TripAdvisorLocationNearby } from "./types";
 
 // TODO review
 

@@ -9,7 +9,7 @@ import { DEFAULT_OVERPASS_CONFIGURATION, initializeOverpass, type OverpassConfig
 import { DEFAULT_PHOTON_CONFIGURATION, initializePhoton, type PhotonConfiguration } from "@features/photon.server";
 import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration } from "@features/search-engine.server";
 import { DEFAULT_TAG_CONFIGURATION } from "@features/tag.server";
-import { DEFAULT_TRIPADVISOR_CONFIGURATION, initializeTripAdvisor, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
+import { DEFAULT_TRIPADVISOR_CONFIGURATION, initializeTripAdvisor, parseTripAdvisorPhotoSize, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
 
 export const APP_CONFIG = {
   name: "BiteRoulette",
@@ -112,7 +112,8 @@ export const TRIPADVISOR_CONFIG: TripAdvisorConfiguration = {
     },
     maxDistanceInMeters: Number(process.env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.maxDistanceInMeters),
     minScoreThreshold: Number(process.env.BROULETTE_TRIPADVISOR_API_SEARCH_MIN_SCORE_TRESHOLD || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.minScoreThreshold)
-  }
+  },
+  photo: parseTripAdvisorPhotoSize(process.env.BROULETTE_TRIPADVISOR_API_PHOTO_SIZE) || DEFAULT_TRIPADVISOR_CONFIGURATION.photo
 };
 
 export const OVERPASS_FAILOVER_CONFIG: FailoverConfiguration = {
