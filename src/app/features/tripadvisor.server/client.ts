@@ -505,9 +505,11 @@ function parseAward(body: any): Award | undefined {
     return undefined;
   }
 }
+
+const MILES_TO_METERS_FACTOR = 1609.34;
 function parseDistanceInMeters(distance: any): number {
   const distanceInMiles = typeof distance === "string" ? parseFloat(distance) : distance;
-  return distanceInMiles / 16 * 10;
+  return distanceInMiles * MILES_TO_METERS_FACTOR;
 }
 
 async function parseError(url: string, response: Response, durationInMs: number): Promise<TripAdvisorError> {
