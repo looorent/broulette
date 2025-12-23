@@ -1,5 +1,5 @@
 import { overpassCircuitBreaker } from "./circuit-breaker";
-import { OsmEmptyResponseError, OsmHttpError, OsmServerError } from "./error";
+import { OsmEmptyResponseError, OsmError, OsmHttpError, OsmServerError } from "./error";
 import type { OverpassResponse, OverpassRestaurant } from "./types";
 
 export async function fetchAllRestaurantsNearbyWithRetry(
@@ -45,7 +45,6 @@ async function fetchAllRestaurantsNearby(
 
   if (response.ok) {
     console.info(`[OSM] Fetching all OSM restaurants nearby '${latitude},${longitude}': done in ${durationInMs} ms.`);
-
     const body = (await response.json()) as any;
     if (body) {
       return parseResponse(body, durationInMs);
@@ -57,20 +56,8 @@ async function fetchAllRestaurantsNearby(
         durationInMs
       );
     }
-  } else if (response.status >= 500) {
-    throw new OsmServerError(
-      query,
-      response.status,
-      await response.text(),
-      durationInMs
-    );
   } else {
-    throw new OsmHttpError(
-      query,
-      response.status,
-      await response.text(),
-      durationInMs
-    );
+    throw await parseError(query, response, durationInMs);
   }
 }
 
@@ -93,8 +80,8 @@ function createQueryToListAllRestaurantsNearby(
     [out:json][timeout:${timeoutInSeconds}];
 
     (
-      nwr["amenity"~"^(restaurant|fast_food|food_court)$"]["name"](around:${distanceRangeInMeters}, ${latitude}, ${longitude});
-    )->.allRestaurants;$
+      nwr["amenity"~"restaurant|fast_food|food_court"]["name"](around:${distanceRangeInMeters}, ${latitude}, ${longitude});
+    )->.allRestaurants;
 
     ${exclusionBlock}
 
@@ -218,4 +205,23 @@ function createFormattedAddress(
 
 function buildOpenStreetMapUrl(id: string, type: string): string {
   return `https://www.openstreetmap.org/${type}/${id}`;
+}
+
+async function parseError(query: string, response: Response, durationInMs: number): Promise<OsmError> {
+  const body = await response.text();
+  if (response.status >= 500) {
+    return new OsmServerError(
+      query,
+      response.status,
+      body,
+      durationInMs
+    );
+  } else {
+    return new OsmHttpError(
+      query,
+      response.status,
+      body,
+      durationInMs
+    );
+  }
 }

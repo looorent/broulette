@@ -1,6 +1,6 @@
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { photonCircuitBreaker } from "./circuit-breaker";
-import { PhotonHttpError, PhotonServerError } from "./error";
+import { PhotonError, PhotonHttpError, PhotonServerError } from "./error";
 import { DEFAULT_PHOTON_CONFIGURATION, type PhotonConfiguration } from "./types";
 
 interface PhotonFeature {
@@ -53,6 +53,8 @@ async function fetchPhotonAddresses(
   maxNumberOfAddresses: number,
   signal: AbortSignal | undefined
 ): Promise<PhotonFeature[]> {
+  console.info(`[Photon] Finding addresses for query='${query}'...`);
+  const start = Date.now();
   const params = new URLSearchParams({
     q: query,
     limit: maxNumberOfAddresses.toString()
@@ -65,13 +67,13 @@ async function fetchPhotonAddresses(
     signal: signal
   });
 
+  const durationInMs = Date.now() - start;
   if (response.ok) {
+    console.info(`[Photon] Finding addresses for query='${query}'. Done in ${durationInMs}ms.`);
     const data: PhotonResponse = await response.json();
     return data.features || [];
-  } else if (response.status >= 500) {
-    throw new PhotonServerError(response.status);
   } else {
-    throw new PhotonHttpError(response.status);
+    throw await parseError(url, response, durationInMs);
   }
 }
 
@@ -85,7 +87,7 @@ function convertPhotonToLocation(feature: PhotonFeature): LocationPreference {
     properties.country
   ].filter(Boolean);
 
-  const displayName = parts.join(', ');
+  const displayName = parts.join(", ");
   return {
     label: {
       display: displayName || "Unknown Location",
@@ -97,4 +99,23 @@ function convertPhotonToLocation(feature: PhotonFeature): LocationPreference {
     },
     isDeviceLocation: false
   };
+}
+
+async function parseError(url: string, response: Response, durationInMs: number): Promise<PhotonError> {
+  const body = await response.text();
+  if (response.status >= 500) {
+    return new PhotonServerError(
+      url,
+      response.status,
+      body,
+      durationInMs
+    );
+  } else {
+    return new PhotonHttpError(
+      url,
+      response.status,
+      body,
+      durationInMs
+    );
+  }
 }

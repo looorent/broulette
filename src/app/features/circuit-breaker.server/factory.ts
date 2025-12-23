@@ -1,13 +1,14 @@
 import type { CircuitBreakerPolicy, ICancellationContext, IDefaultPolicyContext, IMergedPolicy, IRetryContext, RetryPolicy, TimeoutPolicy } from "cockatiel";
 import { circuitBreaker, ConsecutiveBreaker, ExponentialBackoff, handleAll, retry, timeout, TimeoutStrategy, wrap } from "cockatiel";
+import { handleRetrieableErrors } from "./filter";
 import { DEFAULT_FAILOVER, type FailoverConfiguration } from "./types";
 
 export function initializeCircuitBreaker(configuration: FailoverConfiguration = DEFAULT_FAILOVER): IMergedPolicy<IDefaultPolicyContext & IRetryContext & ICancellationContext, never, [CircuitBreakerPolicy, RetryPolicy, TimeoutPolicy]> {
-  const retryPolicy = retry(handleAll, {
+  const retryPolicy = retry(handleRetrieableErrors, {
     maxAttempts: configuration.retry,
     backoff: new ExponentialBackoff()
   });
-  const circuitBreakerPolicy = circuitBreaker(handleAll, {
+  const circuitBreakerPolicy = circuitBreaker(handleRetrieableErrors, {
     halfOpenAfter: configuration.halfOpenAfterInMs,
     breaker: new ConsecutiveBreaker(5)
   });

@@ -34,7 +34,7 @@ export class LoadBalancer<TArgs extends any[], TResult> {
         if (isAbort) {
           throw error;
         }
-        console.warn(`[Balancer] ${provider.name} failed. Failing over...`);
+        console.warn(`[Balancer] ${provider.name} failed. Failing over...`, error);
         attempts++;
       }
     }

@@ -116,7 +116,7 @@ function buildImageUrl({ overpass, tripAdvisor, google }: RestaurantProfiles): s
 }
 
 function buildRating({ overpass, tripAdvisor, google }: RestaurantProfiles): string | undefined {
-  return (google?.rating || tripAdvisor?.rating || overpass?.rating)?.toFixed(1) || undefined;
+  return (tripAdvisor?.rating || google?.rating || overpass?.rating)?.toFixed(1) || undefined;
 }
 
 function buildTags({ overpass, tripAdvisor, google }: RestaurantProfiles): TagView[] {
@@ -148,7 +148,6 @@ function buildAddress({ overpass, tripAdvisor, google }: RestaurantProfiles): st
 function buildUrls({ tripAdvisor, google, overpass }: RestaurantProfiles): string[] {
   return [
     tripAdvisor?.sourceUrl,
-    google?.sourceUrl,
     google?.website || tripAdvisor?.website || overpass?.website
   ].filter(Boolean).map(url => url!);
 }

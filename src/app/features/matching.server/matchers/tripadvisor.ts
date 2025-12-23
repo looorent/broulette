@@ -1,10 +1,11 @@
 import prisma from "@features/db.server/prisma";
 import { hasReachedQuota, registerAttemptToFindTripAdvisorLocationById, registerAttemptToFindTripAdvisorLocationNearBy } from "@features/rate-limiting.server";
 import { filterTags } from "@features/tag.server";
-import { findTripAdvisorLocationByIdWithRetry, searchTripAdvisorLocationIdNearbyWithRetry, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration, type TripAdvisorLocation } from "@features/tripadvisor.server";
+import { findTripAdvisorLocationByIdWithRetry, searchTripAdvisorLocationNearbyWithRetry, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration, type TripAdvisorLocation } from "@features/tripadvisor.server";
 import { type Restaurant, type RestaurantProfile } from "@persistence/client";
 import type { RestaurantAndProfiles, RestaurantMatchingConfiguration } from "../types";
 import { toDecimal, type Matcher, type Matching } from "./types";
+import type { RestaurantProfileCreateInput } from "@persistence/models";
 
 export class TripAdvisorMatcher implements Matcher {
   readonly source = TRIPADVISOR_SOURCE_NAME;
@@ -39,18 +40,18 @@ export class TripAdvisorMatcher implements Matcher {
 
   private async findTripAdvisorRestaurant(
     restaurant: Restaurant,
-    profile: RestaurantProfile | undefined,
+    existingProfile: RestaurantProfile | undefined,
     language: string,
     signal?: AbortSignal | undefined
   ): Promise<TripAdvisorLocation | undefined> {
-    if (profile) {
-      const found = await findTripAdvisorLocationByIdWithRetry(profile.externalId, language, this.configuration, signal);
-      await registerAttemptToFindTripAdvisorLocationById(profile.externalId, profile.restaurantId, found);
+    if (existingProfile) {
+      const found = await findTripAdvisorLocationByIdWithRetry(existingProfile.externalId, language, this.configuration, signal);
+      await registerAttemptToFindTripAdvisorLocationById(existingProfile.externalId, existingProfile.restaurantId, found);
       return found;
     } else {
       const textQuery = restaurant.name;
       if (textQuery && textQuery.length > 0) {
-        const found = await searchTripAdvisorLocationIdNearbyWithRetry(
+        const found = await searchTripAdvisorLocationNearbyWithRetry(
           textQuery,
           restaurant.latitude?.toNumber(),
           restaurant.longitude?.toNumber(),
@@ -107,27 +108,27 @@ export class TripAdvisorMatcher implements Matcher {
     return {
       restaurantId: restaurant.id,
       source: this.source,
-      externalId: tripAdvisor.id,
+      externalId: tripAdvisor.id.toString(),
       externalType: "place",
       version: (profile?.version || 0) + 1,
       latitude: toDecimal(tripAdvisor.latitude) ?? restaurant.latitude!,
       longitude: toDecimal(tripAdvisor.longitude) ?? restaurant.longitude!,
       name: tripAdvisor.name || profile?.name || null,
-      address: tripAdvisor.address?.addressString || profile?.address || null, // TODO review
+      address: tripAdvisor.address?.addressString || profile?.address || null,
       countryCode: tripAdvisor.address?.country || profile?.countryCode || null,
       state: tripAdvisor.address?.state || profile?.state || null, // undefined at tripAdvisor
       description: tripAdvisor.description || profile?.description || null,
       imageUrl: tripAdvisor.imageUrl || profile?.imageUrl || null,
-      mapUrl: profile?.mapUrl || null, // TODO
+      mapUrl: profile?.mapUrl || null,
       rating: toDecimal(tripAdvisor.rating) || profile?.rating || null,
       ratingCount: tripAdvisor.rating || profile?.ratingCount || null,
       phoneNumber: tripAdvisor.phone || profile?.phoneNumber || null,
       internationalPhoneNumber: tripAdvisor.phone || profile?.internationalPhoneNumber || null,
-      priceRange: profile?.priceRange || null, // TODO ?
+      priceRange: profile?.priceRange || null,
       priceLabel: tripAdvisor.priceLevel || profile?.priceLabel || null,
       openingHours: tripAdvisor.openingHours || profile?.openingHours || null,
       tags: filterTags(tripAdvisor.cuisine?.map(c => c.name) || profile?.tags, matchingConfiguration.tags) || [],
-      operational: profile?.operational ?? null, // TODO
+      operational: profile?.operational ?? null,
       website: tripAdvisor.website || profile?.website || null,
       sourceUrl: tripAdvisor.tripAdvisorUrl || profile?.sourceUrl || null
     } as const;

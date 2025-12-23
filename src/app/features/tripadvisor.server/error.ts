@@ -5,7 +5,7 @@ export abstract class TripAdvisorError extends CircuitBreakerError {
     message: string,
     readonly query: string,
     readonly responseStatusCode: number,
-    readonly responseBody: string,
+    readonly responseBody: TripAdvisorErrorPayload | undefined,
     readonly durationInMs: number
   ) {
     super(message);
@@ -21,7 +21,7 @@ export class TripAdvisorServerError extends TripAdvisorError {
   constructor(
     query: string,
     responseStatusCode: number,
-    responseBody: string,
+    responseBody: TripAdvisorErrorPayload,
     durationInMs: number
   ) {
     super(
@@ -38,11 +38,32 @@ export class TripAdvisorServerError extends TripAdvisorError {
   }
 }
 
+export class TripAdvisorAuthorizationError extends TripAdvisorError {
+  constructor(
+    query: string,
+    responseStatusCode: number,
+    responseBody: TripAdvisorErrorPayload,
+    durationInMs: number
+  ) {
+    super(
+      `[TripAdvisor] You must define a valid API Key. Status code received: ${responseStatusCode}`,
+      query,
+      responseStatusCode,
+      responseBody,
+      durationInMs
+    );
+    this.name = "TripAdvisorAuthorizationError";
+  }
+  override isRetriable(): boolean {
+    return false;
+  }
+}
+
 export class TripAdvisorHttpError extends TripAdvisorError {
   constructor(
     query: string,
     responseStatusCode: number,
-    responseBody: string,
+    responseBody: TripAdvisorErrorPayload,
     durationInMs: number
   ) {
     super(
@@ -63,14 +84,13 @@ export class TripAdvisorEmptyResponseError extends TripAdvisorError {
   constructor(
     query: string,
     responseStatusCode: number,
-    responseBody: string,
     durationInMs: number
   ) {
     super(
       `[TripAdvisor] Fetching TripAdvisor restaurants: empty response after ${durationInMs} ms with status code ${responseStatusCode}`,
       query,
       responseStatusCode,
-      responseBody,
+      undefined,
       durationInMs
     );
     this.name = "TripAdvisorEmptyResponseError";
@@ -80,8 +100,7 @@ export class TripAdvisorEmptyResponseError extends TripAdvisorError {
   }
 }
 
-// TODO
-export interface TripAdvisorResponseError {
+export interface TripAdvisorErrorPayload {
   message: string;
   type: string;
   code: number;

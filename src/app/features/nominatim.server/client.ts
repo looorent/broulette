@@ -1,6 +1,6 @@
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { nomatimCircuitBreaker } from "./circuit-breaker";
-import { NominatimHttpError, NominatimServerError } from "./error";
+import { NominatimError, NominatimHttpError, NominatimServerError } from "./error";
 import { DEFAULT_NOMINATIM_CONFIGURATION, type NominatimConfiguration } from "./types";
 
 interface NominatimPlace {
@@ -42,6 +42,8 @@ async function fetchNominatimAddresses(
   userAgent: string,
   signal: AbortSignal | undefined
 ): Promise<NominatimPlace[]> {
+  console.info(`[Photon] Finding addresses for query='${query}'...`);
+  const start = Date.now();
   const params = new URLSearchParams({
     q: query,
     format: "json",
@@ -62,12 +64,12 @@ async function fetchNominatimAddresses(
     signal: signal
   });
 
+  const durationInMs = Date.now() - start;
   if (response.ok) {
+    console.info(`[Nominatim] Finding addresses for query='${query}'. Done in ${durationInMs}ms.`);
     return response.json();
-  } else if (response.status >= 500) {
-    throw new NominatimServerError(response.status);
   } else {
-    throw new NominatimHttpError(response.status);
+    throw await parseError(url, response, durationInMs);
   }
 }
 
@@ -83,4 +85,23 @@ function convertNominatimToLocation(place: NominatimPlace): LocationPreference {
     },
     isDeviceLocation: false
   };
+}
+
+async function parseError(url: string, response: Response, durationInMs: number): Promise<NominatimError> {
+  const body = await response.text();
+  if (response.status >= 500) {
+    return new NominatimServerError(
+      url,
+      response.status,
+      body,
+      durationInMs
+    );
+  } else {
+    return new NominatimHttpError(
+      url,
+      response.status,
+      body,
+      durationInMs
+    );
+  }
 }

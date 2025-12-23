@@ -1,6 +1,6 @@
 import { CircuitBreakerError } from "@features/circuit-breaker.server";
 
-export abstract class PhotonError extends CircuitBreakerError {
+export abstract class GoogleError extends CircuitBreakerError {
   constructor(
     message: string,
     readonly query: string,
@@ -9,7 +9,7 @@ export abstract class PhotonError extends CircuitBreakerError {
     readonly durationInMs: number
   ) {
     super(message);
-    this.name = "PhotonError";
+    this.name = "GoogleError";
     this.query = query;
     this.responseStatusCode = responseStatusCode;
     this.responseBody = responseBody;
@@ -17,7 +17,7 @@ export abstract class PhotonError extends CircuitBreakerError {
   }
 }
 
-export class PhotonServerError extends PhotonError {
+export class GoogleServerError extends GoogleError {
   constructor(
     query: string,
     responseStatusCode: number,
@@ -25,20 +25,20 @@ export class PhotonServerError extends PhotonError {
     durationInMs: number
   ) {
     super(
-      `[Photon] Fetching addresses: server failed after ${durationInMs} ms with status code ${responseStatusCode}`,
+      `[Google] Fetching Google places: server failed after ${durationInMs} ms with status code ${responseStatusCode}`,
       query,
       responseStatusCode,
       responseBody,
       durationInMs
     );
-    this.name = "PhotonServerError";
+    this.name = "GoogleServerError";
   }
   override isRetriable(): boolean {
     return true;
   }
 }
 
-export class PhotonHttpError extends PhotonError {
+export class GoogleAuthorizationError extends GoogleError {
   constructor(
     query: string,
     responseStatusCode: number,
@@ -46,20 +46,20 @@ export class PhotonHttpError extends PhotonError {
     durationInMs: number
   ) {
     super(
-      `[Photon] Fetching addresses: http call failed after ${durationInMs} ms with status code ${responseStatusCode}`,
+      `[Google] You must define a valid API Key. Status code received: ${responseStatusCode}`,
       query,
       responseStatusCode,
       responseBody,
       durationInMs
     );
-    this.name = "PhotonHttpError";
+    this.name = "GoogleAuthorizationError";
   }
   override isRetriable(): boolean {
     return false;
   }
 }
 
-export class PhotonEmptyResponseError extends PhotonError {
+export class GoogleHttpError extends GoogleError {
   constructor(
     query: string,
     responseStatusCode: number,
@@ -67,15 +67,15 @@ export class PhotonEmptyResponseError extends PhotonError {
     durationInMs: number
   ) {
     super(
-      `[Photon] Fetching addresses: empty response after ${durationInMs} ms with status code ${responseStatusCode}`,
+      `[Google] Fetching Google places: http call failed after ${durationInMs} ms with status code ${responseStatusCode}`,
       query,
       responseStatusCode,
       responseBody,
       durationInMs
     );
-    this.name = "PhotonEmptyResponseError";
+    this.name = "GoogleHttpError";
   }
   override isRetriable(): boolean {
-    return true;
+    return false;
   }
 }
