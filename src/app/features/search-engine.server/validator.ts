@@ -23,7 +23,7 @@ type RestaurantAndProfiles = Prisma.RestaurantGetPayload<{
   }
 }>;
 
-// TODO add validations
+// TODO add other validations?
 export async function validateRestaurant(restaurant: RestaurantAndProfiles, search: Search, locale: string): Promise<RestaurantValidation> {
   if (restaurant.latitude === null || restaurant.latitude === undefined || restaurant.longitude === null || restaurant.longitude === undefined) {
     return failed("missing_coordinates");

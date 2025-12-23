@@ -1,4 +1,4 @@
-// TODO useless?
+// we do not use this component for the moment
 interface RestaurantDescriptionProps {
   description: string | null | undefined;
   className?: string;

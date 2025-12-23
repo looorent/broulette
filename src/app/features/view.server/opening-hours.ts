@@ -51,13 +51,13 @@ function formatIntervals(
     if (start.getTime() <= from.getTime() && end.getTime() >= to.getTime()) {
       return "Open 24 hours";
     } else {
-      return `${formatTime(start, locale)} - ${formatTime(end, locale)}`;
+      return `${formatTime(start, locale)}-${formatTime(end, locale)}`;
     }
   });
 }
 
 function formatDay(date: Date, locale: string = "en-US"): string {
-  return date.toLocaleDateString(locale, { weekday: "long" });
+  return date.toLocaleDateString(locale, { weekday: "short" });
 }
 
 function formatTime(

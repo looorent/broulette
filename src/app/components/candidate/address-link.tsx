@@ -10,7 +10,10 @@ export function AddressLink({ formattedAddress, mapUrl }: { formattedAddress: st
             href={mapUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:underline decoration-2 cursor-pointer"
+            className="
+              whitespace-nowrap truncate max-w-fit
+              hover:underline decoration-2 cursor-pointer
+            "
           >
             {formattedAddress}
           </a>

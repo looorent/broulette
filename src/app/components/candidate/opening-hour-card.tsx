@@ -16,7 +16,7 @@ export function OpeningHoursCard({
         className={`
           inline-flex items-center gap-1.5
           px-3 py-1.5
-          my-5
+          my-3
            text-fun-dark
           border-2 border-fun-dark
           rounded-lg
@@ -42,6 +42,7 @@ export function OpeningHoursCard({
 
         <span className="text-xs">
           {!openingHoursOfTheDay.unknown && <strong>{openingHoursOfTheDay.dayLabel}:</strong>}
+          &nbsp;
           {openingHoursOfTheDay.hoursLabel || ""}
         </span>
       </div>

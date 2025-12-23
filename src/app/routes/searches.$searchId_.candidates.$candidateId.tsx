@@ -99,7 +99,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
             </figure>
 
             <div className="p-6 flex-1 flex flex-col relative">
-              <RestaurantRating rating={restaurant.rating} />
+              <RestaurantRating rating={restaurant.rating?.label} />
 
               <h3 id="candidate-name" className="font-pop text-3xl text-fun-dark leading-tight mb-2 mt-2">
                 {restaurant.name}

@@ -294,7 +294,7 @@ function parseLocationDetails(
       openingHours: convertTripAdvisorHoursToOpeningHours(hours),
       features: body.features || [],
       tripTypes: parseTripTypes(body.trip_types),
-      imageUrl: undefined, // TODO
+      imageUrl: undefined, // will be populated later on (with the TripAdvisor API)
       awards: parseAwards(body.awards)
     };
   }

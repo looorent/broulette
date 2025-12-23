@@ -108,7 +108,7 @@ export class TripAdvisorMatcher implements Matcher {
       restaurantId: restaurant.id,
       source: this.source,
       externalId: tripAdvisor.id.toString(),
-      externalType: "place",
+      externalType: "location",
       version: (profile?.version || 0) + 1,
       latitude: toDecimal(tripAdvisor.latitude) ?? restaurant.latitude!,
       longitude: toDecimal(tripAdvisor.longitude) ?? restaurant.longitude!,

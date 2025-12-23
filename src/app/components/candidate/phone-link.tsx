@@ -11,7 +11,10 @@ export function PhoneLink({ nationalPhoneNumber, internationalPhoneNumber }: {
         <a
           id="candidate-phone"
           href={`tel:${internationalPhoneNumber ?? nationalPhoneNumber}`}
-          className="hover:underline decoration-2 decoration-fun-blue"
+          className="
+            hover:underline decoration-2 cursor-pointer
+            whitespace-nowrap truncate max-w-fit
+          "
         >
           {nationalPhoneNumber || internationalPhoneNumber}
         </a>

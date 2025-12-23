@@ -7,7 +7,11 @@ export interface RestaurantView {
   priceRange: string | undefined;
   imageUrl: string;
   source: string;
-  rating: string | undefined;
+  rating: {
+    score: number;
+    numberOfVotes: number | undefined;
+    label: string;
+  } | undefined;
   tags: TagView[];
   phoneNumber: string | undefined;
   internationalPhoneNumber: string | undefined;

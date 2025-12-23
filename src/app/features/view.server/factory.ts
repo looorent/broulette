@@ -87,7 +87,7 @@ export function buildViewModelOfRestaurant(
     source: buildSource(profiles),
     priceRange: buildPriceRange(profiles),
     imageUrl: buildImageUrl(profiles),
-    rating: buildRating(profiles),
+    rating: computeRating(profiles),
     tags: buildTags(profiles),
     phoneNumber: buildPhoneNumber(profiles),
     internationalPhoneNumber: buildInternationalPhoneNumber(profiles),
@@ -115,9 +115,50 @@ function buildImageUrl({ overpass, tripAdvisor, google }: RestaurantProfiles): s
   return google?.imageUrl || tripAdvisor?.imageUrl || overpass?.imageUrl || NO_IMAGE_DEFAULT_URL;
 }
 
-// TODO should we compute the average
-function buildRating({ overpass, tripAdvisor, google }: RestaurantProfiles): string | undefined {
-  return (tripAdvisor?.rating || google?.rating || overpass?.rating)?.toFixed(1) || undefined;
+function computeRating(profiles: RestaurantProfiles): {
+  score: number;
+  numberOfVotes: number | undefined;
+  label: string;
+} | undefined {
+  const ratings = [
+    profiles.google,
+    profiles.tripAdvisor,
+    profiles.overpass
+  ].filter(Boolean)
+    .map(profile => profile!)
+    .filter(profile => profile.rating !== undefined && profile.rating !== null)
+    .map(profile => ({ score: profile.rating!.toNumber(), count: profile.ratingCount }));
+
+  if (ratings.length > 0) {
+    const { rating, count } = ratings.reduce(
+      (total, profile) => {
+        const count = profile.count || 0;
+        return {
+          rating: total.rating + (profile.score * count),
+          count: total.count + count,
+        };
+      },
+      { rating: 0, count: 0 }
+    );
+
+    if (count > 0) {
+      const score = rating / count;
+      return {
+        score: score,
+        numberOfVotes: rating,
+        label: score.toFixed(1)
+      };
+    } else {
+      const rating = ratings?.[0];
+      return {
+        score: rating.score,
+        numberOfVotes: rating.count || undefined,
+        label: rating.score.toFixed(1)
+      };
+    }
+  } else {
+    return undefined;
+  }
 }
 
 function buildTags({ overpass, tripAdvisor, google }: RestaurantProfiles): TagView[] {
@@ -145,7 +186,6 @@ function buildAddress({ overpass, tripAdvisor, google }: RestaurantProfiles): st
   return google?.address || tripAdvisor?.address || overpass?.address || undefined;
 }
 
-// TODO is it required to add the Google source url? it is usually the same than the mapUrl
 function buildUrls({ tripAdvisor, google, overpass }: RestaurantProfiles): string[] {
   return [
     tripAdvisor?.sourceUrl,
@@ -172,7 +212,12 @@ function createGoogleMapsUrl({ name, latitude, longitude }: {
 }
 
 // TODO use locale
-function formatSearchLabel(serviceTimeslot: ServiceTimeslot, serviceInstant: Date, distanceRange: DistanceRange, locale: string): string {
+function formatSearchLabel(
+  serviceTimeslot: ServiceTimeslot,
+  serviceInstant: Date,
+  distanceRange: DistanceRange,
+  locale: string
+): string {
   return [
     formatServiceTime(serviceTimeslot, serviceInstant),
     formatDistance(distanceRange)

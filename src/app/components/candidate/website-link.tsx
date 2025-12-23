@@ -89,7 +89,10 @@ export function WebsiteLink({ url }: { url: string | null | undefined }) {
         <a href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:underline decoration-2"
+          className="
+            hover:underline decoration-2 cursor-pointer
+            whitespace-nowrap truncate max-w-fit
+          "
         >
           {label}
         </a>

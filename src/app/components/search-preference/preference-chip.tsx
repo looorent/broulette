@@ -46,12 +46,15 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
     return (
       <section className="w-full px-2 pb-0">
         <button className="
+            flex flex-col
             w-full bg-fun-green
             border-4 border-b-0 border-fun-dark rounded-t-[3rem]
-            p-4 pb-11 shadow-sheet flex flex-col
+            p-4 pb-11 shadow-sheet
             -mb-4
             items-center justify-center gap-2
-            transition-transform hover:-translate-y-3 active:translate-y-0 hover:-mb-5  cursor-pointer group relative z-40 animate-float
+            transition-transform hover:-translate-y-3 active:translate-y-0 hover:-mb-5
+            cursor-pointer group
+            relative z-40 animate-float
             touch-none
           "
           onClick={onOpen}

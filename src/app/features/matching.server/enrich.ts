@@ -37,7 +37,8 @@ async function enrich(
       throw signal.reason;
     }
 
-    // TODO we could parallelize
+    // We could parallelize.
+    // However, every iteration has side-effects, so this is not so useful.
     if (await shouldBeMatched(result, matcher)) {
       result = (await matcher.matchAndEnrich(result, configuration, language, signal))?.restaurant;
     }

@@ -43,12 +43,13 @@ export default function ServiceSelector({ services, selectedService, className =
   return (
     <fieldset className={`space-y-3 relative border-none p-0 m-0 min-w-0 ${className}`}>
       <legend className="block font-pop text-2xl text-fun-dark tracking-wide mb-2">When?</legend>
-      <div className="absolute right-0 top-0 bottom-0 w-24 bg-linear-to-l from-fun-cream via-fun-cream/80 to-transparent pointer-events-none z-10 rounded-r-xl" aria-hidden="true"></div>
+      <div className="absolute right-0 top-0 bottom-0 w-24 pointer-events-none z-10 rounded-r-xl" aria-hidden="true"></div>
       <div id="time-scroll-container"
         ref={ref}
         {...bindTimeslotScroll()}
         className="
-          flex gap-4 p-1
+          flex gap-4
+          p-1 pr-24
           overflow-x-auto
           [&::-webkit-scrollbar]:hidden
           [-ms-overflow-style:none]
@@ -57,7 +58,6 @@ export default function ServiceSelector({ services, selectedService, className =
           touch-pan-y touch-pan-x
           snap-x snap-mandatory
           max-w-full
-          pr-24
         " role="radiogroup">
 
           {services.map((service) => {
@@ -74,14 +74,16 @@ export default function ServiceSelector({ services, selectedService, className =
                 disabled={!service.isAvailable}
                 onChange={event => updateValue(event.target.value)}
                 checked={service.id === serviceId} />
-              <div className="h-full rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all
+              <div className="
+                h-full rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all
                 border-4
                 bg-white
                 border-fun-dark/10
                 group-hover:border-fun-dark/30
                 peer-checked:border-fun-dark
                 peer-checked:bg-fun-yellow
-                peer-checked:shadow-hard">
+                peer-checked:shadow-hard
+              ">
                   { Icon && (<Icon className="w-8 h-8 stroke-[2.5px] text-fun-dark" />) }
                   <span className="font-sans font-bold text-fun-dark uppercase tracking-tight text-center leading-none">{service.label?.display}</span>
                 </div>

@@ -1,16 +1,16 @@
-import type { ServiceStrategy } from "@features/balancer.server";
+import { LoadBalancer } from "@features/balancer.server";
 import type { Coordinates } from "@features/coordinate";
 import { fetchAllRestaurantsNearbyWithRetry, OVERPASS_SOURCE_NAME, type OverpassConfiguration } from "@features/overpass.server";
 import { fromOverpass } from "./factory";
 import type { DiscoveredRestaurantProfile, DiscoveryRestaurantIdentity } from "./types";
 
-export const registeredProviders: ServiceStrategy<[
+export const LOAD_BALANCER = new LoadBalancer<[
   Coordinates,
   number,
   number,
   DiscoveryRestaurantIdentity[],
-  AbortSignal?
-], DiscoveredRestaurantProfile[]>[] = [];
+  AbortSignal ?
+], DiscoveredRestaurantProfile[]>();
 
 export function registerOverpass(configuration: OverpassConfiguration | undefined) {
   if (configuration) {
@@ -26,6 +26,6 @@ export function registerOverpass(configuration: OverpassConfiguration | undefine
           return (response?.restaurants || []).map(fromOverpass).filter(Boolean);
         }
       }))
-      .forEach(provider => registeredProviders.push(provider));
+      .forEach(provider => LOAD_BALANCER.addProvider(provider));
   }
 }

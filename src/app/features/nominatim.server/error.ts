@@ -79,10 +79,3 @@ export class NominatimEmptyResponseError extends NominatimError {
     return true;
   }
 }
-
-// TODO
-export interface NominatimResponseError {
-  message: string;
-  type: string;
-  code: number;
-}

@@ -1,10 +1,8 @@
-import { LoadBalancer } from "@features/balancer.server";
 import type { Coordinates } from "@features/coordinate";
 import type { RestaurantProfile } from "@persistence/client";
-import { registeredProviders } from "./providers";
 import { type DiscoveredRestaurantProfile, type DiscoveryConfiguration, type DiscoveryRestaurantIdentity } from "./types";
+import { LOAD_BALANCER } from "./providers";
 
-const LOAD_BALANCER = new LoadBalancer(registeredProviders);
 export class RestaurantDiscoveryScanner {
   private iteration: number;
   private readonly identitiesToExclude: DiscoveryRestaurantIdentity[];
