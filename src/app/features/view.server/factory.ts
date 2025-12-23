@@ -115,6 +115,7 @@ function buildImageUrl({ overpass, tripAdvisor, google }: RestaurantProfiles): s
   return google?.imageUrl || tripAdvisor?.imageUrl || overpass?.imageUrl || NO_IMAGE_DEFAULT_URL;
 }
 
+// TODO should we compute the average
 function buildRating({ overpass, tripAdvisor, google }: RestaurantProfiles): string | undefined {
   return (tripAdvisor?.rating || google?.rating || overpass?.rating)?.toFixed(1) || undefined;
 }

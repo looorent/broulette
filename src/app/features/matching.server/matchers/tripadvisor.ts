@@ -5,7 +5,6 @@ import { findTripAdvisorLocationByIdWithRetry, searchTripAdvisorLocationNearbyWi
 import { type Restaurant, type RestaurantProfile } from "@persistence/client";
 import type { RestaurantAndProfiles, RestaurantMatchingConfiguration } from "../types";
 import { toDecimal, type Matcher, type Matching } from "./types";
-import type { RestaurantProfileCreateInput } from "@persistence/models";
 
 export class TripAdvisorMatcher implements Matcher {
   readonly source = TRIPADVISOR_SOURCE_NAME;
