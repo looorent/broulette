@@ -75,7 +75,6 @@ export function SearchSubmitButton({
 
       <button
         type="submit"
-        aria-invalid={hasErrors}
         aria-label={hasErrors ? "Form incomplete, click for details" : "Start Search"}
         className={`
           group relative w-48 h-48 rounded-full border-[6px]

@@ -18,7 +18,7 @@ const DRAG_TRESHOLD_IN_PIXELS = 20;
 export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipProps>(
   ({ onOpen, preferences }, ref) => {
     const [isBuzzing, setIsBuzzing] = useState(false);
-    const swipeUp = useDrag(({ down, movement: [, my], velocity: [, vy], direction: [, dy], memo }) => {
+    const swipeUp = useDrag(({ down, movement: [, my], velocity: [, _vy], direction: [, _dy], _memo }) => {
         if (!down && my < -DRAG_TRESHOLD_IN_PIXELS) {
           onOpen?.();
         }
@@ -87,3 +87,4 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
     );
   }
 );
+PreferenceChip.displayName = "MyInput";

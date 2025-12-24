@@ -1,6 +1,5 @@
 
 import type { DistanceRangeOption } from "@features/search";
-import { useEffect, useState } from "react";
 import { DistanceRangeCaption } from "./distance-range-caption";
 import { DistanceRangeTag } from "./distance-range-tag";
 
@@ -12,29 +11,15 @@ interface DistanceRangeSelectorProps {
 }
 
 export function DistanceRangeSelector({ selectedRange, ranges, onChange, className = "" }: DistanceRangeSelectorProps) {
-  const findArrayIndexFor = (selectedRangeId: string) => {
-    return ranges.findIndex((range) => range.id === selectedRangeId) || 0;
-  };
-
-  const [rangeIndex, setRangeIndex] = useState(findArrayIndexFor(selectedRange?.id));
+  const foundIndex = ranges.findIndex((range) => range.id === selectedRange?.id) || 0
+  const currentIndex = foundIndex === -1 ? 0 : foundIndex;
 
   const handleInputChange = (newIndex: number) => {
-    const changed = newIndex !== rangeIndex;
-    setRangeIndex(newIndex);
-    if (changed) {
-      const newRange = ranges[newIndex];
-      if (newRange) {
-        onChange(newRange);
-      }
+    const newRange = ranges[newIndex];
+    if (newRange && newRange.id !== selectedRange.id) {
+      onChange(newRange);
     }
   };
-
-  useEffect(() => {
-    const index = findArrayIndexFor(selectedRange?.id);
-    if (rangeIndex !== index) {
-      setRangeIndex(index);
-    }
-  }, [selectedRange?.id]);
 
   return (
     <div className={`flex gap-3 px-1 ${className}`}>
@@ -43,7 +28,7 @@ export function DistanceRangeSelector({ selectedRange, ranges, onChange, classNa
           type="range"
           min="0"
           max={ranges.length - 1}
-          value={rangeIndex || 0}
+          value={currentIndex}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleInputChange(event.target.valueAsNumber)}
           name="distanceRangeInput"
           className="

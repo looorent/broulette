@@ -45,7 +45,7 @@ async function fetchAllRestaurantsNearby(
 
   if (response.ok) {
     console.info(`[OSM] Fetching all OSM restaurants nearby '${latitude},${longitude}': done in ${durationInMs} ms.`);
-    const body = (await response.json()) as any;
+    const body = await response.json();
     if (body) {
       return parseResponse(body, durationInMs);
     } else {

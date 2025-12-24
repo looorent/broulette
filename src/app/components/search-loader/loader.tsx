@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SearchLoaderSpinner } from "./spinner";
 import { SearchLoaderTitle } from "./title";
 
@@ -10,11 +10,9 @@ interface SearchLoaderProps {
 export function SearchLoader({ title, visible }: SearchLoaderProps) {
   const [shouldRender, setShouldRender] = useState(visible);
 
-  useEffect(() => {
-    if (visible) {
-      setShouldRender(true);
-    }
-  }, [visible]);
+  if (visible && !shouldRender) {
+    setShouldRender(true);
+  }
 
   const handleAnimationEnd = () => {
     if (!visible) {

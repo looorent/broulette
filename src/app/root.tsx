@@ -9,9 +9,9 @@ import {
 } from "react-router";
 
 import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components/search-loader";
-import "./app.css";
-import type { Route } from "./+types/root";
 import { createCSRFToken } from "@features/session.server";
+import type { Route } from "./+types/root";
+import "./app.css";
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({
   currentUrl,

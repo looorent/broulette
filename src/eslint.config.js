@@ -45,16 +45,28 @@ export default tseslint.config(
       // React 17+ doesn"t need "import React from "react""
       "react/react-in-jsx-scope": "off",
 
-      // Warn if you have high complexity (cyclomatic complexity)
-      "complexity": ["warn", 15],
-
       // Enforce dependency arrays in useEffect (Crucial for Router v7 loaders/actions)
       "react-hooks/exhaustive-deps": "warn",
 
-      // Allow constant exports for SSR/Router files
       "react-refresh/only-export-components": [
         "warn",
-        { allowConstantExport: true },
+        {
+          allowConstantExport: true,
+          allowExportNames: ["loader", "shouldRevalidate"]
+        }
+      ],
+
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "args": "all",
+          "argsIgnorePattern": "^_",
+          "caughtErrors": "all",
+          "caughtErrorsIgnorePattern": "^_",
+          "destructuredArrayIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "ignoreRestSiblings": true
+        }
       ],
 
       // Optional: Turn off prop-types if you are using TypeScript

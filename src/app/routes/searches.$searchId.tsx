@@ -40,7 +40,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
         viewTransition: true
       });
     }
-  }, [view.id, submit]);
+  }, [view.id, submit, session?.csrfToken, newCandidateUrl]);
 
   return (
     <title>{`BiteRoulette - ${view.label} - Searching...`}</title>

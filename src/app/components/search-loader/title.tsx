@@ -13,6 +13,7 @@ interface SearchLoaderTitleProps {
   title?: string;
 }
 
+// TODO use variable 'title'
 export function SearchLoaderTitle({ title }: SearchLoaderTitleProps) {
   const [messageIndex, setMessageIndex] = useState(0);
   useEffect(() => {

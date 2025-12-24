@@ -84,7 +84,7 @@ async function findTripAdvisorLocationById(
   const durationInMs = Date.now() - start;
   if (response.ok) {
     console.info(`[TripAdvisor] Finding the location with id='${locationId}': done in ${durationInMs} ms.`);
-    const body = (await response.json()) as any;
+    const body = await response.json();
     if (body) {
       return parseLocationDetails(body);
     } else {
@@ -134,7 +134,7 @@ async function findTripAdvisorLocationsNearby(
   const durationInMs = Date.now() - start;
   if (response.ok) {
     console.info(`[TripAdvisor] Finding the location nearby '${latitude},${longitude}' within ${radiusInMeters}m': done in ${durationInMs} ms....`);
-    const body = (await response.json()) as any;
+    const body = await response.json();
     if (body) {
       return parseLocationsNearby(body.data);
     } else {
@@ -168,7 +168,7 @@ async function findBestTripAdvisorLocationPicture(
   const durationInMs = Date.now() - start;
   if (response.ok) {
     console.info(`[TripAdvisor] Finding the best picture for location with id='${locationId}': done in ${durationInMs} ms.`);
-    const body = (await response.json()) as any;
+    const body = await response.json();
     if (body) {
       const photos = parseLocationPhotos(body.data);
       return findBestPhotoIn(photos);

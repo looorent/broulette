@@ -10,10 +10,9 @@ interface ServiceSelectorProps {
   onChange: (service: ServicePreference) => void;
 }
 
-
 export default function ServiceSelector({ services, selectedService, className = "", onChange } : ServiceSelectorProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const bindTimeslotScroll = useDrag(({ active, movement: [mx], event, memo = ref.current?.scrollLeft }) => {
+  const bindTimeslotScroll = useDrag(({ _active, movement: [mx], event, memo = ref.current?.scrollLeft }) => {
     event.stopPropagation();
     if (ref.current) {
       ref.current.scrollLeft = memo - mx;

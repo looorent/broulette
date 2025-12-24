@@ -63,6 +63,7 @@ function formatMoney(
       minimumFractionDigits: 0
     }).format(value);
   } catch (e) {
+    console.warn(`Error when parsing money object '${money}'. Returning '${value} ${money.currencyCode}'.`, e);
     return `${value} ${money.currencyCode}`;
   }
 }
