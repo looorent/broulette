@@ -1,7 +1,8 @@
 import { findTagIcon } from "@features/tag";
+import { createElement } from "react";
 
 export function RestaurantTag({ id, label }: { id: string, label: string }) {
-  const Icon = findTagIcon(id);
+  const icon = findTagIcon(id);
   return (
     <span className="
       inline-flex items-center
@@ -10,7 +11,7 @@ export function RestaurantTag({ id, label }: { id: string, label: string }) {
       border-2 border-fun-dark rounded-lg
       text-xs font-bold
     ">
-      {Icon && (<Icon className="w-3 h-3 mr-1.5" />)}
+      {icon && (createElement(icon, { className: "w-3 h-3 mr-1.5" }))}
       {label}
     </span>
   );

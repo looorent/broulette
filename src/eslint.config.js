@@ -50,6 +50,8 @@ export default tseslint.config(
 
       "@typescript-eslint/no-explicit-any": "off",
 
+      "react/no-unescaped-entities": "off",
+
       "react-refresh/only-export-components": [
         "warn",
         {

@@ -1,2 +1,3 @@
 export * from "./box";
-export * from "./context";
+export { AlertProvider } from "./context";
+export { useAlertContext } from "./hook";

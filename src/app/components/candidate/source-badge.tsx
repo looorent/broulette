@@ -43,7 +43,7 @@ interface SourceBadgeProps {
 export function SourceBadge({ source }: SourceBadgeProps) {
   if (source && source.length > 0) {
     const style = defineStyle(source);
-    let Icon = style.icon;
+    const Icon = style.icon;
     return (
       <div className={`
         absolute bottom-3 right-3

@@ -1,2 +1,3 @@
-export * from "./context";
-export * from "./loader";
+export { SearchLoaderProvider } from "./context";
+export { SearchLoader } from "./loader";
+export { useSearchLoader } from "./hook";

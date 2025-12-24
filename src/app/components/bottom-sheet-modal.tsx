@@ -22,14 +22,18 @@ export function BottomSheet({
   const [isMounted, setIsMounted] = useState(false);
   const [showContent, setShowContent] = useState(false);
 
+  if (isOpen && !isMounted) {
+    setIsMounted(true);
+  } else if (!isOpen && showContent) {
+    setShowContent(false);
+  }
+
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
 
     if (isOpen) {
-      setIsMounted(true);
       timeoutId = setTimeout(() => setShowContent(true), 10);
     } else {
-      setShowContent(false);
       timeoutId = setTimeout(() => setIsMounted(false), 300);
     }
 
@@ -50,26 +54,25 @@ export function BottomSheet({
     return (
       <dialog
         className={`
-        flex flex-col absolute inset-0 z-50 items-center justify-end
-        py-0 px-2 backdrop-blur-sm w-full h-dvh border-none m-0 max-w-full max-h-full bg-transparent
-        transform transition-transform duration-300
-        ${showContent ? "ease-out translate-y-0" : "ease-in translate-y-full"}
-        ${className}
-      `}
+          flex flex-col absolute inset-0 z-50 items-center justify-end
+          py-0 px-2 backdrop-blur-sm w-full h-dvh border-none m-0 max-w-full max-h-full bg-transparent
+          transform transition-transform duration-300
+          ${showContent ? "ease-out translate-y-0" : "ease-in translate-y-full"}
+          ${className}
+        `}
         aria-labelledby="bottom-sheet-modal-title"
-        role="dialog"
         aria-modal="true"
         open
       >
         <div className="
-          flex flex-col
-          bg-fun-cream
-          w-full
-          border-x-2 border-t-4 border-fun-dark rounded-t-3xl
-          p-6 pb-10 md:pb-6
-          shadow-hard relative mx-auto max-h-[90vh]
-          touch-pan-y
-        ">
+            flex flex-col
+            bg-fun-cream
+            w-full
+            border-x-2 border-t-4 border-fun-dark rounded-t-3xl
+            p-6 pb-10 md:pb-6
+            shadow-hard relative mx-auto max-h-[90vh]
+            touch-pan-y
+          ">
 
           {/* Header */}
           <div id="bottom-sheet-header"

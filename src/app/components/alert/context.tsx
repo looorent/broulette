@@ -1,14 +1,6 @@
-import type { AlertBoxOptions } from "@components/alert/box";
-import { createContext, useContext, useState, type ReactNode } from "react";
-
-interface AlertContextType {
-  isAlertOpen: boolean;
-  alertOptions: AlertBoxOptions | null;
-  openAlert: (options: AlertBoxOptions | null) => void;
-  closeAlert: () => void;
-}
-
-const AlertContext = createContext<AlertContextType | undefined>(undefined);
+import { useState, type ReactNode } from "react";
+import { AlertContext } from "./hook";
+import type { AlertBoxOptions } from "./types";
 
 export function AlertProvider({ children }: { children: ReactNode }) {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -30,11 +22,3 @@ export function AlertProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useAlertContext() {
-  const context = useContext(AlertContext);
-  if (!context) {
-    throw new Error("useAlertContext must be used within a UIProvider");
-  } else {
-    return context;
-  }
-}

@@ -12,14 +12,13 @@ import {
   Sparkles
 } from "lucide-react";
 import { useState } from "react";
+import { TabButton, type TabType } from "./tab-button";
 
 interface HelpModalProps {
   configuration: AppConfiguration;
   isOpen: boolean;
   onClose: () => void;
 }
-
-type TabType = "about" | "privacy" | "legal";
 
 function PhilosophyItem({ title, description }: { title: string, description: string }) {
   return (
@@ -31,24 +30,6 @@ function PhilosophyItem({ title, description }: { title: string, description: st
 
 export function HelpModal({ configuration, isOpen, onClose }: HelpModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>("about");
-
-  const TabButton = ({ id, label, icon: Icon }: { id: TabType, label: string, icon: any }) => (
-    <button
-      onClick={() => setActiveTab(id)}
-      className={`
-        flex items-center font-pop gap-2 pb-2 px-2 text-sm uppercase tracking-wide transition-all duration-200
-        border-b-2
-        cursor-pointer
-        ${activeTab === id
-          ? "border-fun-dark text-fun-dark"
-          : "border-transparent text-fun-dark/40 hover:text-fun-dark hover:border-fun-dark/20"
-        }
-      `}
-    >
-      <Icon className="w-4 h-4" />
-      {label}
-    </button>
-  );
 
   return (
     <AlertBox
@@ -92,9 +73,9 @@ export function HelpModal({ configuration, isOpen, onClose }: HelpModalProps) {
 
         {/* Tab Navigation */}
         <div className="flex gap-4 border-b-2 border-fun-dark/5 mb-4 shrink-0">
-          <TabButton id="about" label="Recipe" icon={Sparkles} />
-          <TabButton id="privacy" label="Diet" icon={ShieldCheck} />
-          <TabButton id="legal" label="Ingredients" icon={Scroll} />
+          <TabButton id="about" label="Recipe" icon={Sparkles} activeTab={activeTab} onSelected={setActiveTab} />
+          <TabButton id="privacy" label="Diet" icon={ShieldCheck} activeTab={activeTab} onSelected={setActiveTab} />
+          <TabButton id="legal" label="Ingredients" icon={Scroll} activeTab={activeTab} onSelected={setActiveTab} />
         </div>
 
         {/* Tab Content Container */}

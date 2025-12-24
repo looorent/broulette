@@ -1,35 +1,40 @@
 import { triggerHaptics } from "@features/browser.client";
 import type { loader as rootLoader } from "app/root";
 import { RefreshCw } from "lucide-react";
-import { href, useRouteLoaderData, useSubmit } from "react-router";
+import { href, useRouteLoaderData, useSubmit, type SubmitFunction } from "react-router";
 
 interface RerollButtonProps {
   enabled: boolean;
   searchId: string;
 }
 
-export function RerollButton({ enabled, searchId }: RerollButtonProps) {
+
+function reRoll(
+  enabled: boolean,
+  searchId: string,
+  csrfToken: string,
+  submit: SubmitFunction
+) {
   if (enabled) {
-    const submit = useSubmit();
-    const session = useRouteLoaderData<typeof rootLoader>("root");
+    triggerHaptics();
+    submit({
+      csrf: csrfToken
+    }, {
+      method: "POST",
+      action: href("/searches/:searchId/candidates", { searchId: searchId }),
+      replace: true,
+      viewTransition: true
+    });
+  }
+}
 
-    const reRoll = () => {
-      if (enabled) {
-        triggerHaptics();
-        submit({
-          csrf: session?.csrfToken ?? ""
-        }, {
-          method: "POST",
-          action: href("/searches/:searchId/candidates", { searchId: searchId }),
-          replace: true,
-          viewTransition: true
-        });
-      }
-    };
-
+export function RerollButton({ enabled, searchId }: RerollButtonProps) {
+  const submit = useSubmit();
+  const session = useRouteLoaderData<typeof rootLoader>("root");
+  if (enabled) {
     return (
       <button
-        onClick={reRoll}
+        onClick={() => reRoll(enabled, searchId, session?.csrfToken || "", submit)}
         className="w-20
         bg-fun-yellow
         border-4 border-fun-dark rounded-2xl

@@ -1,18 +1,6 @@
-import { XCircle, type LucideIcon } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
-
-type AlertVariant = "default" | "danger" | "success" | "warning";
-
-export interface AlertBoxOptions {
-  title?: string;
-  children: ReactNode;
-  actions?: ReactNode;
-  icon?: LucideIcon;
-  variant?: AlertVariant;
-  showCloseButton?: boolean;
-  className?: string;
-  contentClassName?: string;
-}
+import { XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { AlertBoxOptions, AlertVariant } from "./types";
 
 interface AlertBoxProps extends AlertBoxOptions {
   isOpen: boolean;
