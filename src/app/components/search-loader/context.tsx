@@ -1,15 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigation, type Navigation } from "react-router";
+import { SearchLoaderContext } from "./hook";
 import type { SearchLoaderState } from "./types";
 
 // A tiny buffer to bridge the gap between "submitting" -> "loading"
 // This prevents the loader from flickering off during the router state transition.
 const EXIT_DELAY_MS = 300;
-
-export interface SearchLoaderContextType {
-  setManualLoader: (visible: boolean, message?: string) => void;
-  state: SearchLoaderState;
-}
 
 const defaultState: SearchLoaderState = {
   visible: false,
@@ -27,8 +23,6 @@ function detectLoaderState(navigation: Navigation): SearchLoaderState {
     return defaultState;
   }
 }
-
-const SearchLoaderContext = createContext<SearchLoaderContextType | undefined>(undefined);
 
 export function SearchLoaderProvider({ children }: { children: React.ReactNode }) {
   const navigation = useNavigation();
@@ -54,8 +48,8 @@ export function SearchLoaderProvider({ children }: { children: React.ReactNode }
       // Show immediately or update message
       if (!state.visible) {
         if (document.activeElement instanceof HTMLElement) {
-          document.activeElement.blur();
-        }
+        document.activeElement.blur();
+      }
         setState({ visible: true, message });
       } else {
         // Only trigger a re-render if the message actually changed
@@ -91,11 +85,3 @@ export function SearchLoaderProvider({ children }: { children: React.ReactNode }
   );
 }
 
-export function useSearchLoader() {
-  const context = useContext(SearchLoaderContext);
-  if (!context) {
-    throw new Error("useSearchLoader() must be used within a SearchLoaderProvider");
-  } else {
-    return context;
-  }
-}

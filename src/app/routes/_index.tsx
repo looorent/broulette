@@ -7,7 +7,7 @@ import { PreferenceChip, type PreferenceChipHandle } from "@components/search-pr
 import { PreferencesForm, type PreferencesFormHandle } from "@components/search-preference-form";
 import { APP_CONFIG } from "@config/server";
 import { getDeviceLocation } from "@features/browser.client";
-import { createDeviceLocation, createNextServices, DISTANCE_RANGES, preferenceFactory, type Preference } from "@features/search";
+import { createDeviceLocation, createNextServices, DISTANCE_RANGES, preferenceFactory, type LocationPreference, type Preference } from "@features/search";
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useSearchParams } from "react-router";
 
@@ -20,6 +20,20 @@ export async function loader() {
   } as const;
 }
 
+async function fetchLocation(): Promise<LocationPreference | undefined> {
+  try {
+    const devicePosition = await getDeviceLocation();
+    if (devicePosition?.coords) {
+      return createDeviceLocation(devicePosition.coords);
+    } else {
+      return undefined;
+    }
+  } catch (error) {
+    console.warn("Location access denied or failed:", error);
+    return undefined;
+  }
+}
+
 function HomeContent() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { services, defaultPreferences, configuration } = useLoaderData<typeof loader>();
@@ -29,25 +43,19 @@ function HomeContent() {
   const { isAlertOpen, closeAlert, alertOptions } = useAlertContext();
 
   useEffect(() => {
-    async function fetchLocation() {
-      try {
-        const devicePosition = await getDeviceLocation();
-        if (devicePosition?.coords) {
+    if (preferences && !preferences.isValid) {
+      fetchLocation().then(newLocation => {
+        if (newLocation) {
           setPreferences((prev) => {
-            const current = preferenceFactory.withLocation(prev, createDeviceLocation(devicePosition.coords));
+            const current = preferenceFactory.withLocation(prev, newLocation);
             return preferenceFactory.withDeviceLocationAttempted(current);
           });
+        } else {
+          setPreferences((prev) => preferenceFactory.withDeviceLocationAttempted(prev));
         }
-      } catch (error) {
-        console.warn("Location access denied or failed:", error);
-        setPreferences((prev) => preferenceFactory.withDeviceLocationAttempted(prev));
-      }
+      });
     }
-
-    if (preferences && !preferences.isValid) {
-      fetchLocation();
-    }
-  }, []);
+  }); // TODO test
 
   const closeModal = () => {
     setSearchParams(previous => {

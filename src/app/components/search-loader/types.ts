@@ -9,3 +9,8 @@ export function defaultSearchLoaderState(): SearchLoaderState {
     message: undefined
   };
 }
+
+export interface SearchLoaderContextType {
+  setManualLoader: (visible: boolean, message?: string) => void;
+  state: SearchLoaderState;
+}

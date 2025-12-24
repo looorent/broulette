@@ -14,7 +14,7 @@ interface SearchLoaderTitleProps {
 }
 
 // TODO use variable 'title'
-export function SearchLoaderTitle({ title }: SearchLoaderTitleProps) {
+export function SearchLoaderTitle({ title: _title }: SearchLoaderTitleProps) {
   const [messageIndex, setMessageIndex] = useState(0);
   useEffect(() => {
     const intervalId = setInterval(() => {

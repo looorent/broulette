@@ -17,7 +17,7 @@ interface RestaurantProfiles {
 }
 
 export function buildViewModelOfCandidate(
-  candidate: Prisma.SearchCandidateGetPayload<{ include: { search: true, restaurant: { include: { profiles: true }} }}> | undefined | null,
+  candidate: Prisma.SearchCandidateGetPayload<{ include: { search: true, restaurant: { include: { profiles: true } } } }> | undefined | null,
   locale: string,
   now: Date
 ): CandidateRedirect | CandidateView | undefined {
@@ -43,12 +43,12 @@ export function buildViewModelOfCandidate(
 }
 
 export function buildViewModelOfSearch(search: {
-    searchId: string;
-    exhausted: boolean;
-    serviceTimeslot: ServiceTimeslot;
-    serviceInstant: Date;
-    distanceRange: DistanceRange;
-    latestCandidateId: string | undefined;
+  searchId: string;
+  exhausted: boolean;
+  serviceTimeslot: ServiceTimeslot;
+  serviceInstant: Date;
+  distanceRange: DistanceRange;
+  latestCandidateId: string | undefined;
 } | undefined, locale: string): SearchRedirect | SearchView | undefined {
   if (search) {
     if (search.latestCandidateId) {
@@ -98,7 +98,7 @@ export function buildViewModelOfRestaurant(
   };
 }
 
-function buildSource({ overpass, tripAdvisor, google }: RestaurantProfiles): string  {
+function buildSource({ overpass, tripAdvisor, google }: RestaurantProfiles): string {
   return google?.source || tripAdvisor?.source || overpass?.source || OVERPASS_SOURCE_NAME;
 }
 
@@ -211,7 +211,6 @@ function createGoogleMapsUrl({ name, latitude, longitude }: {
   }
 }
 
-// TODO use locale
 function formatSearchLabel(
   serviceTimeslot: ServiceTimeslot,
   serviceInstant: Date,
@@ -219,25 +218,24 @@ function formatSearchLabel(
   locale: string
 ): string {
   return [
-    formatServiceTime(serviceTimeslot, serviceInstant),
+    formatServiceTime(serviceTimeslot, serviceInstant, locale),
     formatDistance(distanceRange)
   ].filter(Boolean).join(" - ");
 }
 
-// TODO use locale
 function formatCandidateLabel({ name }: Restaurant, search: Search, locale: string): string {
   return `${formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale)} - ${name}`;
 }
 
-function formatServiceTime(serviceTimeslot: ServiceTimeslot, serviceInstant: Date): string {
+function formatServiceTime(serviceTimeslot: ServiceTimeslot, serviceInstant: Date, locale: string): string {
   if (serviceTimeslot === ServiceTimeslot.RightNow) {
-    return formatMonthDatetime(serviceInstant);
+    return formatMonthDatetime(serviceInstant, locale);
   } else {
-    return `${formatMonthDate(serviceInstant)} ${formatDayService(serviceTimeslot)}`;
+    return `${formatMonthDate(serviceInstant, locale)} ${formatDayService(serviceTimeslot, locale)}`;
   }
 }
 
-function formatDayService(serviceTimeslot: ServiceTimeslot): string | undefined {
+function formatDayService(serviceTimeslot: ServiceTimeslot, _locale: string): string | undefined {
   switch (serviceTimeslot) {
     case ServiceTimeslot.Dinner:
       return "Dinner";
@@ -249,22 +247,21 @@ function formatDayService(serviceTimeslot: ServiceTimeslot): string | undefined 
       return undefined;
   }
 }
-function pad2(value: number): string {
-  return value.toString().padStart(2, "0");
+
+function formatMonthDatetime(instant: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(instant);
 }
 
-function formatMonthDatetime(instant: Date) {
-  const day = pad2(instant.getDate());
-  const month = pad2(instant.getMonth() + 1);
-  const hours = pad2(instant.getHours());
-  const mins = pad2(instant.getMinutes());
-  return `${day}/${month} ${hours}:${mins}`;
-}
-
-function formatMonthDate(instant: Date) {
-  const day = pad2(instant.getDate());
-  const monthName = instant.toLocaleString("default", { month: "short" });
-  return `${day} ${monthName}`;
+function formatMonthDate(instant: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "short"
+  }).format(instant);
 }
 
 function formatDistance(range: DistanceRange): string | undefined {

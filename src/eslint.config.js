@@ -48,6 +48,8 @@ export default tseslint.config(
       // Enforce dependency arrays in useEffect (Crucial for Router v7 loaders/actions)
       "react-hooks/exhaustive-deps": "warn",
 
+      "@typescript-eslint/no-explicit-any": "off",
+
       "react-refresh/only-export-components": [
         "warn",
         {

@@ -261,9 +261,7 @@ function addAuthenticationOn(url: string, configuration: TripAdvisorConfiguratio
 function parseLocationDetails(
   body: any,
 ): TripAdvisorLocation | undefined {
-  if (!body || typeof body !== "object") {
-    return undefined;
-  } else {
+  if (body || typeof body === "object") {
     const hours = parseHours(body.hours);
     return {
       id: typeof body.location_id === "string" ? parseInt(body.location_id) : body.location_id,
@@ -297,6 +295,8 @@ function parseLocationDetails(
       imageUrl: undefined, // will be populated later on (with the TripAdvisor API)
       awards: parseAwards(body.awards)
     };
+  } else {
+    return undefined;
   }
 }
 
