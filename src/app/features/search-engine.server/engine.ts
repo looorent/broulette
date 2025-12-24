@@ -144,7 +144,6 @@ async function findSearchOrThrow(searchId: string) {
   return search;
 }
 
-// TODO useful?
 async function findLatestCandidateOf(searchId: string | undefined): Promise<SearchCandidate | undefined> {
   const finalCandidateId = (await prisma.search.findWithLatestCandidateId(searchId))?.latestCandidateId;
   const finalCandidate = await prisma.searchCandidate.findUnique({ where: { id: finalCandidateId } });

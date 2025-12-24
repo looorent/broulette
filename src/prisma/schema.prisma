@@ -13,7 +13,7 @@ enum ServiceTimeslot {
   RightNow
   Custom
 
-   @@map("service_timeslot")
+  @@map("service_timeslot")
 }
 
 enum DistanceRange {
@@ -121,7 +121,8 @@ model RestaurantProfile {
   website                  String?
   sourceUrl                String?
 
-  @@index([source, externalId]) // TODO I still can assume multiple places might have the same Google Place ID, for instance
+  @@index([source, externalId, restaurantId])
+  @@index([source, externalId])
   @@map("restaurant_profile")
 }
 

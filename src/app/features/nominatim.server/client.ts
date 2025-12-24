@@ -7,9 +7,10 @@ interface NominatimPlace {
   place_id: number;
   name: string;
   display_name: string;
+  class: string;
+  type: string;
   lat: string;
   lon: string;
-  type: string;
 }
 
 export async function fetchLocationFromNominatim(
@@ -35,6 +36,17 @@ export async function fetchLocationFromNominatim(
   };
 }
 
+const APPROXIMATE_LOCATION_CLASSES = new Set([
+  "place",
+  "boundary",
+  "highway"
+]);
+
+const EXCLUDED_TYPES = new Set([
+  "house",
+  "residential"
+]);
+
 async function fetchNominatimAddresses(
   query: string,
   instanceUrl: string,
@@ -53,6 +65,8 @@ async function fetchNominatimAddresses(
     namedetails: "0",
     polygon_geojson: "0",
     bounded: "0",
+    dedupe: "1",
+    layer: "address"
   });
 
   const url = `${instanceUrl}?${params.toString()}`;
@@ -67,7 +81,8 @@ async function fetchNominatimAddresses(
   const durationInMs = Date.now() - start;
   if (response.ok) {
     console.info(`[Nominatim] Finding addresses for query='${query}'. Done in ${durationInMs}ms.`);
-    return response.json();
+    const body = (await response.json()) as NominatimPlace[];
+    return body.filter(address => APPROXIMATE_LOCATION_CLASSES.has(address.class) && !EXCLUDED_TYPES.has(address.type));
   } else {
     throw await parseError(url, response, durationInMs);
   }

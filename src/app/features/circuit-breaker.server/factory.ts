@@ -1,5 +1,5 @@
 import type { CircuitBreakerPolicy, ICancellationContext, IDefaultPolicyContext, IMergedPolicy, IRetryContext, RetryPolicy, TimeoutPolicy } from "cockatiel";
-import { circuitBreaker, ConsecutiveBreaker, ExponentialBackoff, handleAll, retry, timeout, TimeoutStrategy, wrap } from "cockatiel";
+import { circuitBreaker, ConsecutiveBreaker, ExponentialBackoff, retry, timeout, TimeoutStrategy, wrap } from "cockatiel";
 import { handleRetrieableErrors } from "./filter";
 import { DEFAULT_FAILOVER, type FailoverConfiguration } from "./types";
 
