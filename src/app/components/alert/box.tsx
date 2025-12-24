@@ -47,12 +47,15 @@ export function AlertBox({
   const [isMounted, setIsMounted] = useState(isOpen);
   const [showContent, setShowContent] = useState(isOpen);
 
+  if (isOpen && !isMounted) {
+    setIsMounted(true);
+  } else if (!isOpen && showContent) {
+    setShowContent(false);
+  }
+
   useEffect(() => {
     if (isOpen) {
-      setIsMounted(true);
       requestAnimationFrame(() => setShowContent(true));
-    } else {
-      setShowContent(false);
     }
   }, [isOpen]);
 
@@ -109,6 +112,7 @@ export function AlertBox({
               ? "opacity-100 scale-100 translate-y-0 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
               : "opacity-0 scale-95 translate-y-4 ease-in"}
           `}
+          role="none"
           onClick={(e) => e.stopPropagation()}
         >
           <div className={`h-4 w-full border-b-4 border-fun-dark shrink-0 ${styles.topBar}`} />
