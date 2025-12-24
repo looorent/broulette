@@ -3,6 +3,7 @@ import { searchCandidate } from "@features/search-engine.server";
 import { validateCSRF } from "@features/session.server";
 import { href, redirect } from "react-router";
 import type { Route } from "./+types/searches.$searchId_.candidates._index";
+import { ErrorUnknown } from "@components/error/error-unknown";
 
 const locale = "en-US"; // TODO manage locale
 
@@ -28,3 +29,10 @@ export async function action({
 export async function loader({ params }: Route.LoaderArgs) {
   return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: params.searchId, candidateId: "latest" }));
 }
+
+export function ErrorBoundary() {
+  return (
+    <ErrorUnknown />
+  );
+}
+

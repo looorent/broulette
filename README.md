@@ -15,8 +15,6 @@ $ openssl rand -hex 32
 
 ## TODO
 
-* Test the alert box
-* Apply ESLint
 * Enable "locale" (at least the default one)
 * Streaming HTTP during search
 * Handle errors on every route
