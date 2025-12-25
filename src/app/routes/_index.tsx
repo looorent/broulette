@@ -31,7 +31,7 @@ async function fetchLocation(): Promise<LocationPreference | undefined> {
     }
   } catch (error) {
     console.warn("Location access denied or failed:", error);
-    return undefined;
+    throw error;
   }
 }
 
@@ -45,8 +45,10 @@ function HomeContent() {
 
   useEffect(() => {
     if (preferences && !preferences.isValid) {
-      fetchLocation().then(newLocation => {
-        if (newLocation) {
+      let isMounted = true;
+      const initializeLocation = async () => {
+        const newLocation = await fetchLocation();
+        if (isMounted && newLocation) {
           setPreferences((prev) => {
             const current = preferenceFactory.withLocation(prev, newLocation);
             return preferenceFactory.withDeviceLocationAttempted(current);
@@ -54,9 +56,13 @@ function HomeContent() {
         } else {
           setPreferences((prev) => preferenceFactory.withDeviceLocationAttempted(prev));
         }
-      });
+      };
+      initializeLocation();
+      return () => { isMounted = false; };
+    } else {
+      return undefined;
     }
-  }); // TODO test
+  }, [preferences]); // TODO test
 
   const closeModal = () => {
     setSearchParams(previous => {
