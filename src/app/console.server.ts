@@ -1,9 +1,11 @@
+import * as repl from "repl";
+
 import { APP_CONFIG, CONTEXT } from "@config/server";
 import prisma from "@features/db.server/prisma";
 import { findGoogleRestaurantById, searchGoogleRestaurantByText } from "@features/google.server";
 import { searchCandidate } from "@features/search-engine.server";
+
 import "dotenv/config";
-import * as repl from "repl";
 
 async function start() {
   try {

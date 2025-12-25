@@ -1,5 +1,7 @@
-import { computeViewportFromCircle } from "@features/coordinate";
 import { PlacesClient, type protos } from "@googlemaps/places";
+
+import { computeViewportFromCircle } from "@features/coordinate";
+
 import { googleCircuitBreaker } from "./circuit-breaker";
 import { GoogleAuthorizationError, GoogleError, GoogleHttpError, GoogleServerError } from "./error";
 import { convertBusinessStatusToOperational, formatPrices } from "./formatter";

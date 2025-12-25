@@ -1,7 +1,9 @@
-import { findIconFor, type Preference } from "@features/search";
 import { useDrag } from "@use-gesture/react";
 import { Footprints, MapPin } from "lucide-react";
 import { forwardRef, useImperativeHandle, useState } from "react";
+
+import { findIconFor, type Preference } from "@features/search";
+
 import { PreferenceChipValue } from "./preference-chip-value";
 
 interface PreferenceChipProps {

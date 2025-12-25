@@ -10,6 +10,7 @@ import {
 
 import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components/search-loader";
 import { createCSRFToken } from "@features/session.server";
+
 import type { Route } from "./+types/root";
 import "./app.css";
 

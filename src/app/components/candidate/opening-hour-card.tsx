@@ -1,5 +1,6 @@
-import type { OpeningHoursOfTheDay } from "@features/view";
 import { CircleQuestionMark, Clock, ClockAlert } from "lucide-react";
+
+import type { OpeningHoursOfTheDay } from "@features/view";
 
 interface OpeningHoursCardProps {
   openingHoursOfTheDay: OpeningHoursOfTheDay | undefined;

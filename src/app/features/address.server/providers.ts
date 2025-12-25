@@ -1,8 +1,7 @@
 import { LoadBalancer } from "@features/balancer.server";
-import type { LocationSuggestions } from "@features/search";
-
 import { fetchLocationFromNominatim, type NominatimConfiguration } from "@features/nominatim.server";
 import { fetchLocationFromPhoton, type PhotonConfiguration } from "@features/photon.server";
+import type { LocationSuggestions } from "@features/search";
 
 const LOAD_BALANCER = new LoadBalancer<[string, AbortSignal?], LocationSuggestions>();
 

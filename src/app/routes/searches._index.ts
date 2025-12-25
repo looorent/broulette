@@ -1,9 +1,12 @@
+import { data, href, redirect } from "react-router";
+
 import prisma from "@features/db.server/prisma";
 import { createServiceDatetime, createServiceEnd } from "@features/search";
-import { DistanceRange, ServiceTimeslot } from "@persistence/client";
-import { data, href, redirect } from "react-router";
-import type { Route } from "./+types/searches._index";
 import { validateCSRF } from "@features/session.server";
+import { DistanceRange, ServiceTimeslot } from "@persistence/client";
+
+import type { Route } from "./+types/searches._index";
+
 
 // GET -> noop
 export async function loader() {

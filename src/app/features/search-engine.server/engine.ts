@@ -2,6 +2,7 @@ import prisma from "@features/db.server/prisma";
 import { RestaurantDiscoveryScanner, type DiscoveredRestaurantProfile } from "@features/discovery.server";
 import { enrichRestaurant } from "@features/matching.server";
 import { DistanceRange, SearchCandidateStatus, type RestaurantProfile, type Search, type SearchCandidate } from "@persistence/client";
+
 import { SearchNotFoundError } from "./error";
 import { randomize } from "./randomizer";
 import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration, type SearchEngineRange } from "./types";

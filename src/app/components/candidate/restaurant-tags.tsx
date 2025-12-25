@@ -1,4 +1,5 @@
 import type { TagView } from "@features/tag";
+
 import { RestaurantTag } from "./restaurant-tag";
 
 export interface RestaurantTagsProps {

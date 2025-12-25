@@ -1,4 +1,5 @@
 import { handleWhen } from "cockatiel";
+
 import { CircuitBreakerError } from "./error";
 
 export const handleRetrieableErrors =

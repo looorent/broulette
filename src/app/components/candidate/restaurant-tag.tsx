@@ -1,5 +1,6 @@
-import { findTagIcon } from "@features/tag";
 import { createElement } from "react";
+
+import { findTagIcon } from "@features/tag";
 
 export function RestaurantTag({ id, label }: { id: string, label: string }) {
   const icon = findTagIcon(id);

@@ -1,5 +1,6 @@
 import { OVERPASS_SOURCE_NAME, type OverpassRestaurant } from "@features/overpass.server";
 import { Prisma } from "@persistence/client";
+
 import type { DiscoveredRestaurantProfile } from "./types";
 
 export function fromOverpass(overpass: OverpassRestaurant): DiscoveredRestaurantProfile {

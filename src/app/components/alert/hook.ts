@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+
 import type { AlertContextType } from "./types";
 
 export const AlertContext = createContext<AlertContextType | undefined>(undefined);

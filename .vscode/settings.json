@@ -1,0 +1,14 @@
+{
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        // ⚠️ Disable the native organizer so it doesn't fight with ESLint
+        "source.organizeImports": "never"
+    },
+    // Ensure the validator is running
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact"
+    ]
+}

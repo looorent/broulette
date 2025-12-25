@@ -1,11 +1,13 @@
+import { Crosshair, Loader2, MapPin, XCircle } from "lucide-react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { useFetcher, useRouteLoaderData } from "react-router";
+
 import { useAlertContext } from "@components/alert";
 import { getDeviceLocation, isGeolocationSupported, useDebounce } from "@features/browser.client";
 import { createDeviceLocation, hasCoordinates, type LocationPreference } from "@features/search";
 import type { action as addressLoader } from "@routes/_.api.address-searches";
 import type { loader as rootLoader } from "app/root";
-import { Crosshair, Loader2, MapPin, XCircle } from "lucide-react";
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { useFetcher, useRouteLoaderData } from "react-router";
+
 import { LocationSuggestionSelector } from "./location-suggestion-selector";
 
 export interface LocationSelectorHandle {

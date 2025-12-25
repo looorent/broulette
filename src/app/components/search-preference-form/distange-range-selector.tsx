@@ -1,5 +1,6 @@
 
 import type { DistanceRangeOption } from "@features/search";
+
 import { DistanceRangeCaption } from "./distance-range-caption";
 import { DistanceRangeTag } from "./distance-range-tag";
 

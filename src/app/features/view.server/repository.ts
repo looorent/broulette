@@ -1,5 +1,6 @@
 import prisma from "@features/db.server/prisma";
 import type { CandidateRedirect, CandidateView, SearchRedirect, SearchView } from "@features/view";
+
 import { buildViewModelOfCandidate, buildViewModelOfSearch } from "./factory";
 
 const LATEST = "latest";

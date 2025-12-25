@@ -1,6 +1,7 @@
-import { shareSocial, triggerHaptics } from "@features/browser.client";
 import { Share2 } from "lucide-react";
 import { href } from "react-router";
+
+import { shareSocial, triggerHaptics } from "@features/browser.client";
 
 export function ShareButton({ searchId, candidateId, restaurantName, restaurantDescription } : {
   searchId: string;

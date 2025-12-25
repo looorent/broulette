@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigation, type Navigation } from "react-router";
+
 import { SearchLoaderContext } from "./hook";
 import type { SearchLoaderState } from "./types";
 

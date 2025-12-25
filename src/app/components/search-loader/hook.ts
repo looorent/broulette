@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+
 import type { SearchLoaderContextType } from "./types";
 
 export const SearchLoaderContext = createContext<SearchLoaderContextType | undefined>(undefined);

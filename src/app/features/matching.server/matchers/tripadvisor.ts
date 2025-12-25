@@ -3,6 +3,7 @@ import { hasReachedQuota, registerAttemptToFindTripAdvisorLocationById, register
 import { filterTags } from "@features/tag.server";
 import { findTripAdvisorLocationByIdWithRetry, searchTripAdvisorLocationNearbyWithRetry, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration, type TripAdvisorLocation } from "@features/tripadvisor.server";
 import { type Restaurant, type RestaurantProfile } from "@persistence/client";
+
 import type { RestaurantAndProfiles, RestaurantMatchingConfiguration } from "../types";
 import { toDecimal, type Matcher, type Matching } from "./types";
 

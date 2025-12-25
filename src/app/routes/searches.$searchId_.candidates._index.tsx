@@ -1,9 +1,12 @@
+import { href, redirect } from "react-router";
+
+import { ErrorUnknown } from "@components/error/error-unknown";
 import { SEARCH_ENGINE_CONFIGURATION } from "@config/server";
 import { searchCandidate } from "@features/search-engine.server";
 import { validateCSRF } from "@features/session.server";
-import { href, redirect } from "react-router";
+
 import type { Route } from "./+types/searches.$searchId_.candidates._index";
-import { ErrorUnknown } from "@components/error/error-unknown";
+
 
 const locale = "en-US"; // TODO manage locale
 

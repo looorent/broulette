@@ -1,7 +1,8 @@
 import type { Coordinates } from "@features/coordinate";
 import type { RestaurantProfile } from "@persistence/client";
-import { type DiscoveredRestaurantProfile, type DiscoveryConfiguration, type DiscoveryRestaurantIdentity } from "./types";
+
 import { LOAD_BALANCER } from "./providers";
+import { type DiscoveredRestaurantProfile, type DiscoveryConfiguration, type DiscoveryRestaurantIdentity } from "./types";
 
 export class RestaurantDiscoveryScanner {
   private iteration: number;

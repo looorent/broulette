@@ -1,5 +1,6 @@
 import type { GooglePlaceConfiguration } from "@features/google.server";
 import type { TripAdvisorConfiguration } from "@features/tripadvisor.server";
+
 import { GoogleMatcher } from "./google";
 import { TripAdvisorMatcher } from "./tripadvisor";
 import type { Matcher } from "./types";

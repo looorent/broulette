@@ -1,6 +1,7 @@
 import { LoadBalancer } from "@features/balancer.server";
 import type { Coordinates } from "@features/coordinate";
 import { fetchAllRestaurantsNearbyWithRetry, OVERPASS_SOURCE_NAME, type OverpassConfiguration } from "@features/overpass.server";
+
 import { fromOverpass } from "./factory";
 import type { DiscoveredRestaurantProfile, DiscoveryRestaurantIdentity } from "./types";
 

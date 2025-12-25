@@ -1,7 +1,9 @@
-import { findSearchViewModel } from "@features/view.server";
-import type { loader as rootLoader } from "app/root";
 import { useEffect, useRef } from "react";
 import { href, redirect, useRouteLoaderData, useSubmit } from "react-router";
+
+import { findSearchViewModel } from "@features/view.server";
+import type { loader as rootLoader } from "app/root";
+
 import type { Route } from "./+types/searches.$searchId";
 
 const locale = "en-US"; // TODO manage locale

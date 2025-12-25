@@ -1,9 +1,9 @@
-import { ServiceTimeslot } from "@persistence/enums";
-export type ServicePreferenceIcon = "clock" | "moon" | "sun" | "calendar";
-
 import { CalendarPlus, Clock, Moon, Sun, type LucideProps } from "lucide-react";
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
 
+import { ServiceTimeslot } from "@persistence/enums";
+
+export type ServicePreferenceIcon = "clock" | "moon" | "sun" | "calendar";
 export interface ServicePreference {
   id: string;
   label: {

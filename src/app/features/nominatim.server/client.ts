@@ -1,4 +1,5 @@
 import type { LocationPreference, LocationSuggestions } from "@features/search";
+
 import { nomatimCircuitBreaker } from "./circuit-breaker";
 import { NominatimError, NominatimHttpError, NominatimServerError } from "./error";
 import { DEFAULT_NOMINATIM_CONFIGURATION, type NominatimConfiguration } from "./types";

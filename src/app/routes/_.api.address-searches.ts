@@ -1,6 +1,7 @@
+import type { ActionFunctionArgs } from "react-router";
+
 import { searchLocations } from "@features/address.server";
 import { validateCSRF } from "@features/session.server";
-import type { ActionFunctionArgs } from "react-router";
 
 // TODO this returns too many duplicates (ex: Namur)
 export async function action({ request }: ActionFunctionArgs) {

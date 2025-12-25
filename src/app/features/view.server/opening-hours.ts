@@ -1,5 +1,6 @@
-import type { OpeningHoursOfTheDay } from "@features/view";
 import opening_hours from "opening_hours";
+
+import type { OpeningHoursOfTheDay } from "@features/view";
 
 export function formatOpeningHoursFor(
   instant: Date,

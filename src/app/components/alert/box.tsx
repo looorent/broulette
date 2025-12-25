@@ -1,5 +1,6 @@
 import { XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+
 import type { AlertBoxOptions, AlertVariant } from "./types";
 
 interface AlertBoxProps extends AlertBoxOptions {

@@ -1,4 +1,5 @@
 import type { LocationPreference, LocationSuggestions } from "@features/search";
+
 import { photonCircuitBreaker } from "./circuit-breaker";
 import { PhotonError, PhotonHttpError, PhotonServerError } from "./error";
 import { DEFAULT_PHOTON_CONFIGURATION, type PhotonConfiguration } from "./types";

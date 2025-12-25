@@ -1,7 +1,8 @@
-import { findIconFor, type ServicePreference } from "@features/search";
 import { useDrag } from "@use-gesture/react";
 import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+
+import { findIconFor, type ServicePreference } from "@features/search";
 
 interface ServiceSelectorProps {
   services: ServicePreference[];

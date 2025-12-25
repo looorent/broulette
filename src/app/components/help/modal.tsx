@@ -1,5 +1,3 @@
-import { AlertBox } from "@components/alert/box";
-import type { AppConfiguration } from "@config/server";
 import {
   AlertTriangle,
   Cookie,
@@ -12,6 +10,10 @@ import {
   Sparkles
 } from "lucide-react";
 import { useState } from "react";
+
+import { AlertBox } from "@components/alert/box";
+import type { AppConfiguration } from "@config/server";
+
 import { TabButton, type TabType } from "./tab-button";
 
 interface HelpModalProps {

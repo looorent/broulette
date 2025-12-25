@@ -1,5 +1,6 @@
-import { AmbientPulse } from "@components/ambient-pulse";
 import { ArrowLeft, OctagonAlert } from "lucide-react";
+
+import { AmbientPulse } from "@components/ambient-pulse";
 
 export function ErrorUnknown() {
   return (

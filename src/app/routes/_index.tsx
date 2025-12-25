@@ -1,3 +1,6 @@
+import { useEffect, useRef, useState } from "react";
+import { useLoaderData, useSearchParams } from "react-router";
+
 import { AlertBox, AlertProvider, useAlertContext } from "@components/alert";
 import { BottomSheet } from "@components/bottom-sheet-modal";
 import { BrandTitle } from "@components/brand";
@@ -8,8 +11,6 @@ import { PreferencesForm, type PreferencesFormHandle } from "@components/search-
 import { APP_CONFIG } from "@config/server";
 import { getDeviceLocation } from "@features/browser.client";
 import { createDeviceLocation, createNextServices, DISTANCE_RANGES, preferenceFactory, type LocationPreference, type Preference } from "@features/search";
-import { useEffect, useRef, useState } from "react";
-import { useLoaderData, useSearchParams } from "react-router";
 
 export async function loader() {
   const services = createNextServices(new Date());

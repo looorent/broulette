@@ -1,11 +1,13 @@
+import { useEffect } from "react";
+import { href, redirect } from "react-router";
+
 import { BackToHomeButton } from "@components/back-to-home-button";
 import { AddressLink, OpenMapButton, RerollButton, RestaurantPrice, RestaurantRating, RestaurantTags, ShareButton, SourceBadge, WebsiteLink } from "@components/candidate";
 import { OpeningHoursCard } from "@components/candidate/opening-hour-card";
 import { PhoneLink } from "@components/candidate/phone-link";
 import { triggerHaptics } from "@features/browser.client";
 import { findCandidateViewModel } from "@features/view.server";
-import { useEffect } from "react";
-import { href, redirect } from "react-router";
+
 import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId";
 
 const locale = "en-US"; // TODO manage locale

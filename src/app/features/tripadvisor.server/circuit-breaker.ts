@@ -1,5 +1,6 @@
-import { initializeCircuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
 import { noop, type IPolicy } from "cockatiel";
+
+import { initializeCircuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
 
 let circuitBreakerSingleton: IPolicy | null = null;
 let failoverConfiguration: FailoverConfiguration | null;

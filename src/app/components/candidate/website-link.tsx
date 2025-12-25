@@ -1,8 +1,8 @@
+import { SiDeliveroo, SiFacebook, SiGoogle, SiInstagram, SiTripadvisor, SiUbereats } from "@icons-pack/react-simple-icons";
 import {
   Globe
 } from "lucide-react";
 
-import { SiDeliveroo, SiFacebook, SiGoogle, SiInstagram, SiTripadvisor, SiUbereats } from "@icons-pack/react-simple-icons";
 
 type WebsiteLinkConfiguration = {
   icon: React.ElementType;

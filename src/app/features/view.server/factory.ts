@@ -6,6 +6,7 @@ import { tagToLabel } from "@features/tag.server";
 import { TRIPADVISOR_SOURCE_NAME } from "@features/tripadvisor.server";
 import type { CandidateRedirect, CandidateView, OpeningHoursOfTheDay, RestaurantView, SearchRedirect, SearchView } from "@features/view";
 import { ServiceTimeslot, type DistanceRange, type Prisma, type Restaurant, type RestaurantProfile, type Search } from "@persistence/client";
+
 import { formatOpeningHoursFor } from "./opening-hours";
 
 type RestaurantModel = Prisma.RestaurantGetPayload<{ include: { profiles: true } }>;

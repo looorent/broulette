@@ -1,10 +1,11 @@
+import { AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { Form, useRouteLoaderData, useSubmit } from "react-router";
+
 import { AmbientPulse } from "@components/ambient-pulse";
 import { triggerHaptics } from "@features/browser.client";
 import type { Preference } from "@features/search";
 import type { loader as rootLoader } from "app/root";
-import { AlertTriangle } from "lucide-react";
-import { useState } from "react";
-import { Form, useRouteLoaderData, useSubmit } from "react-router";
 
 interface SearchSubmitButtonProps {
   preferences: Preference;
