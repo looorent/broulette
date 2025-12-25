@@ -5,7 +5,7 @@ import type { TagView } from "@features/tag";
 import { tagToLabel } from "@features/tag.server";
 import { TRIPADVISOR_SOURCE_NAME } from "@features/tripadvisor.server";
 import type { CandidateRedirect, CandidateView, OpeningHoursOfTheDay, RestaurantView, SearchRedirect, SearchView } from "@features/view";
-import { ServiceTimeslot, type DistanceRange, type Prisma, type Restaurant, type RestaurantProfile, type Search } from "@persistence/client";
+import { SearchCandidateStatus, ServiceTimeslot, type DistanceRange, type Prisma, type Restaurant, type RestaurantProfile, type Search } from "@persistence/client";
 
 import { formatOpeningHoursFor } from "./opening-hours";
 
@@ -28,7 +28,8 @@ export function buildViewModelOfCandidate(
       label: formatCandidateLabel(candidate.restaurant, candidate.search, locale),
       redirectRequired: false,
       candidate: {
-        id: candidate.id
+        id: candidate.id,
+        rejected: candidate.status === SearchCandidateStatus.Rejected
       },
       reRollEnabled: !candidate.search.exhausted && !hasExpired,
       search: {
@@ -71,32 +72,36 @@ export function buildViewModelOfSearch(search: {
 }
 
 export function buildViewModelOfRestaurant(
-  restaurant: RestaurantModel,
+  restaurant: RestaurantModel | undefined | null,
   search: Search,
   locale: string
-): RestaurantView {
-  const profiles: RestaurantProfiles = {
-    overpass: restaurant.profiles.find(profile => profile.source === OVERPASS_SOURCE_NAME),
-    tripAdvisor: restaurant.profiles.find(profile => profile.source === TRIPADVISOR_SOURCE_NAME),
-    google: restaurant.profiles.find(profile => profile.source === GOOGLE_PLACE_SOURCE_NAME)
-  };
+): RestaurantView | undefined {
+  if (restaurant) {
+    const profiles: RestaurantProfiles = {
+      overpass: restaurant.profiles.find(profile => profile.source === OVERPASS_SOURCE_NAME),
+      tripAdvisor: restaurant.profiles.find(profile => profile.source === TRIPADVISOR_SOURCE_NAME),
+      google: restaurant.profiles.find(profile => profile.source === GOOGLE_PLACE_SOURCE_NAME)
+    };
 
-  return {
-    id: restaurant.id,
-    name: restaurant.name || "",
-    description: buildDescription(profiles),
-    source: buildSource(profiles),
-    priceRange: buildPriceRange(profiles),
-    imageUrl: buildImageUrl(profiles),
-    rating: computeRating(profiles),
-    tags: buildTags(profiles),
-    phoneNumber: buildPhoneNumber(profiles),
-    internationalPhoneNumber: buildInternationalPhoneNumber(profiles),
-    openingHoursOfTheDay: buildOpeningHoursOfTheDay(search, profiles, locale),
-    address: buildAddress(profiles),
-    urls: buildUrls(profiles),
-    mapUrl: buildMapUrl(restaurant, profiles)
-  };
+    return {
+      id: restaurant.id,
+      name: restaurant.name || "",
+      description: buildDescription(profiles),
+      source: buildSource(profiles),
+      priceRange: buildPriceRange(profiles),
+      imageUrl: buildImageUrl(profiles),
+      rating: computeRating(profiles),
+      tags: buildTags(profiles),
+      phoneNumber: buildPhoneNumber(profiles),
+      internationalPhoneNumber: buildInternationalPhoneNumber(profiles),
+      openingHoursOfTheDay: buildOpeningHoursOfTheDay(search, profiles, locale),
+      address: buildAddress(profiles),
+      urls: buildUrls(profiles),
+      mapUrl: buildMapUrl(restaurant, profiles)
+    };
+  } else {
+    return undefined;
+  }
 }
 
 function buildSource({ overpass, tripAdvisor, google }: RestaurantProfiles): string {
@@ -224,8 +229,11 @@ function formatSearchLabel(
   ].filter(Boolean).join(" - ");
 }
 
-function formatCandidateLabel({ name }: Restaurant, search: Search, locale: string): string {
-  return `${formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale)} - ${name}`;
+function formatCandidateLabel(restaurant: Restaurant | undefined | null, search: Search, locale: string): string {
+  return [
+    formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale),
+    restaurant?.name
+  ].filter(Boolean).join(" - ");
 }
 
 function formatServiceTime(serviceTimeslot: ServiceTimeslot, serviceInstant: Date, locale: string): string {

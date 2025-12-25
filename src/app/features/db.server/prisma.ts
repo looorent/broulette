@@ -5,11 +5,13 @@ import { DistanceRange, SearchCandidateStatus, ServiceTimeslot } from "@persiste
 
 const prismaClientSingleton = () => {
   const prisma = new PrismaClient({
-    accelerateUrl: process.env.BROULETTE_DATABASE_URL!
+    accelerateUrl: process.env.BROULETTE_DATABASE_URL!,
+    // log: ["query"] TODO
   })
   .$extends({
     model: {
       search: {
+        // TODO add a version of this method that also returned "rejected" (if relevant)
         async findWithLatestCandidateId(searchId: string | undefined | null): Promise<{
           searchId: string;
           exhausted: boolean;

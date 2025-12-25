@@ -65,22 +65,21 @@ async function processRestaurant(
   scanner: RestaurantDiscoveryScanner
 ): Promise<SearchCandidate | undefined> {
   const restaurant = await enrichRestaurant(discovered, locale, config.matching);
+  const validation = await validateRestaurant(restaurant, search, locale);
+  const newCandidate = await prisma.searchCandidate.create({
+    data: {
+      searchId: search.id,
+      restaurantId: restaurant?.id,
+      order,
+      status: validation.valid ? SearchCandidateStatus.Returned : SearchCandidateStatus.Rejected,
+      rejectionReason: validation.rejectionReason
+    }
+  });
+
   if (restaurant) {
-    const validation = await validateRestaurant(restaurant, search, locale);
-    const newCandidate = await prisma.searchCandidate.create({
-      data: {
-        searchId: search.id,
-        restaurantId: restaurant.id,
-        order,
-        status: validation.valid ? SearchCandidateStatus.Returned : SearchCandidateStatus.Rejected,
-        rejectionReason: validation.rejectionReason
-      }
-    });
     restaurant.profiles.forEach(profile => scanner.addIdentityToExclude(profile));
-    return newCandidate;
-  } else {
-    return undefined;
   }
+  return newCandidate;
 }
 
 function shouldContinueSearching(candidate: SearchCandidate | undefined, scanner: RestaurantDiscoveryScanner): boolean {
@@ -122,7 +121,7 @@ function createDiscoveryScanner(
     candidates: {
       restaurant: {
         profiles: RestaurantProfile[]
-      }
+      } | undefined | null
     }[] | undefined
   },
   configuration: SearchEngineConfiguration

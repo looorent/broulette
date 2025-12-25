@@ -15,6 +15,7 @@ export async function action({
   params
 }: Route.ActionArgs) {
   const formData = await request.formData();
+  // TODO add validation
   await validateCSRF(formData, request.headers);
   if (params.searchId) {
     const candidate = await searchCandidate(params.searchId, locale, SEARCH_ENGINE_CONFIGURATION, request.signal);

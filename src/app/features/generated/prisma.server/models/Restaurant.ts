@@ -361,9 +361,9 @@ export type RestaurantUncheckedUpdateManyInput = {
   longitude?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
-export type RestaurantScalarRelationFilter = {
-  is?: Prisma.RestaurantWhereInput
-  isNot?: Prisma.RestaurantWhereInput
+export type RestaurantNullableScalarRelationFilter = {
+  is?: Prisma.RestaurantWhereInput | null
+  isNot?: Prisma.RestaurantWhereInput | null
 }
 
 export type RestaurantCountOrderByAggregateInput = {
@@ -403,16 +403,23 @@ export type RestaurantSumOrderByAggregateInput = {
   longitude?: Prisma.SortOrder
 }
 
+export type RestaurantScalarRelationFilter = {
+  is?: Prisma.RestaurantWhereInput
+  isNot?: Prisma.RestaurantWhereInput
+}
+
 export type RestaurantCreateNestedOneWithoutSearchCandidatesInput = {
   create?: Prisma.XOR<Prisma.RestaurantCreateWithoutSearchCandidatesInput, Prisma.RestaurantUncheckedCreateWithoutSearchCandidatesInput>
   connectOrCreate?: Prisma.RestaurantCreateOrConnectWithoutSearchCandidatesInput
   connect?: Prisma.RestaurantWhereUniqueInput
 }
 
-export type RestaurantUpdateOneRequiredWithoutSearchCandidatesNestedInput = {
+export type RestaurantUpdateOneWithoutSearchCandidatesNestedInput = {
   create?: Prisma.XOR<Prisma.RestaurantCreateWithoutSearchCandidatesInput, Prisma.RestaurantUncheckedCreateWithoutSearchCandidatesInput>
   connectOrCreate?: Prisma.RestaurantCreateOrConnectWithoutSearchCandidatesInput
   upsert?: Prisma.RestaurantUpsertWithoutSearchCandidatesInput
+  disconnect?: Prisma.RestaurantWhereInput | boolean
+  delete?: Prisma.RestaurantWhereInput | boolean
   connect?: Prisma.RestaurantWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.RestaurantUpdateToOneWithWhereWithoutSearchCandidatesInput, Prisma.RestaurantUpdateWithoutSearchCandidatesInput>, Prisma.RestaurantUncheckedUpdateWithoutSearchCandidatesInput>
 }

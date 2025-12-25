@@ -24,15 +24,23 @@ type RestaurantAndProfiles = Prisma.RestaurantGetPayload<{
 }>;
 
 // TODO add other validations?
-export async function validateRestaurant(restaurant: RestaurantAndProfiles, search: Search, locale: string): Promise<RestaurantValidation> {
-  if (restaurant.latitude === null || restaurant.latitude === undefined || restaurant.longitude === null || restaurant.longitude === undefined) {
-    return failed("missing_coordinates");
-  } else {
-    const model = buildViewModelOfRestaurant(restaurant, search, locale);
-    if (model.openingHoursOfTheDay?.open === false) {
-      return failed("closed");
+export async function validateRestaurant(
+  restaurant: RestaurantAndProfiles | undefined,
+  search: Search,
+  locale: string
+): Promise<RestaurantValidation> {
+  if (restaurant) {
+    if (restaurant.latitude === null || restaurant.latitude === undefined || restaurant.longitude === null || restaurant.longitude === undefined) {
+      return failed("missing_coordinates");
     } else {
-      return SUCCESS;
+      const model = buildViewModelOfRestaurant(restaurant, search, locale)!;
+      if (model.openingHoursOfTheDay?.open === false) {
+        return failed("closed");
+      } else {
+        return SUCCESS;
+      }
     }
+  } else {
+    return failed("no_restaurant_found");
   }
 }

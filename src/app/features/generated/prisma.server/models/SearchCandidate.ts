@@ -196,7 +196,7 @@ export type SearchCandidateGroupByOutputType = {
   createdAt: Date
   order: number
   searchId: string
-  restaurantId: string
+  restaurantId: string | null
   status: $Enums.SearchCandidateStatus
   rejectionReason: string | null
   _count: SearchCandidateCountAggregateOutputType | null
@@ -229,11 +229,11 @@ export type SearchCandidateWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"SearchCandidate"> | Date | string
   order?: Prisma.IntFilter<"SearchCandidate"> | number
   searchId?: Prisma.UuidFilter<"SearchCandidate"> | string
-  restaurantId?: Prisma.UuidFilter<"SearchCandidate"> | string
+  restaurantId?: Prisma.UuidNullableFilter<"SearchCandidate"> | string | null
   status?: Prisma.EnumSearchCandidateStatusFilter<"SearchCandidate"> | $Enums.SearchCandidateStatus
   rejectionReason?: Prisma.StringNullableFilter<"SearchCandidate"> | string | null
   search?: Prisma.XOR<Prisma.SearchScalarRelationFilter, Prisma.SearchWhereInput>
-  restaurant?: Prisma.XOR<Prisma.RestaurantScalarRelationFilter, Prisma.RestaurantWhereInput>
+  restaurant?: Prisma.XOR<Prisma.RestaurantNullableScalarRelationFilter, Prisma.RestaurantWhereInput> | null
 }
 
 export type SearchCandidateOrderByWithRelationInput = {
@@ -241,7 +241,7 @@ export type SearchCandidateOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   order?: Prisma.SortOrder
   searchId?: Prisma.SortOrder
-  restaurantId?: Prisma.SortOrder
+  restaurantId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   search?: Prisma.SearchOrderByWithRelationInput
@@ -256,11 +256,11 @@ export type SearchCandidateWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"SearchCandidate"> | Date | string
   order?: Prisma.IntFilter<"SearchCandidate"> | number
   searchId?: Prisma.UuidFilter<"SearchCandidate"> | string
-  restaurantId?: Prisma.UuidFilter<"SearchCandidate"> | string
+  restaurantId?: Prisma.UuidNullableFilter<"SearchCandidate"> | string | null
   status?: Prisma.EnumSearchCandidateStatusFilter<"SearchCandidate"> | $Enums.SearchCandidateStatus
   rejectionReason?: Prisma.StringNullableFilter<"SearchCandidate"> | string | null
   search?: Prisma.XOR<Prisma.SearchScalarRelationFilter, Prisma.SearchWhereInput>
-  restaurant?: Prisma.XOR<Prisma.RestaurantScalarRelationFilter, Prisma.RestaurantWhereInput>
+  restaurant?: Prisma.XOR<Prisma.RestaurantNullableScalarRelationFilter, Prisma.RestaurantWhereInput> | null
 }, "id">
 
 export type SearchCandidateOrderByWithAggregationInput = {
@@ -268,7 +268,7 @@ export type SearchCandidateOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   order?: Prisma.SortOrder
   searchId?: Prisma.SortOrder
-  restaurantId?: Prisma.SortOrder
+  restaurantId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SearchCandidateCountOrderByAggregateInput
@@ -286,7 +286,7 @@ export type SearchCandidateScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SearchCandidate"> | Date | string
   order?: Prisma.IntWithAggregatesFilter<"SearchCandidate"> | number
   searchId?: Prisma.UuidWithAggregatesFilter<"SearchCandidate"> | string
-  restaurantId?: Prisma.UuidWithAggregatesFilter<"SearchCandidate"> | string
+  restaurantId?: Prisma.UuidNullableWithAggregatesFilter<"SearchCandidate"> | string | null
   status?: Prisma.EnumSearchCandidateStatusWithAggregatesFilter<"SearchCandidate"> | $Enums.SearchCandidateStatus
   rejectionReason?: Prisma.StringNullableWithAggregatesFilter<"SearchCandidate"> | string | null
 }
@@ -298,7 +298,7 @@ export type SearchCandidateCreateInput = {
   status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
   search: Prisma.SearchCreateNestedOneWithoutCandidatesInput
-  restaurant: Prisma.RestaurantCreateNestedOneWithoutSearchCandidatesInput
+  restaurant?: Prisma.RestaurantCreateNestedOneWithoutSearchCandidatesInput
 }
 
 export type SearchCandidateUncheckedCreateInput = {
@@ -306,7 +306,7 @@ export type SearchCandidateUncheckedCreateInput = {
   createdAt?: Date | string
   order: number
   searchId: string
-  restaurantId: string
+  restaurantId?: string | null
   status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
 }
@@ -318,7 +318,7 @@ export type SearchCandidateUpdateInput = {
   status?: Prisma.EnumSearchCandidateStatusFieldUpdateOperationsInput | $Enums.SearchCandidateStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   search?: Prisma.SearchUpdateOneRequiredWithoutCandidatesNestedInput
-  restaurant?: Prisma.RestaurantUpdateOneRequiredWithoutSearchCandidatesNestedInput
+  restaurant?: Prisma.RestaurantUpdateOneWithoutSearchCandidatesNestedInput
 }
 
 export type SearchCandidateUncheckedUpdateInput = {
@@ -326,7 +326,7 @@ export type SearchCandidateUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.IntFieldUpdateOperationsInput | number
   searchId?: Prisma.StringFieldUpdateOperationsInput | string
-  restaurantId?: Prisma.StringFieldUpdateOperationsInput | string
+  restaurantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumSearchCandidateStatusFieldUpdateOperationsInput | $Enums.SearchCandidateStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -336,7 +336,7 @@ export type SearchCandidateCreateManyInput = {
   createdAt?: Date | string
   order: number
   searchId: string
-  restaurantId: string
+  restaurantId?: string | null
   status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
 }
@@ -354,7 +354,7 @@ export type SearchCandidateUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.IntFieldUpdateOperationsInput | number
   searchId?: Prisma.StringFieldUpdateOperationsInput | string
-  restaurantId?: Prisma.StringFieldUpdateOperationsInput | string
+  restaurantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumSearchCandidateStatusFieldUpdateOperationsInput | $Enums.SearchCandidateStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -513,14 +513,14 @@ export type SearchCandidateCreateWithoutSearchInput = {
   order: number
   status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
-  restaurant: Prisma.RestaurantCreateNestedOneWithoutSearchCandidatesInput
+  restaurant?: Prisma.RestaurantCreateNestedOneWithoutSearchCandidatesInput
 }
 
 export type SearchCandidateUncheckedCreateWithoutSearchInput = {
   id?: string
   createdAt?: Date | string
   order: number
-  restaurantId: string
+  restaurantId?: string | null
   status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
 }
@@ -559,7 +559,7 @@ export type SearchCandidateScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"SearchCandidate"> | Date | string
   order?: Prisma.IntFilter<"SearchCandidate"> | number
   searchId?: Prisma.UuidFilter<"SearchCandidate"> | string
-  restaurantId?: Prisma.UuidFilter<"SearchCandidate"> | string
+  restaurantId?: Prisma.UuidNullableFilter<"SearchCandidate"> | string | null
   status?: Prisma.EnumSearchCandidateStatusFilter<"SearchCandidate"> | $Enums.SearchCandidateStatus
   rejectionReason?: Prisma.StringNullableFilter<"SearchCandidate"> | string | null
 }
@@ -612,7 +612,7 @@ export type SearchCandidateCreateManySearchInput = {
   id?: string
   createdAt?: Date | string
   order: number
-  restaurantId: string
+  restaurantId?: string | null
   status: $Enums.SearchCandidateStatus
   rejectionReason?: string | null
 }
@@ -623,14 +623,14 @@ export type SearchCandidateUpdateWithoutSearchInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumSearchCandidateStatusFieldUpdateOperationsInput | $Enums.SearchCandidateStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  restaurant?: Prisma.RestaurantUpdateOneRequiredWithoutSearchCandidatesNestedInput
+  restaurant?: Prisma.RestaurantUpdateOneWithoutSearchCandidatesNestedInput
 }
 
 export type SearchCandidateUncheckedUpdateWithoutSearchInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.IntFieldUpdateOperationsInput | number
-  restaurantId?: Prisma.StringFieldUpdateOperationsInput | string
+  restaurantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumSearchCandidateStatusFieldUpdateOperationsInput | $Enums.SearchCandidateStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -639,7 +639,7 @@ export type SearchCandidateUncheckedUpdateManyWithoutSearchInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.IntFieldUpdateOperationsInput | number
-  restaurantId?: Prisma.StringFieldUpdateOperationsInput | string
+  restaurantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumSearchCandidateStatusFieldUpdateOperationsInput | $Enums.SearchCandidateStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -691,7 +691,7 @@ export type SearchCandidateSelect<ExtArgs extends runtime.Types.Extensions.Inter
   status?: boolean
   rejectionReason?: boolean
   search?: boolean | Prisma.SearchDefaultArgs<ExtArgs>
-  restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
+  restaurant?: boolean | Prisma.SearchCandidate$restaurantArgs<ExtArgs>
 }, ExtArgs["result"]["searchCandidate"]>
 
 export type SearchCandidateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -703,7 +703,7 @@ export type SearchCandidateSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   status?: boolean
   rejectionReason?: boolean
   search?: boolean | Prisma.SearchDefaultArgs<ExtArgs>
-  restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
+  restaurant?: boolean | Prisma.SearchCandidate$restaurantArgs<ExtArgs>
 }, ExtArgs["result"]["searchCandidate"]>
 
 export type SearchCandidateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -715,7 +715,7 @@ export type SearchCandidateSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   status?: boolean
   rejectionReason?: boolean
   search?: boolean | Prisma.SearchDefaultArgs<ExtArgs>
-  restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
+  restaurant?: boolean | Prisma.SearchCandidate$restaurantArgs<ExtArgs>
 }, ExtArgs["result"]["searchCandidate"]>
 
 export type SearchCandidateSelectScalar = {
@@ -731,29 +731,29 @@ export type SearchCandidateSelectScalar = {
 export type SearchCandidateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "order" | "searchId" | "restaurantId" | "status" | "rejectionReason", ExtArgs["result"]["searchCandidate"]>
 export type SearchCandidateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   search?: boolean | Prisma.SearchDefaultArgs<ExtArgs>
-  restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
+  restaurant?: boolean | Prisma.SearchCandidate$restaurantArgs<ExtArgs>
 }
 export type SearchCandidateIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   search?: boolean | Prisma.SearchDefaultArgs<ExtArgs>
-  restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
+  restaurant?: boolean | Prisma.SearchCandidate$restaurantArgs<ExtArgs>
 }
 export type SearchCandidateIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   search?: boolean | Prisma.SearchDefaultArgs<ExtArgs>
-  restaurant?: boolean | Prisma.RestaurantDefaultArgs<ExtArgs>
+  restaurant?: boolean | Prisma.SearchCandidate$restaurantArgs<ExtArgs>
 }
 
 export type $SearchCandidatePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SearchCandidate"
   objects: {
     search: Prisma.$SearchPayload<ExtArgs>
-    restaurant: Prisma.$RestaurantPayload<ExtArgs>
+    restaurant: Prisma.$RestaurantPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     createdAt: Date
     order: number
     searchId: string
-    restaurantId: string
+    restaurantId: string | null
     status: $Enums.SearchCandidateStatus
     rejectionReason: string | null
   }, ExtArgs["result"]["searchCandidate"]>
@@ -1151,7 +1151,7 @@ readonly fields: SearchCandidateFieldRefs;
 export interface Prisma__SearchCandidateClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   search<T extends Prisma.SearchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SearchDefaultArgs<ExtArgs>>): Prisma.Prisma__SearchClient<runtime.Types.Result.GetResult<Prisma.$SearchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  restaurant<T extends Prisma.RestaurantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RestaurantDefaultArgs<ExtArgs>>): Prisma.Prisma__RestaurantClient<runtime.Types.Result.GetResult<Prisma.$RestaurantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  restaurant<T extends Prisma.SearchCandidate$restaurantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SearchCandidate$restaurantArgs<ExtArgs>>): Prisma.Prisma__RestaurantClient<runtime.Types.Result.GetResult<Prisma.$RestaurantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1581,6 +1581,25 @@ export type SearchCandidateDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many SearchCandidates to delete.
    */
   limit?: number
+}
+
+/**
+ * SearchCandidate.restaurant
+ */
+export type SearchCandidate$restaurantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Restaurant
+   */
+  select?: Prisma.RestaurantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Restaurant
+   */
+  omit?: Prisma.RestaurantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RestaurantInclude<ExtArgs> | null
+  where?: Prisma.RestaurantWhereInput
 }
 
 /**

@@ -32,10 +32,11 @@ export interface CandidateView {
   redirectRequired: false;
   candidate: {
     id: string;
+    rejected: boolean;
   };
   reRollEnabled: boolean;
   search: SearchView;
-  restaurant: RestaurantView;
+  restaurant: RestaurantView | undefined;
 }
 
 export interface SearchRedirect {

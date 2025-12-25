@@ -57,14 +57,16 @@ model SearchCandidate {
   searchId        String @db.Uuid
   search          Search @relation(fields: [searchId], references: [id])
 
-  restaurantId    String @db.Uuid
-  restaurant      Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId    String? @db.Uuid
+  restaurant      Restaurant? @relation(fields: [restaurantId], references: [id])
 
   status          SearchCandidateStatus
 
   rejectionReason String? @db.VarChar(200)
 
+  @@index([searchId])
   @@index([searchId, status])
+  @@index([restaurantId, status])
 
   @@map("search_candidate")
 }

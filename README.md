@@ -15,6 +15,11 @@ $ openssl rand -hex 32
 
 ## TODO
 
+* "back" does not work properly, the "candidate" page seems to be skipped
+* Add a tag "unknown opening hours"
+* If the restaurant does not have any address, then, do not consider it as valid.
+* Add indexes based on the actual calls
+* Add "overloaded" error
 * Enable "locale" (at least the default one)
 * Streaming HTTP during search
 * Handle errors on every route

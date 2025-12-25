@@ -16,12 +16,12 @@ export async function enrichRestaurant(
   language: string,
   configuration: RestaurantMatchingConfiguration = DEFAULT_MATCHING_CONFIGURATION,
   signal?: AbortSignal | undefined
-): Promise<RestaurantAndProfiles | null> {
+): Promise<RestaurantAndProfiles | undefined> {
   if (discovered) {
     const restaurant = await findRestaurantInDatabase(discovered) || await saveRestaurantToDatabase(discovered, configuration);
     return await enrich(restaurant, language, configuration, signal);
   } else {
-    return null;
+    return undefined;
   }
 }
 

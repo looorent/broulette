@@ -1,6 +1,8 @@
-import { ArrowLeft, OctagonAlert } from "lucide-react";
+import { OctagonAlert } from "lucide-react";
 
 import { AmbientPulse } from "@components/ambient-pulse";
+
+import { BackButton } from "./back-button";
 
 export function ErrorUnknown() {
   return (
@@ -50,21 +52,7 @@ export function ErrorUnknown() {
         </span>
       </div>
 
-      <a
-        href="/"
-        aria-label="Back to Lobby"
-        className={`
-          mt-8 flex animate-slide-in-from-top-right cursor-pointer items-center
-          justify-center gap-2 rounded-md border-[3px] border-fun-dark
-          bg-fun-cream/95 p-4 font-pop text-xl font-bold tracking-wide
-          text-fun-dark shadow-hard-hover backdrop-blur-md
-          hover:rotate-0 hover:brightness-115
-          active:scale-120
-        `}
-      >
-        <ArrowLeft className="h-8 w-8 stroke-[3px]" />
-        <span>Lobby</span>
-      </a>
+      <BackButton />
     </main>
   );
 }
