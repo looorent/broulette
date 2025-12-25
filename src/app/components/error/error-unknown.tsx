@@ -1,6 +1,6 @@
-import { ArrowLeft } from "lucide-react";
+import { AmbientPulse } from "@components/ambient-pulse";
+import { ArrowLeft, OctagonAlert } from "lucide-react";
 
-// TODO implement this properly (and restyle it)
 export function ErrorUnknown() {
   return (
     <main
@@ -9,45 +9,67 @@ export function ErrorUnknown() {
         flex flex-col
         items-center justify-center
         p-6
+        gap-6
         relative
         h-full w-full
-        overflow-hidden
-      ">
+        z-10
+      "
+    >
+      <AmbientPulse />
 
-      <div className="flex items-center justify-center gap-2 font-pop text-8xl md:text-9xl leading-none text-fun-yellow drop-shadow-[5px_5px_0px_rgba(45,52,54,1)] tracking-tighter">
-        <span className="transform -rotate-12 inline-block hover:rotate-0 transition-transform duration-300">M</span>
-        <span className="transform rotate-6 inline-block hover:rotate-0 transition-transform duration-300 text-fun-cream">e</span>
-        <span className="transform -rotate-6 inline-block hover:rotate-0 transition-transform duration-300">h</span>
+      {/* Floating Icon Decoration */}
+      <div className="mb-6 animate-float z-10">
+        <div className="
+          bg-fun-cream
+          text-fun-dark
+          border-[3px] border-fun-dark rounded-full
+          p-3
+          shadow-hard rotate-12">
+          <OctagonAlert className="w-10 h-10" />
+        </div>
       </div>
 
-      <div className="inline-block  my-5
-        bg-fun-dark text-fun-cream px-6 py-2 rounded-full transform rotate-2 mt-6 shadow-hard-white border-2 border-transparent">
-        <p className="font-display font-bold tracking-widest uppercase text-sm md:text-base">
-          An unexpected error occurred.
-        </p>
+      {/* Title Text */}
+      <div className="
+        z-10
+        flex flex-col items-center justify-center
+        gap-1
+        font-pop text-6xl
+        leading-none text-fun-yellow
+        drop-shadow-[5px_5px_0px_rgba(45,52,54,1)]
+        tracking-tighter cursor-default">
+        <span className="transform -rotate-4 inline-block hover:rotate-0 hover:scale-110 transition-transform duration-300">
+          Something
+        </span>
+        <span className="transform rotate-8 inline-block hover:rotate-0 hover:scale-110 transition-transform duration-300 text-fun-cream">
+          went
+        </span>
+        <span className="transform -rotate-1 inline-block hover:rotate-0 hover:scale-110 transition-transform duration-300">
+          weird
+        </span>
       </div>
 
       <a
         href="/"
         aria-label="Back to Lobby"
-        className={`
-        flex items-center gap-2 justify-center
-        px-2 py-2
+        className="
+          flex items-center gap-2 justify-center
+          p-4
+          mt-8
 
-        bg-fun-cream/95 backdrop-blur-md
-        border-[3px] border-fun-dark rounded-md shadow-hard-hover
-        text-fun-dark font-bold font-pop uppercase text-sm tracking-wide
+          bg-fun-cream/95 backdrop-blur-md
+          border-[3px] border-fun-dark rounded-md shadow-hard-hover
+          text-fun-dark font-bold font-pop tracking-wide text-xl
 
-        animate-slide-in-from-top-right
+          animate-slide-in-from-top-right
 
-        cursor-pointer transition-transform duration-500
-        hover:rotate-0 hover:brightness-115 active:scale-120
-      `}
+          cursor-pointer
+          hover:rotate-0 hover:brightness-115 active:scale-120
+        "
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-8 h-8 stroke-[3px]" />
         <span>Lobby</span>
       </a>
-
     </main>
   );
 }

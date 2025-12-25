@@ -63,7 +63,6 @@ async function processRestaurant(
   locale: string,
   scanner: RestaurantDiscoveryScanner
 ): Promise<SearchCandidate | undefined> {
-  throw new Error("COUCOU");
   const restaurant = await enrichRestaurant(discovered, locale, config.matching);
   if (restaurant) {
     const validation = await validateRestaurant(restaurant, search, locale);

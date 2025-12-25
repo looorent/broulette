@@ -1,8 +1,9 @@
+import { AmbientPulse } from "@components/ambient-pulse";
 import { triggerHaptics } from "@features/browser.client";
 import type { Preference } from "@features/search";
+import type { loader as rootLoader } from "app/root";
 import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
-import type { loader as rootLoader } from "app/root";
 import { Form, useRouteLoaderData, useSubmit } from "react-router";
 
 interface SearchSubmitButtonProps {
@@ -64,14 +65,7 @@ export function SearchSubmitButton({
         ${className}
       `}
     >
-      {/* Decorative Pulse */}
-      <div className={`
-          absolute w-56 h-56 rounded-full pointer-events-none z-0
-          animate-pulse-mega transition-colors duration-500
-          bg-fun-cream/30
-        `}
-        aria-hidden="true"
-      />
+      <AmbientPulse />
 
       <button
         type="submit"
