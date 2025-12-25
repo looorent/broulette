@@ -36,16 +36,17 @@ export function RerollButton({ enabled, searchId }: RerollButtonProps) {
     return (
       <button
         onClick={() => reRoll(enabled, searchId, session?.csrfToken || "", submit)}
-        className="w-20
-        bg-fun-yellow
-        border-4 border-fun-dark rounded-2xl
-        flex items-center justify-center
-        shadow-hard
-        transition-transform active:translate-y-1 active:shadow-none hover:brightness-110 cursor-pointer"
+        className={`
+          flex w-20 cursor-pointer items-center justify-center rounded-2xl
+          border-4 border-fun-dark bg-fun-yellow shadow-hard
+          transition-transform
+          hover:brightness-110
+          active:translate-y-1 active:shadow-none
+        `}
         title="Reroll"
         aria-label="Reroll"
       >
-        <RefreshCw className="w-8 h-8 stroke-[3px] text-fun-dark" />
+        <RefreshCw className="h-8 w-8 stroke-[3px] text-fun-dark" />
       </button>
     );
   } else {

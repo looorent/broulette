@@ -30,8 +30,12 @@ export const PreferencesForm = forwardRef<PreferencesFormHandle, PreferencesForm
 
       return (
         <form id="preferences-form" className="flex flex-col gap-8" onSubmit={() => false}>
-          <fieldset className="space-y-2 relative border-none p-0 m-0 min-w-0 max-w-full w-full">
-            <legend className="block font-pop text-2xl text-fun-dark tracking-wide mb-2">
+          <fieldset className={`
+            relative m-0 w-full max-w-full min-w-0 space-y-2 border-none p-0
+          `}>
+            <legend className={`
+              mb-2 block font-pop text-2xl tracking-wide text-fun-dark
+            `}>
               Near where?
             </legend>
 

@@ -15,17 +15,10 @@ export function OpeningHoursCard({
     return (
       <div
         className={`
-          inline-flex items-center gap-1.5
-          px-3 py-1.5
-          my-3
-           text-fun-dark
-          border-2 border-fun-dark
-          rounded-lg
-          shadow-hard-hover
-          transform -rotate-1
-          font-bold font-sans text-sm uppercase tracking-wide
-          select-none
-          ${openingHoursOfTheDay.unknown ? "bg-fun-yellow text-fun-dark" : ""}
+          my-3 inline-flex -rotate-1 transform items-center gap-1.5 rounded-lg
+          border-2 border-fun-dark px-3 py-1.5 font-sans text-sm font-bold
+          tracking-wide text-fun-dark uppercase shadow-hard-hover select-none
+          ${openingHoursOfTheDay.unknown ? "bg-fun-yellow" : ""}
           ${openingHoursOfTheDay.open === false ? "bg-fun-red/20 text-fun-red" : ""}
           ${className}
         `}
@@ -33,11 +26,11 @@ export function OpeningHoursCard({
       >
         {
           openingHoursOfTheDay.unknown ? (
-            <CircleQuestionMark className="w-5 h-5 stroke-[2.5px]" />
+            <CircleQuestionMark className="h-5 w-5 stroke-[2.5px]" />
           ) : openingHoursOfTheDay.open ? (
-            <Clock className="w-5 h-5 stroke-[2.5px]" />
+            <Clock className="h-5 w-5 stroke-[2.5px]" />
           ) : (
-            <ClockAlert className="w-5 h-5 stroke-[2.5px]" />
+            <ClockAlert className="h-5 w-5 stroke-[2.5px]" />
           )
         }
 

@@ -47,43 +47,39 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
       <BackToHomeButton />
 
       <main
-        className="
-          h-full
-          flex flex-col justify-between
-          py-8
-          relative
-          animate-bounce-in
-          transform transition-transform duration-300
-        "
+        className={`
+          relative flex h-full transform animate-bounce-in flex-col
+          justify-between py-8 transition-transform duration-300
+        `}
         aria-label={`Result: ${restaurant.name}`}
       >
-        <div className="flex-1 flex flex-col w-full max-w-md mx-auto p-8 no-scrollbar">
+        <div className="mx-auto flex w-full max-w-md flex-1 flex-col p-8">
 
           {/* Header */}
-          <header className="text-center mb-6 animate-float">
-            <h2 className="font-pop text-4xl text-fun-cream drop-shadow-[3px_3px_0px_rgba(45,52,54,1)] uppercase transform -rotate-2">
+          <header className="mb-6 animate-float text-center">
+            <h2 className={`
+              -rotate-2 transform font-pop text-4xl text-fun-cream uppercase
+              drop-shadow-[3px_3px_0px_rgba(45,52,54,1)]
+            `}>
               Jackpot!
             </h2>
           </header>
 
           {/* Card */}
-          <article className="
-            bg-fun-cream
-            border-4 border-fun-dark rounded-3xl
-            shadow-hard
-            overflow-hidden
-            flex-1
-            flex flex-col
-            mb-6
-            transform rotate-1 hover:rotate-0 transition-transform duration-300
-            relative group
-            min-h-75
-          ">
-            <figure className="h-56 bg-fun-cream relative border-b-4 border-fun-dark overflow-hidden m-0">
+          <article className={`
+            group relative mb-6 flex min-h-75 flex-1 rotate-1 transform flex-col
+            overflow-hidden rounded-3xl border-4 border-fun-dark bg-fun-cream
+            shadow-hard transition-transform duration-300
+            hover:rotate-0
+          `}>
+            <figure className={`
+              relative m-0 h-56 overflow-hidden border-b-4 border-fun-dark
+              bg-fun-cream
+            `}>
               <img
                 id="candidate-image"
                 src={restaurant.imageUrl}
-                className="w-full h-full object-cover animate-photo"
+                className="h-full w-full animate-image-zoom object-cover"
                 alt={`Restaurant named '${restaurant.name}'`}
                 loading="lazy"
                 decoding="async"
@@ -100,17 +96,22 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
                 restaurantDescription={restaurant.description} />
             </figure>
 
-            <div className="p-6 flex-1 flex flex-col relative">
+            <div className="relative flex flex-1 flex-col p-6">
               <RestaurantRating rating={restaurant.rating?.label} />
 
-              <h3 id="candidate-name" className="font-pop text-3xl text-fun-dark leading-tight mb-2 mt-2">
+              <h3 id="candidate-name" className={`
+                mt-2 mb-2 font-pop text-3xl leading-tight text-fun-dark
+              `}>
                 {restaurant.name}
               </h3>
 
               <OpeningHoursCard openingHoursOfTheDay={restaurant.openingHoursOfTheDay} />
 
               <div className="mt-auto space-y-3">
-                <address className="flex flex-col gap-4 text-fun-dark font-bold font-sans text-sm not-italic">
+                <address className={`
+                  flex flex-col gap-4 font-sans text-sm font-bold text-fun-dark
+                  not-italic
+                `}>
                   <AddressLink formattedAddress={restaurant.address} mapUrl={restaurant.mapUrl} />
                   {restaurant.urls?.map(url => <WebsiteLink key={url} url={url} />)}
                   <PhoneLink nationalPhoneNumber={restaurant.phoneNumber} internationalPhoneNumber={restaurant.internationalPhoneNumber} />

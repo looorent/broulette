@@ -85,14 +85,17 @@ export function WebsiteLink({ url }: { url: string | null | undefined }) {
     const { icon: Icon, label, colorClass } = findWebsiteConfig(url);
     return (
       <div className="flex items-center gap-2">
-        <Icon className={`w-5 h-5 shrink-0 ${colorClass}`} />
+        <Icon className={`
+          h-5 w-5 shrink-0
+          ${colorClass}
+        `} />
         <a href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="
-            hover:underline decoration-2 cursor-pointer
-            whitespace-nowrap truncate max-w-fit
-          "
+          className={`
+            max-w-fit cursor-pointer truncate whitespace-nowrap decoration-2
+            hover:underline
+          `}
         >
           {label}
         </a>

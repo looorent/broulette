@@ -6,18 +6,12 @@ export function RestaurantRating({ rating }: {
   if (rating && rating.length > 0) {
     return (
       <div id="candidate-rating"
-        className="
-          absolute
-          -top-5 left-6
-          bg-fun-green
-          border-[3px] border-fun-dark rounded-full
-          px-3 py-1
+        className={`
+          absolute -top-5 left-6 z-20 flex -rotate-3 transform items-center
+          gap-1 rounded-full border-[3px] border-fun-dark bg-fun-green px-3 py-1
           font-bold text-white shadow-hard-hover
-          flex items-center
-          gap-1 transform
-          -rotate-3 z-20
-        ">
-        <Star className="w-4 h-4 fill-fun-cream" />
+        `}>
+        <Star className="h-4 w-4 fill-fun-cream" />
         <span>{rating}</span>
       </div>
     );

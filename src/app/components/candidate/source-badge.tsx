@@ -46,17 +46,13 @@ export function SourceBadge({ source }: SourceBadgeProps) {
     const Icon = style.icon;
     return (
       <div className={`
-        absolute bottom-3 right-3
-        inline-flex items-center justify-center
+        absolute right-3 bottom-3 inline-flex items-center justify-center
         ${style.style}
-        border-[3px] border-fun-dark
-        px-2.5 py-1 rounded-lg
-        font-bold font-sans text-xs uppercase tracking-wider
-        shadow-hard-hover
-        z-20
-        animate-in fade-in slide-in-from-bottom-2 duration-500
+        z-20 rounded-lg border-[3px] border-fun-dark px-2.5 py-1 font-sans
+        text-xs font-bold tracking-wider uppercase shadow-hard-hover
+        duration-500
       `}>
-        <span className="opacity-75 text-[10px] mr-1">via</span>
+        <span className="mr-1 text-[10px] opacity-75">via</span>
         {style.label}
         {Icon && <Icon className="h-3" /> }
       </div>

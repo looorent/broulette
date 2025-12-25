@@ -24,15 +24,15 @@ export function SearchLoaderTitle({ title: _title }: SearchLoaderTitleProps) {
   }, []);
 
   return (
-    <div className="text-center relative z-10 px-6 min-h-22 justify-center items-start">
+    <div className={`
+      relative z-10 min-h-22 items-start justify-center px-6 text-center
+    `}>
       <h3 id="loading-title"
-          className="
-          font-pop
-          text-3xl md:text-4xl
-          text-fun-cream drop-shadow-hard
-          uppercase tracking-wide
-          animate-pulse text-center leading-tight
-        ">
+          className={`
+            animate-pulse text-center font-pop text-3xl leading-tight
+            tracking-wide text-fun-cream uppercase
+            md:text-4xl
+          `}>
         {MESSAGES[messageIndex]}
       </h3>
     </div>

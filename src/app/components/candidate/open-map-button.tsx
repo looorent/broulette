@@ -9,18 +9,18 @@ export function OpenMapButton({ mapUrl } : {
         href={mapUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="
-          flex flex-1 items-center justify-center
-          bg-fun-green
-          border-4 border-fun-dark rounded-2xl
-          py-4
-          shadow-hard
-          gap-2
-          transition-transform active:translate-y-1 active:shadow-none hover:brightness-110 cursor-pointer
-        "
+        className={`
+          flex flex-1 cursor-pointer items-center justify-center gap-2
+          rounded-2xl border-4 border-fun-dark bg-fun-green py-4 shadow-hard
+          transition-transform
+          hover:brightness-110
+          active:translate-y-1 active:shadow-none
+        `}
       >
-        <span className="font-pop text-2xl text-fun-dark uppercase tracking-wide">Let's Eat!</span>
-        <Navigation className="w-6 h-6 stroke-[3px] text-fun-dark" />
+        <span className={`
+          font-pop text-2xl tracking-wide text-fun-dark uppercase
+        `}>Let's Eat!</span>
+        <Navigation className="h-6 w-6 stroke-[3px] text-fun-dark" />
       </a>
     )
   } else {

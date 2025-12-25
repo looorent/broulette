@@ -20,20 +20,16 @@ export function ShareButton({ searchId, candidateId, restaurantName, restaurantD
   return (
     <button
       onClick={shareResult}
-      className="
-        absolute top-3 left-3
-        bg-fun-cream/95
-        backdrop-blur-md shadow-hard-hover
-        border-[3px] border-fun-dark rounded-xl
-        p-3
-        text-fun-dark
-        active:scale-95 transition-transform
-        z-20 cursor-pointer
-      "
+      className={`
+        absolute top-3 left-3 z-20 cursor-pointer rounded-xl border-[3px]
+        border-fun-dark bg-fun-cream/95 p-3 text-fun-dark shadow-hard-hover
+        backdrop-blur-md transition-transform
+        active:scale-95
+      `}
       title="Share"
       aria-label="Share Restaurant"
     >
-      <Share2 className="w-6 h-6 stroke-[2.5px]" />
+      <Share2 className="h-6 w-6 stroke-[2.5px]" />
     </button>
   );
 }

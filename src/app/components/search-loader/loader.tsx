@@ -26,9 +26,7 @@ export function SearchLoader({ title, visible }: SearchLoaderProps) {
       <main id="search-loader"
         onAnimationEnd={handleAnimationEnd}
         className={`
-          relative
-          h-full w-full
-          overflow-hidden
+          relative h-full w-full overflow-hidden
           ${visible ? "animate-bounce-in" : "animate-bounce-out"}
         `}>
 
@@ -36,7 +34,9 @@ export function SearchLoader({ title, visible }: SearchLoaderProps) {
           <SearchLoaderSpinner />
         </div>
 
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className={`
+          pointer-events-none absolute inset-0 flex items-center justify-center
+        `}>
           <div className="mt-48">
             <SearchLoaderTitle title={title} />
           </div>

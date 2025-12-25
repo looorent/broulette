@@ -89,24 +89,20 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
           <button
             type="button"
             onClick={closeAlert}
-            className="
-            inline-flex w-full justify-center rounded-md
-            bg-fun-red px-4 py-2
-            text-sm font-bold uppercase tracking-wider
-            border-2 border-fun-dark shadow-hard
-            hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5
-            text-fun-cream
-            transition-all duration-150 ease-out
-            sm:ml-3 sm:w-auto
-            cursor-pointer
-            -rotate-1 hover:rotate-0 hover:scale-105
-            font-pop
-          ">
+            className={`
+              inline-flex w-full -rotate-1 cursor-pointer justify-center
+              rounded-md border-2 border-fun-dark bg-fun-red px-4 py-2 font-pop
+              text-sm font-bold tracking-wider text-fun-cream uppercase
+              shadow-hard transition-all duration-150 ease-out
+              hover:translate-x-0.5 hover:translate-y-0.5 hover:scale-105
+              hover:rotate-0 hover:shadow-none
+              sm:ml-3 sm:w-auto
+            `}>
             Dismiss
           </button>
         ),
         children: (
-          <p className="text-fun-dark mt-2 font-sans">
+          <p className="mt-2 font-sans text-fun-dark">
             Please try updating your browser or enabling permissions in your settings.
           </p>
         )
@@ -152,20 +148,26 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
 
     return (
       <>
-        <div id="location-search" className="relative group mr-1" ref={wrapperRef}>
+        <div id="location-search" className="group relative mr-1" ref={wrapperRef}>
           {/* Main Container */}
           <div className={`
-            relative border-4 border-fun-dark rounded-2xl shadow-hard flex items-center p-2
-            transition-all duration-300
-            overflow-hidden
-            ${isSearchMode ? "bg-fun-cream focus-within:translate-y-0.5 focus-within:shadow-hard-hover" : (isInvalidDeviceLocation ? "bg-fun-red" : "bg-fun-yellow")}
-        `}>
+            relative flex items-center overflow-hidden rounded-2xl border-4
+            border-fun-dark p-2 shadow-hard transition-all duration-300
+            ${isSearchMode ? `
+              bg-fun-cream
+              focus-within:translate-y-0.5 focus-within:shadow-hard-hover
+            ` : (isInvalidDeviceLocation ? `bg-fun-red` : `bg-fun-yellow`)}
+          `}>
             {/* Left Icon */}
-            <div className="ml-2 mr-3 shrink-0">
+            <div className="mr-3 ml-2 shrink-0">
               {isLocating ? (
-                <Loader2 className="w-6 h-6 stroke-3 transition-colors text-fun-dark animate-spin" />
+                <Loader2 className={`
+                  h-6 w-6 animate-spin stroke-3 text-fun-dark transition-colors
+                `} />
               ) : (
-                <MapPin className="w-6 h-6 stroke-3 transition-colors text-fun-dark" />
+                <MapPin className={`
+                  h-6 w-6 stroke-3 text-fun-dark transition-colors
+                `} />
               )}
             </div>
 
@@ -175,14 +177,20 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
                 type="text"
                 ref={inputRef}
                 placeholder="City, neighborhood..."
-                className="flex-1 min-w-0 bg-transparent font-sans font-medium text-lg text-fun-dark placeholder:text-fun-dark/40 outline-none"
+                className={`
+                  min-w-0 flex-1 bg-transparent font-sans text-lg font-medium
+                  text-fun-dark outline-none
+                  placeholder:text-fun-dark/40
+                `}
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
                 onFocus={() => setShowSuggestions(searchText.length > 0)}
                 autoComplete="off"
               />
             ) : (
-              <div className="flex-1 min-w-0 truncate font-sans font-bold text-lg animate-in fade-in zoom-in duration-200">
+              <div className={`
+                min-w-0 flex-1 truncate font-sans text-lg font-bold duration-200
+              `}>
                 {deviceLocationSupported ? (
                   selectedLocation?.isDeviceLocation && !hasCoordinates(selectedLocation)
                     ? "Location not allowed"
@@ -197,30 +205,34 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
                 <button
                   type="button"
                   onClick={triggerDeviceLocation}
-                  className="bg-fun-yellow text-fun-dark border-2 border-fun-dark px-3 py-1.5 rounded-xl font-bold uppercase tracking-wider hover:bg-yellow transition-colors flex items-center shadow-hard-hover active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className={`
+                    flex items-center rounded-xl border-2 border-fun-dark
+                    bg-fun-yellow px-3 py-1.5 font-bold tracking-wider
+                    text-fun-dark uppercase shadow-hard-hover transition-colors
+                    active:scale-95
+                    disabled:cursor-not-allowed disabled:opacity-70
+                  `}
                   aria-label="Use my current device location"
                 >
-                  <Crosshair className="w-5 h-5 stroke-[2.5px]" />
+                  <Crosshair className="h-5 w-5 stroke-[2.5px]" />
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={enableSearchMode}
                   disabled={isLocating}
-                  className="bg-fun-cream
-                    text-fun-dark border-2 border-fun-dark
-                    px-3 py-1.5
-                    rounded-xl
-                    font-bold uppercase
-                    tracking-wider
-                    hover:bg-white transition-colors
-                    flex items-center
-                    shadow-hard-hover
-                    cursor-pointer
-                    active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className={`
+                    flex cursor-pointer items-center rounded-xl border-2
+                    border-fun-dark bg-fun-cream px-3 py-1.5 font-bold
+                    tracking-wider text-fun-dark uppercase shadow-hard-hover
+                    transition-colors
+                    hover:bg-white
+                    active:scale-95
+                    disabled:cursor-not-allowed disabled:opacity-70
+                  `}
                   aria-label="Change location"
                 >
-                  <XCircle className="w-5 h-5 text-fun-dark stroke-3" />
+                  <XCircle className="h-5 w-5 stroke-3 text-fun-dark" />
                 </button>
               )}
             </div>

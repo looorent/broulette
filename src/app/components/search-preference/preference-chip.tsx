@@ -47,26 +47,28 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
     const isLocationValid = preferences ? !preferences.isDeviceLocationAttempted || preferences.hasValidLocation : true;
     return (
       <section className="w-full px-2 pb-0">
-        <button className="
-            flex flex-col
-            w-full bg-fun-green
-            border-4 border-b-0 border-fun-dark rounded-t-[3rem]
-            p-4 pb-11 shadow-sheet
-            -mb-4
-            items-center justify-center gap-2
-            transition-transform hover:-translate-y-3 active:translate-y-0 hover:-mb-5
-            cursor-pointer group
-            relative z-40 animate-float
-            touch-none
-          "
+        <button className={`
+          group relative z-40 -mb-4 flex w-full animate-float cursor-pointer
+          touch-none flex-col items-center justify-center gap-2 rounded-t-[3rem]
+          border-4 border-b-0 border-fun-dark bg-fun-green p-4 pb-11
+          shadow-sheet transition-transform
+          hover:-mb-5 hover:-translate-y-3
+          active:translate-y-0
+        `}
           onClick={onOpen}
           {...swipeUp()}>
-          <div className="w-16 h-1.5 bg-fun-dark/20 rounded-full mb-0.5 transition-colors group-hover:bg-fun-dark/40"></div>
+          <div className={`
+            mb-0.5 h-1.5 w-16 rounded-full bg-fun-dark/20 transition-colors
+            group-hover:bg-fun-dark/40
+          `}></div>
           <div className="flex items-center gap-2 font-pop text-lg">
 
             <PreferenceChipValue
               label={isLocationValid ? preferences?.location?.label?.compact : "Where?!"}
-              className="-rotate-3 hover:rotate-0 hover:scale-105"
+              className={`
+                -rotate-3
+                hover:scale-105 hover:rotate-0
+              `}
               icon={MapPin}
               isBuzzing={isBuzzing}
               isValid={isLocationValid}
@@ -74,13 +76,19 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
 
             <PreferenceChipValue
               label={preferences?.range?.label?.compact}
-              className="rotate-2 hover:rotate-0 mt-1.5"
+              className={`
+                mt-1.5 rotate-2
+                hover:rotate-0
+              `}
               icon={Footprints}
               />
 
             <PreferenceChipValue
               label={preferences?.service?.label?.compact}
-              className="-rotate-2 hover:rotate-0 -mt-1"
+              className={`
+                -mt-1 -rotate-2
+                hover:rotate-0
+              `}
               icon={findIconFor(preferences?.service)}
               />
           </div>

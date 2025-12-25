@@ -75,7 +75,7 @@ function HomeContent() {
   };
 
   return (
-    <main className="h-full relative">
+    <main className="relative h-full">
       <HelpButton onOpen={() => {
         setSearchParams(previous => {
           const newParams = new URLSearchParams(previous);
@@ -85,7 +85,7 @@ function HomeContent() {
       }} />
 
       <section
-        className="h-full flex flex-col justify-between pt-14"
+        className="flex h-full flex-col justify-between pt-14"
         aria-label="Welcome Screen">
         <BrandTitle />
 

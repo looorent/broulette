@@ -12,24 +12,17 @@ export function BackToHomeButton({
       href="/"
       aria-label="Back to Lobby"
       className={`
-        fixed z-100 top-4 right-4
-
-        flex items-center gap-2 justify-center
-        px-2 py-2
-
-        bg-fun-cream/95 backdrop-blur-md
-        border-[3px] border-fun-dark rounded-md shadow-hard-hover
-        text-fun-dark font-bold font-pop uppercase text-sm tracking-wide
-
-        animate-slide-in-from-top-right
-
-        cursor-pointer transition-transform duration-500
-        hover:rotate-0 hover:brightness-115 active:scale-120
-
+        fixed top-4 right-4 z-100 flex animate-slide-in-from-top-right
+        cursor-pointer items-center justify-center gap-2 rounded-md border-[3px]
+        border-fun-dark bg-fun-cream/95 px-2 py-2 font-pop text-sm font-bold
+        tracking-wide text-fun-dark uppercase shadow-hard-hover backdrop-blur-md
+        transition-transform duration-500
+        hover:rotate-0 hover:brightness-115
+        active:scale-120
         ${className}
       `}
     >
-      <ArrowLeft className="w-4 h-4" />
+      <ArrowLeft className="h-4 w-4" />
       <span>Lobby</span>
     </a>
   );

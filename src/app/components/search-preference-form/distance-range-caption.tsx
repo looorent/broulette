@@ -9,9 +9,8 @@ export function DistanceRangeCaption({ ranges, className = "" }: DistanceRangeCa
   return (
     <div
       className={`
-        flex justify-between
-        font-bold text-xs text-fun-dark/60 font-sans uppercase
-        tracking-widest
+        flex justify-between font-sans text-xs font-bold tracking-widest
+        text-fun-dark/60 uppercase
         ${className}
       `}
       aria-hidden="true"

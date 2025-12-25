@@ -54,48 +54,53 @@ export function BottomSheet({
     return (
       <dialog
         className={`
-          flex flex-col absolute inset-0 z-50 items-center justify-end
-          py-0 px-2 backdrop-blur-sm w-full h-dvh border-none m-0 max-w-full max-h-full bg-transparent
-          transform transition-transform duration-300
-          ${showContent ? "ease-out translate-y-0" : "ease-in translate-y-full"}
+          absolute inset-0 z-50 m-0 flex h-dvh max-h-full w-full max-w-full
+          transform flex-col items-center justify-end border-none bg-transparent
+          px-2 py-0 backdrop-blur-sm transition-transform duration-300
+          ${showContent ? "translate-y-0 ease-out" : "translate-y-full ease-in"}
           ${className}
         `}
         aria-labelledby="bottom-sheet-modal-title"
         aria-modal="true"
         open
       >
-        <div className="
-            flex flex-col
-            bg-fun-cream
-            w-full
-            border-x-2 border-t-4 border-fun-dark rounded-t-3xl
-            p-6 pb-10 md:pb-6
-            shadow-hard relative mx-auto max-h-[90vh]
-            touch-pan-y
-          ">
+        <div className={`
+          relative mx-auto flex max-h-[90vh] w-full touch-pan-y flex-col
+          rounded-t-3xl border-x-2 border-t-4 border-fun-dark bg-fun-cream p-6
+          pb-10 shadow-hard
+          md:pb-6
+        `}>
 
           {/* Header */}
           <div id="bottom-sheet-header"
             {...bindDrag()}
-            className="w-full pt-0 pb-6 -mt-6 cursor-grab active:cursor-grabbing touch-none"
+            className={`
+              -mt-6 w-full cursor-grab touch-none pt-0 pb-6
+              active:cursor-grabbing
+            `}
           >
-            <div className="w-20 h-2 bg-fun-dark/80 rounded-full mx-auto mt-6"></div>
+            <div className="mx-auto mt-6 h-2 w-20 rounded-full bg-fun-dark/80"></div>
           </div>
 
           {/* Title */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="mb-6 flex items-center justify-between">
             {title && <h3 className="font-pop text-3xl text-fun-dark" id="alert-box-modal-title">{title}</h3>}
             <button
               onClick={onClose}
-              className="text-fun-dark hover:scale-110 transition-transform cursor-pointer"
+              className={`
+                cursor-pointer text-fun-dark transition-transform
+                hover:scale-110
+              `}
               aria-label="Close"
             >
-              <XCircle className="w-8 h-8 stroke-[2.5px]" />
+              <XCircle className="h-8 w-8 stroke-[2.5px]" />
             </button>
           </div>
 
           {/* Body of the modal */}
-          <div className="w-full flex-1 overflow-y-auto min-h-0 pb-10 overscroll-contain">
+          <div className={`
+            min-h-0 w-full flex-1 overflow-y-auto overscroll-contain pb-10
+          `}>
             {children}
           </div>
         </div>
