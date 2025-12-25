@@ -17,7 +17,7 @@ import tseslint from "typescript-eslint";
 export default defineConfig(
   { ignores: ["dist", ".react-router", "build", "public"] },
   {
-    files: ["**/*.{ts,tsx,js,jsx}"],
+    files: ["**/*.{ts,tsx,cts,mts}"],
     extends: [
       js.configs.recommended,
       ...tseslint.configs.recommended,
