@@ -5,18 +5,18 @@ import { BackToHomeButton } from "@components/back-to-home-button";
 import { AddressLink, OpenMapButton, RerollButton, RestaurantPrice, RestaurantRating, RestaurantTags, ShareButton, SourceBadge, WebsiteLink } from "@components/candidate";
 import { OpeningHoursCard } from "@components/candidate/opening-hour-card";
 import { PhoneLink } from "@components/candidate/phone-link";
+import { ErrorUnknown } from "@components/error/error-unknown";
 import { NoResults } from "@components/error/no-result";
 import { triggerHaptics } from "@features/browser.client";
+import { getLocale } from "@features/utils/locale.server";
 import { findCandidateViewModel } from "@features/view.server";
 
 import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId";
 
-const locale = "en-US"; // TODO manage locale
-
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const { searchId, candidateId } = params;
 
-  const view = await findCandidateViewModel(searchId, candidateId, new Date(), locale);
+  const view = await findCandidateViewModel(searchId, candidateId, new Date(), await getLocale(request));
   if (view) {
     if (view.redirectRequired) {
       return redirect(
@@ -29,7 +29,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       return view;
     }
   } else {
-    // TODO manage error
+    console.error(`No candidate found for searchId='${searchId}' and candidateId='${candidateId}'`);
     return redirect(href("/"));
   }
 }
@@ -71,7 +71,6 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
               </h2>
             </header>
 
-            {/* Card */}
             <article className={`
               group relative mb-6 flex min-h-75 flex-1 rotate-1 transform
               flex-col overflow-hidden rounded-3xl border-4 border-fun-dark
@@ -128,7 +127,6 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
               </div>
             </article>
 
-            {/* Actions */}
             <div className="flex gap-3">
               <RerollButton enabled={reRollEnabled} searchId={search.id} />
 
@@ -139,7 +137,13 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
       </>
     );
   }
+}
 
-
-
+export function ErrorBoundary({
+  error,
+}: Route.ErrorBoundaryProps) {
+  console.error("[GET candidate] Unexpected error", error);
+  return (
+    <ErrorUnknown />
+  );
 }

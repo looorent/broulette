@@ -1,12 +1,12 @@
 import { data, href, redirect } from "react-router";
 
+import { ErrorUnknown } from "@components/error/error-unknown";
 import prisma from "@features/db.server/prisma";
 import { createServiceDatetime, createServiceEnd } from "@features/search";
 import { validateCSRF } from "@features/session.server";
 import { DistanceRange, ServiceTimeslot } from "@persistence/client";
 
 import type { Route } from "./+types/searches._index";
-
 
 // GET -> noop
 export async function loader() {
@@ -17,28 +17,23 @@ export async function loader() {
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   await validateCSRF(formData, request.headers);
-  const validation = validateSearchInput(formData);
-  if (!validation.success) {
-    return data({ errors: validation.errors }, { status: 400 });
-  } else {
-    const { data: validData } = validation;
-    const createdSearch = await prisma.search.create({
-      data: {
-        latitude: validData.latitude,
-        longitude: validData.longitude,
-        serviceDate: validData.date,
-        serviceTimeslot: validData.timeslot,
-        serviceInstant: createServiceDatetime(validData.date, validData.timeslot),
-        serviceEnd: createServiceEnd(validData.date, validData.timeslot),
-        distanceRange: validData.distanceRange,
-        exhausted: false
-      }
-    });
-    return redirect(href("/searches/:searchId", { searchId: createdSearch.id }));
-  }
+  const data = parseAndValidate(formData);
+  const createdSearch = await prisma.search.create({
+    data: {
+      latitude: data.latitude,
+      longitude: data.longitude,
+      serviceDate: data.date,
+      serviceTimeslot: data.timeslot,
+      serviceInstant: createServiceDatetime(data.date, data.timeslot),
+      serviceEnd: createServiceEnd(data.date, data.timeslot),
+      distanceRange: data.distanceRange,
+      exhausted: false
+    }
+  });
+  return redirect(href("/searches/:searchId", { searchId: createdSearch.id }));
 }
 
-function validateSearchInput(formData: FormData) {
+function parseAndValidate(formData: FormData) {
   const errors: Record<string, string> = {};
 
   const rawDate = formData.get("serviceDate")?.toString() ?? "";
@@ -72,11 +67,23 @@ function validateSearchInput(formData: FormData) {
   };
 
   if (Object.keys(errors).length > 0) {
-    return { success: false, errors } as const;
+    throw data({ errors: errors }, { status: 400 });
   } else {
     return {
-      success: true,
-      data: { date: date!, latitude, longitude, timeslot, distanceRange }
+      date: date!,
+      latitude,
+      longitude,
+      timeslot,
+      distanceRange
     } as const;
   }
+}
+
+export function ErrorBoundary({
+  error,
+}: Route.ErrorBoundaryProps) {
+  console.error("[GET searches] Unexpected error", error);
+  return (
+    <ErrorUnknown />
+  );
 }

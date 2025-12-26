@@ -2,8 +2,6 @@ import stringSimilarity from "string-similarity";
 
 import type { TripAdvisorLocationNearby } from "./types";
 
-// TODO review
-
 interface SimilarityResult {
   totalScore: number; // [0..1]
   nameScore: number; // [0..1]

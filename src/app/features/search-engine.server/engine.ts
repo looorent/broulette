@@ -13,11 +13,11 @@ export async function searchCandidate(
   locale: string,
   configuration: SearchEngineConfiguration = DEFAULT_SEARCH_ENGINE_CONFIGURATION,
   signal?: AbortSignal
-): Promise<SearchCandidate | undefined> {
+): Promise<SearchCandidate> {
   const search = await findSearchOrThrow(searchId);
 
   if (search.exhausted) {
-    return await findLatestCandidateOf(search.id);
+    return await findLatestCandidateOf(search.id) || await createDefaultCandidateWithoutRestaurant(search.id);
   } else {
     const scanner = createDiscoveryScanner(search, configuration);
     const startingOrder = computeNextCandidateOrder(search.candidates);
@@ -34,7 +34,7 @@ async function findNextValidCandidate(
   currentOrder: number,
   locale: string,
   signal?: AbortSignal
-): Promise<SearchCandidate | undefined> {
+): Promise<SearchCandidate> {
   let candidate: SearchCandidate | undefined = undefined;
   let orderTracker = currentOrder;
 
@@ -53,7 +53,7 @@ async function findNextValidCandidate(
       }
     }
   }
-  return candidate;
+  return candidate || createDefaultCandidateWithoutRestaurant(search.id);
 }
 
 async function processRestaurant(
@@ -146,6 +146,18 @@ async function findSearchOrThrow(searchId: string) {
 
 async function findLatestCandidateOf(searchId: string | undefined): Promise<SearchCandidate | undefined> {
   const finalCandidateId = (await prisma.search.findWithLatestCandidateId(searchId))?.latestCandidateId;
-  const finalCandidate = await prisma.searchCandidate.findUnique({ where: { id: finalCandidateId } });
-  return finalCandidate ?? undefined;
+  const finalCandidate = finalCandidateId ? await prisma.searchCandidate.findUnique({ where: { id: finalCandidateId } }) : undefined;
+  return finalCandidate || undefined;
+}
+
+async function createDefaultCandidateWithoutRestaurant(searchId: string): Promise<SearchCandidate> {
+  const order = (await prisma.search.findWithLatestCandidateId(searchId))?.order || 0;
+  return await prisma.searchCandidate.create({
+    data: {
+      searchId: searchId,
+      order: order + 1,
+      status: SearchCandidateStatus.Rejected,
+      rejectionReason: "no_restaurant_found"
+    }
+  });
 }

@@ -23,7 +23,6 @@ type RestaurantAndProfiles = Prisma.RestaurantGetPayload<{
   }
 }>;
 
-// TODO add other validations?
 export async function validateRestaurant(
   restaurant: RestaurantAndProfiles | undefined,
   search: Search,

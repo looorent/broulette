@@ -62,7 +62,7 @@ function HomeContent() {
     } else {
       return undefined;
     }
-  }, [preferences]); // TODO test
+  }, [preferences]);
 
   const closeModal = () => {
     setSearchParams(previous => {

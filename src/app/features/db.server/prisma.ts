@@ -5,18 +5,20 @@ import { DistanceRange, SearchCandidateStatus, ServiceTimeslot } from "@persiste
 
 const prismaClientSingleton = () => {
   const prisma = new PrismaClient({
-    accelerateUrl: process.env.BROULETTE_DATABASE_URL!,
-    // log: ["query"] TODO
+    accelerateUrl: process.env.BROULETTE_DATABASE_URL!
   })
   .$extends({
     model: {
       search: {
-        // TODO add a version of this method that also returned "rejected" (if relevant)
-        async findWithLatestCandidateId(searchId: string | undefined | null): Promise<{
+        async findWithLatestCandidateId(
+          searchId: string | undefined | null,
+          candidateStatus: SearchCandidateStatus | undefined = undefined
+        ): Promise<{
           searchId: string;
           exhausted: boolean;
           serviceTimeslot: ServiceTimeslot;
           serviceInstant: Date;
+          order: number;
           distanceRange: DistanceRange;
           latestCandidateId: string | undefined;
         } | undefined> {
@@ -31,7 +33,9 @@ const prismaClientSingleton = () => {
                 candidates: {
                   select: { id: true, order: true },
                   orderBy: { order: "desc" as const },
-                  where: { status: SearchCandidateStatus.Returned },
+                  where: {
+                    status: candidateStatus ?? undefined
+                  },
                   take: 1
                 }
               },
@@ -47,7 +51,8 @@ const prismaClientSingleton = () => {
                 serviceTimeslot: search.serviceTimeslot,
                 serviceInstant: search.serviceInstant,
                 distanceRange: search.distanceRange,
-                latestCandidateId: search.candidates?.[0]?.id || undefined
+                latestCandidateId: search.candidates?.[0]?.id || undefined,
+                order: search.candidates?.[0]?.order || 0
               };
             } else {
               return undefined;

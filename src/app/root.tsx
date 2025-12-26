@@ -5,13 +5,16 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
   type ShouldRevalidateFunction
 } from "react-router";
 
 import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components/search-loader";
 import { createCSRFToken } from "@features/session.server";
+import { getLocale } from "@features/utils/locale.server";
 
 import type { Route } from "./+types/root";
+
 import "./app.css";
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({
@@ -34,14 +37,19 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 export async function loader({ request }: Route.LoaderArgs) {
   const { token, headers } = await createCSRFToken(request.headers);
   return data(
-    { csrfToken: token },
+    {
+      csrfToken: token,
+      locale: await getLocale(request)
+    },
     { headers: headers || undefined }
   );
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { locale } = useLoaderData<typeof loader>();
+
   return (
-    <html lang="en" className={`
+    <html lang={locale} className={`
       h-full w-full overflow-hidden bg-fun-dark select-none
     `}>
       <head>

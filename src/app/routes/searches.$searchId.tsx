@@ -1,14 +1,15 @@
 import { useEffect, useRef } from "react";
 import { href, redirect, useRouteLoaderData, useSubmit } from "react-router";
 
+import { ErrorUnknown } from "@components/error/error-unknown";
+import { getLocale } from "@features/utils/locale.server";
 import { findSearchViewModel } from "@features/view.server";
 import type { loader as rootLoader } from "app/root";
 
 import type { Route } from "./+types/searches.$searchId";
 
-const locale = "en-US"; // TODO manage locale
-export async function loader({ params }: Route.LoaderArgs) {
-  const view = await findSearchViewModel(params.searchId, locale);
+export async function loader({ params, request }: Route.LoaderArgs) {
+  const view = await findSearchViewModel(params.searchId, await getLocale(request));
   if (view) {
     if (view.redirectRequired) {
       return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: view.searchId, candidateId: view.latestCandidateId }))
@@ -19,7 +20,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       };
     }
   } else {
-    // TODO manage error
+    console.error(`No candidate found for searchId='${params.searchId}'`);
     return redirect(href("/"));
   }
 }
@@ -46,5 +47,14 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
 
   return (
     <title>{`BiteRoulette - ${view.label} - Searching...`}</title>
+  );
+}
+
+export function ErrorBoundary({
+  error,
+}: Route.ErrorBoundaryProps) {
+  console.error("[POST search] Unexpected error", error);
+  return (
+    <ErrorUnknown />
   );
 }

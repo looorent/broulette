@@ -17,12 +17,11 @@ $ openssl rand -hex 32
 
 * "back" does not work properly, the "candidate" page seems to be skipped
 * Add a tag "unknown opening hours"
-* If the restaurant does not have any address, then, do not consider it as valid.
 * Add indexes based on the actual calls
 * Add "overloaded" error
-* Enable "locale" (at least the default one)
 * Streaming HTTP during search
 * Handle errors on every route
+* Review app declaration
 * Manage two errors:
     * No candidate left
     * Too many calls
@@ -32,7 +31,6 @@ $ openssl rand -hex 32
 * Investigation
     * why restaurant "Respire Restaurant" does not find any photo
     * why "La Terrasse de l'Abbaye de Notre-Dame du Vivier" does not find any equivalent on Google
-* Fuzzy string comparison might be shitty
 * Use `zod` to parse env variables?
 * Deployment:
     * Render or Vercel?
