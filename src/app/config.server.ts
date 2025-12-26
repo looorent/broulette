@@ -1,3 +1,5 @@
+import { createContext } from "react-router";
+
 import { registerNominatim, registerPhoton } from "@features/address.server";
 import type { FailoverConfiguration } from "@features/circuit-breaker.server";
 import { DEFAULT_FAILOVER } from "@features/circuit-breaker.server";
@@ -30,133 +32,199 @@ function readArray(text: string | undefined): string[] | undefined {
 
 export type AppConfiguration = typeof APP_CONFIG;
 
-export const NOMINATIM_CONFIG: NominatimConfiguration = {
-  enabled: process.env.BROULETTE_NOMINATIM_ENABLED?.toLowerCase() === "true",
-  instanceUrls: readArray(process.env.BROULETTE_NOMINATIM_INSTANCE_URLS) || DEFAULT_NOMINATIM_CONFIGURATION.instanceUrls,
-  userAgent: process.env.BROULETTE_NOMINATIM_USER_AGENT ?? `${APP_CONFIG.name}/${APP_CONFIG.version}`,
-  bottomNote: process.env.BROULETTE_NOMINATIM_BOTTOM_NOTE ?? DEFAULT_NOMINATIM_CONFIGURATION.bottomNote,
-  maxNumberOfAddresses: Number(process.env.BROULETTE_NOMINATIM_NUMBER_0F_ADDRESSES || DEFAULT_NOMINATIM_CONFIGURATION.maxNumberOfAddresses)
-};
-
-export const NOMINATIM_FAILOVER_CONFIG: FailoverConfiguration = {
-  retry: Number(process.env.BROULETTE_NOMINATIM_API_RETRIES || DEFAULT_FAILOVER.retry),
-  halfOpenAfterInMs: Number(process.env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-  closeAfterNumberOfFailures: Number(process.env.BROULETTE_NOMINATIM_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-  timeoutInMs: Number(process.env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
-};
-
-export const PHOTON_CONFIG: PhotonConfiguration = {
-  enabled: process.env.BROULETTE_PHOTON_ENABLED?.toLowerCase() === "true",
-  instanceUrls: readArray(process.env.BROULETTE_PHOTON_INSTANCE_URLS) || DEFAULT_PHOTON_CONFIGURATION.instanceUrls,
-  bottomNote: process.env.BROULETTE_PHOTON_BOTTOM_NOTE ?? DEFAULT_PHOTON_CONFIGURATION.bottomNote,
-  maxNumberOfAddresses: Number(process.env.BROULETTE_PHOTON_NUMBER_0F_ADDRESSES || DEFAULT_PHOTON_CONFIGURATION.maxNumberOfAddresses),
-};
-
-export const PHOTON_FAILOVER_CONFIG: FailoverConfiguration = {
-  retry: Number(process.env.BROULETTE_PHOTON_API_RETRIES || DEFAULT_FAILOVER.retry),
-  halfOpenAfterInMs: Number(process.env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-  closeAfterNumberOfFailures: Number(process.env.BROULETTE_PHOTON_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-  timeoutInMs: Number(process.env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
-};
-
-export const GOOGLE_PLACE_CONFIG: GooglePlaceConfiguration = {
-  enabled: process.env.BROULETTE_GOOGLE_PLACE_ENABLED?.toLowerCase() === "true",
-  apiKey: process.env.BROULETTE_GOOGLE_PLACE_API_KEY ?? "",
-  rateLimiting: {
-    maxNumberOfAttemptsPerMonth: Number(process.env.BROULETTE_GOOGLE_PLACE_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || DEFAULT_GOOGLE_PLACE_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),
-  },
-  search: {
-    radiusInMeters: Number(process.env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS || DEFAULT_GOOGLE_PLACE_CONFIGURATION.search.radiusInMeters)
-  },
-  photo: {
-    maxWidthInPx: Number(process.env.BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_WIDTH_IN_PX || DEFAULT_GOOGLE_PLACE_CONFIGURATION.photo.maxWidthInPx),
-    maxHeightInPx: Number(process.env.BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_HEIGHT_IN_PX || DEFAULT_GOOGLE_PLACE_CONFIGURATION.photo.maxHeightInPx)
-  },
-  similarity: {
-    weight: {
-      name: Number(process.env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_NAME || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.weight.name),
-      location: Number(process.env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_LOCATION || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.weight.location),
-    },
-    maxDistanceInMeters: Number(process.env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.maxDistanceInMeters)
+let NOMINATIM_CONFIG: NominatimConfiguration;
+export function nominatimConfig(env: any): NominatimConfiguration {
+  if (!NOMINATIM_CONFIG) {
+    NOMINATIM_CONFIG = {
+      enabled: env.BROULETTE_NOMINATIM_ENABLED?.toLowerCase() === "true",
+      instanceUrls: readArray(env.BROULETTE_NOMINATIM_INSTANCE_URLS) || DEFAULT_NOMINATIM_CONFIGURATION.instanceUrls,
+      userAgent: env.BROULETTE_NOMINATIM_USER_AGENT ?? `${APP_CONFIG.name}/${APP_CONFIG.version}`,
+      bottomNote: env.BROULETTE_NOMINATIM_BOTTOM_NOTE ?? DEFAULT_NOMINATIM_CONFIGURATION.bottomNote,
+      maxNumberOfAddresses: Number(env.BROULETTE_NOMINATIM_NUMBER_0F_ADDRESSES || DEFAULT_NOMINATIM_CONFIGURATION.maxNumberOfAddresses)
+    };
   }
-};
+  return NOMINATIM_CONFIG;
+}
 
-export const GOOGLE_PLACE_FAILOVER_CONFIG: FailoverConfiguration = {
-  retry: Number(process.env.BROULETTE_GOOGLE_PLACE_API_RETRIES || DEFAULT_FAILOVER.retry),
-  halfOpenAfterInMs: Number(process.env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-  closeAfterNumberOfFailures: Number(process.env.BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-  timeoutInMs: Number(process.env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
-};
-
-export const TRIPADVISOR_FAILOVER_CONFIG: FailoverConfiguration = {
-  retry: Number(process.env.BROULETTE_TRIPADVISOR_API_RETRIES || DEFAULT_FAILOVER.retry),
-  halfOpenAfterInMs: Number(process.env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-  closeAfterNumberOfFailures: Number(process.env.BROULETTE_TRIPADVISOR_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-  timeoutInMs: Number(process.env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
-};
-
-export const TRIPADVISOR_CONFIG: TripAdvisorConfiguration = {
-  enabled: process.env.BROULETTE_TRIPADVISOR_ENABLED?.toLowerCase() === "true",
-  instanceUrl: process.env.BROULETTE_TRIPADVISOR_INSTANCE_URL ?? DEFAULT_TRIPADVISOR_CONFIGURATION.instanceUrl,
-  apiKey: process.env.BROULETTE_TRIPADVISOR_API_KEY ?? "",
-  rateLimiting: {
-    maxNumberOfAttemptsPerMonth: Number(process.env.BROULETTE_TRIPADVISOR_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || DEFAULT_TRIPADVISOR_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),
-  },
-  search: {
-    radiusInMeters: Number(process.env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS || DEFAULT_TRIPADVISOR_CONFIGURATION.search.radiusInMeters)
-  },
-  similarity: {
-    weight: {
-      name: Number(process.env.BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_NAME || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.weight.name),
-      location: Number(process.env.BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_LOCATION || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.weight.location),
-    },
-    maxDistanceInMeters: Number(process.env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.maxDistanceInMeters),
-    minScoreThreshold: Number(process.env.BROULETTE_TRIPADVISOR_API_SEARCH_MIN_SCORE_TRESHOLD || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.minScoreThreshold)
-  },
-  photo: parseTripAdvisorPhotoSize(process.env.BROULETTE_TRIPADVISOR_API_PHOTO_SIZE) || DEFAULT_TRIPADVISOR_CONFIGURATION.photo
-};
-
-export const OVERPASS_FAILOVER_CONFIG: FailoverConfiguration = {
-  retry: Number(process.env.BROULETTE_OVERPASS_API_RETRIES || DEFAULT_FAILOVER.retry),
-  halfOpenAfterInMs: Number(process.env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-  closeAfterNumberOfFailures: Number(process.env.BROULETTE_OVERPASS_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-  timeoutInMs: Number(process.env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
-};
-
-export const OVERPASS_CONFIG: OverpassConfiguration = {
-  enabled: process.env.BROULETTE_OVERPASS_ENABLED?.toLowerCase() === "true",
-  instanceUrls: readArray(process.env.BROULETTE_OVERPASS_API_INSTANCE_URLS) || DEFAULT_OVERPASS_CONFIGURATION.instanceUrls
-};
-
-export const SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
-  discovery: {
-    rangeIncreaseMeters: Number(process.env.BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS ?? DEFAULT_DISCOVERY_CONFIGURATION.rangeIncreaseMeters),
-    maxDiscoveryIterations: Number(process.env.BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS ?? DEFAULT_DISCOVERY_CONFIGURATION.maxDiscoveryIterations)
-  },
-  matching: {
-    tags: {
-      hiddenTags: readArray(process.env.BROULETTE_TAGS_TO_EXCLUDE) || DEFAULT_TAG_CONFIGURATION.hiddenTags,
-      priorityTags: readArray(process.env.BROULETTE_TAGS_TO_PRIORITIZE) || DEFAULT_TAG_CONFIGURATION.priorityTags,
-      maxTags: Number(process.env.BROULETTE_TAGS_MAXIMUM || readArray(process.env.BROULETTE_TAGS_TO_EXCLUDE) || DEFAULT_TAG_CONFIGURATION.maxTags)
-    }
-  },
-  range: {
-    close: {
-      rangeInMeters: Number(process.env.BROULETTE_SEARCH_ENGINE_CLOSE_RANGE_IN_METERS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.close.rangeInMeters),
-      timeoutInMs: Number(process.env.BROULETTE_SEARCH_ENGINE_CLOSE_TIMEOUT_IN_MS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.close.timeoutInMs)
-    },
-    midRange: {
-      rangeInMeters: Number(process.env.BROULETTE_SEARCH_ENGINE_MID_RANGE_IN_METERS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.midRange.rangeInMeters),
-      timeoutInMs: Number(process.env.BROULETTE_SEARCH_ENGINE_MID_TIMEOUT_IN_MS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.midRange.timeoutInMs)
-    },
-    far: {
-      rangeInMeters: Number(process.env.BROULETTE_SEARCH_ENGINE_FAR_RANGE_IN_METERS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.far.rangeInMeters),
-      timeoutInMs: Number(process.env.BROULETTE_SEARCH_ENGINE_FAR_TIMEOUT_IN_MS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.far.timeoutInMs)
-    }
+let NOMINATIM_FAILOVER_CONFIG: FailoverConfiguration;
+export function nominatimFailoverConfig(env: any): FailoverConfiguration {
+  if (!NOMINATIM_FAILOVER_CONFIG) {
+    NOMINATIM_FAILOVER_CONFIG = {
+      retry: Number(env.BROULETTE_NOMINATIM_API_RETRIES || DEFAULT_FAILOVER.retry),
+      halfOpenAfterInMs: Number(env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+      closeAfterNumberOfFailures: Number(env.BROULETTE_NOMINATIM_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+      timeoutInMs: Number(env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+    };
   }
-};
+  return NOMINATIM_FAILOVER_CONFIG;
+}
 
-interface Context {
+let PHOTON_CONFIG: PhotonConfiguration;
+export function photonConfig(env: any): PhotonConfiguration {
+  if (!PHOTON_CONFIG) {
+    PHOTON_CONFIG = {
+      enabled: env.BROULETTE_PHOTON_ENABLED?.toLowerCase() === "true",
+      instanceUrls: readArray(env.BROULETTE_PHOTON_INSTANCE_URLS) || DEFAULT_PHOTON_CONFIGURATION.instanceUrls,
+      bottomNote: env.BROULETTE_PHOTON_BOTTOM_NOTE ?? DEFAULT_PHOTON_CONFIGURATION.bottomNote,
+      maxNumberOfAddresses: Number(env.BROULETTE_PHOTON_NUMBER_0F_ADDRESSES || DEFAULT_PHOTON_CONFIGURATION.maxNumberOfAddresses),
+    };
+  }
+  return PHOTON_CONFIG;
+}
+
+let PHOTON_FAILOVER_CONFIG: FailoverConfiguration;
+export function photonFailoverConfig(env: any): FailoverConfiguration {
+  if (!PHOTON_FAILOVER_CONFIG) {
+    PHOTON_FAILOVER_CONFIG = {
+      retry: Number(env.BROULETTE_PHOTON_API_RETRIES || DEFAULT_FAILOVER.retry),
+      halfOpenAfterInMs: Number(env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+      closeAfterNumberOfFailures: Number(env.BROULETTE_PHOTON_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+      timeoutInMs: Number(env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+    };
+  }
+  return PHOTON_FAILOVER_CONFIG;
+}
+
+let GOOGLE_PLACE_CONFIG: GooglePlaceConfiguration;
+export function googleConfig(env: any): GooglePlaceConfiguration {
+  if (!GOOGLE_PLACE_CONFIG) {
+    GOOGLE_PLACE_CONFIG = {
+      enabled: env.BROULETTE_GOOGLE_PLACE_ENABLED?.toLowerCase() === "true",
+      apiKey: env.BROULETTE_GOOGLE_PLACE_API_KEY ?? "",
+      rateLimiting: {
+        maxNumberOfAttemptsPerMonth: Number(env.BROULETTE_GOOGLE_PLACE_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || DEFAULT_GOOGLE_PLACE_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),
+      },
+      search: {
+        radiusInMeters: Number(env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS || DEFAULT_GOOGLE_PLACE_CONFIGURATION.search.radiusInMeters)
+      },
+      photo: {
+        maxWidthInPx: Number(env.BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_WIDTH_IN_PX || DEFAULT_GOOGLE_PLACE_CONFIGURATION.photo.maxWidthInPx),
+        maxHeightInPx: Number(env.BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_HEIGHT_IN_PX || DEFAULT_GOOGLE_PLACE_CONFIGURATION.photo.maxHeightInPx)
+      },
+      similarity: {
+        weight: {
+          name: Number(env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_NAME || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.weight.name),
+          location: Number(env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_LOCATION || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.weight.location),
+        },
+        maxDistanceInMeters: Number(env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.maxDistanceInMeters)
+      }
+    };
+  }
+  return GOOGLE_PLACE_CONFIG;
+}
+
+let GOOGLE_PLACE_FAILOVER_CONFIG: FailoverConfiguration;
+export function googleFailoverConfig(env: any): FailoverConfiguration {
+  if (!GOOGLE_PLACE_FAILOVER_CONFIG) {
+    GOOGLE_PLACE_FAILOVER_CONFIG = {
+      retry: Number(env.BROULETTE_GOOGLE_PLACE_API_RETRIES || DEFAULT_FAILOVER.retry),
+      halfOpenAfterInMs: Number(env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+      closeAfterNumberOfFailures: Number(env.BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+      timeoutInMs: Number(env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+    };
+  }
+  return GOOGLE_PLACE_FAILOVER_CONFIG;
+}
+
+let TRIPADVISOR_CONFIG: TripAdvisorConfiguration;
+export function tripAdvisorConfig(env: any): TripAdvisorConfiguration {
+  if (!TRIPADVISOR_CONFIG) {
+    TRIPADVISOR_CONFIG = {
+      enabled: env.BROULETTE_TRIPADVISOR_ENABLED?.toLowerCase() === "true",
+      instanceUrl: env.BROULETTE_TRIPADVISOR_INSTANCE_URL ?? DEFAULT_TRIPADVISOR_CONFIGURATION.instanceUrl,
+      apiKey: env.BROULETTE_TRIPADVISOR_API_KEY ?? "",
+      rateLimiting: {
+        maxNumberOfAttemptsPerMonth: Number(env.BROULETTE_TRIPADVISOR_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || DEFAULT_TRIPADVISOR_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),
+      },
+      search: {
+        radiusInMeters: Number(env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS || DEFAULT_TRIPADVISOR_CONFIGURATION.search.radiusInMeters)
+      },
+      similarity: {
+        weight: {
+          name: Number(env.BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_NAME || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.weight.name),
+          location: Number(env.BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_LOCATION || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.weight.location),
+        },
+        maxDistanceInMeters: Number(env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.maxDistanceInMeters),
+        minScoreThreshold: Number(env.BROULETTE_TRIPADVISOR_API_SEARCH_MIN_SCORE_TRESHOLD || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.minScoreThreshold)
+      },
+      photo: parseTripAdvisorPhotoSize(env.BROULETTE_TRIPADVISOR_API_PHOTO_SIZE) || DEFAULT_TRIPADVISOR_CONFIGURATION.photo
+    };
+  }
+  return TRIPADVISOR_CONFIG;
+}
+
+let TRIPADVISOR_FAILOVER_CONFIG: FailoverConfiguration;
+export function tripAdvisorFailoverConfig(env: any): FailoverConfiguration {
+  if(!TRIPADVISOR_FAILOVER_CONFIG) {
+    TRIPADVISOR_FAILOVER_CONFIG = {
+      retry: Number(env.BROULETTE_TRIPADVISOR_API_RETRIES || DEFAULT_FAILOVER.retry),
+      halfOpenAfterInMs: Number(env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+      closeAfterNumberOfFailures: Number(env.BROULETTE_TRIPADVISOR_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+      timeoutInMs: Number(env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+    };
+  }
+  return TRIPADVISOR_FAILOVER_CONFIG;
+}
+
+let OVERPASS_CONFIG: OverpassConfiguration;
+export function overpassConfig(env: any): OverpassConfiguration {
+  if (!OVERPASS_CONFIG) {
+    OVERPASS_CONFIG = {
+      enabled: env.BROULETTE_OVERPASS_ENABLED?.toLowerCase() === "true",
+      instanceUrls: readArray(env.BROULETTE_OVERPASS_API_INSTANCE_URLS) || DEFAULT_OVERPASS_CONFIGURATION.instanceUrls
+    };
+  }
+  return OVERPASS_CONFIG;
+}
+
+let OVERPASS_FAILOVER_CONFIG: FailoverConfiguration;
+export function overpassFailoverConfig(env: any): FailoverConfiguration {
+  if (!OVERPASS_FAILOVER_CONFIG) {
+    OVERPASS_FAILOVER_CONFIG = {
+      retry: Number(env.BROULETTE_OVERPASS_API_RETRIES || DEFAULT_FAILOVER.retry),
+      halfOpenAfterInMs: Number(env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+      closeAfterNumberOfFailures: Number(env.BROULETTE_OVERPASS_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+      timeoutInMs: Number(env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+    };
+  }
+  return OVERPASS_FAILOVER_CONFIG;
+}
+
+let SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration;
+export function searchEngineConfig(env: any): SearchEngineConfiguration {
+  if (!SEARCH_ENGINE_CONFIGURATION) {
+    SEARCH_ENGINE_CONFIGURATION = {
+      discovery: {
+        rangeIncreaseMeters: Number(env.BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS ?? DEFAULT_DISCOVERY_CONFIGURATION.rangeIncreaseMeters),
+        maxDiscoveryIterations: Number(env.BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS ?? DEFAULT_DISCOVERY_CONFIGURATION.maxDiscoveryIterations)
+      },
+      matching: {
+        tags: {
+          hiddenTags: readArray(env.BROULETTE_TAGS_TO_EXCLUDE) || DEFAULT_TAG_CONFIGURATION.hiddenTags,
+          priorityTags: readArray(env.BROULETTE_TAGS_TO_PRIORITIZE) || DEFAULT_TAG_CONFIGURATION.priorityTags,
+          maxTags: Number(env.BROULETTE_TAGS_MAXIMUM || readArray(env.BROULETTE_TAGS_TO_EXCLUDE) || DEFAULT_TAG_CONFIGURATION.maxTags)
+        }
+      },
+      range: {
+        close: {
+          rangeInMeters: Number(env.BROULETTE_SEARCH_ENGINE_CLOSE_RANGE_IN_METERS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.close.rangeInMeters),
+          timeoutInMs: Number(env.BROULETTE_SEARCH_ENGINE_CLOSE_TIMEOUT_IN_MS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.close.timeoutInMs)
+        },
+        midRange: {
+          rangeInMeters: Number(env.BROULETTE_SEARCH_ENGINE_MID_RANGE_IN_METERS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.midRange.rangeInMeters),
+          timeoutInMs: Number(env.BROULETTE_SEARCH_ENGINE_MID_TIMEOUT_IN_MS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.midRange.timeoutInMs)
+        },
+        far: {
+          rangeInMeters: Number(env.BROULETTE_SEARCH_ENGINE_FAR_RANGE_IN_METERS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.far.rangeInMeters),
+          timeoutInMs: Number(env.BROULETTE_SEARCH_ENGINE_FAR_TIMEOUT_IN_MS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.far.timeoutInMs)
+        }
+      }
+    };
+  }
+  return SEARCH_ENGINE_CONFIGURATION;
+}
+
+export interface AppContext {
   nominatim: NominatimConfiguration | undefined;
   photon: PhotonConfiguration | undefined;
   overpass: OverpassConfiguration | undefined;
@@ -165,36 +233,35 @@ interface Context {
   search: SearchEngineConfiguration;
 }
 
-function initializeContext(): Context {
-  return {
-    nominatim: NOMINATIM_CONFIG.enabled ? NOMINATIM_CONFIG : undefined,
-    photon: PHOTON_CONFIG.enabled ? PHOTON_CONFIG : undefined,
-    overpass: OVERPASS_CONFIG.enabled ? OVERPASS_CONFIG : undefined,
-    google: GOOGLE_PLACE_CONFIG.enabled ? GOOGLE_PLACE_CONFIG : undefined,
-    tripAdvisor: TRIPADVISOR_CONFIG.enabled ? TRIPADVISOR_CONFIG : undefined,
-    search: SEARCH_ENGINE_CONFIGURATION
-  };
+let APP_CONTEXT: AppContext | undefined;
+export function createAppContext(env: any): AppContext {
+  if (!APP_CONTEXT) {
+    APP_CONTEXT = {
+      nominatim: nominatimConfig(env).enabled ? nominatimConfig(env) : undefined,
+      photon: photonConfig(env).enabled ? photonConfig(env) : undefined,
+      overpass: overpassConfig(env).enabled ? overpassConfig(env) : undefined,
+      google: googleConfig(env).enabled ? googleConfig(env) : undefined,
+      tripAdvisor: tripAdvisorConfig(env).enabled ? tripAdvisorConfig(env) : undefined,
+      search: searchEngineConfig(env)
+    };
+
+    initializeNominatim(nominatimFailoverConfig(env));
+    registerNominatim(APP_CONTEXT.nominatim);
+
+    initializePhoton(photonFailoverConfig(env));
+    registerPhoton(APP_CONTEXT.photon);
+
+    initializeOverpass(overpassFailoverConfig(env));
+    registerOverpass(APP_CONTEXT.overpass);
+
+    initializeGoogle(googleFailoverConfig(env));
+    registerGooglePlace(APP_CONTEXT.google);
+
+    initializeTripAdvisor(tripAdvisorFailoverConfig(env));
+    registerTripAdvisor(APP_CONTEXT.tripAdvisor);
+
+  }
+  return APP_CONTEXT;
 }
 
-function initializeApp(): Context {
-  const context = initializeContext();
-
-  initializeNominatim(NOMINATIM_FAILOVER_CONFIG);
-  registerNominatim(context?.nominatim);
-
-  initializePhoton(PHOTON_FAILOVER_CONFIG);
-  registerPhoton(context?.photon);
-
-  initializeOverpass(OVERPASS_FAILOVER_CONFIG);
-  registerOverpass(context.overpass);
-
-  initializeGoogle(GOOGLE_PLACE_FAILOVER_CONFIG);
-  registerGooglePlace(context?.google);
-
-  initializeTripAdvisor(TRIPADVISOR_FAILOVER_CONFIG);
-  registerTripAdvisor(context?.tripAdvisor);
-
-  return context;
-}
-
-export const CONTEXT = initializeApp();
+export const appContext = createContext<AppContext | null>(null);

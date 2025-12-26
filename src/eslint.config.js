@@ -73,7 +73,7 @@ export default defineConfig(
           allowExportNames: [
             "loader", "action", "clientLoader", "clientAction", "headers",
             "links", "meta", "handle", "shouldRevalidate", "ErrorBoundary",
-            "HydrateFallback", "layout"
+            "HydrateFallback", "layout", "middleware"
           ],
         },
       ],

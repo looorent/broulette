@@ -1,6 +1,6 @@
 import * as repl from "repl";
 
-import { APP_CONFIG, CONTEXT } from "@config/server";
+import { APP_CONFIG, createAppContext } from "@config/server";
 import prisma from "@features/db.server/prisma";
 import { findGoogleRestaurantById, searchGoogleRestaurantByText } from "@features/google.server";
 import { searchCandidate } from "@features/search-engine.server";
@@ -13,6 +13,7 @@ async function start() {
     console.log("✅ Application context loaded and REPL started.");
     console.log("---");
 
+    const CONTEXT = createAppContext(process.env); // TODO
     const context = {
       prisma,
       APP_CONFIG,

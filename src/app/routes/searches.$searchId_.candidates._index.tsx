@@ -1,7 +1,7 @@
 import { href, redirect } from "react-router";
 
 import { ErrorUnknown } from "@components/error/error-unknown";
-import { SEARCH_ENGINE_CONFIGURATION } from "@config/server";
+import { appContext } from "@config/server";
 import { searchCandidate, type SearchEngineConfiguration } from "@features/search-engine.server";
 import { validateCSRF } from "@features/session.server";
 import { getLocale } from "@features/utils/locale.server";
@@ -10,11 +10,12 @@ import type { Route } from "./+types/searches.$searchId_.candidates._index";
 
 export async function action({
   request,
-  params
+  params,
+  context
 }: Route.ActionArgs) {
   const formData = await request.formData();
   await validateCSRF(formData, request.headers);
-  const data = parseAndValidate(formData, params, await getLocale(request));
+  const data = parseAndValidate(formData, params, await getLocale(request), context.get(appContext)!.search);
 
   const candidate = await searchCandidate(
     data.searchId,
@@ -48,7 +49,8 @@ export function ErrorBoundary({
 function parseAndValidate(
   _formData: FormData,
   params: { searchId: string | undefined; },
-  locale: string
+  locale: string,
+  context: SearchEngineConfiguration
 ): {
   searchId: string;
   locale: string;
@@ -60,7 +62,7 @@ function parseAndValidate(
     return {
       searchId: params.searchId,
       locale: locale,
-      configuration: SEARCH_ENGINE_CONFIGURATION
+      configuration: context
     };
   }
 }
