@@ -18,13 +18,8 @@ $ openssl rand -hex 32
 * "back" does not work properly, the "candidate" page seems to be skipped
 * Add a tag "unknown opening hours"
 * Add indexes based on the actual calls
-* Add "overloaded" error
 * Streaming HTTP during search
-* Handle errors on every route
 * Review app declaration
-* Manage two errors:
-    * No candidate left
-    * Too many calls
 * Preference form:
     * Default values in preference form ("close" should be selected by default)
     * Use localstorage

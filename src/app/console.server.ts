@@ -1,6 +1,7 @@
 import * as repl from "repl";
 
 import { APP_CONFIG, createAppContext } from "@config/server";
+import { computeViewportFromCircle } from "@features/coordinate";
 import prisma from "@features/db.server/prisma";
 import { findGoogleRestaurantById, searchGoogleRestaurantByText } from "@features/google.server";
 import { searchCandidate } from "@features/search-engine.server";
@@ -19,8 +20,9 @@ async function start() {
       APP_CONFIG,
       CONTEXT,
       findGoogleRestaurantById, // example: findGoogleRestaurantById("ChIJkVjOGDmZwUcRA5MVWISkQfI", CONTEXT.google)
-      searchGoogleRestaurantByText,
-      searchCandidate
+      searchGoogleRestaurantByText, // example: searchGoogleRestaurantByText("Respire", 50.4616929, 4.9234914, CONTEXT.google)
+      searchCandidate,
+      computeViewportFromCircle, // example: computeViewportFromCircle({ latitude: 50.4616929, longitude: 4.9234914  }, 50)
     };
 
     const interactive = repl.start({
