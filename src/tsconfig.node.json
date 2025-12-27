@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "vite.config.ts",
+    "prisma.config.ts",
+    "react-router.config.ts",
+    "vite.config.console.ts"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "ES2022"
+    ]
+  }
+}

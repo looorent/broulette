@@ -1,32 +1,52 @@
 {
-  "include": [
-    "**/*",
-    "**/.server/**/*",
-    "**/.client/**/*",
-    ".react-router/types/**/*"
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.cloudflare.json"
+    }
   ],
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "types": ["node", "vite/client"],
+    "types": [
+      "./worker-configuration.d.ts"
+    ],
     "target": "ES2022",
     "module": "ES2022",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "rootDirs": [".", "./.react-router/types"],
+    "rootDirs": [
+      ".",
+      "./.react-router/types"
+    ],
     "baseUrl": ".",
     "paths": {
-      "@persistence/*": ["./app/features/generated/prisma.server/*"],
-      "@features/*": ["./app/features/*"],
-      "@routes/*": ["./app/routes/*"],
-      "@components/*": ["./app/components/*"],
-      "@config/server": ["app/config.server.ts"],
-      "@config": ["app/config.ts"]
+      "@persistence/*": [
+        "./app/features/generated/prisma.server/*"
+      ],
+      "@features/*": [
+        "./app/features/*"
+      ],
+      "@routes/*": [
+        "./app/routes/*"
+      ],
+      "@components/*": [
+        "./app/components/*"
+      ],
+      "@config/server": [
+        "app/config.server.ts"
+      ],
+      "@config": [
+        "app/config.ts"
+      ]
     },
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
+    "checkJs": true,
     "strict": true
   }
 }

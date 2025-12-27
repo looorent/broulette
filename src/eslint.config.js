@@ -32,7 +32,12 @@ export default defineConfig(
       },
       parser: eslintParserTypeScript,
       parserOptions: {
-        project: true
+        project: [
+          "./tsconfig.json",
+          "./tsconfig.node.json",
+          "./tsconfig.cloudflare.json"
+        ],
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     plugins: {
@@ -87,6 +92,12 @@ export default defineConfig(
           destructuredArrayIgnorePattern: "^_",
           varsIgnorePattern: "^_",
           ignoreRestSiblings: true,
+        }
+      ],
+      "import/no-unresolved": [
+        "error",
+        {
+          "ignore": ["^virtual:"]
         }
       ],
       "react/prop-types": "off",
