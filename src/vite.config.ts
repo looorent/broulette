@@ -23,6 +23,11 @@ export default defineConfig({
     devtoolsJson()
   ],
   resolve: {
-    alias: baseConfigurationAlias
+    alias: baseConfigurationAlias,
+    dedupe: ["react", "react-dom", "@prisma/client", "@prisma/adapter-pg"], // TODO validate this
+  },
+  ssr: {
+    target: "webworker",
+    noExternal: ["@prisma/client", "prisma", "@prisma/adapter-pg"], // TODO validate this
   }
 });

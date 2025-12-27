@@ -15,6 +15,8 @@ $ openssl rand -hex 32
 
 ## TODO
 
+* !!!! Session storage does not work with `npm run start` (cloudfare)
+* Use KV? https://community.cloudflare.com/t/session-management/46770/4
 * "back" does not work properly, the "candidate" page seems to be skipped
 * Add a tag "unknown opening hours"
 * Add indexes based on the actual calls
@@ -23,12 +25,5 @@ $ openssl rand -hex 32
 * Preference form:
     * Default values in preference form ("close" should be selected by default)
     * Use localstorage
-* Investigation
-    * why restaurant "Respire Restaurant" does not find any photo
-    * why "La Terrasse de l'Abbaye de Notre-Dame du Vivier" does not find any equivalent on Google
-* Use `zod` to parse env variables?
-* Deployment:
-    * Render or Vercel?
-    * or Cloudflare Workers? (requires code changes)
 * Add some log
 * Add some cache on Nominatim

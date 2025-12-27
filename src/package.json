@@ -13,9 +13,9 @@
     "preview": "npm run build && vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prisma:migrate": "dotenv -e .dev.vars -- npx prisma migrate dev",
-    "prisma:generate": "dotenv -e .dev.vars -- npx prisma generate",
-    "prisma:studio": "dotenv -e .dev.vars -- npx prisma studio"
+    "prisma:migrate": "PRISMA_CLIENT_FORCE_WASM=1 dotenv -e .dev.vars -- npx prisma migrate dev",
+    "prisma:generate": "PRISMA_CLIENT_FORCE_WASM=1 dotenv -e .dev.vars -- npx prisma generate",
+    "prisma:studio": "PRISMA_CLIENT_FORCE_WASM=1 dotenv -e .dev.vars -- npx prisma studio"
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "13.8.0",
