@@ -1,3 +1,5 @@
+import { DEFAULT_FAILOVER, type FailoverConfiguration } from "@features/circuit-breaker.server";
+
 import type { TripAdvisorSimilarityConfiguration } from "./similarity";
 
 export const TRIPADVISOR_SOURCE_NAME = "tripadvisor";
@@ -24,8 +26,9 @@ export const DEFAULT_TRIPADVISOR_CONFIGURATION: TripAdvisorConfiguration = {
     maxDistanceInMeters: 50,
     minScoreThreshold: 0.6
   },
-  photo: TRIPADVISOR_DEFAULT_PHOTO_SIZE
-}
+  photo: TRIPADVISOR_DEFAULT_PHOTO_SIZE,
+  failover: DEFAULT_FAILOVER
+};
 
 export interface TripAdvisorConfiguration {
   instanceUrl: string;
@@ -39,6 +42,7 @@ export interface TripAdvisorConfiguration {
   };
   similarity: TripAdvisorSimilarityConfiguration;
   photo: TripAdvisorPhotoSize;
+  failover: FailoverConfiguration;
 }
 
 export interface TripAdvisorLocation {

@@ -1,17 +1,14 @@
 import { createContext } from "react-router";
 
-import { registerNominatim, registerPhoton } from "@features/address.server";
-import type { FailoverConfiguration } from "@features/circuit-breaker.server";
 import { DEFAULT_FAILOVER } from "@features/circuit-breaker.server";
-import { DEFAULT_DISCOVERY_CONFIGURATION, registerOverpass } from "@features/discovery.server";
-import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, initializeGoogle, type GooglePlaceConfiguration } from "@features/google.server";
-import { registerGooglePlace, registerTripAdvisor } from "@features/matching.server";
-import { DEFAULT_NOMINATIM_CONFIGURATION, initializeNominatim, type NominatimConfiguration } from "@features/nominatim.server";
-import { DEFAULT_OVERPASS_CONFIGURATION, initializeOverpass, type OverpassConfiguration } from "@features/overpass.server";
-import { DEFAULT_PHOTON_CONFIGURATION, initializePhoton, type PhotonConfiguration } from "@features/photon.server";
+import { DEFAULT_DISCOVERY_CONFIGURATION } from "@features/discovery.server";
+import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlaceConfiguration } from "@features/google.server";
+import { DEFAULT_NOMINATIM_CONFIGURATION, type NominatimConfiguration } from "@features/nominatim.server";
+import { DEFAULT_OVERPASS_CONFIGURATION, type OverpassConfiguration } from "@features/overpass.server";
+import { DEFAULT_PHOTON_CONFIGURATION, type PhotonConfiguration } from "@features/photon.server";
 import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration } from "@features/search-engine.server";
 import { DEFAULT_TAG_CONFIGURATION } from "@features/tag.server";
-import { DEFAULT_TRIPADVISOR_CONFIGURATION, initializeTripAdvisor, parseTripAdvisorPhotoSize, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
+import { DEFAULT_TRIPADVISOR_CONFIGURATION, parseTripAdvisorPhotoSize, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
 
 export const APP_CONFIG = {
   name: "BiteRoulette",
@@ -40,23 +37,16 @@ export function nominatimConfig(env: any): NominatimConfiguration {
       instanceUrls: readArray(env.BROULETTE_NOMINATIM_INSTANCE_URLS) || DEFAULT_NOMINATIM_CONFIGURATION.instanceUrls,
       userAgent: env.BROULETTE_NOMINATIM_USER_AGENT ?? `${APP_CONFIG.name}/${APP_CONFIG.version}`,
       bottomNote: env.BROULETTE_NOMINATIM_BOTTOM_NOTE ?? DEFAULT_NOMINATIM_CONFIGURATION.bottomNote,
-      maxNumberOfAddresses: Number(env.BROULETTE_NOMINATIM_NUMBER_0F_ADDRESSES || DEFAULT_NOMINATIM_CONFIGURATION.maxNumberOfAddresses)
+      maxNumberOfAddresses: Number(env.BROULETTE_NOMINATIM_NUMBER_0F_ADDRESSES || DEFAULT_NOMINATIM_CONFIGURATION.maxNumberOfAddresses),
+      failover: {
+        retry: Number(env.BROULETTE_NOMINATIM_API_RETRIES || DEFAULT_FAILOVER.retry),
+        halfOpenAfterInMs: Number(env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+        closeAfterNumberOfFailures: Number(env.BROULETTE_NOMINATIM_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+        timeoutInMs: Number(env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+      }
     };
   }
   return NOMINATIM_CONFIG;
-}
-
-let NOMINATIM_FAILOVER_CONFIG: FailoverConfiguration;
-export function nominatimFailoverConfig(env: any): FailoverConfiguration {
-  if (!NOMINATIM_FAILOVER_CONFIG) {
-    NOMINATIM_FAILOVER_CONFIG = {
-      retry: Number(env.BROULETTE_NOMINATIM_API_RETRIES || DEFAULT_FAILOVER.retry),
-      halfOpenAfterInMs: Number(env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-      closeAfterNumberOfFailures: Number(env.BROULETTE_NOMINATIM_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-      timeoutInMs: Number(env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
-    };
-  }
-  return NOMINATIM_FAILOVER_CONFIG;
 }
 
 let PHOTON_CONFIG: PhotonConfiguration;
@@ -67,22 +57,15 @@ export function photonConfig(env: any): PhotonConfiguration {
       instanceUrls: readArray(env.BROULETTE_PHOTON_INSTANCE_URLS) || DEFAULT_PHOTON_CONFIGURATION.instanceUrls,
       bottomNote: env.BROULETTE_PHOTON_BOTTOM_NOTE ?? DEFAULT_PHOTON_CONFIGURATION.bottomNote,
       maxNumberOfAddresses: Number(env.BROULETTE_PHOTON_NUMBER_0F_ADDRESSES || DEFAULT_PHOTON_CONFIGURATION.maxNumberOfAddresses),
+      failover: {
+        retry: Number(env.BROULETTE_PHOTON_API_RETRIES || DEFAULT_FAILOVER.retry),
+        halfOpenAfterInMs: Number(env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+        closeAfterNumberOfFailures: Number(env.BROULETTE_PHOTON_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+        timeoutInMs: Number(env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+      }
     };
   }
   return PHOTON_CONFIG;
-}
-
-let PHOTON_FAILOVER_CONFIG: FailoverConfiguration;
-export function photonFailoverConfig(env: any): FailoverConfiguration {
-  if (!PHOTON_FAILOVER_CONFIG) {
-    PHOTON_FAILOVER_CONFIG = {
-      retry: Number(env.BROULETTE_PHOTON_API_RETRIES || DEFAULT_FAILOVER.retry),
-      halfOpenAfterInMs: Number(env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-      closeAfterNumberOfFailures: Number(env.BROULETTE_PHOTON_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-      timeoutInMs: Number(env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
-    };
-  }
-  return PHOTON_FAILOVER_CONFIG;
 }
 
 let GOOGLE_PLACE_CONFIG: GooglePlaceConfiguration;
@@ -107,23 +90,16 @@ export function googleConfig(env: any): GooglePlaceConfiguration {
           location: Number(env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_LOCATION || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.weight.location),
         },
         maxDistanceInMeters: Number(env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.maxDistanceInMeters)
+      },
+      failover: {
+        retry: Number(env.BROULETTE_GOOGLE_PLACE_API_RETRIES || DEFAULT_FAILOVER.retry),
+        halfOpenAfterInMs: Number(env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+        closeAfterNumberOfFailures: Number(env.BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+        timeoutInMs: Number(env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
       }
     };
   }
   return GOOGLE_PLACE_CONFIG;
-}
-
-let GOOGLE_PLACE_FAILOVER_CONFIG: FailoverConfiguration;
-export function googleFailoverConfig(env: any): FailoverConfiguration {
-  if (!GOOGLE_PLACE_FAILOVER_CONFIG) {
-    GOOGLE_PLACE_FAILOVER_CONFIG = {
-      retry: Number(env.BROULETTE_GOOGLE_PLACE_API_RETRIES || DEFAULT_FAILOVER.retry),
-      halfOpenAfterInMs: Number(env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-      closeAfterNumberOfFailures: Number(env.BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-      timeoutInMs: Number(env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
-    };
-  }
-  return GOOGLE_PLACE_FAILOVER_CONFIG;
 }
 
 let TRIPADVISOR_CONFIG: TripAdvisorConfiguration;
@@ -147,23 +123,16 @@ export function tripAdvisorConfig(env: any): TripAdvisorConfiguration {
         maxDistanceInMeters: Number(env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.maxDistanceInMeters),
         minScoreThreshold: Number(env.BROULETTE_TRIPADVISOR_API_SEARCH_MIN_SCORE_TRESHOLD || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.minScoreThreshold)
       },
-      photo: parseTripAdvisorPhotoSize(env.BROULETTE_TRIPADVISOR_API_PHOTO_SIZE) || DEFAULT_TRIPADVISOR_CONFIGURATION.photo
+      photo: parseTripAdvisorPhotoSize(env.BROULETTE_TRIPADVISOR_API_PHOTO_SIZE) || DEFAULT_TRIPADVISOR_CONFIGURATION.photo,
+      failover: {
+        retry: Number(env.BROULETTE_TRIPADVISOR_API_RETRIES || DEFAULT_FAILOVER.retry),
+        halfOpenAfterInMs: Number(env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+        closeAfterNumberOfFailures: Number(env.BROULETTE_TRIPADVISOR_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+        timeoutInMs: Number(env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+      }
     };
   }
   return TRIPADVISOR_CONFIG;
-}
-
-let TRIPADVISOR_FAILOVER_CONFIG: FailoverConfiguration;
-export function tripAdvisorFailoverConfig(env: any): FailoverConfiguration {
-  if(!TRIPADVISOR_FAILOVER_CONFIG) {
-    TRIPADVISOR_FAILOVER_CONFIG = {
-      retry: Number(env.BROULETTE_TRIPADVISOR_API_RETRIES || DEFAULT_FAILOVER.retry),
-      halfOpenAfterInMs: Number(env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-      closeAfterNumberOfFailures: Number(env.BROULETTE_TRIPADVISOR_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-      timeoutInMs: Number(env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
-    };
-  }
-  return TRIPADVISOR_FAILOVER_CONFIG;
 }
 
 let OVERPASS_CONFIG: OverpassConfiguration;
@@ -171,23 +140,16 @@ export function overpassConfig(env: any): OverpassConfiguration {
   if (!OVERPASS_CONFIG) {
     OVERPASS_CONFIG = {
       enabled: env.BROULETTE_OVERPASS_ENABLED?.toLowerCase() === "true",
-      instanceUrls: readArray(env.BROULETTE_OVERPASS_API_INSTANCE_URLS) || DEFAULT_OVERPASS_CONFIGURATION.instanceUrls
+      instanceUrls: readArray(env.BROULETTE_OVERPASS_API_INSTANCE_URLS) || DEFAULT_OVERPASS_CONFIGURATION.instanceUrls,
+      failover: {
+        retry: Number(env.BROULETTE_OVERPASS_API_RETRIES || DEFAULT_FAILOVER.retry),
+        halfOpenAfterInMs: Number(env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
+        closeAfterNumberOfFailures: Number(env.BROULETTE_OVERPASS_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
+        timeoutInMs: Number(env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+      }
     };
   }
   return OVERPASS_CONFIG;
-}
-
-let OVERPASS_FAILOVER_CONFIG: FailoverConfiguration;
-export function overpassFailoverConfig(env: any): FailoverConfiguration {
-  if (!OVERPASS_FAILOVER_CONFIG) {
-    OVERPASS_FAILOVER_CONFIG = {
-      retry: Number(env.BROULETTE_OVERPASS_API_RETRIES || DEFAULT_FAILOVER.retry),
-      halfOpenAfterInMs: Number(env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-      closeAfterNumberOfFailures: Number(env.BROULETTE_OVERPASS_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-      timeoutInMs: Number(env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
-    };
-  }
-  return OVERPASS_FAILOVER_CONFIG;
 }
 
 let SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration;
@@ -244,22 +206,6 @@ export function createAppContext(env: any): AppContext {
       tripAdvisor: tripAdvisorConfig(env).enabled ? tripAdvisorConfig(env) : undefined,
       search: searchEngineConfig(env)
     };
-
-    initializeNominatim(nominatimFailoverConfig(env));
-    registerNominatim(APP_CONTEXT.nominatim);
-
-    initializePhoton(photonFailoverConfig(env));
-    registerPhoton(APP_CONTEXT.photon);
-
-    initializeOverpass(overpassFailoverConfig(env));
-    registerOverpass(APP_CONTEXT.overpass);
-
-    initializeGoogle(googleFailoverConfig(env));
-    registerGooglePlace(APP_CONTEXT.google);
-
-    initializeTripAdvisor(tripAdvisorFailoverConfig(env));
-    registerTripAdvisor(APP_CONTEXT.tripAdvisor);
-
   }
   return APP_CONTEXT;
 }

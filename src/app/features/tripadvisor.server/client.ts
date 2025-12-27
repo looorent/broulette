@@ -12,7 +12,7 @@ export async function findTripAdvisorLocationByIdWithRetry(
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocation | undefined> {
-  const location = await tripAdvisorCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+  const location = await tripAdvisorCircuitBreaker(configuration.failover).execute(async ({ signal: combinedSignal }) => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
@@ -31,7 +31,7 @@ export async function searchTripAdvisorLocationNearbyWithRetry(
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocation | undefined> {
-  return await tripAdvisorCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+  return await tripAdvisorCircuitBreaker(configuration.failover).execute(async ({ signal: combinedSignal }) => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
@@ -45,7 +45,7 @@ export async function findBestTripAdvisorLocationPictureWithRetry(
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorPhoto | undefined> {
-  return await tripAdvisorCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+  return await tripAdvisorCircuitBreaker(configuration.failover).execute(async ({ signal: combinedSignal }) => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }

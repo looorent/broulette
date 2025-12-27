@@ -5,16 +5,16 @@ import { GoogleMatcher } from "./google";
 import { TripAdvisorMatcher } from "./tripadvisor";
 import type { Matcher } from "./types";
 
-export const registeredMatchers: Matcher[] = [];
-
-export function registerGooglePlace(configuration: GooglePlaceConfiguration | undefined) {
-  if (configuration) {
-    registeredMatchers.push(new GoogleMatcher(configuration));
+let MATCHERS: Matcher[] | null = null;
+export function registeredMatchers(
+  google: GooglePlaceConfiguration | undefined,
+  tripAdvisor: TripAdvisorConfiguration | undefined
+): Matcher[] {
+  if (!MATCHERS) {
+    MATCHERS = [
+      google?.enabled ? new GoogleMatcher(google) : undefined,
+      tripAdvisor?.enabled ? new TripAdvisorMatcher(tripAdvisor) : undefined
+    ].filter(Boolean).map(matcher => matcher!);
   }
-}
-
-export function registerTripAdvisor(configuration: TripAdvisorConfiguration | undefined) {
-  if (configuration) {
-    registeredMatchers.push(new TripAdvisorMatcher(configuration));
-  }
+  return MATCHERS;
 }

@@ -1,2 +1,2 @@
-export { registerNominatim, registerPhoton, searchLocations } from "./providers";
+export { searchLocations } from "./providers";
 

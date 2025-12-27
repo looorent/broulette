@@ -41,7 +41,7 @@ export async function findGoogleRestaurantById(
   configuration: GooglePlaceConfiguration = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
-  const place = await googleCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+  const place = await googleCircuitBreaker(configuration.failover).execute(async ({ signal: combinedSignal }) => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
@@ -232,7 +232,7 @@ async function addPhotoUriOn(
 ): Promise<GoogleRestaurant | undefined> {
   const photoId = restaurant?.photoIds?.[0];
   if (photoId) {
-    const photoUrl = await googleCircuitBreaker().execute(async ({ signal: combinedSignal }) => {
+    const photoUrl = await googleCircuitBreaker(configuration.failover).execute(async ({ signal: combinedSignal }) => {
       if (combinedSignal?.aborted) {
         throw combinedSignal.reason;
       }

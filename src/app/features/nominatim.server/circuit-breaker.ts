@@ -1,27 +1,12 @@
-import { noop, type IPolicy } from "cockatiel";
+import { type IPolicy } from "cockatiel";
 
 import { initializeCircuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
 
 const circuitBreakerSingletonPerInstanceUrl: { [instanceUrl: string]: IPolicy } = {};
-let failoverConfiguration: FailoverConfiguration | null;
 
-export function initializeNominatim(configuration: FailoverConfiguration) {
-  if (!configuration) {
-    if (failoverConfiguration) {
-      console.warn("Nominatim is already configured. Skip this operation.");
-    } else {
-      failoverConfiguration = configuration;
-    }
-  }
-}
-
-export function nomatimCircuitBreaker(instanceUrl: string): IPolicy {
-  if (!failoverConfiguration) {
-    return noop;
-  } else if (circuitBreakerSingletonPerInstanceUrl[instanceUrl]) {
-    return circuitBreakerSingletonPerInstanceUrl[instanceUrl];
-  } else {
+export function nomatimCircuitBreaker(instanceUrl: string, failoverConfiguration: FailoverConfiguration): IPolicy {
+  if (!circuitBreakerSingletonPerInstanceUrl[instanceUrl]) {
     circuitBreakerSingletonPerInstanceUrl[instanceUrl] = initializeCircuitBreaker(failoverConfiguration);
-    return circuitBreakerSingletonPerInstanceUrl[instanceUrl];
   }
+  return circuitBreakerSingletonPerInstanceUrl[instanceUrl];
 }

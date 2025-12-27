@@ -1,3 +1,5 @@
+import { DEFAULT_FAILOVER, type FailoverConfiguration } from "@features/circuit-breaker.server";
+
 export const DEFAULT_NOMINATIM_CONFIGURATION: NominatimConfiguration = {
   enabled: true,
   instanceUrls: [
@@ -5,7 +7,8 @@ export const DEFAULT_NOMINATIM_CONFIGURATION: NominatimConfiguration = {
   ],
   userAgent: "Any/App",
   bottomNote: "by OpenStreetMap",
-  maxNumberOfAddresses: 5
+  maxNumberOfAddresses: 5,
+  failover: DEFAULT_FAILOVER
 }
 
 export interface NominatimConfiguration {
@@ -14,4 +17,5 @@ export interface NominatimConfiguration {
   userAgent: string;
   maxNumberOfAddresses: number;
   bottomNote: string;
+  failover: FailoverConfiguration;
 }

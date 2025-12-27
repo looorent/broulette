@@ -1,2 +1,3 @@
+export { LoadBalancer } from "./balancer";
 export * from "./types";
-export * from "./balancer";
+

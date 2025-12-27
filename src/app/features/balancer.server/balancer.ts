@@ -4,8 +4,8 @@ export class LoadBalancer<TArgs extends any[], TResult> {
   private providers: ServiceStrategy<TArgs, TResult>[];
   private currentOffset: number = 0;
 
-  constructor(initialProviders: ServiceStrategy<TArgs, TResult>[] = []) {
-    this.providers = [...initialProviders];
+  constructor(providers: ServiceStrategy<TArgs, TResult>[] = []) {
+    this.providers = [...providers];
   }
 
   /**
@@ -39,10 +39,5 @@ export class LoadBalancer<TArgs extends any[], TResult> {
     }
 
     throw new Error("All providers failed.");
-  }
-
-  addProvider(provider: ServiceStrategy<TArgs, TResult>): this {
-    this.providers.push(provider);
-    return this;
   }
 }

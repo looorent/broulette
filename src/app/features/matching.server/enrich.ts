@@ -1,9 +1,9 @@
 import prisma from "@features/db.server/prisma";
 import type { DiscoveredRestaurantProfile } from "@features/discovery.server";
-import { GOOGLE_PLACE_SOURCE_NAME } from "@features/google.server";
+import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, GOOGLE_PLACE_SOURCE_NAME, type GooglePlaceConfiguration } from "@features/google.server";
 import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
 import { filterTags } from "@features/tag.server";
-import { TRIPADVISOR_SOURCE_NAME } from "@features/tripadvisor.server";
+import { DEFAULT_TRIPADVISOR_CONFIGURATION, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
 import { isOlderThanAMonth, thirtyDaysAgo } from "@features/utils/date";
 
 import { registeredMatchers } from "./matchers/registry";
@@ -15,11 +15,13 @@ export async function enrichRestaurant(
   discovered: DiscoveredRestaurantProfile | undefined,
   language: string,
   configuration: RestaurantMatchingConfiguration = DEFAULT_MATCHING_CONFIGURATION,
+  google: GooglePlaceConfiguration | undefined = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
+  tripAdvisor: TripAdvisorConfiguration | undefined = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<RestaurantAndProfiles | undefined> {
   if (discovered) {
     const restaurant = await findRestaurantInDatabase(discovered) || await saveRestaurantToDatabase(discovered, configuration);
-    return await enrich(restaurant, language, configuration, signal);
+    return await enrich(restaurant, language, configuration, google, tripAdvisor, signal);
   } else {
     return undefined;
   }
@@ -29,11 +31,13 @@ async function enrich(
   restaurant: RestaurantAndProfiles,
   language: string,
   configuration: RestaurantMatchingConfiguration,
+  google?: GooglePlaceConfiguration | undefined,
+  tripAdvisor?: TripAdvisorConfiguration | undefined,
   signal?: AbortSignal | undefined
 ): Promise<RestaurantAndProfiles> {
   let result = restaurant;
 
-  for (const matcher of registeredMatchers) {
+  for (const matcher of registeredMatchers(google, tripAdvisor)) {
     if (signal?.aborted) {
       throw signal.reason;
     }

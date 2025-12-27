@@ -1,3 +1,5 @@
+import { DEFAULT_FAILOVER, type FailoverConfiguration } from "@features/circuit-breaker.server";
+
 import { DEFAULT_GOOGLE_PLACE_SIMILARITY_CONFIGURATION, type GoogleSimilarityConfiguration } from "./similarity";
 
 export const GOOGLE_PLACE_SOURCE_NAME = "google_place";
@@ -15,7 +17,8 @@ export const DEFAULT_GOOGLE_PLACE_CONFIGURATION: GooglePlaceConfiguration = {
     maxWidthInPx: 1024,
     maxHeightInPx: 512
   },
-  similarity: DEFAULT_GOOGLE_PLACE_SIMILARITY_CONFIGURATION
+  similarity: DEFAULT_GOOGLE_PLACE_SIMILARITY_CONFIGURATION,
+  failover: DEFAULT_FAILOVER
 }
 
 export interface GooglePlaceConfiguration {
@@ -32,6 +35,7 @@ export interface GooglePlaceConfiguration {
     radiusInMeters: number;
   };
   similarity: GoogleSimilarityConfiguration;
+  failover: FailoverConfiguration;
 }
 
 export interface GoogleRestaurant {

@@ -1,6 +1,9 @@
 import prisma from "@features/db.server/prisma";
 import { RestaurantDiscoveryScanner, type DiscoveredRestaurantProfile } from "@features/discovery.server";
+import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlaceConfiguration } from "@features/google.server";
 import { enrichRestaurant } from "@features/matching.server";
+import { DEFAULT_OVERPASS_CONFIGURATION, type OverpassConfiguration } from "@features/overpass.server";
+import { DEFAULT_TRIPADVISOR_CONFIGURATION, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
 import { DistanceRange, SearchCandidateStatus, type RestaurantProfile, type Search, type SearchCandidate } from "@persistence/client";
 
 import { SearchNotFoundError } from "./error";
@@ -12,6 +15,9 @@ export async function searchCandidate(
   searchId: string,
   locale: string,
   configuration: SearchEngineConfiguration = DEFAULT_SEARCH_ENGINE_CONFIGURATION,
+  overpass: OverpassConfiguration | undefined = DEFAULT_OVERPASS_CONFIGURATION,
+  google: GooglePlaceConfiguration | undefined = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
+  tripAdvisor: TripAdvisorConfiguration | undefined = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal
 ): Promise<SearchCandidate> {
   const search = await findSearchOrThrow(searchId);
@@ -19,9 +25,9 @@ export async function searchCandidate(
   if (search.exhausted) {
     return await findLatestCandidateOf(search.id) || await createDefaultCandidateWithoutRestaurant(search.id);
   } else {
-    const scanner = createDiscoveryScanner(search, configuration);
+    const scanner = createDiscoveryScanner(search, configuration, overpass);
     const startingOrder = computeNextCandidateOrder(search.candidates);
-    const finalCandidate = await findNextValidCandidate(search, scanner, configuration, startingOrder, locale, signal);
+    const finalCandidate = await findNextValidCandidate(search, scanner, configuration, startingOrder, locale, google, tripAdvisor, signal);
     await markSearchAsExhaustedIfNecessary(search.id, finalCandidate);
     return finalCandidate;
   }
@@ -33,6 +39,8 @@ async function findNextValidCandidate(
   config: SearchEngineConfiguration,
   currentOrder: number,
   locale: string,
+  google: GooglePlaceConfiguration | undefined,
+  tripAdvisor: TripAdvisorConfiguration | undefined,
   signal?: AbortSignal
 ): Promise<SearchCandidate> {
   let candidate: SearchCandidate | undefined = undefined;
@@ -44,7 +52,7 @@ async function findNextValidCandidate(
 
     for (const restaurant of randomized) {
       if (shouldContinueSearching(candidate, scanner)) {
-        const processed = await processRestaurant(restaurant, search, orderTracker++, config, locale, scanner);
+        const processed = await processRestaurant(restaurant, search, orderTracker++, config, google, tripAdvisor, locale, scanner);
         if (processed) {
           candidate = processed;
         }
@@ -60,11 +68,13 @@ async function processRestaurant(
   discovered: DiscoveredRestaurantProfile,
   search: Search,
   order: number,
-  config: SearchEngineConfiguration,
+  configuration: SearchEngineConfiguration,
+  google: GooglePlaceConfiguration | undefined,
+  tripAdvisor: TripAdvisorConfiguration | undefined,
   locale: string,
   scanner: RestaurantDiscoveryScanner
 ): Promise<SearchCandidate | undefined> {
-  const restaurant = await enrichRestaurant(discovered, locale, config.matching);
+  const restaurant = await enrichRestaurant(discovered, locale, configuration.matching, google, tripAdvisor);
   const validation = await validateRestaurant(restaurant, search, locale);
   const newCandidate = await prisma.searchCandidate.create({
     data: {
@@ -124,7 +134,8 @@ function createDiscoveryScanner(
       } | undefined | null
     }[] | undefined
   },
-  configuration: SearchEngineConfiguration
+  configuration: SearchEngineConfiguration,
+  overpass: OverpassConfiguration | undefined
 ): RestaurantDiscoveryScanner {
   const { timeoutInMs, rangeInMeters } = defineRange(search.distanceRange, configuration);
   return new RestaurantDiscoveryScanner(
@@ -132,6 +143,7 @@ function createDiscoveryScanner(
     rangeInMeters,
     timeoutInMs,
     configuration.discovery,
+    overpass,
     (search.candidates || []).flatMap(candidate => candidate?.restaurant?.profiles || [])
   );
 }

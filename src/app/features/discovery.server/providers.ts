@@ -5,17 +5,27 @@ import { fetchAllRestaurantsNearbyWithRetry, OVERPASS_SOURCE_NAME, type Overpass
 import { fromOverpass } from "./factory";
 import type { DiscoveredRestaurantProfile, DiscoveryRestaurantIdentity } from "./types";
 
-export const LOAD_BALANCER = new LoadBalancer<[
+let LOAD_BALANCER: LoadBalancer<[
   Coordinates,
   number,
   number,
   DiscoveryRestaurantIdentity[],
   AbortSignal ?
-], DiscoveredRestaurantProfile[]>();
+], DiscoveredRestaurantProfile[]> | null = null;
+export function loadBalancer(
+  overpass: OverpassConfiguration | undefined
+) {
+  if (!LOAD_BALANCER) {
+    LOAD_BALANCER = new LoadBalancer([
+      ...registerOverpass(overpass)
+    ]);
+  }
+  return LOAD_BALANCER;
+}
 
-export function registerOverpass(configuration: OverpassConfiguration | undefined) {
-  if (configuration) {
-    configuration.instanceUrls
+function registerOverpass(configuration: OverpassConfiguration | undefined) {
+  if (configuration?.enabled) {
+    return configuration.instanceUrls
       .map(instanceUrl => ({
         name: `overpass:${instanceUrl}`,
         execute: async (nearBy: Coordinates, distanceRangeInMeters: number, timeoutInSeconds: number, identitiesToExclude: DiscoveryRestaurantIdentity[], signal?: AbortSignal | undefined) => {
@@ -23,10 +33,11 @@ export function registerOverpass(configuration: OverpassConfiguration | undefine
             .filter(Boolean)
             .filter(id => id.source === OVERPASS_SOURCE_NAME)
             .map(id => ({ osmId: id.externalId, osmType: id.externalType }));
-          const response = await fetchAllRestaurantsNearbyWithRetry(nearBy.latitude, nearBy.longitude, distanceRangeInMeters, instanceUrl, timeoutInSeconds, idsToExclude, signal);
+          const response = await fetchAllRestaurantsNearbyWithRetry(nearBy.latitude, nearBy.longitude, distanceRangeInMeters, instanceUrl, timeoutInSeconds, idsToExclude, configuration.failover, signal);
           return (response?.restaurants || []).map(fromOverpass).filter(Boolean);
         }
-      }))
-      .forEach(provider => LOAD_BALANCER.addProvider(provider));
+      }));
+  } else {
+    return [];
   }
 }

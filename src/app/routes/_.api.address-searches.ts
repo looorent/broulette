@@ -1,9 +1,10 @@
 import type { ActionFunctionArgs } from "react-router";
 
+import { appContext } from "@config/server";
 import { searchLocations } from "@features/address.server";
 import { validateCSRF } from "@features/session.server";
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, context }: ActionFunctionArgs) {
   if (request.method !== "POST") {
     throw new Response("Method Not Allowed", { status: 405 });
   }
@@ -19,7 +20,12 @@ export async function action({ request }: ActionFunctionArgs) {
     };
   } else {
     try {
-      return await searchLocations(query, request.signal);
+      const configuration = context.get(appContext);
+      if (configuration) {
+        return await searchLocations(query, configuration.nominatim, configuration.nominatim, request.signal);
+      } else {
+        throw new Error("appContext not intialized");
+      }
     } catch (error) {
       console.error("Address lookup failed:", error);
       return {

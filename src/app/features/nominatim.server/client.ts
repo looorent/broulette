@@ -20,7 +20,7 @@ export async function fetchLocationFromNominatim(
   configuration: NominatimConfiguration = DEFAULT_NOMINATIM_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<LocationSuggestions> {
-  const rawData = await nomatimCircuitBreaker(instanceUrl).execute(async ({ signal: combinedSignal }) => {
+  const rawData = await nomatimCircuitBreaker(instanceUrl, configuration.failover).execute(async ({ signal: combinedSignal }) => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason
     };

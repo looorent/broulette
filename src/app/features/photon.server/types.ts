@@ -1,10 +1,13 @@
+import { DEFAULT_FAILOVER, type FailoverConfiguration } from "@features/circuit-breaker.server";
+
 export const DEFAULT_PHOTON_CONFIGURATION: PhotonConfiguration = {
   enabled: true,
   instanceUrls: [
     "https://photon.komoot.io/api/"
   ],
   bottomNote: "by Photon",
-  maxNumberOfAddresses: 5
+  maxNumberOfAddresses: 5,
+  failover: DEFAULT_FAILOVER
 }
 
 export interface PhotonConfiguration {
@@ -12,4 +15,5 @@ export interface PhotonConfiguration {
   instanceUrls: string[];
   bottomNote: string;
   maxNumberOfAddresses: number;
+  failover: FailoverConfiguration;
 }

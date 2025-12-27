@@ -1,3 +1,5 @@
+import { DEFAULT_FAILOVER, type FailoverConfiguration } from "@features/circuit-breaker.server";
+
 export const OVERPASS_SOURCE_NAME = "osm";
 export type OverpassLocationType = "way" | "node" | "relation";
 
@@ -7,8 +9,15 @@ export const DEFAULT_OVERPASS_CONFIGURATION: OverpassConfiguration = {
     "https://overpass-api.de/api/interpreter",
     "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
     "https://overpass.private.coffee/api/interpreter"
-  ]
+  ],
+  failover: DEFAULT_FAILOVER
 };
+
+export interface OverpassConfiguration {
+  enabled: boolean;
+  instanceUrls: string[];
+  failover: FailoverConfiguration;
+}
 
 export interface OverpassRestaurant {
   id: number;
@@ -44,7 +53,3 @@ export interface OverpassResponse {
   restaurants: OverpassRestaurant[];
 }
 
-export interface OverpassConfiguration {
-  enabled: boolean;
-  instanceUrls: string[];
-}

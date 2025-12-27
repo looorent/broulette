@@ -1,7 +1,8 @@
 import type { Coordinates } from "@features/coordinate";
+import type { OverpassConfiguration } from "@features/overpass.server";
 import type { RestaurantProfile } from "@persistence/client";
 
-import { LOAD_BALANCER } from "./providers";
+import { loadBalancer } from "./providers";
 import { type DiscoveredRestaurantProfile, type DiscoveryConfiguration, type DiscoveryRestaurantIdentity } from "./types";
 
 export class RestaurantDiscoveryScanner {
@@ -13,6 +14,7 @@ export class RestaurantDiscoveryScanner {
     private readonly initialRangeInMeters: number,
     private readonly timeoutInMs: number,
     private readonly configuration: DiscoveryConfiguration,
+    private readonly overpass: OverpassConfiguration | undefined,
     initialIdentitiesToExclude: DiscoveryRestaurantIdentity[] = []
   ) {
     this.iteration = 0;
@@ -52,6 +54,6 @@ export class RestaurantDiscoveryScanner {
   }
 
   private discoverNearbyRestaurants(rangeInMeters: number, signal: AbortSignal | undefined): Promise<DiscoveredRestaurantProfile[]> {
-    return LOAD_BALANCER.execute(this.nearBy, rangeInMeters, this.timeoutInMs, this.identitiesToExclude, signal);
+    return loadBalancer(this.overpass).execute(this.nearBy, rangeInMeters, this.timeoutInMs, this.identitiesToExclude, signal);
   }
 }

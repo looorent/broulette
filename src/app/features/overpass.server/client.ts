@@ -1,3 +1,5 @@
+import type { FailoverConfiguration } from "@features/circuit-breaker.server";
+
 import { overpassCircuitBreaker } from "./circuit-breaker";
 import { OsmEmptyResponseError, OsmError, OsmHttpError, OsmServerError } from "./error";
 import type { OverpassResponse, OverpassRestaurant } from "./types";
@@ -9,9 +11,10 @@ export async function fetchAllRestaurantsNearbyWithRetry(
   instanceUrl: string,
   timeoutInSeconds: number,
   idsToExclude: { osmId: string; osmType: string }[],
+  failoverConfiguration: FailoverConfiguration,
   signal?: AbortSignal | undefined
 ): Promise<OverpassResponse | undefined> {
-  return await overpassCircuitBreaker(instanceUrl).execute(async ({ signal: combinedSignal }) => {
+  return await overpassCircuitBreaker(instanceUrl, failoverConfiguration).execute(async ({ signal: combinedSignal }) => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
