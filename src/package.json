@@ -17,7 +17,6 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@googlemaps/places": "2.2.0",
     "@icons-pack/react-simple-icons": "13.8.0",
     "@prisma/adapter-pg": "7.2.0",
     "@prisma/client": "7.2.0",
@@ -27,7 +26,6 @@
     "@react-router/serve": "7.11.0",
     "@use-gesture/react": "10.3.1",
     "cockatiel": "3.2.1",
-    "dotenv": "^17.2.3",
     "geolib": "3.3.4",
     "isbot": "^5.1.32",
     "lucide-react": "0.562.0",

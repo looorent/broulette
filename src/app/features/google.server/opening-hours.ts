@@ -1,13 +1,30 @@
-import { type protos } from "@googlemaps/places";
+
+interface GoogleTimePoint {
+  day: number;
+  hour: number;
+  minute: number;
+  date?: { year: number; month: number; day: number };
+}
+
+interface GooglePeriod {
+  open: GoogleTimePoint;
+  close?: GoogleTimePoint;
+}
+
+interface GoogleOpeningHours {
+  periods: GooglePeriod[];
+}
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const OSM_DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 /**
- * Converts Google Maps Places SDK periods to OSM opening_hours string.
- * * @param periods - The `opening_hours.periods` array from the Google Place result
+ * Converts Google Maps Places API periods to OSM opening_hours string.
+ * @param regularOpeningHours - The `regularOpeningHours` object from the Google Place result
  */
-export function convertGooglePeriodsToOpeningHours({periods}: {periods?: protos.google.maps.places.v1.Place.OpeningHours.IPeriod[] | null}): string | undefined {
+export function convertGooglePeriodsToOpeningHours(regularOpeningHours: GoogleOpeningHours): string | undefined {
+  const periods = regularOpeningHours.periods;
+
   if (!periods || periods.length === 0) {
     return undefined;
   } else if (periods.length === 1 && !periods[0].close && periods[0]?.open?.day === 0 && isZeroTime(periods[0].open)) {
@@ -49,13 +66,13 @@ export function convertGooglePeriodsToOpeningHours({periods}: {periods?: protos.
   }
 }
 
-function isZeroTime(time: protos.google.maps.places.v1.Place.OpeningHours.Period.IPoint | null): boolean {
+function isZeroTime(time: GoogleTimePoint | null): boolean {
   return typeof time?.hour === "number"
     && time.hour === 0
     && time.minute === 0;
 }
 
-function formatTime(time: protos.google.maps.places.v1.Place.OpeningHours.Period.IPoint | null | undefined): string {
+function formatTime(time: GoogleTimePoint | null | undefined): string {
   if (time && typeof time.hour === "number" && typeof time.minute === "number") {
     const hour = time.hour.toString().padStart(2, "0");
     const minute = time.minute.toString().padStart(2, "0");

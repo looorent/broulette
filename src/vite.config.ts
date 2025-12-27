@@ -4,7 +4,6 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
-import checker from "vite-plugin-checker";
 import devtoolsJson from "vite-plugin-devtools-json";
 
 export const baseConfigurationAlias = {
@@ -21,14 +20,7 @@ export default defineConfig({
     cloudflare({ viteEnvironment: { name: "ssr" } }),
     tailwindcss(),
     reactRouter(),
-    devtoolsJson(),
-    checker({
-      typescript: true,
-      eslint: {
-        useFlatConfig: true,
-        lintCommand: "eslint .",
-      },
-    })
+    devtoolsJson()
   ],
   resolve: {
     alias: baseConfigurationAlias

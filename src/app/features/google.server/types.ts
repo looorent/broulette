@@ -6,6 +6,7 @@ export const GOOGLE_PLACE_SOURCE_NAME = "google_place";
 
 export const DEFAULT_GOOGLE_PLACE_CONFIGURATION: GooglePlaceConfiguration = {
   enabled: false,
+  baseUrl: "https://places.googleapis.com/v1",
   apiKey: "",
   rateLimiting: {
     maxNumberOfAttemptsPerMonth: 200
@@ -23,6 +24,7 @@ export const DEFAULT_GOOGLE_PLACE_CONFIGURATION: GooglePlaceConfiguration = {
 
 export interface GooglePlaceConfiguration {
   enabled: boolean;
+  baseUrl: string;
   apiKey: string;
   photo: {
     maxWidthInPx: number
@@ -60,4 +62,36 @@ export interface GoogleRestaurant {
   priceLabel: string | undefined | null;
   photoIds: string[];
   photoUrl: string | undefined;
+}
+
+
+export interface GooglePlace {
+  id?: string;
+  name?: string;
+  displayName?: { text: string; languageCode?: string };
+  formattedAddress?: string;
+  shortFormattedAddress?: string;
+  addressComponents?: Array<{ longText: string; shortText: string; types: string[] }>;
+  location?: { latitude: number; longitude: number };
+  types?: string[];
+  primaryType?: string;
+  businessStatus?: string;
+  googleMapsUri?: string;
+  websiteUri?: string;
+  rating?: number;
+  userRatingCount?: number;
+  nationalPhoneNumber?: string;
+  internationalPhoneNumber?: string;
+  regularOpeningHours?: {
+    periods: Array<{
+      open: { day: number; hour: number; minute: number };
+      close?: { day: number; hour: number; minute: number };
+    }>;
+  };
+  priceRange?: {
+    startPrice?: { currencyCode: string; units: string; nanos: number };
+    endPrice?: { currencyCode: string; units: string; nanos: number };
+  };
+  priceLevel?: string;
+  photos?: Array<{ name: string; widthPx: number; heightPx: number; authorAttributions: any[] }>;
 }

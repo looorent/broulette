@@ -1,5 +1,3 @@
-import { PlacesClient, type protos } from "@googlemaps/places";
-
 import { computeViewportFromCircle } from "@features/coordinate";
 
 import { googleCircuitBreaker } from "./circuit-breaker";
@@ -7,7 +5,7 @@ import { GoogleAuthorizationError, GoogleError, GoogleHttpError, GoogleServerErr
 import { convertBusinessStatusToOperational, formatPrices } from "./formatter";
 import { convertGooglePeriodsToOpeningHours } from "./opening-hours";
 import { compareSimilarity } from "./similarity";
-import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlaceConfiguration, type GoogleRestaurant } from "./types";
+import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlace, type GooglePlaceConfiguration, type GoogleRestaurant } from "./types";
 
 // pay attention to the fields we import, we currently do not require the "Enterprise + Atmosphere" SKU.
 // https://developers.google.com/maps/documentation/places/web-service/data-fields
@@ -45,7 +43,7 @@ export async function findGoogleRestaurantById(
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
-    return await findPlaceById(placeId, configuration);
+    return await findPlaceById(placeId, configuration, combinedSignal);
   }, signal);
 
   if (place) {
@@ -57,29 +55,31 @@ export async function findGoogleRestaurantById(
 
 async function findPlaceById(
   placeId: string,
-  configuration: GooglePlaceConfiguration = DEFAULT_GOOGLE_PLACE_CONFIGURATION
-): Promise<protos.google.maps.places.v1.IPlace> {
+  configuration: GooglePlaceConfiguration = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
+  signal?: AbortSignal
+): Promise<GooglePlace> {
   console.info(`[Google Place] Finding the place with id='${placeId}'...`);
   const start = Date.now();
-  const placesClient = new PlacesClient({
-    apiKey: configuration.apiKey
-  });
+
   try {
-    const response = await placesClient.getPlace(
-      {
-        name: `places/${placeId}`
+    const response = await fetch(`${configuration.baseUrl}/places/${placeId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": configuration.apiKey,
+        "X-Goog-FieldMask": DETAIL_FIELDS_MASK
       },
-      {
-        otherArgs: {
-          headers: {
-            "X-Goog-FieldMask": DETAIL_FIELDS_MASK
-          }
-        }
-      }
-    );
+      signal
+    });
+
+    if (!response.ok) {
+      throw await response.json();
+    }
+
+    const data = await response.json();
     console.info(`[Google Place] Finding the place with id='${placeId}'. Done in ${Date.now() - start}ms`);
-    return response?.[0];
-  } catch (e) {
+    return data as GooglePlace;
+  } catch (e: any) {
     throw parseError(e, `placeId='${placeId}'`, Date.now() - start);
   }
 }
@@ -92,24 +92,24 @@ export async function searchGoogleRestaurantByText(
   signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
   const comparable = { displayName: searchableText, latitude: latitude, longitude: longitude };
-  return (
-    (
-      await findPlacesByText(
-        searchableText,
-        latitude,
-        longitude,
-        3,
-        SEARCH_FIELDS_MASK,
-        configuration
-      )
-    )
+
+  const places = await findPlacesByText(
+    searchableText,
+    latitude,
+    longitude,
+    3,
+    SEARCH_FIELDS_MASK,
+    configuration,
+    signal
+  );
+
+  return places
     .map(convertGooglePlaceToRestaurant)
     ?.filter(Boolean)
     ?.map((restaurant) => ({ restaurant: restaurant!, match: compareSimilarity(comparable, restaurant!, configuration.similarity) }))
     ?.sort((a, b) => b.match.totalScore - a.match.totalScore)
     ?.map(match => addPhotoUriOn(match.restaurant, configuration, signal))
-    ?.[0]
-  );
+    ?.[0];
 }
 
 async function findPlacesByText(
@@ -119,46 +119,51 @@ async function findPlacesByText(
   maximumNumberOfResultsToQuery: number,
   fieldMask: string,
   configuration: GooglePlaceConfiguration,
-): Promise<protos.google.maps.places.v1.IPlace[]> {
+  signal?: AbortSignal
+): Promise<GooglePlace[]> {
   console.log(`[Google Place] Finding the place near '${latitude},${longitude}' with text = '${searchableText}'...`);
   const start = Date.now();
-  const placesClient = new PlacesClient({
-    apiKey: configuration.apiKey
-  });
 
-  // using the "locationRestrictions" is superior to "locationBias" that returns unwanted results (like far far far away from the origin point)
   const viewport = computeViewportFromCircle({ latitude: latitude, longitude: longitude }, configuration.search.radiusInMeters);
-  try {
-    const response = await placesClient.searchText(
-      {
-        rankPreference: "RELEVANCE",
-        includedType: "restaurant",
-        locationRestriction: {
-          rectangle: {
-            low: {
-              latitude: viewport.bottomLeft.latitude,
-              longitude: viewport.bottomLeft.longitude
-            },
-            high: {
-              latitude: viewport.topRight.latitude,
-              longitude: viewport.topRight.longitude
-            }
-          }
+  const body = {
+    textQuery: searchableText,
+    maxResultCount: maximumNumberOfResultsToQuery,
+    rankPreference: "RELEVANCE",
+    includedType: "restaurant",
+    locationRestriction: {
+      rectangle: {
+        low: {
+          latitude: viewport.bottomLeft.latitude,
+          longitude: viewport.bottomLeft.longitude
         },
-        textQuery: searchableText
-      },
-      {
-        maxResults: maximumNumberOfResultsToQuery,
-        otherArgs: {
-          headers: {
-            "X-Goog-FieldMask": fieldMask
-          }
+        high: {
+          latitude: viewport.topRight.latitude,
+          longitude: viewport.topRight.longitude
         }
       }
-    );
+    }
+  };
+
+  try {
+    const response = await fetch(`${configuration.baseUrl}/places:searchText`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": configuration.apiKey,
+        "X-Goog-FieldMask": fieldMask
+      },
+      body: JSON.stringify(body),
+      signal
+    });
+
+    if (!response.ok) {
+      throw await response.json();
+    }
+
+    const data = await response.json() as any;
     console.log(`[Google Place] Finding the place near '${latitude},${longitude}' with text = '${searchableText}'. Done in ${Date.now() - start}ms`);
-    return response?.[0]?.places || [];
-  } catch (e) {
+    return (data.places || []) as GooglePlace[];
+  } catch (e: any) {
     throw parseError(e, `near '${latitude},${longitude}' with text = '${searchableText}'`, Date.now() - start);
   }
 }
@@ -167,33 +172,31 @@ async function findGoogleImageUrl(
   photoId: string,
   apiKey: string,
   maxWidthPx: number,
-  maxHeightPx: number
+  maxHeightPx: number,
+  baseUrl: string,
+  signal?: AbortSignal
 ): Promise<string | null | undefined> {
   console.info(`[Google Place] Finding photo for id='${photoId}'...`);
   const start = Date.now();
-  const placesClient = new PlacesClient({
-    apiKey: apiKey
-  });
 
+  const resourceName = photoId?.endsWith("/media") ? photoId : `${photoId}/media`;
   try {
-    const resourceName = photoId?.endsWith("/media") ? photoId : `${photoId}/media`;
-    const placeResponse = await placesClient.getPhotoMedia(
-      {
-        name: resourceName,
-        maxWidthPx: maxWidthPx,
-        maxHeightPx: maxHeightPx,
-        skipHttpRedirect: true
-      }
-    );
+    const response = await fetch(`${baseUrl}/${resourceName}?maxWidthPx=${maxWidthPx}&maxHeightPx=${maxHeightPx}&key=${apiKey}&skipHttpRedirect=true`, { signal });
+
+    if (!response.ok) {
+      throw await response.json();
+    }
+
+    const data = await response.json() as any;
     console.info(`[Google Place] Finding photo for id='${photoId}'. Done in ${Date.now() - start}ms.`);
-    return placeResponse[0]?.photoUri;
-  } catch (e) {
+    return data?.photoUri;
+  } catch (e: any) {
     throw parseError(e, `photoId='${photoId}'`, Date.now() - start);
   }
 }
 
 function convertGooglePlaceToRestaurant(
-  place: protos.google.maps.places.v1.IPlace | undefined
+  place: GooglePlace | undefined
 ): GoogleRestaurant | undefined {
   if (place && place.location) {
     const { priceLevel, priceLabel } = formatPrices(place);
@@ -236,7 +239,7 @@ async function addPhotoUriOn(
       if (combinedSignal?.aborted) {
         throw combinedSignal.reason;
       }
-      return findGoogleImageUrl(photoId, configuration.apiKey, configuration.photo.maxWidthInPx, configuration.photo.maxHeightInPx);
+      return findGoogleImageUrl(photoId, configuration.apiKey, configuration.photo.maxWidthInPx, configuration.photo.maxHeightInPx, configuration.baseUrl, combinedSignal);
     }, signal);
 
     if (photoUrl) {
@@ -250,9 +253,12 @@ async function addPhotoUriOn(
 
 const GRPC_ERROR_CODES = [4, 14];
 const AUTHORIZATION_ERROR_CODES = [3, 401, 403];
+
 function parseError(e: any, query: string, durationInMs: number): GoogleError {
-  const statusCode = e.code || 500;
-  const responseBody = e.details || e.message || "Unknown error";
+  // Handle native fetch error response (which might be an object with .error field or just status)
+  const errorObj = e.error || e;
+  const statusCode = errorObj.code || errorObj.status || 500;
+  const responseBody = errorObj.message || errorObj.details || JSON.stringify(e) || "Unknown error";
 
   if (statusCode >= 500 || GRPC_ERROR_CODES.includes(statusCode)) {
     return new GoogleServerError(

@@ -73,6 +73,7 @@ export function googleConfig(env: any): GooglePlaceConfiguration {
   if (!GOOGLE_PLACE_CONFIG) {
     GOOGLE_PLACE_CONFIG = {
       enabled: env.BROULETTE_GOOGLE_PLACE_ENABLED?.toLowerCase() === "true",
+      baseUrl: env.BROULETTE_GOOGLE_PLACE_BASE_URL || DEFAULT_GOOGLE_PLACE_CONFIGURATION.baseUrl,
       apiKey: env.BROULETTE_GOOGLE_PLACE_API_KEY ?? "",
       rateLimiting: {
         maxNumberOfAttemptsPerMonth: Number(env.BROULETTE_GOOGLE_PLACE_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || DEFAULT_GOOGLE_PLACE_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),

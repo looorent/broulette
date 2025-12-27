@@ -6,8 +6,6 @@ import { getPrisma } from "@features/db.server/prisma";
 import { findGoogleRestaurantById, searchGoogleRestaurantByText } from "@features/google.server";
 import { searchCandidate } from "@features/search-engine.server";
 
-import "dotenv/config";
-
 async function start() {
   try {
     console.log("---");

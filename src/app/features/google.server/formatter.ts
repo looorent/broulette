@@ -1,7 +1,21 @@
-import { type protos } from "@googlemaps/places";
+interface GoogleMoney {
+  currencyCode?: string;
+  units?: string; // API returns string for int64
+  nanos?: number;
+}
 
-export function formatPrices(place: protos.google.maps.places.v1.IPlace): { priceLevel: number | undefined, priceLabel: string | undefined } {
-  const price = convertPriceLevelToNumber(place.priceLevel?.toString());
+interface GooglePriceRange {
+  startPrice?: GoogleMoney;
+  endPrice?: GoogleMoney;
+}
+
+interface GooglePlace {
+  priceLevel?: string;
+  priceRange?: GooglePriceRange;
+}
+
+export function formatPrices(place: GooglePlace): { priceLevel: number | undefined, priceLabel: string | undefined } {
+  const price = convertPriceLevelToNumber(place.priceLevel);
   if (price) {
     return {
       priceLevel: price,
@@ -25,10 +39,10 @@ function formatPriceRangeFromNumber(range: number | null | undefined): string | 
 }
 
 function formatPriceRangeFromRange(
-  range: protos.google.maps.places.v1.IPriceRange | null | undefined,
+  range: GooglePriceRange | null | undefined,
   locale: string = "en-US"
 ): string | undefined {
-  if (range === null || range === undefined || !range.startPrice && !range.endPrice) {
+  if (range === null || range === undefined || (!range.startPrice && !range.endPrice)) {
     return undefined;
   } else {
     const start = range.startPrice ? formatMoney(range.startPrice, locale) : null;
@@ -48,10 +62,10 @@ function formatPriceRangeFromRange(
 }
 
 function formatMoney(
-  money: protos.google.type.IMoney,
+  money: GoogleMoney,
   locale: string = "en-US"
 ): string {
-  const units = parseInt(money.units as unknown as string) || 0;
+  const units = parseInt(money.units || "0") || 0;
   const nanos = money.nanos || 0;
   const value = units + nanos / 1_000_000_000;
 
@@ -63,7 +77,7 @@ function formatMoney(
       minimumFractionDigits: 0
     }).format(value);
   } catch (e) {
-    console.warn(`Error when parsing money object '${money}'. Returning '${value} ${money.currencyCode}'.`, e);
+    console.warn(`Error when parsing money object '${JSON.stringify(money)}'. Returning '${value} ${money.currencyCode}'.`, e);
     return `${value} ${money.currencyCode}`;
   }
 }
