@@ -29,7 +29,7 @@ export function BottomSheet({
   }
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: number;
 
     if (isOpen) {
       timeoutId = setTimeout(() => setShowContent(true), 10);

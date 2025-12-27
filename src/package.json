@@ -11,10 +11,11 @@
     "deploy": "npm run build && wrangler deploy",
     "postinstall": "npm run cf-typegen",
     "preview": "npm run build && vite preview",
-    "build:console": "vite build --config vite.config.console.ts",
-    "console": "npm run build:console && node --experimental-repl-await build/console/console.server.mjs",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "prisma:migrate": "dotenv -e .dev.vars -- npx prisma migrate dev",
+    "prisma:generate": "dotenv -e .dev.vars -- npx prisma generate",
+    "prisma:studio": "dotenv -e .dev.vars -- npx prisma studio"
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "13.8.0",
@@ -48,6 +49,7 @@
     "@types/react-dom": "^19.2.3",
     "@types/string-similarity": "4.0.2",
     "@typescript-eslint/parser": "^8.50.1",
+    "dotenv-cli": "^11.0.0",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-import-resolver-typescript": "4.4.4",

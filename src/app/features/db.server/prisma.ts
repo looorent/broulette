@@ -1,7 +1,6 @@
 import { withAccelerate } from "@prisma/extension-accelerate";
 
-import { PrismaClient } from "@persistence/client";
-import { DistanceRange, SearchCandidateStatus, ServiceTimeslot } from "@persistence/enums";
+import { DistanceRange, PrismaClient, SearchCandidateStatus, ServiceTimeslot } from "@persistence/client";
 
 interface Env {
   BROULETTE_DATABASE_URL: string;

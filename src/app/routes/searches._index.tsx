@@ -16,7 +16,7 @@ export async function loader() {
 // POST
 export async function action({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
-  await validateCSRF(formData, request.headers);
+  await validateCSRF(formData, request.headers, context.sessionStorage);
   const data = parseAndValidate(formData);
   const prisma = getPrisma(context.cloudflare.env);
   const createdSearch = await prisma.search.create({

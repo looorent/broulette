@@ -1,4 +1,3 @@
-import { createContext } from "react-router";
 
 import { DEFAULT_FAILOVER } from "@features/circuit-breaker.server";
 import { DEFAULT_DISCOVERY_CONFIGURATION } from "@features/discovery.server";
@@ -30,7 +29,7 @@ function readArray(text: string | undefined): string[] | undefined {
 export type AppConfiguration = typeof APP_CONFIG;
 
 let NOMINATIM_CONFIG: NominatimConfiguration;
-export function nominatimConfig(env: any): NominatimConfiguration {
+function nominatimConfig(env: any): NominatimConfiguration {
   if (!NOMINATIM_CONFIG) {
     NOMINATIM_CONFIG = {
       enabled: env.BROULETTE_NOMINATIM_ENABLED?.toLowerCase() === "true",
@@ -50,7 +49,7 @@ export function nominatimConfig(env: any): NominatimConfiguration {
 }
 
 let PHOTON_CONFIG: PhotonConfiguration;
-export function photonConfig(env: any): PhotonConfiguration {
+function photonConfig(env: any): PhotonConfiguration {
   if (!PHOTON_CONFIG) {
     PHOTON_CONFIG = {
       enabled: env.BROULETTE_PHOTON_ENABLED?.toLowerCase() === "true",
@@ -69,7 +68,7 @@ export function photonConfig(env: any): PhotonConfiguration {
 }
 
 let GOOGLE_PLACE_CONFIG: GooglePlaceConfiguration;
-export function googleConfig(env: any): GooglePlaceConfiguration {
+function googleConfig(env: any): GooglePlaceConfiguration {
   if (!GOOGLE_PLACE_CONFIG) {
     GOOGLE_PLACE_CONFIG = {
       enabled: env.BROULETTE_GOOGLE_PLACE_ENABLED?.toLowerCase() === "true",
@@ -104,7 +103,7 @@ export function googleConfig(env: any): GooglePlaceConfiguration {
 }
 
 let TRIPADVISOR_CONFIG: TripAdvisorConfiguration;
-export function tripAdvisorConfig(env: any): TripAdvisorConfiguration {
+function tripAdvisorConfig(env: any): TripAdvisorConfiguration {
   if (!TRIPADVISOR_CONFIG) {
     TRIPADVISOR_CONFIG = {
       enabled: env.BROULETTE_TRIPADVISOR_ENABLED?.toLowerCase() === "true",
@@ -137,7 +136,7 @@ export function tripAdvisorConfig(env: any): TripAdvisorConfiguration {
 }
 
 let OVERPASS_CONFIG: OverpassConfiguration;
-export function overpassConfig(env: any): OverpassConfiguration {
+function overpassConfig(env: any): OverpassConfiguration {
   if (!OVERPASS_CONFIG) {
     OVERPASS_CONFIG = {
       enabled: env.BROULETTE_OVERPASS_ENABLED?.toLowerCase() === "true",
@@ -154,7 +153,7 @@ export function overpassConfig(env: any): OverpassConfiguration {
 }
 
 let SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration;
-export function searchEngineConfig(env: any): SearchEngineConfiguration {
+function searchEngineConfig(env: any): SearchEngineConfiguration {
   if (!SEARCH_ENGINE_CONFIGURATION) {
     SEARCH_ENGINE_CONFIGURATION = {
       discovery: {
@@ -210,5 +209,3 @@ export function createAppContext(env: any): AppContext {
   }
   return APP_CONTEXT;
 }
-
-export const appContext = createContext<AppContext | null>(null);

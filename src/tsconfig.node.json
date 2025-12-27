@@ -1,10 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "include": [
-    "vite.config.ts",
-    "prisma.config.ts",
-    "react-router.config.ts",
-    "vite.config.console.ts"
+    "*.config.ts"
   ],
   "compilerOptions": {
     "composite": true,

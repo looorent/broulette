@@ -1,10 +1,16 @@
-import { commitSession, getSession } from "./session";
+import type { SessionStorage } from "react-router";
+
+import type { SessionData, SessionFlashData } from "./session";
 
 const HEADER_NAME = "X-CSRF-Token";
 export const CSRF_KEY = "csrf";
 
-export async function validateCSRF(data: FormData, headers: Headers) {
-  const session = await getSession(headers.get("Cookie"));
+export async function validateCSRF(
+  data: FormData,
+  headers: Headers,
+  sessionStorage: SessionStorage<SessionData, SessionFlashData>
+) {
+  const session = await sessionStorage.getSession(headers.get("Cookie"));
   const sessionToken = session.get(CSRF_KEY);
 
   if (sessionToken) {
@@ -23,8 +29,8 @@ export async function validateCSRF(data: FormData, headers: Headers) {
   }
 }
 
-export async function createCSRFToken(headers: Headers) {
-  const session = await getSession(headers.get("Cookie"));
+export async function createCSRFToken(headers: Headers, sessionStorage: SessionStorage<SessionData, SessionFlashData>) {
+  const session = await sessionStorage.getSession(headers.get("Cookie"));
 
   if (session.has(CSRF_KEY)) {
     return {
@@ -38,7 +44,7 @@ export async function createCSRFToken(headers: Headers) {
     session.set(CSRF_KEY, token);
     return {
       token,
-      headers: { "Set-Cookie": await commitSession(session) }
+      headers: { "Set-Cookie": await sessionStorage.commitSession(session) }
     };
   }
 }

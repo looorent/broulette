@@ -13,10 +13,8 @@ import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components
 import { createCSRFToken } from "@features/session.server";
 import { getLocale } from "@features/utils/locale.server";
 
-
 import type { Route } from "./+types/root";
 import "./app.css";
-import { appContext, createAppContext } from "./config.server";
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({
   currentUrl,
@@ -35,16 +33,8 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   }
 };
 
-async function configMiddleware({ context }: { context: any }): Promise<void> {
-  context.set(appContext, createAppContext(process.env)); // move to cloudflare
-}
-
-export const middleware: Route.MiddlewareFunction[] = [
-  configMiddleware,
-];
-
-export async function loader({ request }: Route.LoaderArgs) {
-  const { token, headers } = await createCSRFToken(request.headers);
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const { token, headers } = await createCSRFToken(request.headers, context.sessionStorage);
   return data(
     {
       csrfToken: token,

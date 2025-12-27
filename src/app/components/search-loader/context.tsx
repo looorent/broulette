@@ -28,7 +28,7 @@ export function SearchLoaderProvider({ children }: { children: React.ReactNode }
 
   const [activeState, setActiveState] = useState<SearchLoaderState>(defaultState);
   const [manualState, setManualState] = useState<SearchLoaderState>(defaultState);
-  const exitDelayTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const exitDelayTimerRef = useRef<number | null>(null);
 
   const detected = detectLoaderState(navigation);
   const shouldShow = detected.visible || manualState.visible;

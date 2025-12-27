@@ -35,10 +35,10 @@
         "./app/components/*"
       ],
       "@config/server": [
-        "app/config.server.ts"
+        "./app/config.server.ts"
       ],
       "@config": [
-        "app/config.ts"
+        "./app/config.ts"
       ]
     },
     "esModuleInterop": true,
