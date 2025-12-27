@@ -1,4 +1,4 @@
-import prisma from "@features/db.server/prisma";
+import type { ExtendedPrismaClient } from "@features/db.server";
 import type { CandidateRedirect, CandidateView, SearchRedirect, SearchView } from "@features/view";
 
 import { buildViewModelOfCandidate, buildViewModelOfSearch } from "./factory";
@@ -7,7 +7,8 @@ const LATEST = "latest";
 
 export async function findSearchViewModel(
   searchId: string,
-  locale: string
+  locale: string,
+  prisma: ExtendedPrismaClient
 ): Promise<SearchRedirect | SearchView | undefined> {
   if (searchId) {
     const search = await prisma.search.findWithLatestCandidateId(searchId);
@@ -21,7 +22,8 @@ export async function findCandidateViewModel(
   searchId: string,
   candidateId: string,
   now: Date,
-  locale: string
+  locale: string,
+  prisma: ExtendedPrismaClient
 ): Promise<CandidateRedirect | CandidateView | undefined> {
   if (searchId && candidateId) {
     if (candidateId === LATEST) {

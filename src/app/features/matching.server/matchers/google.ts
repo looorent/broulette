@@ -1,4 +1,4 @@
-import prisma from "@features/db.server/prisma";
+import type { ExtendedPrismaClient } from "@features/db.server";
 import { findGoogleRestaurantById, GOOGLE_PLACE_SOURCE_NAME, searchGoogleRestaurantByText, type GooglePlaceConfiguration, type GoogleRestaurant } from "@features/google.server";
 import { hasReachedQuota, registerAttemptToGooglePlaceById, registerAttemptToGooglePlaceByText } from "@features/rate-limiting.server";
 import { filterTags } from "@features/tag.server";
@@ -14,17 +14,18 @@ export class GoogleMatcher implements Matcher {
 
   async matchAndEnrich(
     restaurant: RestaurantAndProfiles,
+    prisma: ExtendedPrismaClient,
     matchingConfiguration: RestaurantMatchingConfiguration,
     _language: string,
     signal?: AbortSignal | undefined
   ): Promise<Matching> {
 
     const profile = restaurant.profiles.find(profile => profile.source === this.source);
-    const google = await this.findGoogleRestaurant(restaurant, profile, signal);
+    const google = await this.findGoogleRestaurant(restaurant, profile, prisma, signal);
     if (google) {
       return {
         matched: true,
-        restaurant: profile ? await this.updateProfile(restaurant, profile, google, matchingConfiguration) : await this.createProfile(google, restaurant, matchingConfiguration)
+        restaurant: profile ? await this.updateProfile(restaurant, profile, prisma, google, matchingConfiguration) : await this.createProfile(google, restaurant, prisma, matchingConfiguration)
       }
     } else {
       return {
@@ -35,18 +36,19 @@ export class GoogleMatcher implements Matcher {
     }
   }
 
-  async hasReachedQuota(): Promise<boolean> {
-    return await hasReachedQuota(this.configuration.rateLimiting.maxNumberOfAttemptsPerMonth, this.source);
+  async hasReachedQuota(prisma: ExtendedPrismaClient): Promise<boolean> {
+    return await hasReachedQuota(this.configuration.rateLimiting.maxNumberOfAttemptsPerMonth, this.source, prisma);
   }
 
   private async findGoogleRestaurant(
     restaurant: Restaurant,
     profile: RestaurantProfile | undefined,
+    prisma: ExtendedPrismaClient,
     signal?: AbortSignal | undefined
   ): Promise<GoogleRestaurant | undefined> {
     if (profile) {
       const found = await findGoogleRestaurantById(profile.externalId, this.configuration, signal);
-      await registerAttemptToGooglePlaceById(profile.externalId, profile.restaurantId, found);
+      await registerAttemptToGooglePlaceById(profile.externalId, profile.restaurantId, found, prisma);
       return found;
     } else {
       const textQuery = restaurant.name;
@@ -58,7 +60,7 @@ export class GoogleMatcher implements Matcher {
           this.configuration,
           signal
         );
-        await registerAttemptToGooglePlaceByText(textQuery, restaurant.latitude?.toNumber(), restaurant.longitude?.toNumber(), this.configuration.search.radiusInMeters, restaurant.id, found);
+        await registerAttemptToGooglePlaceByText(textQuery, restaurant.latitude?.toNumber(), restaurant.longitude?.toNumber(), this.configuration.search.radiusInMeters, restaurant.id, found, prisma);
         return found;
       } else {
         return undefined;
@@ -69,6 +71,7 @@ export class GoogleMatcher implements Matcher {
   private async updateProfile(
     restaurant: RestaurantAndProfiles,
     profile: RestaurantProfile,
+    prisma: ExtendedPrismaClient,
     google: GoogleRestaurant,
     matchingConfiguration: RestaurantMatchingConfiguration
   ): Promise<RestaurantAndProfiles> {
@@ -86,6 +89,7 @@ export class GoogleMatcher implements Matcher {
   private async createProfile(
     google: GoogleRestaurant,
     restaurant: RestaurantAndProfiles,
+    prisma: ExtendedPrismaClient,
     matchingConfiguration: RestaurantMatchingConfiguration
   ): Promise<RestaurantAndProfiles> {
     const newProfile = await prisma.restaurantProfile.create({

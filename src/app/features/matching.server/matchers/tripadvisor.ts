@@ -1,4 +1,4 @@
-import prisma from "@features/db.server/prisma";
+import type { ExtendedPrismaClient } from "@features/db.server";
 import { hasReachedQuota, registerAttemptToFindTripAdvisorLocationById, registerAttemptToFindTripAdvisorLocationNearBy } from "@features/rate-limiting.server";
 import { filterTags } from "@features/tag.server";
 import { findTripAdvisorLocationByIdWithRetry, searchTripAdvisorLocationNearbyWithRetry, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration, type TripAdvisorLocation } from "@features/tripadvisor.server";
@@ -14,16 +14,17 @@ export class TripAdvisorMatcher implements Matcher {
 
   async matchAndEnrich(
     restaurant: RestaurantAndProfiles,
+    prisma: ExtendedPrismaClient,
     matchingConfiguration: RestaurantMatchingConfiguration,
     language: string,
     signal?: AbortSignal | undefined
   ): Promise<Matching> {
     const profile = restaurant.profiles.find(profile => profile.source === this.source);
-    const tripAdvisor = await this.findTripAdvisorRestaurant(restaurant, profile, language, signal);
+    const tripAdvisor = await this.findTripAdvisorRestaurant(restaurant, profile, language, prisma, signal);
     if (tripAdvisor) {
       return {
         matched: true,
-        restaurant: profile ? await this.updateProfile(restaurant, profile, tripAdvisor, matchingConfiguration) : await this.createProfile(tripAdvisor, restaurant, matchingConfiguration)
+        restaurant: profile ? await this.updateProfile(restaurant, profile, tripAdvisor, prisma, matchingConfiguration) : await this.createProfile(tripAdvisor, restaurant, prisma, matchingConfiguration)
       }
     } else {
       return {
@@ -34,19 +35,20 @@ export class TripAdvisorMatcher implements Matcher {
     }
   }
 
-  async hasReachedQuota(): Promise<boolean> {
-    return await hasReachedQuota(this.configuration.rateLimiting.maxNumberOfAttemptsPerMonth, this.source);
+  async hasReachedQuota(prisma: ExtendedPrismaClient): Promise<boolean> {
+    return await hasReachedQuota(this.configuration.rateLimiting.maxNumberOfAttemptsPerMonth, this.source, prisma);
   }
 
   private async findTripAdvisorRestaurant(
     restaurant: Restaurant,
     existingProfile: RestaurantProfile | undefined,
     language: string,
+    prisma: ExtendedPrismaClient,
     signal?: AbortSignal | undefined
   ): Promise<TripAdvisorLocation | undefined> {
     if (existingProfile) {
       const found = await findTripAdvisorLocationByIdWithRetry(existingProfile.externalId, language, this.configuration, signal);
-      await registerAttemptToFindTripAdvisorLocationById(existingProfile.externalId, existingProfile.restaurantId, found);
+      await registerAttemptToFindTripAdvisorLocationById(existingProfile.externalId, existingProfile.restaurantId, found, prisma);
       return found;
     } else {
       const textQuery = restaurant.name;
@@ -60,7 +62,7 @@ export class TripAdvisorMatcher implements Matcher {
           this.configuration,
           signal
         );
-        await registerAttemptToFindTripAdvisorLocationNearBy(textQuery, restaurant.latitude?.toNumber(), restaurant.longitude?.toNumber(), this.configuration.search.radiusInMeters, restaurant.id, found);
+        await registerAttemptToFindTripAdvisorLocationNearBy(textQuery, restaurant.latitude?.toNumber(), restaurant.longitude?.toNumber(), this.configuration.search.radiusInMeters, restaurant.id, found, prisma);
         return found;
       } else {
         return undefined;
@@ -72,6 +74,7 @@ export class TripAdvisorMatcher implements Matcher {
     restaurant: RestaurantAndProfiles,
     profile: RestaurantProfile,
     tripAdvisor: TripAdvisorLocation,
+    prisma: ExtendedPrismaClient,
     matchingConfiguration: RestaurantMatchingConfiguration
   ): Promise<RestaurantAndProfiles> {
     const updatedProfile = await prisma.restaurantProfile.update({
@@ -88,6 +91,7 @@ export class TripAdvisorMatcher implements Matcher {
   private async createProfile(
     tripAdvisor: TripAdvisorLocation,
     restaurant: RestaurantAndProfiles,
+    prisma: ExtendedPrismaClient,
     matchingConfiguration: RestaurantMatchingConfiguration
   ): Promise<RestaurantAndProfiles> {
     const newProfile = await prisma.restaurantProfile.create({

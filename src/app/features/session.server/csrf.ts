@@ -1,5 +1,3 @@
-import { randomBytes } from "crypto";
-
 import { commitSession, getSession } from "./session";
 
 const HEADER_NAME = "X-CSRF-Token";
@@ -34,7 +32,9 @@ export async function createCSRFToken(headers: Headers) {
       headers: null
     };
   } else {
-    const token = randomBytes(32).toString("hex");
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    const token = [...array].map(b => b.toString(16).padStart(2, "0")).join("");
     session.set(CSRF_KEY, token);
     return {
       token,

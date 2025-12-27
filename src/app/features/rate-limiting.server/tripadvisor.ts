@@ -1,4 +1,4 @@
-import prisma from "@features/db.server/prisma";
+import type { ExtendedPrismaClient } from "@features/db.server";
 import { TRIPADVISOR_SOURCE_NAME, type TripAdvisorLocation } from "@features/tripadvisor.server";
 import type { RestaurantMatchingAttempt } from "@persistence/client";
 
@@ -6,7 +6,8 @@ import type { RestaurantMatchingAttempt } from "@persistence/client";
 export function registerAttemptToFindTripAdvisorLocationById(
   locationId: string,
   restaurantId: string,
-  found: TripAdvisorLocation | undefined
+  found: TripAdvisorLocation | undefined,
+  prisma: ExtendedPrismaClient
 ): Promise<RestaurantMatchingAttempt> {
   return prisma.restaurantMatchingAttempt.create({
     data: {
@@ -24,7 +25,8 @@ export function registerAttemptToFindTripAdvisorLocationNearBy(query: string,
   longitude: number,
   searchRadiusInMeters: number,
   restaurantId: string,
-  found: TripAdvisorLocation | undefined
+  found: TripAdvisorLocation | undefined,
+  prisma: ExtendedPrismaClient
 ): Promise<RestaurantMatchingAttempt> {
   return prisma.restaurantMatchingAttempt.create({
     data: {

@@ -1,11 +1,12 @@
-import prisma from "@features/db.server/prisma";
+import type { ExtendedPrismaClient } from "@features/db.server";
 import { GOOGLE_PLACE_SOURCE_NAME, type GoogleRestaurant } from "@features/google.server";
 import type { RestaurantMatchingAttempt } from "@persistence/client";
 
 export function registerAttemptToGooglePlaceById(
   placeId: string,
   restaurantId: string,
-  found: GoogleRestaurant | undefined
+  found: GoogleRestaurant | undefined,
+  prisma: ExtendedPrismaClient
 ): Promise<RestaurantMatchingAttempt> {
   return prisma.restaurantMatchingAttempt.create({
     data: {
@@ -23,7 +24,8 @@ export function registerAttemptToGooglePlaceByText(query: string,
   longitude: number,
   searchRadiusInMeters: number,
   restaurantId: string,
-  found: GoogleRestaurant | undefined
+  found: GoogleRestaurant | undefined,
+  prisma: ExtendedPrismaClient
 ): Promise<RestaurantMatchingAttempt> {
   return prisma.restaurantMatchingAttempt.create({
     data: {

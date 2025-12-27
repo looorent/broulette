@@ -1,4 +1,4 @@
-import prisma from "@features/db.server/prisma";
+import { type ExtendedPrismaClient } from "@features/db.server";
 import type { DiscoveredRestaurantProfile } from "@features/discovery.server";
 import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, GOOGLE_PLACE_SOURCE_NAME, type GooglePlaceConfiguration } from "@features/google.server";
 import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
@@ -14,14 +14,15 @@ import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantAndProfiles, type Restau
 export async function enrichRestaurant(
   discovered: DiscoveredRestaurantProfile | undefined,
   language: string,
+  prisma: ExtendedPrismaClient,
   configuration: RestaurantMatchingConfiguration = DEFAULT_MATCHING_CONFIGURATION,
   google: GooglePlaceConfiguration | undefined = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
   tripAdvisor: TripAdvisorConfiguration | undefined = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<RestaurantAndProfiles | undefined> {
   if (discovered) {
-    const restaurant = await findRestaurantInDatabase(discovered) || await saveRestaurantToDatabase(discovered, configuration);
-    return await enrich(restaurant, language, configuration, google, tripAdvisor, signal);
+    const restaurant = await findRestaurantInDatabase(discovered, prisma) || await saveRestaurantToDatabase(discovered, prisma, configuration);
+    return await enrich(restaurant, language, prisma, configuration, google, tripAdvisor, signal);
   } else {
     return undefined;
   }
@@ -30,6 +31,7 @@ export async function enrichRestaurant(
 async function enrich(
   restaurant: RestaurantAndProfiles,
   language: string,
+  prisma: ExtendedPrismaClient,
   configuration: RestaurantMatchingConfiguration,
   google?: GooglePlaceConfiguration | undefined,
   tripAdvisor?: TripAdvisorConfiguration | undefined,
@@ -44,8 +46,8 @@ async function enrich(
 
     // We could parallelize.
     // However, every iteration has side-effects, so this is not so useful.
-    if (await shouldBeMatched(result, matcher)) {
-      result = (await matcher.matchAndEnrich(result, configuration, language, signal))?.restaurant;
+    if (await shouldBeMatched(result, matcher, prisma)) {
+      result = (await matcher.matchAndEnrich(result, prisma, configuration, language, signal))?.restaurant;
     }
   }
 
@@ -54,7 +56,8 @@ async function enrich(
 
 async function shouldBeMatched(
   restaurant: RestaurantAndProfiles,
-  matcher: Matcher
+  matcher: Matcher,
+  prisma: ExtendedPrismaClient
 ): Promise<boolean> {
   const relevantDates = restaurant.profiles
     .filter(profile => profile.source === matcher.source)
@@ -65,11 +68,14 @@ async function shouldBeMatched(
     : undefined;
 
   return (!lastUpdate || !isOlderThanAMonth(lastUpdate))
-    && !await matcher.hasReachedQuota()
+    && !await matcher.hasReachedQuota(prisma)
     && !await prisma.restaurantMatchingAttempt.existsSince(thirtyDaysAgo(), restaurant.id, matcher.source);
 }
 
-async function findRestaurantInDatabase(identity: DiscoveredRestaurantProfile) {
+async function findRestaurantInDatabase(
+  identity: DiscoveredRestaurantProfile,
+  prisma: ExtendedPrismaClient
+) {
   return prisma.restaurant.findFirst({
     where: {
       profiles: {
@@ -88,6 +94,7 @@ async function findRestaurantInDatabase(identity: DiscoveredRestaurantProfile) {
 
 async function saveRestaurantToDatabase(
   discovered: DiscoveredRestaurantProfile,
+  prisma: ExtendedPrismaClient,
   configuration: RestaurantMatchingConfiguration
 ): Promise<RestaurantAndProfiles> {
   return await prisma.restaurant.create({

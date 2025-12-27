@@ -3,9 +3,13 @@ import { withAccelerate } from "@prisma/extension-accelerate";
 import { PrismaClient } from "@persistence/client";
 import { DistanceRange, SearchCandidateStatus, ServiceTimeslot } from "@persistence/enums";
 
-const prismaClientSingleton = () => {
+interface Env {
+  BROULETTE_DATABASE_URL: string;
+}
+
+function createPrismaClient(databaseUrl: string) {
   const prisma = new PrismaClient({
-    accelerateUrl: process.env.BROULETTE_DATABASE_URL!
+    accelerateUrl: databaseUrl
   })
   .$extends({
     model: {
@@ -97,16 +101,15 @@ const prismaClientSingleton = () => {
   return prisma;
 };
 
-export type ExtendedPrismaClient = ReturnType<typeof prismaClientSingleton>;
+export type ExtendedPrismaClient = ReturnType<typeof createPrismaClient>;
+
 const globalForPrisma = globalThis as unknown as {
   prisma: ExtendedPrismaClient | undefined;
 };
 
-const prisma: ExtendedPrismaClient = globalForPrisma.prisma ?? prismaClientSingleton();
-
-export default prisma;
-
-// Only assign to global when NOT in production to prevent hot-reload conflicts
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+export function getPrisma(env: Env): ExtendedPrismaClient {
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = createPrismaClient(env.BROULETTE_DATABASE_URL);
+  }
+  return globalForPrisma.prisma;
+};

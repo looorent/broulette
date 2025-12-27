@@ -135,7 +135,7 @@ async function findTripAdvisorLocationsNearby(
   const durationInMs = Date.now() - start;
   if (response.ok) {
     console.info(`[TripAdvisor] Finding the location nearby '${latitude},${longitude}' within ${radiusInMeters}m': done in ${durationInMs} ms....`);
-    const body = await response.json();
+    const body = await response.json() as any;
     if (body) {
       return parseLocationsNearby(body.data);
     } else {
@@ -169,7 +169,7 @@ async function findBestTripAdvisorLocationPicture(
   const durationInMs = Date.now() - start;
   if (response.ok) {
     console.info(`[TripAdvisor] Finding the best picture for location with id='${locationId}': done in ${durationInMs} ms.`);
-    const body = await response.json();
+    const body = await response.json() as any;
     if (body) {
       const photos = parseLocationPhotos(body.data);
       return findBestPhotoIn(photos);
@@ -514,7 +514,7 @@ function parseDistanceInMeters(distance: any): number {
 }
 
 async function parseError(url: string, response: Response, durationInMs: number): Promise<TripAdvisorError> {
-  const body: TripAdvisorErrorPayload = (await response.json())?.error;
+  const body: TripAdvisorErrorPayload = (await response.json() as any)?.error;
   if (response.status >= 500) {
     return new TripAdvisorServerError(
       url,

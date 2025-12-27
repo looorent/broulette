@@ -1,3 +1,4 @@
+import type { ExtendedPrismaClient } from "@features/db.server";
 import { Prisma } from "@persistence/client";
 
 import type { RestaurantAndProfiles, RestaurantMatchingConfiguration } from "../types";
@@ -12,11 +13,12 @@ export interface Matcher {
   source: string;
   matchAndEnrich(
     restaurant: RestaurantAndProfiles,
+    prisma: ExtendedPrismaClient,
     matchingConfiguration: RestaurantMatchingConfiguration,
     language: string,
     signal?: AbortSignal | undefined
   ): Promise<Matching>;
-  hasReachedQuota(): Promise<boolean>;
+  hasReachedQuota(prisma: ExtendedPrismaClient): Promise<boolean>;
 }
 
 export function toDecimal(value: number | undefined | null): Prisma.Decimal | undefined {

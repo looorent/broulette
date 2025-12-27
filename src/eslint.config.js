@@ -13,9 +13,8 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
-
 export default defineConfig(
-  { ignores: ["dist", ".react-router", "build", "public"] },
+  { ignores: ["dist", ".react-router", "build", "public", "worker-configuration.d.ts"] },
   {
     files: ["**/*.{ts,tsx,cts,mts}"],
     extends: [

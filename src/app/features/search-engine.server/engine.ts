@@ -1,4 +1,4 @@
-import prisma from "@features/db.server/prisma";
+import { type ExtendedPrismaClient } from "@features/db.server/prisma";
 import { RestaurantDiscoveryScanner, type DiscoveredRestaurantProfile } from "@features/discovery.server";
 import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlaceConfiguration } from "@features/google.server";
 import { enrichRestaurant } from "@features/matching.server";
@@ -14,21 +14,22 @@ import { validateRestaurant } from "./validator";
 export async function searchCandidate(
   searchId: string,
   locale: string,
+  prisma: ExtendedPrismaClient,
   configuration: SearchEngineConfiguration = DEFAULT_SEARCH_ENGINE_CONFIGURATION,
   overpass: OverpassConfiguration | undefined = DEFAULT_OVERPASS_CONFIGURATION,
   google: GooglePlaceConfiguration | undefined = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
   tripAdvisor: TripAdvisorConfiguration | undefined = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal
 ): Promise<SearchCandidate> {
-  const search = await findSearchOrThrow(searchId);
+  const search = await findSearchOrThrow(searchId, prisma);
 
   if (search.exhausted) {
-    return await findLatestCandidateOf(search.id) || await createDefaultCandidateWithoutRestaurant(search.id);
+    return await findLatestCandidateOf(search.id, prisma) || await createDefaultCandidateWithoutRestaurant(search.id, prisma);
   } else {
     const scanner = createDiscoveryScanner(search, configuration, overpass);
     const startingOrder = computeNextCandidateOrder(search.candidates);
-    const finalCandidate = await findNextValidCandidate(search, scanner, configuration, startingOrder, locale, google, tripAdvisor, signal);
-    await markSearchAsExhaustedIfNecessary(search.id, finalCandidate);
+    const finalCandidate = await findNextValidCandidate(search, scanner, configuration, startingOrder, locale, prisma, google, tripAdvisor, signal);
+    await markSearchAsExhaustedIfNecessary(search.id, finalCandidate, prisma);
     return finalCandidate;
   }
 }
@@ -39,6 +40,7 @@ async function findNextValidCandidate(
   config: SearchEngineConfiguration,
   currentOrder: number,
   locale: string,
+  prisma: ExtendedPrismaClient,
   google: GooglePlaceConfiguration | undefined,
   tripAdvisor: TripAdvisorConfiguration | undefined,
   signal?: AbortSignal
@@ -52,7 +54,7 @@ async function findNextValidCandidate(
 
     for (const restaurant of randomized) {
       if (shouldContinueSearching(candidate, scanner)) {
-        const processed = await processRestaurant(restaurant, search, orderTracker++, config, google, tripAdvisor, locale, scanner);
+        const processed = await processRestaurant(restaurant, search, orderTracker++, config, prisma, google, tripAdvisor, locale, scanner);
         if (processed) {
           candidate = processed;
         }
@@ -61,7 +63,7 @@ async function findNextValidCandidate(
       }
     }
   }
-  return candidate || createDefaultCandidateWithoutRestaurant(search.id);
+  return candidate || createDefaultCandidateWithoutRestaurant(search.id, prisma);
 }
 
 async function processRestaurant(
@@ -69,12 +71,13 @@ async function processRestaurant(
   search: Search,
   order: number,
   configuration: SearchEngineConfiguration,
+  prisma: ExtendedPrismaClient,
   google: GooglePlaceConfiguration | undefined,
   tripAdvisor: TripAdvisorConfiguration | undefined,
   locale: string,
   scanner: RestaurantDiscoveryScanner
 ): Promise<SearchCandidate | undefined> {
-  const restaurant = await enrichRestaurant(discovered, locale, configuration.matching, google, tripAdvisor);
+  const restaurant = await enrichRestaurant(discovered, locale, prisma, configuration.matching, google, tripAdvisor);
   const validation = await validateRestaurant(restaurant, search, locale);
   const newCandidate = await prisma.searchCandidate.create({
     data: {
@@ -102,7 +105,11 @@ function computeNextCandidateOrder(candidates: { order: number }[] = []): number
   return maxOrder + 1;
 }
 
-async function markSearchAsExhaustedIfNecessary(searchId: string, finalCandidateFound: SearchCandidate | undefined) {
+async function markSearchAsExhaustedIfNecessary(
+  searchId: string,
+  finalCandidateFound: SearchCandidate | undefined,
+  prisma: ExtendedPrismaClient
+) {
   if (!finalCandidateFound || finalCandidateFound.status === SearchCandidateStatus.Rejected) {
     await prisma.search.update({
       data: { exhausted: true },
@@ -148,7 +155,7 @@ function createDiscoveryScanner(
   );
 }
 
-async function findSearchOrThrow(searchId: string) {
+async function findSearchOrThrow(searchId: string, prisma: ExtendedPrismaClient) {
   const search = await prisma.search.findUniqueWithRestaurantAndProfiles(searchId);
   if (!search) {
     throw new SearchNotFoundError(searchId);
@@ -156,13 +163,13 @@ async function findSearchOrThrow(searchId: string) {
   return search;
 }
 
-async function findLatestCandidateOf(searchId: string | undefined): Promise<SearchCandidate | undefined> {
+async function findLatestCandidateOf(searchId: string | undefined, prisma: ExtendedPrismaClient): Promise<SearchCandidate | undefined> {
   const finalCandidateId = (await prisma.search.findWithLatestCandidateId(searchId))?.latestCandidateId;
   const finalCandidate = finalCandidateId ? await prisma.searchCandidate.findUnique({ where: { id: finalCandidateId } }) : undefined;
   return finalCandidate || undefined;
 }
 
-async function createDefaultCandidateWithoutRestaurant(searchId: string): Promise<SearchCandidate> {
+async function createDefaultCandidateWithoutRestaurant(searchId: string, prisma: ExtendedPrismaClient): Promise<SearchCandidate> {
   const order = (await prisma.search.findWithLatestCandidateId(searchId))?.order || 0;
   return await prisma.searchCandidate.create({
     data: {

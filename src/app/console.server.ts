@@ -2,7 +2,7 @@ import * as repl from "repl";
 
 import { APP_CONFIG, createAppContext } from "@config/server";
 import { computeViewportFromCircle } from "@features/coordinate";
-import prisma from "@features/db.server/prisma";
+import { getPrisma } from "@features/db.server/prisma";
 import { findGoogleRestaurantById, searchGoogleRestaurantByText } from "@features/google.server";
 import { searchCandidate } from "@features/search-engine.server";
 
@@ -14,6 +14,7 @@ async function start() {
     console.log("✅ Application context loaded and REPL started.");
     console.log("---");
 
+    const prisma = getPrisma(process.env as any);
     const CONTEXT = createAppContext(process.env); // TODO
     const context = {
       prisma,
