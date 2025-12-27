@@ -13,9 +13,9 @@
 	"observability": {
 		"enabled": true
 	},
-  "compatibility_flags": [
-    "node_compat = true"
-  ]
+  // "compatibility_flags": [
+  //   "nodejs_compat"
+  // ]
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
