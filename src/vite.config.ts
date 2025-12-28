@@ -1,4 +1,5 @@
 import path from "path";
+import { fileURLToPath } from "url";
 
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { reactRouter } from "@react-router/dev/vite";
@@ -24,10 +25,10 @@ export default defineConfig({
   ],
   resolve: {
     alias: baseConfigurationAlias,
-    dedupe: ["react", "react-dom", "@prisma/client", "@prisma/adapter-pg"], // TODO validate this
+    // dedupe: ["react", "react-dom", "@prisma/client"], // TODO validate this
   },
   ssr: {
     target: "webworker",
-    noExternal: ["@prisma/client", "prisma", "@prisma/adapter-pg"], // TODO validate this
-  }
+    // noExternal: ["@prisma/client", "prisma"], // TODO validate this
+  },
 });

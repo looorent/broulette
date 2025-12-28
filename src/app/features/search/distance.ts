@@ -1,5 +1,6 @@
 import { DistanceRange } from "@persistence/enums";
 
+
 export interface DistanceRangeOption {
   id: DistanceRange;
   label: {
