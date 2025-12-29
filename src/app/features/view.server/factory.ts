@@ -5,7 +5,7 @@ import type { TagView } from "@features/tag";
 import { tagToLabel } from "@features/tag.server";
 import { TRIPADVISOR_SOURCE_NAME } from "@features/tripadvisor.server";
 import type { CandidateRedirect, CandidateView, OpeningHoursOfTheDay, RestaurantView, SearchRedirect, SearchView } from "@features/view";
-import { SearchCandidateStatus, ServiceTimeslot, type DistanceRange, type Prisma, type Restaurant, type RestaurantProfile, type Search } from "@persistence/client";
+import { type DistanceRange, type Prisma, type Restaurant, type RestaurantProfile, type Search, type SearchCandidateStatus, type ServiceTimeslot } from "@persistence/client";
 
 import { formatOpeningHoursFor } from "./opening-hours";
 
@@ -237,7 +237,7 @@ function formatCandidateLabel(restaurant: Restaurant | undefined | null, search:
 }
 
 function formatServiceTime(serviceTimeslot: ServiceTimeslot, serviceInstant: Date, locale: string): string {
-  if (serviceTimeslot === ServiceTimeslot.RightNow) {
+  if (serviceTimeslot === "RightNow") {
     return formatMonthDatetime(serviceInstant, locale);
   } else {
     return `${formatMonthDate(serviceInstant, locale)} ${formatDayService(serviceTimeslot, locale)}`;
@@ -246,11 +246,11 @@ function formatServiceTime(serviceTimeslot: ServiceTimeslot, serviceInstant: Dat
 
 function formatDayService(serviceTimeslot: ServiceTimeslot, _locale: string): string | undefined {
   switch (serviceTimeslot) {
-    case ServiceTimeslot.Dinner:
+    case "Dinner":
       return "Dinner";
-    case ServiceTimeslot.Lunch:
+    case "Lunch":
       return "Lunch";
-    case ServiceTimeslot.RightNow:
+    case "RightNow":
       return "Right Now";
     default:
       return undefined;

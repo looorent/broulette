@@ -26,7 +26,6 @@
     "@react-router/serve": "7.11.0",
     "@use-gesture/react": "10.3.1",
     "cockatiel": "3.2.1",
-    "geolib": "3.3.4",
     "isbot": "^5.1.32",
     "lucide-react": "0.562.0",
     "opening_hours": "^3.9.0",

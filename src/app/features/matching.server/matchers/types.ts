@@ -1,5 +1,5 @@
 import type { ExtendedPrismaClient } from "@features/db.server";
-import { Prisma } from "@persistence/client";
+import type { Prisma } from "@persistence/client";
 
 import type { RestaurantAndProfiles, RestaurantMatchingConfiguration } from "../types";
 

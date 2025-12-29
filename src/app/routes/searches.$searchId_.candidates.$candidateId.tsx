@@ -16,7 +16,7 @@ import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const { searchId, candidateId } = params;
-  const prisma = getPrisma(context.cloudflare.env);
+  const prisma = await getPrisma(context.cloudflare.env);
   const view = await findCandidateViewModel(searchId, candidateId, new Date(), await getLocale(request), prisma);
   if (view) {
     if (view.redirectRequired) {

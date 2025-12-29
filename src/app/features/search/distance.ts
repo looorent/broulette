@@ -1,4 +1,4 @@
-import { DistanceRange } from "@persistence/enums";
+import type { DistanceRange } from "@persistence/enums";
 
 
 export interface DistanceRangeOption {
@@ -11,21 +11,21 @@ export interface DistanceRangeOption {
 
 export const DISTANCE_RANGES: DistanceRangeOption[] = [
   {
-    id: DistanceRange.Close,
+    id: "Close",
     label: {
       display: "Close",
       compact: "Close"
     }
   },
   {
-    id: DistanceRange.MidRange,
+    id: "MidRange",
     label: {
       display: "Mid-range",
       compact: "Locally"
     }
   },
   {
-    id: DistanceRange.Far,
+    id: "Far",
     label: {
       display: "Far",
       compact: "Far"

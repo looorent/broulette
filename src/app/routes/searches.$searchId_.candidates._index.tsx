@@ -15,7 +15,7 @@ export async function action({
 }: Route.ActionArgs) {
   const formData = await request.formData();
   await validateCSRF(formData, request.headers, context.sessionStorage);
-  const prisma = getPrisma(context.cloudflare.env);
+  const prisma = await getPrisma(context.cloudflare.env);
 
   if (context.config) {
     const data = parseAndValidate(formData, params, await getLocale(request));

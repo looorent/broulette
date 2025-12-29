@@ -1,7 +1,7 @@
 import { CalendarPlus, Clock, Moon, Sun, type LucideProps } from "lucide-react";
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
 
-import { ServiceTimeslot } from "@persistence/enums";
+import type { ServiceTimeslot } from "@persistence/enums";
 
 export type ServicePreferenceIcon = "clock" | "moon" | "sun" | "calendar";
 export interface ServicePreference {
@@ -37,12 +37,12 @@ function createService(
 };
 
 export const SERVICE_DEFAULTS = {
-  [ServiceTimeslot.Lunch]: {
+  ["Lunch"]: {
     start:  { hour: 11, minute: 30 },
     middle: { hour: 12, minute: 30 },
     end:    { hour: 14, minute: 30 }
   },
-  [ServiceTimeslot.Dinner]: {
+  ["Dinner"]: {
     start:  { hour: 18, minute: 0 },
     middle: { hour: 19, minute: 30 },
     end:    { hour: 22, minute: 0 }
@@ -68,16 +68,16 @@ export function findIconFor(service: ServicePreference): ForwardRefExoticCompone
 export function createServiceDatetime(day: Date, timeslot: ServiceTimeslot | null): Date {
   const date = new Date(day);
   switch (timeslot) {
-    case ServiceTimeslot.Lunch:
-    case ServiceTimeslot.Dinner: {
+    case "Lunch":
+    case "Dinner": {
       const hour = SERVICE_DEFAULTS[timeslot].middle.hour;
       const minute = SERVICE_DEFAULTS[timeslot].middle.minute;
       date.setHours(hour, minute, 0);
       return date;
     }
-    case ServiceTimeslot.RightNow:
+    case "RightNow":
       return new Date();
-    case ServiceTimeslot.Custom:
+    case "Custom":
       return date;
     default:
       return new Date();
@@ -87,18 +87,18 @@ export function createServiceDatetime(day: Date, timeslot: ServiceTimeslot | nul
 export function createServiceEnd(day: Date, timeslot: ServiceTimeslot | null): Date {
   const date = new Date(day);
   switch (timeslot) {
-    case ServiceTimeslot.Lunch:
-    case ServiceTimeslot.Dinner: { const hour = SERVICE_DEFAULTS[timeslot].end.hour;
+    case "Lunch":
+    case "Dinner": { const hour = SERVICE_DEFAULTS[timeslot].end.hour;
       const minute = SERVICE_DEFAULTS[timeslot].end.hour;
       date.setHours(hour, minute, 0);
       return date;
     }
-    case ServiceTimeslot.RightNow: {
+    case "RightNow": {
       const tomorrow = addDay(date, 1)
       tomorrow.setHours(0, 0, 0);
       return tomorrow;
     }
-    case ServiceTimeslot.Custom:
+    case "Custom":
       return new Date(date.getTime() + 60 * 60 * 1000);
     default:
       return new Date(date.getTime() + 60 * 60 * 1000);
@@ -109,21 +109,21 @@ export function createNextServices(now: Date = new Date()): ServicePreference[] 
   const currentHour = now.getHours();
 
   const services = [
-    createService(now, ServiceTimeslot.RightNow, "Right now", "Now")
+    createService(now, "RightNow", "Right now", "Now")
   ];
 
-  if (currentHour < SERVICE_DEFAULTS[ServiceTimeslot.Lunch].middle.hour) {
-    services.push(createService(now, ServiceTimeslot.Lunch, "Today lunch", "Lunch"));
+  if (currentHour < SERVICE_DEFAULTS["Lunch"].middle.hour) {
+    services.push(createService(now, "Lunch", "Today lunch", "Lunch"));
   }
 
-  if (currentHour < SERVICE_DEFAULTS[ServiceTimeslot.Dinner].middle.hour) {
-    services.push(createService(now, ServiceTimeslot.Dinner, "Today dinner", "Dinner"));
+  if (currentHour < SERVICE_DEFAULTS["Dinner"].middle.hour) {
+    services.push(createService(now, "Dinner", "Today dinner", "Dinner"));
   }
 
   return [
     ...services,
-    createService(addDay(now, 1), ServiceTimeslot.Lunch, "Tomorrow lunch", "Tmw lunch"),
-    createService(addDay(now, 1), ServiceTimeslot.Dinner, "Tomorrow dinner", "Tmw dinner"),
+    createService(addDay(now, 1), "Lunch", "Tomorrow lunch", "Tmw lunch"),
+    createService(addDay(now, 1), "Dinner", "Tomorrow dinner", "Tmw dinner"),
     createService(addDay(now, 2), null, "Pick a date", "Some day", false),
   ].filter(Boolean);
 }
@@ -136,11 +136,11 @@ function addDay(originalDate: Date, numberOfDays: number): Date {
 
 function pickIcon(timeslot: ServiceTimeslot | null): ServicePreferenceIcon {
   switch (timeslot) {
-    case ServiceTimeslot.RightNow:
+    case "RightNow":
       return "clock";
-    case ServiceTimeslot.Dinner:
+    case "Dinner":
       return "moon";
-    case ServiceTimeslot.Lunch:
+    case "Lunch":
       return "sun";
     default:
       return "calendar";

@@ -1,5 +1,6 @@
-import { getDistance } from "geolib";
 import stringSimilarity from "string-similarity";
+
+import { computeDistanceInMeters } from "@features/coordinate";
 
 interface SimilarityResult {
   totalScore: number; // [0..1]
@@ -41,7 +42,7 @@ export function compareSimilarity(
   if (!restaurant.latitude || !other.latitude || !restaurant.longitude || !other.longitude) {
     distanceInMeters = 0;
   } else {
-    distanceInMeters = getDistance(
+    distanceInMeters = computeDistanceInMeters(
       { latitude: restaurant.latitude, longitude: restaurant.longitude },
       { latitude: other.latitude, longitude: other.longitude }
     );
@@ -56,3 +57,4 @@ export function compareSimilarity(
     distanceMeters: distanceInMeters
   };
 }
+

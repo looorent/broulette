@@ -10,7 +10,7 @@ import type { loader as rootLoader } from "app/root";
 import type { Route } from "./+types/searches.$searchId";
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
-  const prisma = getPrisma(context.cloudflare.env);
+  const prisma = await getPrisma(context.cloudflare.env);
   const view = await findSearchViewModel(params.searchId, await getLocale(request), prisma);
   if (view) {
     if (view.redirectRequired) {

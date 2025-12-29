@@ -25,10 +25,6 @@ export default defineConfig({
   ],
   resolve: {
     alias: baseConfigurationAlias,
-    // dedupe: ["react", "react-dom", "@prisma/client"], // TODO validate this
-  },
-  ssr: {
-    target: "webworker",
-    // noExternal: ["@prisma/client", "prisma"], // TODO validate this
-  },
+    dedupe: ["react", "react-dom", "@prisma/client"]
+  }
 });

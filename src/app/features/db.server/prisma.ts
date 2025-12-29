@@ -1,12 +1,13 @@
 import { withAccelerate } from "@prisma/extension-accelerate";
 
-import { DistanceRange, PrismaClient, SearchCandidateStatus, ServiceTimeslot } from "@persistence/client";
+import type { DistanceRange, SearchCandidateStatus, ServiceTimeslot } from "@persistence/enums";
 
 interface Env {
   BROULETTE_DATABASE_URL: string;
 }
 
-function createPrismaClient(databaseUrl: string) {
+async function createPrismaClient(databaseUrl: string) {
+  const { PrismaClient } = await import("@persistence/client");
   const prisma = new PrismaClient({
     accelerateUrl: databaseUrl
   })
@@ -100,15 +101,15 @@ function createPrismaClient(databaseUrl: string) {
   return prisma;
 };
 
-export type ExtendedPrismaClient = ReturnType<typeof createPrismaClient>;
+export type ExtendedPrismaClient = Awaited<ReturnType<typeof createPrismaClient>>;
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ExtendedPrismaClient | undefined;
 };
 
-export function getPrisma(env: Env): ExtendedPrismaClient {
+export async function getPrisma(env: Env): Promise<ExtendedPrismaClient> {
   if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = createPrismaClient(env.BROULETTE_DATABASE_URL);
+    globalForPrisma.prisma = await createPrismaClient(env.BROULETTE_DATABASE_URL);
   }
   return globalForPrisma.prisma;
 };
