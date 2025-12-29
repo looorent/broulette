@@ -1,6 +1,5 @@
-import stringSimilarity from "string-similarity";
-
 import { computeDistanceInMeters } from "@features/coordinate";
+import { compareTwoStrings } from "@features/utils/similarity";
 
 interface SimilarityResult {
   totalScore: number; // [0..1]
@@ -36,7 +35,7 @@ export function compareSimilarity(
   other: ComparableRestaurant,
   configuration: GoogleSimilarityConfiguration = DEFAULT_GOOGLE_PLACE_SIMILARITY_CONFIGURATION
 ): SimilarityResult {
-  const nameScore = stringSimilarity.compareTwoStrings(restaurant?.displayName || "", other?.displayName || "");
+  const nameScore = compareTwoStrings(restaurant?.displayName || "", other?.displayName || "");
 
   let distanceInMeters: number;
   if (!restaurant.latitude || !other.latitude || !restaurant.longitude || !other.longitude) {

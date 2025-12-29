@@ -1,4 +1,4 @@
-import stringSimilarity from "string-similarity";
+import { compareTwoStrings } from "@features/utils/similarity";
 
 import type { TripAdvisorLocationNearby } from "./types";
 
@@ -57,7 +57,7 @@ export function compareSimilarity(
   candidate: TripAdvisorLocationNearby,
   configuration: TripAdvisorSimilarityConfiguration
 ): SimilarityResult {
-  const nameScore = stringSimilarity.compareTwoStrings(
+  const nameScore = compareTwoStrings(
     targetName || "",
     candidate.name || ""
   );

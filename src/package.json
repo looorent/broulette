@@ -5,7 +5,6 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
-    "start": "dotenv -e .dev.vars -- react-router-serve ./build/server/index.js",
     "typecheck": "npm run cf-typegen && react-router typegen && tsc -b",
     "cf-typegen": "wrangler types",
     "cf:dev": "wrangler dev",
@@ -21,9 +20,7 @@
     "@icons-pack/react-simple-icons": "13.8.0",
     "@prisma/client": "7.2.0",
     "@prisma/extension-accelerate": "^3.0.1",
-    "@react-router/cloudflare": "7.11.0",
     "@react-router/fs-routes": "7.11.0",
-    "@react-router/serve": "7.11.0",
     "@use-gesture/react": "10.3.1",
     "cockatiel": "3.2.1",
     "isbot": "^5.1.32",
@@ -32,18 +29,16 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-router": "7.11.0",
-    "simple-icons": "16.3.0",
-    "string-similarity": "4.0.4"
+    "simple-icons": "16.3.0"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.19.0",
-    "@eslint/js": "10.0.0",
+    "@eslint/js": "9.39.2",
     "@react-router/dev": "7.11.0",
     "@tailwindcss/vite": "4.1.18",
     "@types/node": "25.0.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@types/string-similarity": "4.0.2",
     "@typescript-eslint/parser": "^8.50.1",
     "dotenv-cli": "^11.0.0",
     "eslint": "9.39.2",
@@ -66,7 +61,8 @@
     "vite": "^7.3.0",
     "vite-plugin-checker": "0.12.0",
     "vite-plugin-devtools-json": "^1.0.0",
-    "wrangler": "4.56.0"
+    "vite-tsconfig-paths": "6.0.3",
+    "wrangler": "4.54.0"
   },
   "exports": {
     "@persistence": "./app/features/generated/prisma",
