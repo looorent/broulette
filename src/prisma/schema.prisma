@@ -80,8 +80,8 @@ model Restaurant {
   updatedAt                DateTime @updatedAt
 
   name                     String? @db.VarChar(100)
-  latitude                 Decimal
-  longitude                Decimal
+  latitude                 Float
+  longitude                Float
 
   profiles                 RestaurantProfile[]
   searchCandidates         SearchCandidate[]
@@ -104,8 +104,8 @@ model RestaurantProfile {
   version                  Int
 
   // attributes from the source
-  latitude                 Decimal
-  longitude                Decimal
+  latitude                 Float
+  longitude                Float
   name                     String?
   address                  String?
   countryCode              String? @db.VarChar(20)
@@ -113,7 +113,7 @@ model RestaurantProfile {
   description              String?
   imageUrl                 String?
   mapUrl                   String?
-  rating                   Decimal? @db.Decimal(2, 1)
+  rating                   Float?
   ratingCount              Int?
   phoneNumber              String? @db.VarChar(20)
   internationalPhoneNumber String? @db.VarChar(25)
@@ -137,8 +137,8 @@ model RestaurantMatchingAttempt {
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
 
   queryType    String
-  latitude     Decimal?
-  longitude    Decimal?
+  latitude     Float?
+  longitude    Float?
   radius       Int?
   query        String?
 

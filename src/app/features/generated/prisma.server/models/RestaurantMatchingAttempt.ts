@@ -27,14 +27,14 @@ export type AggregateRestaurantMatchingAttempt = {
 }
 
 export type RestaurantMatchingAttemptAvgAggregateOutputType = {
-  latitude: runtime.Decimal | null
-  longitude: runtime.Decimal | null
+  latitude: number | null
+  longitude: number | null
   radius: number | null
 }
 
 export type RestaurantMatchingAttemptSumAggregateOutputType = {
-  latitude: runtime.Decimal | null
-  longitude: runtime.Decimal | null
+  latitude: number | null
+  longitude: number | null
   radius: number | null
 }
 
@@ -42,8 +42,8 @@ export type RestaurantMatchingAttemptMinAggregateOutputType = {
   id: string | null
   restaurantId: string | null
   queryType: string | null
-  latitude: runtime.Decimal | null
-  longitude: runtime.Decimal | null
+  latitude: number | null
+  longitude: number | null
   radius: number | null
   query: string | null
   source: string | null
@@ -55,8 +55,8 @@ export type RestaurantMatchingAttemptMaxAggregateOutputType = {
   id: string | null
   restaurantId: string | null
   queryType: string | null
-  latitude: runtime.Decimal | null
-  longitude: runtime.Decimal | null
+  latitude: number | null
+  longitude: number | null
   radius: number | null
   query: string | null
   source: string | null
@@ -221,8 +221,8 @@ export type RestaurantMatchingAttemptGroupByOutputType = {
   id: string
   restaurantId: string
   queryType: string
-  latitude: runtime.Decimal | null
-  longitude: runtime.Decimal | null
+  latitude: number | null
+  longitude: number | null
   radius: number | null
   query: string | null
   source: string
@@ -257,8 +257,8 @@ export type RestaurantMatchingAttemptWhereInput = {
   id?: Prisma.UuidFilter<"RestaurantMatchingAttempt"> | string
   restaurantId?: Prisma.UuidFilter<"RestaurantMatchingAttempt"> | string
   queryType?: Prisma.StringFilter<"RestaurantMatchingAttempt"> | string
-  latitude?: Prisma.DecimalNullableFilter<"RestaurantMatchingAttempt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: Prisma.DecimalNullableFilter<"RestaurantMatchingAttempt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: Prisma.FloatNullableFilter<"RestaurantMatchingAttempt"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"RestaurantMatchingAttempt"> | number | null
   radius?: Prisma.IntNullableFilter<"RestaurantMatchingAttempt"> | number | null
   query?: Prisma.StringNullableFilter<"RestaurantMatchingAttempt"> | string | null
   source?: Prisma.StringFilter<"RestaurantMatchingAttempt"> | string
@@ -288,8 +288,8 @@ export type RestaurantMatchingAttemptWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.RestaurantMatchingAttemptWhereInput | Prisma.RestaurantMatchingAttemptWhereInput[]
   restaurantId?: Prisma.UuidFilter<"RestaurantMatchingAttempt"> | string
   queryType?: Prisma.StringFilter<"RestaurantMatchingAttempt"> | string
-  latitude?: Prisma.DecimalNullableFilter<"RestaurantMatchingAttempt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: Prisma.DecimalNullableFilter<"RestaurantMatchingAttempt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: Prisma.FloatNullableFilter<"RestaurantMatchingAttempt"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"RestaurantMatchingAttempt"> | number | null
   radius?: Prisma.IntNullableFilter<"RestaurantMatchingAttempt"> | number | null
   query?: Prisma.StringNullableFilter<"RestaurantMatchingAttempt"> | string | null
   source?: Prisma.StringFilter<"RestaurantMatchingAttempt"> | string
@@ -323,8 +323,8 @@ export type RestaurantMatchingAttemptScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"RestaurantMatchingAttempt"> | string
   restaurantId?: Prisma.UuidWithAggregatesFilter<"RestaurantMatchingAttempt"> | string
   queryType?: Prisma.StringWithAggregatesFilter<"RestaurantMatchingAttempt"> | string
-  latitude?: Prisma.DecimalNullableWithAggregatesFilter<"RestaurantMatchingAttempt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: Prisma.DecimalNullableWithAggregatesFilter<"RestaurantMatchingAttempt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: Prisma.FloatNullableWithAggregatesFilter<"RestaurantMatchingAttempt"> | number | null
+  longitude?: Prisma.FloatNullableWithAggregatesFilter<"RestaurantMatchingAttempt"> | number | null
   radius?: Prisma.IntNullableWithAggregatesFilter<"RestaurantMatchingAttempt"> | number | null
   query?: Prisma.StringNullableWithAggregatesFilter<"RestaurantMatchingAttempt"> | string | null
   source?: Prisma.StringWithAggregatesFilter<"RestaurantMatchingAttempt"> | string
@@ -335,8 +335,8 @@ export type RestaurantMatchingAttemptScalarWhereWithAggregatesInput = {
 export type RestaurantMatchingAttemptCreateInput = {
   id?: string
   queryType: string
-  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: number | null
+  longitude?: number | null
   radius?: number | null
   query?: string | null
   source: string
@@ -349,8 +349,8 @@ export type RestaurantMatchingAttemptUncheckedCreateInput = {
   id?: string
   restaurantId: string
   queryType: string
-  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: number | null
+  longitude?: number | null
   radius?: number | null
   query?: string | null
   source: string
@@ -361,8 +361,8 @@ export type RestaurantMatchingAttemptUncheckedCreateInput = {
 export type RestaurantMatchingAttemptUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   queryType?: Prisma.StringFieldUpdateOperationsInput | string
-  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
@@ -375,8 +375,8 @@ export type RestaurantMatchingAttemptUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   restaurantId?: Prisma.StringFieldUpdateOperationsInput | string
   queryType?: Prisma.StringFieldUpdateOperationsInput | string
-  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
@@ -388,8 +388,8 @@ export type RestaurantMatchingAttemptCreateManyInput = {
   id?: string
   restaurantId: string
   queryType: string
-  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: number | null
+  longitude?: number | null
   radius?: number | null
   query?: string | null
   source: string
@@ -400,8 +400,8 @@ export type RestaurantMatchingAttemptCreateManyInput = {
 export type RestaurantMatchingAttemptUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   queryType?: Prisma.StringFieldUpdateOperationsInput | string
-  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
@@ -413,8 +413,8 @@ export type RestaurantMatchingAttemptUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   restaurantId?: Prisma.StringFieldUpdateOperationsInput | string
   queryType?: Prisma.StringFieldUpdateOperationsInput | string
-  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
@@ -528,8 +528,8 @@ export type RestaurantMatchingAttemptUncheckedUpdateManyWithoutRestaurantNestedI
 export type RestaurantMatchingAttemptCreateWithoutRestaurantInput = {
   id?: string
   queryType: string
-  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: number | null
+  longitude?: number | null
   radius?: number | null
   query?: string | null
   source: string
@@ -540,8 +540,8 @@ export type RestaurantMatchingAttemptCreateWithoutRestaurantInput = {
 export type RestaurantMatchingAttemptUncheckedCreateWithoutRestaurantInput = {
   id?: string
   queryType: string
-  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: number | null
+  longitude?: number | null
   radius?: number | null
   query?: string | null
   source: string
@@ -582,8 +582,8 @@ export type RestaurantMatchingAttemptScalarWhereInput = {
   id?: Prisma.UuidFilter<"RestaurantMatchingAttempt"> | string
   restaurantId?: Prisma.UuidFilter<"RestaurantMatchingAttempt"> | string
   queryType?: Prisma.StringFilter<"RestaurantMatchingAttempt"> | string
-  latitude?: Prisma.DecimalNullableFilter<"RestaurantMatchingAttempt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: Prisma.DecimalNullableFilter<"RestaurantMatchingAttempt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: Prisma.FloatNullableFilter<"RestaurantMatchingAttempt"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"RestaurantMatchingAttempt"> | number | null
   radius?: Prisma.IntNullableFilter<"RestaurantMatchingAttempt"> | number | null
   query?: Prisma.StringNullableFilter<"RestaurantMatchingAttempt"> | string | null
   source?: Prisma.StringFilter<"RestaurantMatchingAttempt"> | string
@@ -594,8 +594,8 @@ export type RestaurantMatchingAttemptScalarWhereInput = {
 export type RestaurantMatchingAttemptCreateManyRestaurantInput = {
   id?: string
   queryType: string
-  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: number | null
+  longitude?: number | null
   radius?: number | null
   query?: string | null
   source: string
@@ -606,8 +606,8 @@ export type RestaurantMatchingAttemptCreateManyRestaurantInput = {
 export type RestaurantMatchingAttemptUpdateWithoutRestaurantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   queryType?: Prisma.StringFieldUpdateOperationsInput | string
-  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
@@ -618,8 +618,8 @@ export type RestaurantMatchingAttemptUpdateWithoutRestaurantInput = {
 export type RestaurantMatchingAttemptUncheckedUpdateWithoutRestaurantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   queryType?: Prisma.StringFieldUpdateOperationsInput | string
-  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
@@ -630,8 +630,8 @@ export type RestaurantMatchingAttemptUncheckedUpdateWithoutRestaurantInput = {
 export type RestaurantMatchingAttemptUncheckedUpdateManyWithoutRestaurantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   queryType?: Prisma.StringFieldUpdateOperationsInput | string
-  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   radius?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   query?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
@@ -716,8 +716,8 @@ export type $RestaurantMatchingAttemptPayload<ExtArgs extends runtime.Types.Exte
     id: string
     restaurantId: string
     queryType: string
-    latitude: runtime.Decimal | null
-    longitude: runtime.Decimal | null
+    latitude: number | null
+    longitude: number | null
     radius: number | null
     query: string | null
     source: string
@@ -1150,8 +1150,8 @@ export interface RestaurantMatchingAttemptFieldRefs {
   readonly id: Prisma.FieldRef<"RestaurantMatchingAttempt", 'String'>
   readonly restaurantId: Prisma.FieldRef<"RestaurantMatchingAttempt", 'String'>
   readonly queryType: Prisma.FieldRef<"RestaurantMatchingAttempt", 'String'>
-  readonly latitude: Prisma.FieldRef<"RestaurantMatchingAttempt", 'Decimal'>
-  readonly longitude: Prisma.FieldRef<"RestaurantMatchingAttempt", 'Decimal'>
+  readonly latitude: Prisma.FieldRef<"RestaurantMatchingAttempt", 'Float'>
+  readonly longitude: Prisma.FieldRef<"RestaurantMatchingAttempt", 'Float'>
   readonly radius: Prisma.FieldRef<"RestaurantMatchingAttempt", 'Int'>
   readonly query: Prisma.FieldRef<"RestaurantMatchingAttempt", 'String'>
   readonly source: Prisma.FieldRef<"RestaurantMatchingAttempt", 'String'>

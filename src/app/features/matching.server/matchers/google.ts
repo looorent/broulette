@@ -5,7 +5,7 @@ import { filterTags } from "@features/tag.server";
 import { type Restaurant, type RestaurantProfile } from "@persistence/client";
 
 import type { RestaurantAndProfiles, RestaurantMatchingConfiguration } from "../types";
-import { toDecimal, type Matcher, type Matching } from "./types";
+import { type Matcher, type Matching } from "./types";
 
 export class GoogleMatcher implements Matcher {
   readonly source = GOOGLE_PLACE_SOURCE_NAME;
@@ -55,12 +55,12 @@ export class GoogleMatcher implements Matcher {
       if (textQuery && textQuery.length > 0) {
         const found = await searchGoogleRestaurantByText(
           textQuery,
-          restaurant.latitude?.toNumber(),
-          restaurant.longitude?.toNumber(),
+          restaurant.latitude,
+          restaurant.longitude,
           this.configuration,
           signal
         );
-        await registerAttemptToGooglePlaceByText(textQuery, restaurant.latitude?.toNumber(), restaurant.longitude?.toNumber(), this.configuration.search.radiusInMeters, restaurant.id, found, prisma);
+        await registerAttemptToGooglePlaceByText(textQuery, restaurant.latitude, restaurant.longitude, this.configuration.search.radiusInMeters, restaurant.id, found, prisma);
         return found;
       } else {
         return undefined;
@@ -113,8 +113,8 @@ export class GoogleMatcher implements Matcher {
       externalId: google.id,
       externalType: "place",
       version: (profile?.version || 0) + 1,
-      latitude: toDecimal(google.latitude) ?? restaurant.latitude!,
-      longitude: toDecimal(google.longitude) ?? restaurant.longitude!,
+      latitude: google.latitude ?? restaurant.latitude!,
+      longitude: google.longitude ?? restaurant.longitude!,
       name: google.displayName || profile?.name || null,
       address: google.formattedAddress || profile?.address || null,
       countryCode: google.countryCode || profile?.countryCode || null,
@@ -122,7 +122,7 @@ export class GoogleMatcher implements Matcher {
       description: profile?.description || null,
       imageUrl: google.photoUrl || profile?.imageUrl || null,
       mapUrl: google.googleMapsUri || profile?.mapUrl || null,
-      rating: toDecimal(google.rating) || profile?.rating || null,
+      rating: google.rating || profile?.rating || null,
       ratingCount: google.userRatingCount || profile?.ratingCount || null,
       phoneNumber: google.nationalPhoneNumber || profile?.phoneNumber || null,
       internationalPhoneNumber: google.internationalPhoneNumber || profile?.internationalPhoneNumber || null,

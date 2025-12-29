@@ -5,7 +5,7 @@ import { findTripAdvisorLocationByIdWithRetry, searchTripAdvisorLocationNearbyWi
 import { type Restaurant, type RestaurantProfile } from "@persistence/client";
 
 import type { RestaurantAndProfiles, RestaurantMatchingConfiguration } from "../types";
-import { toDecimal, type Matcher, type Matching } from "./types";
+import { type Matcher, type Matching } from "./types";
 
 export class TripAdvisorMatcher implements Matcher {
   readonly source = TRIPADVISOR_SOURCE_NAME;
@@ -55,14 +55,14 @@ export class TripAdvisorMatcher implements Matcher {
       if (textQuery && textQuery.length > 0) {
         const found = await searchTripAdvisorLocationNearbyWithRetry(
           textQuery,
-          restaurant.latitude?.toNumber(),
-          restaurant.longitude?.toNumber(),
+          restaurant.latitude,
+          restaurant.longitude,
           this.configuration.search.radiusInMeters,
           language,
           this.configuration,
           signal
         );
-        await registerAttemptToFindTripAdvisorLocationNearBy(textQuery, restaurant.latitude?.toNumber(), restaurant.longitude?.toNumber(), this.configuration.search.radiusInMeters, restaurant.id, found, prisma);
+        await registerAttemptToFindTripAdvisorLocationNearBy(textQuery, restaurant.latitude, restaurant.longitude, this.configuration.search.radiusInMeters, restaurant.id, found, prisma);
         return found;
       } else {
         return undefined;
@@ -115,8 +115,8 @@ export class TripAdvisorMatcher implements Matcher {
       externalId: tripAdvisor.id.toString(),
       externalType: "location",
       version: (profile?.version || 0) + 1,
-      latitude: toDecimal(tripAdvisor.latitude) ?? restaurant.latitude!,
-      longitude: toDecimal(tripAdvisor.longitude) ?? restaurant.longitude!,
+      latitude: tripAdvisor.latitude ?? restaurant.latitude!,
+      longitude: tripAdvisor.longitude ?? restaurant.longitude!,
       name: tripAdvisor.name || profile?.name || null,
       address: tripAdvisor.address?.addressString || profile?.address || null,
       countryCode: tripAdvisor.address?.country || profile?.countryCode || null,
@@ -124,7 +124,7 @@ export class TripAdvisorMatcher implements Matcher {
       description: tripAdvisor.description || profile?.description || null,
       imageUrl: tripAdvisor.imageUrl || profile?.imageUrl || null,
       mapUrl: profile?.mapUrl || null,
-      rating: toDecimal(tripAdvisor.rating) || profile?.rating || null,
+      rating: tripAdvisor.rating || profile?.rating || null,
       ratingCount: tripAdvisor.rating || profile?.ratingCount || null,
       phoneNumber: tripAdvisor.phone || profile?.phoneNumber || null,
       internationalPhoneNumber: tripAdvisor.phone || profile?.internationalPhoneNumber || null,

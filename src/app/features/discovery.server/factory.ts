@@ -1,5 +1,4 @@
 import { OVERPASS_SOURCE_NAME, type OverpassRestaurant } from "@features/overpass.server";
-import type { Prisma } from "@persistence/client";
 
 import type { DiscoveredRestaurantProfile } from "./types";
 
@@ -9,8 +8,8 @@ export function fromOverpass(overpass: OverpassRestaurant): DiscoveredRestaurant
     externalType: overpass.type,
     externalId: overpass.id.toString(),
 
-    latitude: toDecimal(overpass.latitude)!,
-    longitude: toDecimal(overpass.longitude)!,
+    latitude: overpass.latitude,
+    longitude: overpass.longitude,
 
     name: overpass.name || null,
     address: overpass.formattedAddress || null,
@@ -44,12 +43,4 @@ function buildTagsFrom(overpass: OverpassRestaurant): string[] {
   }
 
   return Array.from(new Set(tags));
-}
-
-function toDecimal(value: number | undefined | null): Prisma.Decimal | undefined {
-  if (value === null || value === undefined) {
-    return undefined;
-  } else {
-    return new Prisma.Decimal(value);
-  }
 }

@@ -5,7 +5,7 @@ import type { TagView } from "@features/tag";
 import { tagToLabel } from "@features/tag.server";
 import { TRIPADVISOR_SOURCE_NAME } from "@features/tripadvisor.server";
 import type { CandidateRedirect, CandidateView, OpeningHoursOfTheDay, RestaurantView, SearchRedirect, SearchView } from "@features/view";
-import { type DistanceRange, type Prisma, type Restaurant, type RestaurantProfile, type Search, type SearchCandidateStatus, type ServiceTimeslot } from "@persistence/client";
+import { type DistanceRange, type Prisma, type Restaurant, type RestaurantProfile, type Search, type ServiceTimeslot } from "@persistence/client";
 
 import { formatOpeningHoursFor } from "./opening-hours";
 
@@ -29,7 +29,7 @@ export function buildViewModelOfCandidate(
       redirectRequired: false,
       candidate: {
         id: candidate.id,
-        rejected: candidate.status === SearchCandidateStatus.Rejected
+        rejected: candidate.status === "Rejected"
       },
       reRollEnabled: !candidate.search.exhausted && !hasExpired,
       search: {
@@ -133,7 +133,7 @@ function computeRating(profiles: RestaurantProfiles): {
   ].filter(Boolean)
     .map(profile => profile!)
     .filter(profile => profile.rating !== undefined && profile.rating !== null)
-    .map(profile => ({ score: profile.rating!.toNumber(), count: profile.ratingCount }));
+    .map(profile => ({ score: profile.rating!, count: profile.ratingCount }));
 
   if (ratings.length > 0) {
     const { rating, count } = ratings.reduce(
@@ -206,8 +206,8 @@ function buildMapUrl(restaurant: RestaurantModel, { tripAdvisor, google }: Resta
 const GOOGLE_MAP_BASE_URL = "https://www.google.com/maps/search/?api=1";
 function createGoogleMapsUrl({ name, latitude, longitude }: {
   name: string | undefined | null;
-  latitude: Prisma.Decimal;
-  longitude: Prisma.Decimal;
+  latitude: number;
+  longitude: number;
 }): string {
   if (name) {
     const encodedName = encodeURIComponent(name);
