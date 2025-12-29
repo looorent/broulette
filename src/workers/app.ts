@@ -24,7 +24,7 @@ export default {
   async fetch(request, env, ctx) {
     const sessionStorage = createAppSessionStorage(
       env.BROULETTE_SESSION_SECRET,
-      env.BROULETTE_ENVIRONMENT === "production"
+      env.BROULETTE_SESSION_SECURE?.toLowerCase() === "true"
     );
 
     return requestHandler(request, {

@@ -5,7 +5,7 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
+    "start": "dotenv -e .dev.vars -- react-router-serve ./build/server/index.js",
     "typecheck": "npm run cf-typegen && react-router typegen && tsc -b",
     "cf-typegen": "wrangler types",
     "deploy": "npm run build && wrangler deploy",

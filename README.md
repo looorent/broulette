@@ -13,6 +13,24 @@ A secret key must be defined in `BROULETTE_SESSION_SECRET`
 $ openssl rand -hex 32
 ```
 
+## Mandatory environment
+
+```
+BROULETTE_NOMINATIM_ENABLED=true
+BROULETTE_PHOTON_ENABLED=true
+BROULETTE_OVERPASS_ENABLED=true
+BROULETTE_GOOGLE_PLACE_ENABLED=true
+BROULETTE_TRIPADVISOR_ENABLED=true
+```
+
+
+## Secrets
+
+* BROULETTE_DATABASE_URL
+* BROULETTE_GOOGLE_PLACE_API_KEY
+* BROULETTE_TRIPADVISOR_API_KEY
+* BROULETTE_SESSION_SECRET
+
 ## TODO
 
 * !!!! Session storage does not work with `npm run start` (cloudfare)

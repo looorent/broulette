@@ -35,10 +35,11 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const { token, headers } = await createCSRFToken(request.headers, context.sessionStorage);
+  const locale = await getLocale(request);
   return data(
     {
       csrfToken: token,
-      locale: await getLocale(request)
+      locale: locale
     },
     { headers: headers || undefined }
   );
