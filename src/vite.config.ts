@@ -16,6 +16,8 @@ export const baseConfigurationAlias = {
 };
 
 export default defineConfig({
+  logLevel: "info",
+  clearScreen: false,
   plugins: [
     cloudflare({ viteEnvironment: { name: "ssr" } }),
     tailwindcss(),

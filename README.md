@@ -23,13 +23,14 @@ BROULETTE_GOOGLE_PLACE_ENABLED=true
 BROULETTE_TRIPADVISOR_ENABLED=true
 ```
 
-
 ## Secrets
 
-* BROULETTE_DATABASE_URL
-* BROULETTE_GOOGLE_PLACE_API_KEY
-* BROULETTE_TRIPADVISOR_API_KEY
-* BROULETTE_SESSION_SECRET
+* npx wrangler secret put BROULETTE_DATABASE_URL
+* npx wrangler secret put BROULETTE_GOOGLE_PLACE_API_KEY
+* npx wrangler secret put BROULETTE_TRIPADVISOR_API_KEY
+* npx wrangler secret put BROULETTE_SESSION_SECRET
+
+Use `npx wrangler secret put <KEY>` to create each secret.
 
 ## TODO
 

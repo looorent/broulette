@@ -8,7 +8,6 @@ import { PhoneLink } from "@components/candidate/phone-link";
 import { ErrorUnknown } from "@components/error/error-unknown";
 import { NoResults } from "@components/error/no-result";
 import { triggerHaptics } from "@features/browser.client";
-import { getPrisma } from "@features/db.server";
 import { getLocale } from "@features/utils/locale.server";
 import { findCandidateViewModel } from "@features/view.server";
 
@@ -16,8 +15,7 @@ import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const { searchId, candidateId } = params;
-  const prisma = await getPrisma(context.cloudflare.env);
-  const view = await findCandidateViewModel(searchId, candidateId, new Date(), await getLocale(request), prisma);
+  const view = await findCandidateViewModel(searchId, candidateId, new Date(), await getLocale(request), context.db);
   if (view) {
     if (view.redirectRequired) {
       return redirect(

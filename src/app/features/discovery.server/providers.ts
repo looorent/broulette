@@ -17,10 +17,10 @@ export function loadBalancer(
   overpass: OverpassConfiguration | undefined
 ) {
   if (!LOAD_BALANCER) {
-    console.log("[Discovery] Initializing new LoadBalancer instance");
     LOAD_BALANCER = new LoadBalancer([
       ...registerOverpass(overpass)
     ]);
+    console.info(`[Discovery] Load Balancer initialized with ${LOAD_BALANCER.numberOfProviders} active strategies.`);
   }
   return LOAD_BALANCER;
 }

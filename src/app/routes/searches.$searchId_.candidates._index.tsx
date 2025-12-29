@@ -1,7 +1,6 @@
 import { href, redirect } from "react-router";
 
 import { ErrorUnknown } from "@components/error/error-unknown";
-import { getPrisma } from "@features/db.server";
 import { searchCandidate } from "@features/search-engine.server";
 import { validateCSRF } from "@features/session.server";
 import { getLocale } from "@features/utils/locale.server";
@@ -15,14 +14,13 @@ export async function action({
 }: Route.ActionArgs) {
   const formData = await request.formData();
   await validateCSRF(formData, request.headers, context.sessionStorage);
-  const prisma = await getPrisma(context.cloudflare.env);
 
   if (context.config) {
     const data = parseAndValidate(formData, params, await getLocale(request));
     const candidate = await searchCandidate(
       data.searchId,
       data.locale,
-      prisma,
+      context.db,
       context.config.search,
       context.config.overpass,
       context.config.google,

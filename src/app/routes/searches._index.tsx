@@ -1,7 +1,6 @@
 import { data, href, redirect } from "react-router";
 
 import { ErrorUnknown } from "@components/error/error-unknown";
-import { getPrisma } from "@features/db.server";
 import { createServiceDatetime, createServiceEnd } from "@features/search";
 import { validateCSRF } from "@features/session.server";
 import { DistanceRange, ServiceTimeslot } from "@persistence/client";
@@ -18,8 +17,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
   await validateCSRF(formData, request.headers, context.sessionStorage);
   const data = parseAndValidate(formData);
-  const prisma = await getPrisma(context.cloudflare.env);
-  const createdSearch = await prisma.search.create({
+  const createdSearch = await context.db.search.create({
     data: {
       latitude: data.latitude,
       longitude: data.longitude,

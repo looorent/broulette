@@ -28,7 +28,7 @@ function createPrismaClient(databaseUrl: string) {
             latestCandidateId: string | undefined;
           } | undefined> {
             if (searchId) {
-              console.log(`[Prisma] findWithLatestCandidateId: Querying searchId="${searchId}", status=${candidateStatus || "ALL"}`);
+              console.trace(`[Prisma] findWithLatestCandidateId: Querying searchId="${searchId}", status=${candidateStatus || "ALL"}`);
               const search = await prisma.search.findUnique({
                 select: {
                   id: true,
@@ -52,7 +52,7 @@ function createPrismaClient(databaseUrl: string) {
 
               if (search) {
                 const latestId = search.candidates?.[0]?.id;
-                console.log(`[Prisma] findWithLatestCandidateId: Found search. Latest candidate: ${latestId ? latestId : "None"}`);
+                console.trace(`[Prisma] findWithLatestCandidateId: Found search. Latest candidate: ${latestId ? latestId : "None"}`);
                 return {
                   searchId: search.id,
                   exhausted: search.exhausted,
@@ -63,7 +63,7 @@ function createPrismaClient(databaseUrl: string) {
                   order: search.candidates?.[0]?.order || 0
                 };
               } else {
-                console.log(`[Prisma] findWithLatestCandidateId: Search "${searchId}" not found`);
+                console.trace(`[Prisma] findWithLatestCandidateId: Search "${searchId}" not found`);
                 return undefined;
               }
             } else {
@@ -72,7 +72,7 @@ function createPrismaClient(databaseUrl: string) {
           },
 
           async findUniqueWithRestaurantAndProfiles(searchId: string) {
-            console.log(`[Prisma] findUniqueWithRestaurantAndProfiles: Querying searchId="${searchId}"`);
+            console.trace(`[Prisma] findUniqueWithRestaurantAndProfiles: Querying searchId="${searchId}"`);
             return await prisma.search.findUnique({
               where: { id: searchId },
               include: {
@@ -85,7 +85,7 @@ function createPrismaClient(databaseUrl: string) {
         },
         restaurantMatchingAttempt: {
           async existsSince(instant: Date, restaurantId: string, source: string) {
-            console.log(`[Prisma] existsSince: Checking attempts for restaurant="${restaurantId}" from source="${source}" since ${instant.toISOString()}`);
+            console.trace(`[Prisma] existsSince: Checking attempts for restaurant="${restaurantId}" from source="${source}" since ${instant.toISOString()}`);
             const recentAttempt = await prisma.restaurantMatchingAttempt.findFirst({
               where: {
                 restaurantId: restaurantId,
@@ -100,7 +100,7 @@ function createPrismaClient(databaseUrl: string) {
             });
 
             const exists = !!recentAttempt;
-            console.log(`[Prisma] existsSince: Result = ${exists}`);
+            console.trace(`[Prisma] existsSince: Result = ${exists}`);
             return exists;
           }
         }
