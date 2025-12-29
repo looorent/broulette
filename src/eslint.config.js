@@ -1,6 +1,5 @@
 import js from "@eslint/js";
 import eslintParserTypeScript from "@typescript-eslint/parser";
-import { defineConfig } from "eslint/config";
 import prettierConfig from "eslint-config-prettier";
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 import importPlugin from "eslint-plugin-import";
@@ -10,11 +9,21 @@ import react from "eslint-plugin-react";
 import reactCompiler from "eslint-plugin-react-compiler";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
+import { defineConfig } from "eslint/config";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig(
-  { ignores: ["dist", ".react-router", "build", "public", "worker-configuration.d.ts"] },
+  {
+    ignores: [
+      "dist",
+      ".react-router",
+      "build",
+      "public",
+      "worker-configuration.d.ts",
+      "app/features/generated/prisma.server/internal/query_compiler_bg.js"
+    ]
+  },
   {
     files: ["**/*.{ts,tsx,cts,mts}"],
     extends: [
