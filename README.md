@@ -34,7 +34,10 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 
 ## TODO
 
-* Use KV? https://community.cloudflare.com/t/session-management/46770/4
+* The "candidate page" is almost too long on my pixel 9a. (ex: Le Brazier)
+* Haptics do not work on Android?
+* Make it a PWA
+* Use KV for circuit breaker? https://community.cloudflare.com/t/session-management/46770/4
 * "back" does not work properly, the "candidate" page seems to be skipped
 * Add a tag "unknown opening hours"
 * Add indexes based on the actual calls

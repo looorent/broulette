@@ -4,11 +4,21 @@
   "main": "./workers/app.ts",
   "compatibility_date": "2025-04-04",
   "compatibility_flags": [
-    "nodejs_compat"
+    "nodejs_compat" // TODO not sure this is still necessary
   ],
   "observability": {
     "enabled": true
   },
+  "routes": [
+    {
+      "pattern": "www.biteroulette.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "biteroulette.com",
+      "custom_domain": true
+    }
+  ],
   "vars": {
     "BROULETTE_SESSION_SECURE": "true",
     // -------------------------------------------------------------------------
