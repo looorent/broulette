@@ -31,6 +31,8 @@ export async function fetchLocationFromPhoton(
   configuration: PhotonConfiguration = DEFAULT_PHOTON_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<LocationSuggestions> {
+  console.log(`[Photon] fetchLocationFromPhoton: Processing query="${query}" via ${instanceUrl}`);
+
   const rawData = await photonCircuitBreaker(instanceUrl, configuration.failover).execute(async ({ signal: combinedSignal }) => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason
@@ -41,6 +43,8 @@ export async function fetchLocationFromPhoton(
   const locations = rawData
     .filter(item => item?.geometry?.coordinates?.length === 2)
     .map(convertPhotonToLocation);
+
+  console.log(`[Photon] fetchLocationFromPhoton: Returned ${locations.length} locations for "${query}"`);
 
   return {
     locations: locations,
@@ -54,7 +58,7 @@ async function fetchPhotonAddresses(
   maxNumberOfAddresses: number,
   signal: AbortSignal | undefined
 ): Promise<PhotonFeature[]> {
-  console.info(`[Photon] Finding addresses for query='${query}'...`);
+  console.log(`[Photon] fetchPhotonAddresses: Querying API with q='${query}'...`);
   const start = Date.now();
   const params = new URLSearchParams({
     q: query,
@@ -70,8 +74,9 @@ async function fetchPhotonAddresses(
 
   const durationInMs = Date.now() - start;
   if (response.ok) {
-    console.info(`[Photon] Finding addresses for query='${query}'. Done in ${durationInMs}ms.`);
     const data: PhotonResponse = await response.json();
+    const count = data.features?.length || 0;
+    console.log(`[Photon] fetchPhotonAddresses: Success in ${durationInMs}ms. Found ${count} features.`);
     return data.features || [];
   } else {
     throw await parseError(url, response, durationInMs);
@@ -104,6 +109,8 @@ function convertPhotonToLocation(feature: PhotonFeature): LocationPreference {
 
 async function parseError(url: string, response: Response, durationInMs: number): Promise<PhotonError> {
   const body = await response.text();
+  console.error(`[Photon] Request failed after ${durationInMs}ms. Status: ${response.status}. URL: ${url}`);
+
   if (response.status >= 500) {
     return new PhotonServerError(
       url,

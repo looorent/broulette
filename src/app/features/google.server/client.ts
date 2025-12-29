@@ -39,6 +39,8 @@ export async function findGoogleRestaurantById(
   configuration: GooglePlaceConfiguration = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
+  console.log(`[Google Place] findGoogleRestaurantById: Processing request for placeId="${placeId}"`);
+
   const place = await googleCircuitBreaker(configuration.failover).execute(async ({ signal: combinedSignal }) => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
@@ -47,8 +49,10 @@ export async function findGoogleRestaurantById(
   }, signal);
 
   if (place) {
+    console.log(`[Google Place] findGoogleRestaurantById: Place found. Converting and fetching photos.`);
     return addPhotoUriOn(convertGooglePlaceToRestaurant(place), configuration, signal);
   } else {
+    console.log(`[Google Place] findGoogleRestaurantById: No place found for id="${placeId}"`);
     return undefined;
   }
 }
@@ -58,7 +62,7 @@ async function findPlaceById(
   configuration: GooglePlaceConfiguration = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
   signal?: AbortSignal
 ): Promise<GooglePlace> {
-  console.info(`[Google Place] Finding the place with id='${placeId}'...`);
+  console.log(`[Google Place] findPlaceById: Fetching details for id='${placeId}'...`);
   const start = Date.now();
 
   try {
@@ -77,10 +81,12 @@ async function findPlaceById(
     }
 
     const data = await response.json();
-    console.info(`[Google Place] Finding the place with id='${placeId}'. Done in ${Date.now() - start}ms`);
+    console.log(`[Google Place] findPlaceById: Success. Duration: ${Date.now() - start}ms`);
     return data as GooglePlace;
   } catch (e: any) {
-    throw parseError(e, `placeId='${placeId}'`, Date.now() - start);
+    const duration = Date.now() - start;
+    console.error(`[Google Place] findPlaceById: Failed after ${duration}ms. Error:`, e);
+    throw parseError(e, `placeId='${placeId}'`, duration);
   }
 }
 
@@ -91,6 +97,8 @@ export async function searchGoogleRestaurantByText(
   configuration: GooglePlaceConfiguration = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
+  console.log(`[Google Place] searchGoogleRestaurantByText: Searching for "${searchableText}" near [${latitude}, ${longitude}]`);
+
   const comparable = { displayName: searchableText, latitude: latitude, longitude: longitude };
 
   const places = await findPlacesByText(
@@ -103,13 +111,21 @@ export async function searchGoogleRestaurantByText(
     signal
   );
 
-  return places
+  const bestMatch = places
     .map(convertGooglePlaceToRestaurant)
     ?.filter(Boolean)
     ?.map((restaurant) => ({ restaurant: restaurant!, match: compareSimilarity(comparable, restaurant!, configuration.similarity) }))
     ?.sort((a, b) => b.match.totalScore - a.match.totalScore)
     ?.map(match => addPhotoUriOn(match.restaurant, configuration, signal))
     ?.[0];
+
+  if (bestMatch) {
+    console.log(`[Google Place] searchGoogleRestaurantByText: Match found for "${searchableText}"`);
+  } else {
+    console.log(`[Google Place] searchGoogleRestaurantByText: No suitable match found for "${searchableText}"`);
+  }
+
+  return bestMatch;
 }
 
 async function findPlacesByText(
@@ -121,7 +137,7 @@ async function findPlacesByText(
   configuration: GooglePlaceConfiguration,
   signal?: AbortSignal
 ): Promise<GooglePlace[]> {
-  console.log(`[Google Place] Finding the place near '${latitude},${longitude}' with text = '${searchableText}'...`);
+  console.log(`[Google Place] findPlacesByText: Querying API for "${searchableText}" near [${latitude},${longitude}]...`);
   const start = Date.now();
 
   const viewport = computeViewportFromCircle({ latitude: latitude, longitude: longitude }, configuration.search.radiusInMeters);
@@ -161,10 +177,12 @@ async function findPlacesByText(
     }
 
     const data = await response.json() as any;
-    console.log(`[Google Place] Finding the place near '${latitude},${longitude}' with text = '${searchableText}'. Done in ${Date.now() - start}ms`);
+    console.log(`[Google Place] findPlacesByText: Success. Found ${(data.places || []).length} places. Duration: ${Date.now() - start}ms`);
     return (data.places || []) as GooglePlace[];
   } catch (e: any) {
-    throw parseError(e, `near '${latitude},${longitude}' with text = '${searchableText}'`, Date.now() - start);
+    const duration = Date.now() - start;
+    console.error(`[Google Place] findPlacesByText: Failed after ${duration}ms. Error:`, e);
+    throw parseError(e, `near '${latitude},${longitude}' with text = '${searchableText}'`, duration);
   }
 }
 
@@ -176,7 +194,7 @@ async function findGoogleImageUrl(
   baseUrl: string,
   signal?: AbortSignal
 ): Promise<string | null | undefined> {
-  console.info(`[Google Place] Finding photo for id='${photoId}'...`);
+  console.log(`[Google Place] findGoogleImageUrl: Fetching photo URI for photoId='${photoId}'...`);
   const start = Date.now();
 
   const resourceName = photoId?.endsWith("/media") ? photoId : `${photoId}/media`;
@@ -188,10 +206,12 @@ async function findGoogleImageUrl(
     }
 
     const data = await response.json() as any;
-    console.info(`[Google Place] Finding photo for id='${photoId}'. Done in ${Date.now() - start}ms.`);
+    console.log(`[Google Place] findGoogleImageUrl: Success. Duration: ${Date.now() - start}ms.`);
     return data?.photoUri;
   } catch (e: any) {
-    throw parseError(e, `photoId='${photoId}'`, Date.now() - start);
+    const duration = Date.now() - start;
+    console.error(`[Google Place] findGoogleImageUrl: Failed after ${duration}ms. Error:`, e);
+    throw parseError(e, `photoId='${photoId}'`, duration);
   }
 }
 

@@ -10,12 +10,14 @@ let LOAD_BALANCER: LoadBalancer<[
   number,
   number,
   DiscoveryRestaurantIdentity[],
-  AbortSignal ?
+  AbortSignal?
 ], DiscoveredRestaurantProfile[]> | null = null;
+
 export function loadBalancer(
   overpass: OverpassConfiguration | undefined
 ) {
   if (!LOAD_BALANCER) {
+    console.log("[Discovery] Initializing new LoadBalancer instance");
     LOAD_BALANCER = new LoadBalancer([
       ...registerOverpass(overpass)
     ]);
@@ -25,6 +27,7 @@ export function loadBalancer(
 
 function registerOverpass(configuration: OverpassConfiguration | undefined) {
   if (configuration?.enabled) {
+    console.log(`[Discovery] Registering Overpass with ${configuration.instanceUrls.length} instances`);
     return configuration.instanceUrls
       .map(instanceUrl => ({
         name: `overpass:${instanceUrl}`,
@@ -33,11 +36,19 @@ function registerOverpass(configuration: OverpassConfiguration | undefined) {
             .filter(Boolean)
             .filter(id => id.source === OVERPASS_SOURCE_NAME)
             .map(id => ({ osmId: id.externalId, osmType: id.externalType }));
+
+          console.trace(`[Discovery] Executing ${instanceUrl} | Center: [${nearBy.latitude}, ${nearBy.longitude}] | Radius: ${distanceRangeInMeters}m | Excluded: ${idsToExclude.length}`);
+
           const response = await fetchAllRestaurantsNearbyWithRetry(nearBy.latitude, nearBy.longitude, distanceRangeInMeters, instanceUrl, timeoutInSeconds, idsToExclude, configuration.failover, signal);
-          return (response?.restaurants || []).map(fromOverpass).filter(Boolean);
+
+          const results = (response?.restaurants || []).map(fromOverpass).filter(Boolean);
+          console.trace(`[Discovery] Finished ${instanceUrl} | Found: ${results.length} restaurants`);
+
+          return results;
         }
       }));
   } else {
+    console.log("[Discovery] Overpass service is disabled");
     return [];
   }
 }

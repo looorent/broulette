@@ -14,6 +14,8 @@ export async function fetchAllRestaurantsNearbyWithRetry(
   failoverConfiguration: FailoverConfiguration,
   signal?: AbortSignal | undefined
 ): Promise<OverpassResponse | undefined> {
+  console.log(`[OSM] fetchAllRestaurantsNearbyWithRetry: Requesting restaurants near [${latitude}, ${longitude}] (radius: ${distanceRangeInMeters}m)`);
+
   return await overpassCircuitBreaker(instanceUrl, failoverConfiguration).execute(async ({ signal: combinedSignal }) => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
@@ -31,7 +33,7 @@ async function fetchAllRestaurantsNearby(
   timeoutInSeconds: number,
   signal: AbortSignal
 ): Promise<OverpassResponse | undefined> {
-  console.info(`[OSM] Fetching all OSM restaurants nearby '${latitude},${longitude}'...`);
+  console.log(`[OSM] fetchAllRestaurantsNearby: Building query with ${idsToExclude.length} exclusions...`);
   const query = createQueryToListAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, timeoutInSeconds);
   const start = Date.now();
 
@@ -47,10 +49,12 @@ async function fetchAllRestaurantsNearby(
   const durationInMs = Date.now() - start;
 
   if (response.ok) {
-    console.info(`[OSM] Fetching all OSM restaurants nearby '${latitude},${longitude}': done in ${durationInMs} ms.`);
+    console.log(`[OSM] fetchAllRestaurantsNearby: Query successful. Duration: ${durationInMs}ms.`);
     const body = await response.json();
     if (body) {
-      return parseResponse(body, durationInMs);
+      const parsed = parseResponse(body, durationInMs);
+      console.log(`[OSM] fetchAllRestaurantsNearby: Parsed ${parsed?.restaurants.length || 0} restaurants.`);
+      return parsed;
     } else {
       throw new OsmEmptyResponseError(
         query,
@@ -212,6 +216,8 @@ function buildOpenStreetMapUrl(id: string, type: string): string {
 
 async function parseError(query: string, response: Response, durationInMs: number): Promise<OsmError> {
   const body = await response.text();
+  console.error(`[OSM] Request failed after ${durationInMs}ms. Status: ${response.status}.`);
+
   if (response.status >= 500) {
     return new OsmServerError(
       query,

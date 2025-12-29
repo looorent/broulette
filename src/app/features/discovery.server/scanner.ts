@@ -23,15 +23,21 @@ export class RestaurantDiscoveryScanner {
 
   async nextRestaurants(signal: AbortSignal | undefined): Promise<DiscoveredRestaurantProfile[]> {
     if (this.isOver) {
-      console.log("The discovery scanner has reached its limits. It is not going to ");
+      console.trace("[Discovery] Max iterations reached. Stopping scan.");
       return [];
     } else {
       this.iteration += 1;
       const range = this.initialRangeInMeters + this.iteration * this.configuration.rangeIncreaseMeters;
-      console.log(`Scanning range (iteration ${this.iteration}): ${range}m...`);
-      const result = await this.discoverNearbyRestaurants(range, signal);
-      console.log(`Scanning range (iteration ${this.iteration}): ${range}m. Done.`);
-      return result;
+      console.trace(`[Discovery] Iteration ${this.iteration}/${this.configuration.maxDiscoveryIterations}: Scanning range ${range}m...`);
+
+      try {
+        const result = await this.discoverNearbyRestaurants(range, signal);
+        console.trace(`[Discovery] Iteration ${this.iteration}: Found ${result.length} candidates.`);
+        return result;
+      } catch (error) {
+        console.error(`[Discovery] Iteration ${this.iteration}: Scan failed.`, error);
+        throw error;
+      }
     }
   }
 
@@ -54,6 +60,6 @@ export class RestaurantDiscoveryScanner {
   }
 
   private discoverNearbyRestaurants(rangeInMeters: number, signal: AbortSignal | undefined): Promise<DiscoveredRestaurantProfile[]> {
-    return loadBalancer(this.overpass).execute(this.nearBy, rangeInMeters, this.timeoutInMs, this.identitiesToExclude, signal);
+    return loadBalancer(this.overpass).execute(this.nearBy, rangeInMeters, this.timeoutInSeconds, this.identitiesToExclude, signal);
   }
 }

@@ -21,15 +21,23 @@ export async function searchCandidate(
   tripAdvisor: TripAdvisorConfiguration | undefined = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal
 ): Promise<SearchCandidate> {
+  console.log(`[SearchEngine] searchCandidate: Starting search for searchId="${searchId}"`);
+
   const search = await findSearchOrThrow(searchId, prisma);
 
   if (search.exhausted) {
+    console.log(`[SearchEngine] Search "${searchId}" is already exhausted. Returning fallback candidate.`);
     return await findLatestCandidateOf(search.id, prisma) || await createDefaultCandidateWithoutRestaurant(search.id, prisma);
   } else {
     const scanner = createDiscoveryScanner(search, configuration, overpass);
     const startingOrder = computeNextCandidateOrder(search.candidates);
+
+    console.log(`[SearchEngine] Initializing discovery for searchId="${searchId}". Starting order: ${startingOrder}`);
+
     const finalCandidate = await findNextValidCandidate(search, scanner, configuration, startingOrder, locale, prisma, google, tripAdvisor, signal);
+
     await markSearchAsExhaustedIfNecessary(search.id, finalCandidate, prisma);
+
     return finalCandidate;
   }
 }
@@ -52,18 +60,29 @@ async function findNextValidCandidate(
     const restaurants = await scanner.nextRestaurants(signal);
     const randomized = await randomize(restaurants);
 
+    if (randomized.length > 0) {
+      console.log(`[SearchEngine] Processing batch of ${randomized.length} discovered restaurants...`);
+    }
+
     for (const restaurant of randomized) {
       if (shouldContinueSearching(candidate, scanner)) {
         const processed = await processRestaurant(restaurant, search, orderTracker++, config, prisma, google, tripAdvisor, locale, scanner);
         if (processed) {
           candidate = processed;
+          console.log(`[SearchEngine] Candidate found: ${candidate.id} (Status: ${candidate.status})`);
         }
       } else {
         break;
       }
     }
   }
-  return candidate || createDefaultCandidateWithoutRestaurant(search.id, prisma);
+
+  if (!candidate) {
+    console.log(`[SearchEngine] No valid candidate found after scanning.`);
+    return createDefaultCandidateWithoutRestaurant(search.id, prisma);
+  }
+
+  return candidate;
 }
 
 async function processRestaurant(
@@ -77,8 +96,15 @@ async function processRestaurant(
   locale: string,
   scanner: RestaurantDiscoveryScanner
 ): Promise<SearchCandidate | undefined> {
+  // console.log(`[SearchEngine] Enriching and validating restaurant...`);
   const restaurant = await enrichRestaurant(discovered, locale, prisma, configuration.matching, google, tripAdvisor);
+
   const validation = await validateRestaurant(restaurant, search, locale);
+
+  if (!validation.valid) {
+    console.log(`[SearchEngine] Restaurant rejected. Reason: ${validation.rejectionReason}`);
+  }
+
   const newCandidate = await prisma.searchCandidate.create({
     data: {
       searchId: search.id,
@@ -111,6 +137,7 @@ async function markSearchAsExhaustedIfNecessary(
   prisma: ExtendedPrismaClient
 ) {
   if (!finalCandidateFound || finalCandidateFound.status === SearchCandidateStatus.Rejected) {
+    console.log(`[SearchEngine] Marking search "${searchId}" as EXHAUSTED.`);
     await prisma.search.update({
       data: { exhausted: true },
       where: { id: searchId }
@@ -158,6 +185,7 @@ function createDiscoveryScanner(
 async function findSearchOrThrow(searchId: string, prisma: ExtendedPrismaClient) {
   const search = await prisma.search.findUniqueWithRestaurantAndProfiles(searchId);
   if (!search) {
+    console.error(`[SearchEngine] Error: Search ID "${searchId}" not found.`);
     throw new SearchNotFoundError(searchId);
   }
   return search;
@@ -170,6 +198,7 @@ async function findLatestCandidateOf(searchId: string | undefined, prisma: Exten
 }
 
 async function createDefaultCandidateWithoutRestaurant(searchId: string, prisma: ExtendedPrismaClient): Promise<SearchCandidate> {
+  console.log(`[SearchEngine] Creating default 'No Restaurant Found' candidate.`);
   const order = (await prisma.search.findWithLatestCandidateId(searchId))?.order || 0;
   return await prisma.searchCandidate.create({
     data: {

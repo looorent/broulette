@@ -5,6 +5,8 @@ import { handleRetrieableErrors } from "./filter";
 import { DEFAULT_FAILOVER, type FailoverConfiguration } from "./types";
 
 export function initializeCircuitBreaker(configuration: FailoverConfiguration = DEFAULT_FAILOVER): IMergedPolicy<IDefaultPolicyContext & IRetryContext & ICancellationContext, never, [CircuitBreakerPolicy, RetryPolicy, TimeoutPolicy]> {
+  console.log(`[CircuitBreaker] Initializing policies with config: retries=${configuration.retry}, timeout=${configuration.timeoutInMs}ms, halfOpenAfter=${configuration.halfOpenAfterInMs}ms`);
+
   const retryPolicy = retry(handleRetrieableErrors, {
     maxAttempts: configuration.retry,
     backoff: new ExponentialBackoff()
@@ -17,6 +19,6 @@ export function initializeCircuitBreaker(configuration: FailoverConfiguration = 
     configuration.timeoutInMs,
     TimeoutStrategy.Cooperative
   );
+
   return wrap(retryPolicy, timeoutPolicy, circuitBreakerPolicy);
 }
-

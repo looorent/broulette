@@ -1,2 +1,1 @@
 export { searchLocations } from "./providers";
-

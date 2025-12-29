@@ -39,7 +39,7 @@ export async function createCSRFToken(headers: Headers, sessionStorage: SessionS
     };
   } else {
     const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
+    // crypto.getRandomValues(array);
     const token = [...array].map(b => b.toString(16).padStart(2, "0")).join("");
     session.set(CSRF_KEY, token);
     return {

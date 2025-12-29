@@ -20,6 +20,8 @@ export async function fetchLocationFromNominatim(
   configuration: NominatimConfiguration = DEFAULT_NOMINATIM_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<LocationSuggestions> {
+  console.log(`[Nominatim] fetchLocationFromNominatim: Processing query="${query}" via ${instanceUrl}`);
+
   const rawData = await nomatimCircuitBreaker(instanceUrl, configuration.failover).execute(async ({ signal: combinedSignal }) => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason
@@ -30,6 +32,8 @@ export async function fetchLocationFromNominatim(
   const locations = rawData
     .filter((item) => item && item.lat && item.lon)
     .map(convertNominatimToLocation);
+
+  console.log(`[Nominatim] fetchLocationFromNominatim: Returned ${locations.length} locations for "${query}"`);
 
   return {
     locations: locations,
@@ -55,7 +59,7 @@ async function fetchNominatimAddresses(
   userAgent: string,
   signal: AbortSignal | undefined
 ): Promise<NominatimPlace[]> {
-  console.info(`[Photon] Finding addresses for query='${query}'...`);
+  console.log(`[Nominatim] fetchNominatimAddresses: Querying API with q='${query}'...`);
   const start = Date.now();
   const params = new URLSearchParams({
     q: query,
@@ -81,9 +85,13 @@ async function fetchNominatimAddresses(
 
   const durationInMs = Date.now() - start;
   if (response.ok) {
-    console.info(`[Nominatim] Finding addresses for query='${query}'. Done in ${durationInMs}ms.`);
     const body = (await response.json()) as NominatimPlace[];
-    return body.filter(address => APPROXIMATE_LOCATION_CLASSES.has(address.class) && !EXCLUDED_TYPES.has(address.type));
+
+    const filtered = body.filter(address => APPROXIMATE_LOCATION_CLASSES.has(address.class) && !EXCLUDED_TYPES.has(address.type));
+
+    console.log(`[Nominatim] fetchNominatimAddresses: Success in ${durationInMs}ms. Raw results: ${body.length}. Filtered results: ${filtered.length}.`);
+
+    return filtered;
   } else {
     throw await parseError(url, response, durationInMs);
   }
@@ -105,6 +113,8 @@ function convertNominatimToLocation(place: NominatimPlace): LocationPreference {
 
 async function parseError(url: string, response: Response, durationInMs: number): Promise<NominatimError> {
   const body = await response.text();
+  console.error(`[Nominatim] Request failed after ${durationInMs}ms. Status: ${response.status}. URL: ${url}`);
+
   if (response.status >= 500) {
     return new NominatimServerError(
       url,

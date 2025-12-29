@@ -16,9 +16,8 @@ function buildPreference(
 
   const hasValidLocation = hasCoordinates(location);
   const isValid = service && range && hasValidLocation;
-
   return {
-    id: crypto.randomUUID(),
+    id: `svc_${service?.id ?? 'null'}_loc_${JSON.stringify(location)}_rng_${range?.id ?? 'null'}_atmpt_${isDeviceLocationAttempted}`,
     service: service,
     location: location,
     isDeviceLocationAttempted: isDeviceLocationAttempted,

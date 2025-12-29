@@ -40,4 +40,8 @@ export class LoadBalancer<TArgs extends any[], TResult> {
 
     throw new Error("All providers failed.");
   }
+
+  get numberOfProviders(): number {
+    return this.providers.length;
+  }
 }
