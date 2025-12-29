@@ -10,8 +10,6 @@ import {
 } from "react-router";
 
 import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components/search-loader";
-import { createCSRFToken } from "@features/session.server";
-import { getLocale } from "@features/utils/locale.server";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -33,19 +31,16 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   }
 };
 
-export async function loader({ request, context }: Route.LoaderArgs) {
-  const { token, headers } = await createCSRFToken(request.headers, context.sessionStorage);
-  const locale = await getLocale(request);
-  return data(
-    {
-      csrfToken: token,
-      locale: locale
-    },
-    { headers: headers || undefined }
-  );
+export async function loader({ context }: Route.LoaderArgs) {
+  return data({
+    locale: context.locale,
+    csrfToken: context.csrf.token
+  }, {
+    headers: context.csrf.headers
+  });
 }
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout({ children, }: { children: React.ReactNode }) {
   const { locale } = useLoaderData<typeof loader>();
 
   return (

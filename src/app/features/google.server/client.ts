@@ -116,16 +116,15 @@ export async function searchGoogleRestaurantByText(
     ?.filter(Boolean)
     ?.map((restaurant) => ({ restaurant: restaurant!, match: compareSimilarity(comparable, restaurant!, configuration.similarity) }))
     ?.sort((a, b) => b.match.totalScore - a.match.totalScore)
-    ?.map(match => addPhotoUriOn(match.restaurant, configuration, signal))
     ?.[0];
 
   if (bestMatch) {
     console.log(`[Google Place] searchGoogleRestaurantByText: Match found for "${searchableText}"`);
+    return await addPhotoUriOn(bestMatch.restaurant, configuration, signal);
   } else {
     console.log(`[Google Place] searchGoogleRestaurantByText: No suitable match found for "${searchableText}"`);
+    return bestMatch;
   }
-
-  return bestMatch;
 }
 
 async function findPlacesByText(

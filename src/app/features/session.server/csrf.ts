@@ -29,17 +29,20 @@ export async function validateCSRF(
   }
 }
 
-export async function createCSRFToken(headers: Headers, sessionStorage: SessionStorage<SessionData, SessionFlashData>) {
+export async function createCSRFToken(headers: Headers, sessionStorage: SessionStorage<SessionData, SessionFlashData>): Promise<{
+  token: string;
+  headers: HeadersInit | undefined;
+}> {
   const session = await sessionStorage.getSession(headers.get("Cookie"));
 
   if (session.has(CSRF_KEY)) {
     return {
       token: session.get(CSRF_KEY) as string,
-      headers: null
+      headers: undefined
     };
   } else {
     const array = new Uint8Array(32);
-    // crypto.getRandomValues(array);
+    crypto.getRandomValues(array);
     const token = [...array].map(b => b.toString(16).padStart(2, "0")).join("");
     session.set(CSRF_KEY, token);
     return {
