@@ -7,7 +7,7 @@
     "dev": "react-router dev",
     "start": "dotenv -e .dev.vars -- react-router-serve ./build/server/index.js",
     "typecheck": "npm run cf-typegen && react-router typegen && tsc -b",
-    "cf:typegen": "wrangler types",
+    "cf-typegen": "wrangler types",
     "cf:dev": "wrangler dev",
     "deploy": "npm run build && wrangler deploy",
     "postinstall": "npm run cf-typegen",
