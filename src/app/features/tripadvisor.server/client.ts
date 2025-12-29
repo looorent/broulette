@@ -14,7 +14,7 @@ export async function findTripAdvisorLocationByIdWithRetry(
 ): Promise<TripAdvisorLocation | undefined> {
   console.log(`[TripAdvisor] findTripAdvisorLocationByIdWithRetry: Processing request for locationId="${locationId}"`);
 
-  const location = await tripAdvisorCircuitBreaker(configuration.failover).execute(async ({ signal: combinedSignal }) => {
+  const location = await (await tripAdvisorCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
@@ -35,7 +35,7 @@ export async function searchTripAdvisorLocationNearbyWithRetry(
 ): Promise<TripAdvisorLocation | undefined> {
   console.log(`[TripAdvisor] searchTripAdvisorLocationNearbyWithRetry: Searching for "${name}" near [${latitude}, ${longitude}]`);
 
-  return await tripAdvisorCircuitBreaker(configuration.failover).execute(async ({ signal: combinedSignal }) => {
+  return await (await tripAdvisorCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
@@ -51,7 +51,7 @@ export async function findBestTripAdvisorLocationPictureWithRetry(
 ): Promise<TripAdvisorPhoto | undefined> {
   console.log(`[TripAdvisor] findBestTripAdvisorLocationPictureWithRetry: Fetching photo for locationId="${locationId}"`);
 
-  return await tripAdvisorCircuitBreaker(configuration.failover).execute(async ({ signal: combinedSignal }) => {
+  return await (await tripAdvisorCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }

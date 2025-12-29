@@ -1,12 +1,10 @@
-import { type IPolicy } from "cockatiel";
+import { initializeCircuitBreaker, type CircuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
 
-import { initializeCircuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
+const circuitBreakerSingletonPerInstanceUrl: { [instanceUrl: string]: CircuitBreaker } = {};
 
-const circuitBreakerSingletonPerInstanceUrl: { [instanceUrl: string]: IPolicy } = {};
-
-export function nomatimCircuitBreaker(instanceUrl: string, failoverConfiguration: FailoverConfiguration): IPolicy {
+export async function nominatimCircuitBreaker(instanceUrl: string, failoverConfiguration: FailoverConfiguration): Promise<CircuitBreaker> {
   if (!circuitBreakerSingletonPerInstanceUrl[instanceUrl]) {
-    circuitBreakerSingletonPerInstanceUrl[instanceUrl] = initializeCircuitBreaker(failoverConfiguration);
+    circuitBreakerSingletonPerInstanceUrl[instanceUrl] = await initializeCircuitBreaker(`nominatim:${instanceUrl}`, failoverConfiguration);
   }
   return circuitBreakerSingletonPerInstanceUrl[instanceUrl];
 }

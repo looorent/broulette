@@ -41,7 +41,7 @@ export async function findGoogleRestaurantById(
 ): Promise<GoogleRestaurant | undefined> {
   console.log(`[Google Place] findGoogleRestaurantById: Processing request for placeId="${placeId}"`);
 
-  const place = await googleCircuitBreaker(configuration.failover).execute(async ({ signal: combinedSignal }) => {
+  const place = await (await googleCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
@@ -254,7 +254,7 @@ async function addPhotoUriOn(
 ): Promise<GoogleRestaurant | undefined> {
   const photoId = restaurant?.photoIds?.[0];
   if (photoId) {
-    const photoUrl = await googleCircuitBreaker(configuration.failover).execute(async ({ signal: combinedSignal }) => {
+    const photoUrl = await (await googleCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
       if (combinedSignal?.aborted) {
         throw combinedSignal.reason;
       }

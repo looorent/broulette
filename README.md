@@ -34,7 +34,7 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 
 ## TODO
 
-* !!!! Session storage does not work with `npm run start` (cloudfare)
+* !!!! Cockatiel seems to fail
 * Use KV? https://community.cloudflare.com/t/session-management/46770/4
 * "back" does not work properly, the "candidate" page seems to be skipped
 * Add a tag "unknown opening hours"

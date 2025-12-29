@@ -40,8 +40,9 @@ export async function loader({ context }: Route.LoaderArgs) {
   });
 }
 
-export function Layout({ children, }: { children: React.ReactNode }) {
-  const { locale } = useLoaderData<typeof loader>();
+export function Layout({ children }: { children: React.ReactNode }) {
+  const data = useLoaderData<typeof loader>();
+  const locale = data?.locale || "en";
 
   return (
     <html lang={locale} className={`

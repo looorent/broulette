@@ -1,6 +1,6 @@
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 
-import { nomatimCircuitBreaker } from "./circuit-breaker";
+import { nominatimCircuitBreaker } from "./circuit-breaker";
 import { NominatimError, NominatimHttpError, NominatimServerError } from "./error";
 import { DEFAULT_NOMINATIM_CONFIGURATION, type NominatimConfiguration } from "./types";
 
@@ -22,7 +22,7 @@ export async function fetchLocationFromNominatim(
 ): Promise<LocationSuggestions> {
   console.log(`[Nominatim] fetchLocationFromNominatim: Processing query="${query}" via ${instanceUrl}`);
 
-  const rawData = await nomatimCircuitBreaker(instanceUrl, configuration.failover).execute(async ({ signal: combinedSignal }) => {
+  const rawData = await (await nominatimCircuitBreaker(instanceUrl, configuration.failover)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason
     };

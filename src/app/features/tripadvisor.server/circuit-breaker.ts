@@ -1,12 +1,10 @@
-import { type IPolicy } from "cockatiel";
+import { initializeCircuitBreaker, type CircuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
 
-import { initializeCircuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
+let circuitBreakerSingleton: CircuitBreaker | null = null;
 
-let circuitBreakerSingleton: IPolicy | null = null;
-
-export function tripAdvisorCircuitBreaker(failoverConfiguration: FailoverConfiguration): IPolicy {
+export async function tripAdvisorCircuitBreaker(failoverConfiguration: FailoverConfiguration): Promise<CircuitBreaker> {
   if (!circuitBreakerSingleton) {
-    circuitBreakerSingleton = initializeCircuitBreaker(failoverConfiguration);
+    circuitBreakerSingleton = await initializeCircuitBreaker("tripadvisor", failoverConfiguration);
   }
   return circuitBreakerSingleton;
 }

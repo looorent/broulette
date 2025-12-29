@@ -33,7 +33,7 @@ export async function fetchLocationFromPhoton(
 ): Promise<LocationSuggestions> {
   console.log(`[Photon] fetchLocationFromPhoton: Processing query="${query}" via ${instanceUrl}`);
 
-  const rawData = await photonCircuitBreaker(instanceUrl, configuration.failover).execute(async ({ signal: combinedSignal }) => {
+  const rawData = await (await photonCircuitBreaker(instanceUrl, configuration.failover)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason
     };

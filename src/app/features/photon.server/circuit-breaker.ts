@@ -1,12 +1,11 @@
-import { type IPolicy } from "cockatiel";
 
-import { initializeCircuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
+import { initializeCircuitBreaker, type CircuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
 
-const circuitBreakerSingletonPerInstanceUrl: { [instanceUrl: string]: IPolicy } = {};
+const circuitBreakerSingletonPerInstanceUrl: { [instanceUrl: string]: CircuitBreaker } = {};
 
-export function photonCircuitBreaker(instanceUrl: string, failoverConfiguration: FailoverConfiguration): IPolicy {
+export async function photonCircuitBreaker(instanceUrl: string, failoverConfiguration: FailoverConfiguration): Promise<CircuitBreaker> {
   if (!circuitBreakerSingletonPerInstanceUrl[instanceUrl]) {
-    circuitBreakerSingletonPerInstanceUrl[instanceUrl] = initializeCircuitBreaker(failoverConfiguration);
+    circuitBreakerSingletonPerInstanceUrl[instanceUrl] = await initializeCircuitBreaker(`photon:${instanceUrl}`, failoverConfiguration);
   }
   return circuitBreakerSingletonPerInstanceUrl[instanceUrl];
 }

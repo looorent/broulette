@@ -1,24 +1,15 @@
-import type { CircuitBreakerPolicy, ICancellationContext, IDefaultPolicyContext, IMergedPolicy, IRetryContext, RetryPolicy, TimeoutPolicy } from "cockatiel";
-import { circuitBreaker, ConsecutiveBreaker, ExponentialBackoff, retry, timeout, TimeoutStrategy, wrap } from "cockatiel";
 
-import { handleRetrieableErrors } from "./filter";
+import { CircuitBreaker } from "./policy";
 import { DEFAULT_FAILOVER, type FailoverConfiguration } from "./types";
 
-export function initializeCircuitBreaker(configuration: FailoverConfiguration = DEFAULT_FAILOVER): IMergedPolicy<IDefaultPolicyContext & IRetryContext & ICancellationContext, never, [CircuitBreakerPolicy, RetryPolicy, TimeoutPolicy]> {
-  console.log(`[CircuitBreaker] Initializing policies with config: retries=${configuration.retry}, timeout=${configuration.timeoutInMs}ms, halfOpenAfter=${configuration.halfOpenAfterInMs}ms`);
 
-  const retryPolicy = retry(handleRetrieableErrors, {
-    maxAttempts: configuration.retry,
-    backoff: new ExponentialBackoff()
-  });
-  const circuitBreakerPolicy = circuitBreaker(handleRetrieableErrors, {
-    halfOpenAfter: configuration.halfOpenAfterInMs,
-    breaker: new ConsecutiveBreaker(5)
-  });
-  const timeoutPolicy = timeout(
-    configuration.timeoutInMs,
-    TimeoutStrategy.Cooperative
+export async function initializeCircuitBreaker(
+  name: string,
+  configuration: FailoverConfiguration = DEFAULT_FAILOVER
+): Promise<CircuitBreaker> {
+  console.log(
+    `[CircuitBreaker] Initializing policies with config: retries=${configuration.retry}, timeout=${configuration.timeoutInMs}ms`
   );
 
-  return wrap(retryPolicy, timeoutPolicy, circuitBreakerPolicy);
+  return new CircuitBreaker(name, configuration);
 }

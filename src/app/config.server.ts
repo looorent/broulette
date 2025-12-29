@@ -41,7 +41,8 @@ function nominatimConfig(env: any): NominatimConfiguration {
         retry: Number(env.BROULETTE_NOMINATIM_API_RETRIES || DEFAULT_FAILOVER.retry),
         halfOpenAfterInMs: Number(env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
         closeAfterNumberOfFailures: Number(env.BROULETTE_NOMINATIM_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-        timeoutInMs: Number(env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+        timeoutInMs: Number(env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs),
+        consecutiveFailures: Number(env.BROULETTE_NOMINATIM_CONSECUTIVE_FAILURES || DEFAULT_FAILOVER.consecutiveFailures),
       }
     };
   }
@@ -60,7 +61,8 @@ function photonConfig(env: any): PhotonConfiguration {
         retry: Number(env.BROULETTE_PHOTON_API_RETRIES || DEFAULT_FAILOVER.retry),
         halfOpenAfterInMs: Number(env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
         closeAfterNumberOfFailures: Number(env.BROULETTE_PHOTON_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-        timeoutInMs: Number(env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+        timeoutInMs: Number(env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs),
+        consecutiveFailures: Number(env.BROULETTE_PHOTON_CONSECUTIVE_FAILURES || DEFAULT_FAILOVER.consecutiveFailures),
       }
     };
   }
@@ -95,7 +97,8 @@ function googleConfig(env: any): GooglePlaceConfiguration {
         retry: Number(env.BROULETTE_GOOGLE_PLACE_API_RETRIES || DEFAULT_FAILOVER.retry),
         halfOpenAfterInMs: Number(env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
         closeAfterNumberOfFailures: Number(env.BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-        timeoutInMs: Number(env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+        timeoutInMs: Number(env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs),
+        consecutiveFailures: Number(env.BROULETTE_GOOGLE_PLACE_API_CONSECUTIVE_FAILURES || DEFAULT_FAILOVER.consecutiveFailures),
       }
     };
   }
@@ -128,7 +131,8 @@ function tripAdvisorConfig(env: any): TripAdvisorConfiguration {
         retry: Number(env.BROULETTE_TRIPADVISOR_API_RETRIES || DEFAULT_FAILOVER.retry),
         halfOpenAfterInMs: Number(env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
         closeAfterNumberOfFailures: Number(env.BROULETTE_TRIPADVISOR_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-        timeoutInMs: Number(env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+        timeoutInMs: Number(env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs),
+        consecutiveFailures: Number(env.BROULETTE_TRIPADVISOR_CONSECUTIVE_FAILURES || DEFAULT_FAILOVER.consecutiveFailures),
       }
     };
   }
@@ -145,7 +149,8 @@ function overpassConfig(env: any): OverpassConfiguration {
         retry: Number(env.BROULETTE_OVERPASS_API_RETRIES || DEFAULT_FAILOVER.retry),
         halfOpenAfterInMs: Number(env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
         closeAfterNumberOfFailures: Number(env.BROULETTE_OVERPASS_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-        timeoutInMs: Number(env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs)
+        timeoutInMs: Number(env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs),
+        consecutiveFailures: Number(env.BROULETTE_OVERPASS_API_CONSECUTIVE_FAILURES || DEFAULT_FAILOVER.consecutiveFailures),
       }
     };
   }

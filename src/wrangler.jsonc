@@ -22,6 +22,7 @@
     "BROULETTE_NOMINATIM_API_RETRIES": "3",
     "BROULETTE_NOMINATIM_API_TIMEOUT": "5000",
     "BROULETTE_NOMINATIM_API_CLOSE_AFTER": "10",
+    "BROULETTE_NOMINATIM_CONSECUTIVE_FAILURES": "5",
     // -------------------------------------------------------------------------
     // PHOTON CONFIGURATION
     // -------------------------------------------------------------------------
@@ -32,6 +33,7 @@
     "BROULETTE_PHOTON_API_RETRIES": "3",
     "BROULETTE_PHOTON_API_TIMEOUT": "5000",
     "BROULETTE_PHOTON_API_CLOSE_AFTER": "10",
+    "BROULETTE_PHOTON_CONSECUTIVE_FAILURES": "5",
     // -------------------------------------------------------------------------
     // GOOGLE PLACE CONFIGURATION
     // -------------------------------------------------------------------------
@@ -46,6 +48,7 @@
     "BROULETTE_GOOGLE_PLACE_API_RETRIES": "3",
     "BROULETTE_GOOGLE_PLACE_API_TIMEOUT": "5000",
     "BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER": "10",
+    "BROULETTE_GOOGLE_PLACE_API_CONSECUTIVE_FAILURES": "5",
     // -------------------------------------------------------------------------
     // TRIPADVISOR CONFIGURATION
     // -------------------------------------------------------------------------
@@ -60,6 +63,7 @@
     "BROULETTE_TRIPADVISOR_API_RETRIES": "3",
     "BROULETTE_TRIPADVISOR_API_TIMEOUT": "5000",
     "BROULETTE_TRIPADVISOR_API_CLOSE_AFTER": "10",
+    "BROULETTE_TRIPADVISOR_API_CONSECUTIVE_FAILURES": "5",
     // -------------------------------------------------------------------------
     // OVERPASS CONFIGURATION
     // -------------------------------------------------------------------------
@@ -68,6 +72,7 @@
     "BROULETTE_OVERPASS_API_RETRIES": "3",
     "BROULETTE_OVERPASS_API_TIMEOUT": "10000",
     "BROULETTE_OVERPASS_API_CLOSE_AFTER": "5",
+    "BROULETTE_OVERPASS_API_CONSECUTIVE_FAILURES": "5",
     // -------------------------------------------------------------------------
     // SEARCH ENGINE & DISCOVERY CONFIGURATION
     // -------------------------------------------------------------------------

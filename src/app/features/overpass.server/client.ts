@@ -16,7 +16,7 @@ export async function fetchAllRestaurantsNearbyWithRetry(
 ): Promise<OverpassResponse | undefined> {
   console.log(`[OSM] fetchAllRestaurantsNearbyWithRetry: Requesting restaurants near [${latitude}, ${longitude}] (radius: ${distanceRangeInMeters}m)`);
 
-  return await overpassCircuitBreaker(instanceUrl, failoverConfiguration).execute(async ({ signal: combinedSignal }) => {
+  return await (await overpassCircuitBreaker(instanceUrl, failoverConfiguration)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
@@ -33,7 +33,7 @@ async function fetchAllRestaurantsNearby(
   timeoutInSeconds: number,
   signal: AbortSignal
 ): Promise<OverpassResponse | undefined> {
-  console.log(`[OSM] fetchAllRestaurantsNearby: Building query with ${idsToExclude.length} exclusions...`);
+  console.trace(`[OSM] fetchAllRestaurantsNearby: Building query with ${idsToExclude.length} exclusions...`);
   const query = createQueryToListAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, timeoutInSeconds);
   const start = Date.now();
 

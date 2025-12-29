@@ -25,7 +25,6 @@ export function computeViewportFromCircle(
   };
 }
 
-// TODO Review
 export function computeDistanceInMeters(from: Coordinates, to: Coordinates): number {
   const dLat = toRad(to.latitude - from.latitude);
   const dLon = toRad(to.longitude - from.longitude);
