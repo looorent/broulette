@@ -833,6 +833,14 @@ export const SearchScalarFieldEnum = {
 export type SearchScalarFieldEnum = (typeof SearchScalarFieldEnum)[keyof typeof SearchScalarFieldEnum]
 
 
+export const RelationLoadStrategy = {
+  query: 'query',
+  join: 'join'
+} as const
+
+export type RelationLoadStrategy = (typeof RelationLoadStrategy)[keyof typeof RelationLoadStrategy]
+
+
 export const SearchCandidateScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',

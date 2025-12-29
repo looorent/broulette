@@ -703,7 +703,7 @@ export type $SearchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type SearchGetPayload<S extends boolean | null | undefined | SearchDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$SearchPayload, S>
 
 export type SearchCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<SearchFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<SearchFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: SearchCountAggregateInputType | true
   }
 
@@ -1154,6 +1154,7 @@ export type SearchFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Filter, which Search to fetch.
    */
   where: Prisma.SearchWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1176,6 +1177,7 @@ export type SearchFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    * Filter, which Search to fetch.
    */
   where: Prisma.SearchWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1228,6 +1230,7 @@ export type SearchFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Filter by unique combinations of Searches.
    */
   distinct?: Prisma.SearchScalarFieldEnum | Prisma.SearchScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1280,6 +1283,7 @@ export type SearchFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.
    * Filter by unique combinations of Searches.
    */
   distinct?: Prisma.SearchScalarFieldEnum | Prisma.SearchScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1327,6 +1331,7 @@ export type SearchFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   skip?: number
   distinct?: Prisma.SearchScalarFieldEnum | Prisma.SearchScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1349,6 +1354,7 @@ export type SearchCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * The data needed to create a Search.
    */
   data: Prisma.XOR<Prisma.SearchCreateInput, Prisma.SearchUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1405,6 +1411,7 @@ export type SearchUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Choose, which Search to update.
    */
   where: Prisma.SearchWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1479,6 +1486,7 @@ export type SearchUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * In case the Search was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.SearchUpdateInput, Prisma.SearchUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1501,6 +1509,7 @@ export type SearchDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Filter which Search to delete.
    */
   where: Prisma.SearchWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

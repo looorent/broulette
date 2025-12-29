@@ -2,6 +2,8 @@ generator client {
   provider   = "prisma-client"
   output     = "../app/features/generated/prisma.server"
   runtime    = "cloudflare"
+
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {

@@ -730,7 +730,7 @@ export type $RestaurantMatchingAttemptPayload<ExtArgs extends runtime.Types.Exte
 export type RestaurantMatchingAttemptGetPayload<S extends boolean | null | undefined | RestaurantMatchingAttemptDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$RestaurantMatchingAttemptPayload, S>
 
 export type RestaurantMatchingAttemptCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<RestaurantMatchingAttemptFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<RestaurantMatchingAttemptFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: RestaurantMatchingAttemptCountAggregateInputType | true
   }
 
@@ -1181,6 +1181,7 @@ export type RestaurantMatchingAttemptFindUniqueArgs<ExtArgs extends runtime.Type
    * Filter, which RestaurantMatchingAttempt to fetch.
    */
   where: Prisma.RestaurantMatchingAttemptWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1203,6 +1204,7 @@ export type RestaurantMatchingAttemptFindUniqueOrThrowArgs<ExtArgs extends runti
    * Filter, which RestaurantMatchingAttempt to fetch.
    */
   where: Prisma.RestaurantMatchingAttemptWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1255,6 +1257,7 @@ export type RestaurantMatchingAttemptFindFirstArgs<ExtArgs extends runtime.Types
    * Filter by unique combinations of RestaurantMatchingAttempts.
    */
   distinct?: Prisma.RestaurantMatchingAttemptScalarFieldEnum | Prisma.RestaurantMatchingAttemptScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1307,6 +1310,7 @@ export type RestaurantMatchingAttemptFindFirstOrThrowArgs<ExtArgs extends runtim
    * Filter by unique combinations of RestaurantMatchingAttempts.
    */
   distinct?: Prisma.RestaurantMatchingAttemptScalarFieldEnum | Prisma.RestaurantMatchingAttemptScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1354,6 +1358,7 @@ export type RestaurantMatchingAttemptFindManyArgs<ExtArgs extends runtime.Types.
    */
   skip?: number
   distinct?: Prisma.RestaurantMatchingAttemptScalarFieldEnum | Prisma.RestaurantMatchingAttemptScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1376,6 +1381,7 @@ export type RestaurantMatchingAttemptCreateArgs<ExtArgs extends runtime.Types.Ex
    * The data needed to create a RestaurantMatchingAttempt.
    */
   data: Prisma.XOR<Prisma.RestaurantMatchingAttemptCreateInput, Prisma.RestaurantMatchingAttemptUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1436,6 +1442,7 @@ export type RestaurantMatchingAttemptUpdateArgs<ExtArgs extends runtime.Types.Ex
    * Choose, which RestaurantMatchingAttempt to update.
    */
   where: Prisma.RestaurantMatchingAttemptWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1514,6 +1521,7 @@ export type RestaurantMatchingAttemptUpsertArgs<ExtArgs extends runtime.Types.Ex
    * In case the RestaurantMatchingAttempt was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.RestaurantMatchingAttemptUpdateInput, Prisma.RestaurantMatchingAttemptUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1536,6 +1544,7 @@ export type RestaurantMatchingAttemptDeleteArgs<ExtArgs extends runtime.Types.Ex
    * Filter which RestaurantMatchingAttempt to delete.
    */
   where: Prisma.RestaurantMatchingAttemptWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

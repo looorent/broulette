@@ -1391,7 +1391,7 @@ export type $RestaurantProfilePayload<ExtArgs extends runtime.Types.Extensions.I
 export type RestaurantProfileGetPayload<S extends boolean | null | undefined | RestaurantProfileDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$RestaurantProfilePayload, S>
 
 export type RestaurantProfileCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<RestaurantProfileFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<RestaurantProfileFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: RestaurantProfileCountAggregateInputType | true
   }
 
@@ -1860,6 +1860,7 @@ export type RestaurantProfileFindUniqueArgs<ExtArgs extends runtime.Types.Extens
    * Filter, which RestaurantProfile to fetch.
    */
   where: Prisma.RestaurantProfileWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1882,6 +1883,7 @@ export type RestaurantProfileFindUniqueOrThrowArgs<ExtArgs extends runtime.Types
    * Filter, which RestaurantProfile to fetch.
    */
   where: Prisma.RestaurantProfileWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1934,6 +1936,7 @@ export type RestaurantProfileFindFirstArgs<ExtArgs extends runtime.Types.Extensi
    * Filter by unique combinations of RestaurantProfiles.
    */
   distinct?: Prisma.RestaurantProfileScalarFieldEnum | Prisma.RestaurantProfileScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1986,6 +1989,7 @@ export type RestaurantProfileFindFirstOrThrowArgs<ExtArgs extends runtime.Types.
    * Filter by unique combinations of RestaurantProfiles.
    */
   distinct?: Prisma.RestaurantProfileScalarFieldEnum | Prisma.RestaurantProfileScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2033,6 +2037,7 @@ export type RestaurantProfileFindManyArgs<ExtArgs extends runtime.Types.Extensio
    */
   skip?: number
   distinct?: Prisma.RestaurantProfileScalarFieldEnum | Prisma.RestaurantProfileScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2055,6 +2060,7 @@ export type RestaurantProfileCreateArgs<ExtArgs extends runtime.Types.Extensions
    * The data needed to create a RestaurantProfile.
    */
   data: Prisma.XOR<Prisma.RestaurantProfileCreateInput, Prisma.RestaurantProfileUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2115,6 +2121,7 @@ export type RestaurantProfileUpdateArgs<ExtArgs extends runtime.Types.Extensions
    * Choose, which RestaurantProfile to update.
    */
   where: Prisma.RestaurantProfileWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2193,6 +2200,7 @@ export type RestaurantProfileUpsertArgs<ExtArgs extends runtime.Types.Extensions
    * In case the RestaurantProfile was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.RestaurantProfileUpdateInput, Prisma.RestaurantProfileUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2215,6 +2223,7 @@ export type RestaurantProfileDeleteArgs<ExtArgs extends runtime.Types.Extensions
    * Filter which RestaurantProfile to delete.
    */
   where: Prisma.RestaurantProfileWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
