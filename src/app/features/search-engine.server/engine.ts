@@ -96,7 +96,7 @@ async function processRestaurant(
   locale: string,
   scanner: RestaurantDiscoveryScanner
 ): Promise<SearchCandidate | undefined> {
-  // console.log(`[SearchEngine] Enriching and validating restaurant...`);
+  console.trace(`[SearchEngine] Enriching and validating restaurant...`);
   const restaurant = await enrichRestaurant(discovered, locale, prisma, configuration.matching, google, tripAdvisor);
 
   const validation = await validateRestaurant(restaurant, search, locale);

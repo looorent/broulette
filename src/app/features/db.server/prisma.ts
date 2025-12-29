@@ -1,18 +1,18 @@
-import { withAccelerate } from "@prisma/extension-accelerate";
+import { PrismaPostgresAdapter } from "@prisma/adapter-ppg";
 
 import { PrismaClient } from "@persistence/client";
 import type { DistanceRange, SearchCandidateStatus, ServiceTimeslot } from "@persistence/enums";
-
 interface Env {
   BROULETTE_DATABASE_URL: string;
 }
 
 function createPrismaClient(databaseUrl: string) {
   console.log("[Prisma] Initializing new PrismaClient instance");
-  const prisma = new PrismaClient({
-    accelerateUrl: databaseUrl
-  })
-    .$extends({
+  const prisma =new PrismaClient({
+    adapter: new PrismaPostgresAdapter({
+      connectionString: databaseUrl
+    })
+  }).$extends({
       model: {
         search: {
           async findWithLatestCandidateId(
@@ -105,8 +105,7 @@ function createPrismaClient(databaseUrl: string) {
           }
         }
       }
-    })
-    .$extends(withAccelerate());
+    });
   console.log("[Prisma] Initializing new PrismaClient instance: done.");
   return prisma;
 };
