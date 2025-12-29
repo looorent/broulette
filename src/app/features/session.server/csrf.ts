@@ -10,8 +10,11 @@ export async function validateCSRF(
   headers: Headers,
   sessionStorage: SessionStorage<SessionData, SessionFlashData>
 ) {
+  console.log("[CSRF] Validating...");
   const session = await sessionStorage.getSession(headers.get("Cookie"));
+  console.log("[CSRF] Validating. Searching session.");
   const sessionToken = session.get(CSRF_KEY);
+  console.log("[CSRF] Validating. Session token found", sessionToken);
 
   if (sessionToken) {
     let receivedToken: string | null = null;
@@ -22,9 +25,13 @@ export async function validateCSRF(
     }
 
     if (!receivedToken || receivedToken !== sessionToken) {
+      console.error("[CSRF] Validating. Failed.", receivedToken);
       throw new Response("Invalid CSRF Token", { status: 403 });
+    } else {
+      console.log("[CSRF] Validating. Success.");
     }
   } else {
+    console.error("[CSRF] Validating. Failed. Mising session token");
     throw new Response("Missing Session Token", { status: 403 });
   }
 }

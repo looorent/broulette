@@ -15,21 +15,29 @@ export async function loader() {
 // POST
 export async function action({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
+  console.log("[POST /searches] Creating search with payload...", formData);
   await validateCSRF(formData, request.headers, context.sessionStorage);
   const data = parseAndValidate(formData);
-  const createdSearch = await context.db.search.create({
-    data: {
-      latitude: data.latitude,
-      longitude: data.longitude,
-      serviceDate: data.date,
-      serviceTimeslot: data.timeslot,
-      serviceInstant: createServiceDatetime(data.date, data.timeslot),
-      serviceEnd: createServiceEnd(data.date, data.timeslot),
-      distanceRange: data.distanceRange,
-      exhausted: false
-    }
-  });
-  return redirect(href("/searches/:searchId", { searchId: createdSearch.id }));
+  console.log("[POST /searches] Saving new search in database...", data);
+  try {
+    const createdSearch = await context.db.search.create({
+      data: {
+        latitude: data.latitude,
+        longitude: data.longitude,
+        serviceDate: data.date,
+        serviceTimeslot: data.timeslot,
+        serviceInstant: createServiceDatetime(data.date, data.timeslot),
+        serviceEnd: createServiceEnd(data.date, data.timeslot),
+        distanceRange: data.distanceRange,
+        exhausted: false
+      }
+    });
+    console.log("[POST /searches] Search created with id:", createdSearch.id);
+    return redirect(href("/searches/:searchId", { searchId: createdSearch.id }));
+  } catch(e) {
+    console.log("[POST /searches] Failed when creating new search in database", e);
+    throw e;
+  }
 }
 
 function parseAndValidate(formData: FormData) {

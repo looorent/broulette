@@ -107,6 +107,7 @@ function createPrismaClient(databaseUrl: string) {
       }
     })
     .$extends(withAccelerate());
+  console.log("[Prisma] Initializing new PrismaClient instance: done.");
   return prisma;
 };
 
