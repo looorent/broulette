@@ -204,8 +204,8 @@ export function HelpModal({ configuration, isOpen, onClose }: HelpModalProps) {
                 <div>
                   <h4 className="mb-1 text-sm font-bold tracking-wide uppercase">Data Sources</h4>
                   <p className="text-xs leading-relaxed opacity-80">
-                    Powered by <strong>Google Maps Platform</strong>. <br />
-                    Icons provided by <strong>Lucide</strong>.
+                    Powered by <strong>Google Maps Platform</strong>, <strong>TripAdvisor</strong> and <strong>OpenStreetMap</strong>. <br />
+                    Icons provided by <strong>Lucide</strong> and <strong>SimpleIcons</strong>.
                   </p>
                 </div>
               </div>

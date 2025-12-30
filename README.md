@@ -81,6 +81,7 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 
 ## TODO
 
+* "back to Lobby" is "fixed" while it should be absolute (wrongly placed on desktop)
 * The "candidate page" is almost too long on my pixel 9a. (ex: Le Brazier)
 * Haptics do not work on Android?
 * Make it a PWA
