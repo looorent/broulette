@@ -22,14 +22,6 @@ interface HelpModalProps {
   onClose: () => void;
 }
 
-function PhilosophyItem({ title, description }: { title: string, description: string }) {
-  return (
-    <li className="flex gap-2">
-      <span className="text-fun-dark"><strong>{title}:</strong> {description}</span>
-    </li>
-  );
-}
-
 export function HelpModal({ configuration, isOpen, onClose }: HelpModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>("about");
 
@@ -144,7 +136,7 @@ export function HelpModal({ configuration, isOpen, onClose }: HelpModalProps) {
                     rounded border border-fun-dark/10 bg-fun-dark/5 p-2 text-xs
                     text-fun-dark/80
                   `}>
-                    <strong>Security Note:</strong> We use cookies strictly for protection, not profit. Aside from Google's tool to block bots, our cookies are just there to prevent unauthorized activity and keep the site secure.
+                    <strong>Security Note:</strong> We use cookies strictly for protection, not profit. Our cookies are just there to prevent unauthorized activity and keep the site secure.
                   </p>
                 </div>
               </div>
@@ -158,7 +150,7 @@ export function HelpModal({ configuration, isOpen, onClose }: HelpModalProps) {
                   <h4 className="mb-1 text-sm font-bold tracking-wide uppercase">Your Location Data</h4>
                   <ul className="list-none space-y-1 text-xs opacity-80">
                     <li><strong>Collection:</strong> Only when you tap search.</li>
-                    <li><strong>Processing:</strong> Anonymized and sent to mapping providers (Google/OSM).</li>
+                    <li><strong>Processing:</strong> Anonymized and sent to mapping providers (Google/Overpass/TripAdvisor).</li>
                     <li><strong>Storage:</strong> Coordinates logged only to refine algorithms.</li>
                   </ul>
                 </div>
@@ -172,7 +164,7 @@ export function HelpModal({ configuration, isOpen, onClose }: HelpModalProps) {
                 <div>
                   <h4 className="mb-1 text-sm font-bold tracking-wide uppercase">Fortress Europe</h4>
                   <p className="text-xs leading-relaxed opacity-80">
-                    Your data is securely anchored in <strong>Frankfurt, Germany</strong> (eu-central-1). We utilize Render (AWS infrastructure), ensuring rigorous European security standards.
+                    Your data is securely anchored in <strong>Frankfurt, Germany</strong> (eu-central-1).
                   </p>
                 </div>
               </div>
@@ -248,5 +240,13 @@ export function HelpModal({ configuration, isOpen, onClose }: HelpModalProps) {
         </div>
       </div>
     </AlertBox>
+  );
+}
+
+function PhilosophyItem({ title, description }: { title: string, description: string }) {
+  return (
+    <li className="flex gap-2">
+      <span className="text-fun-dark"><strong>{title}:</strong> {description}</span>
+    </li>
   );
 }

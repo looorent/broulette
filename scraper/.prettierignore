@@ -1,9 +1,0 @@
-# Ignore build and output folders
-dist/
-output/
-
-# Ignore common generated files
-node_modules/
-coverage/
-package-lock.json
-*.json

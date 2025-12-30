@@ -58,7 +58,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
          {/* PWA Tags */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="BiteRoulette" />
         <meta name="theme-color" content="#D64035" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icon-512x512.png" />
+        <link rel="manifest" href="/manifest.json" />
+
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.biteroulette.com/" />
+        <meta property="og:title" content="BiteRoulette" />
+        <meta property="og:description" content="The lazy way to decide where to eat. Spin the wheel and find your next meal!" />
+        <meta property="og:image" content="https://biteroulette.app/icon-512x512.png" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://www.biteroulette.com/" />
+        <meta name="twitter:title" content="BiteRoulette" />
+        <meta name="twitter:description" content="The lazy way to decide where to eat. Spin the wheel and find your next meal!" />
+        <meta name="twitter:image" content="https://www.biteroulette.com/icon-512x512.png" />
+
 
         <Meta />
         <Links />
