@@ -1,5 +1,6 @@
+import type { RestaurantAndProfiles } from "@features/db.server";
 import { buildViewModelOfRestaurant } from "@features/view.server/factory";
-import type { Prisma, Search } from "@persistence/client";
+import type { Search } from "@persistence/client";
 
 const SUCCESS = {
   valid: true
@@ -16,12 +17,6 @@ export interface RestaurantValidation {
   valid: boolean;
   rejectionReason?: string | null;
 }
-
-type RestaurantAndProfiles = Prisma.RestaurantGetPayload<{
-  include: {
-    profiles: true;
-  }
-}>;
 
 export async function validateRestaurant(
   restaurant: RestaurantAndProfiles | undefined,

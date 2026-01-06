@@ -20,7 +20,10 @@ export async function action({
     const candidate = await searchCandidate(
       data.searchId,
       data.locale,
-      context.db,
+      context.repositories.search,
+      context.repositories.candidate,
+      context.repositories.restaurant,
+      context.repositories.matching,
       context.config.search,
       context.config.overpass,
       context.config.google,

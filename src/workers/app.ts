@@ -1,6 +1,7 @@
 import { createRequestHandler } from "react-router";
 
-import { getPrisma, type ExtendedPrismaClient } from "@features/db.server";
+import { createRepositories, type SearchRepository } from "@features/db.server";
+import type { DatabaseRepositories } from "@features/db.server/types";
 import { createAppSessionStorage, createCSRFToken } from "@features/session.server";
 import { getLocale } from "@features/utils/locale.server";
 
@@ -10,7 +11,7 @@ declare module "react-router" {
   interface AppLoadContext {
     config: ReturnType<typeof createAppContext>;
     sessionStorage: ReturnType<typeof createAppSessionStorage>;
-    db: ExtendedPrismaClient,
+    repositories: DatabaseRepositories,
     locale: string;
     csrf: {
       token: string;
@@ -35,7 +36,6 @@ export default {
       env.BROULETTE_SESSION_SECURE?.toLowerCase() === "true"
     );
 
-    const prisma = await getPrisma(env);
 
     const { token, headers: csrfHeaders } = await createCSRFToken(request.headers, sessionStorage);
 
@@ -48,7 +48,7 @@ export default {
         token: token,
         headers: csrfHeaders
       },
-      db: prisma
+      repositories: await createRepositories(env)
     });
   },
 } satisfies ExportedHandler<Env>;

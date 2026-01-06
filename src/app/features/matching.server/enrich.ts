@@ -1,4 +1,4 @@
-import { type ExtendedPrismaClient } from "@features/db.server";
+import { type MatchingRepository, type RestaurantAndProfiles, type RestaurantRepository } from "@features/db.server";
 import type { DiscoveredRestaurantProfile } from "@features/discovery.server";
 import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, GOOGLE_PLACE_SOURCE_NAME, type GooglePlaceConfiguration } from "@features/google.server";
 import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
@@ -8,21 +8,22 @@ import { isOlderThanAMonth, thirtyDaysAgo } from "@features/utils/date";
 
 import { registeredMatchers } from "./matchers/registry";
 import type { Matcher } from "./matchers/types";
-import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantAndProfiles, type RestaurantMatchingConfiguration } from "./types";
+import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantMatchingConfiguration } from "./types";
 
 // TODO we should find the best language based on the location?
 export async function enrichRestaurant(
   discovered: DiscoveredRestaurantProfile | undefined,
   language: string,
-  prisma: ExtendedPrismaClient,
+  restaurantRepository: RestaurantRepository,
+  matchingRepository: MatchingRepository,
   configuration: RestaurantMatchingConfiguration = DEFAULT_MATCHING_CONFIGURATION,
   google: GooglePlaceConfiguration | undefined = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
   tripAdvisor: TripAdvisorConfiguration | undefined = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<RestaurantAndProfiles | undefined> {
   if (discovered) {
-    const restaurant = await findRestaurantInDatabase(discovered, prisma) || await saveRestaurantToDatabase(discovered, prisma, configuration);
-    return await enrich(restaurant, language, prisma, configuration, google, tripAdvisor, signal);
+    const restaurant = await restaurantRepository.findRestaurantWithExternalIdentity(discovered.externalId, discovered.externalType, discovered.source) || await restaurantRepository.createRestaurantFromDiscovery(discovered, filterTags(discovered.tags, configuration.tags));
+    return await enrich(restaurant, language, restaurantRepository, matchingRepository, configuration, google, tripAdvisor, signal);
   } else {
     return undefined;
   }
@@ -31,7 +32,8 @@ export async function enrichRestaurant(
 async function enrich(
   restaurant: RestaurantAndProfiles,
   language: string,
-  prisma: ExtendedPrismaClient,
+  restaurantRepository: RestaurantRepository,
+  matchingRepository: MatchingRepository,
   configuration: RestaurantMatchingConfiguration,
   google?: GooglePlaceConfiguration | undefined,
   tripAdvisor?: TripAdvisorConfiguration | undefined,
@@ -46,8 +48,8 @@ async function enrich(
 
     // We could parallelize.
     // However, every iteration has side-effects, so this is not so useful.
-    if (await shouldBeMatched(result, matcher, prisma)) {
-      result = (await matcher.matchAndEnrich(result, prisma, configuration, language, signal))?.restaurant;
+    if (await shouldBeMatched(result, matcher, matchingRepository)) {
+      result = (await matcher.matchAndEnrich(result, restaurantRepository, matchingRepository, configuration, language, signal))?.restaurant;
     }
   }
 
@@ -57,7 +59,7 @@ async function enrich(
 async function shouldBeMatched(
   restaurant: RestaurantAndProfiles,
   matcher: Matcher,
-  prisma: ExtendedPrismaClient
+  matchingRepository: MatchingRepository
 ): Promise<boolean> {
   const relevantDates = restaurant.profiles
     .filter(profile => profile.source === matcher.source)
@@ -68,52 +70,8 @@ async function shouldBeMatched(
     : undefined;
 
   return (!lastUpdate || !isOlderThanAMonth(lastUpdate))
-    && !await matcher.hasReachedQuota(prisma)
-    && !await prisma.restaurantMatchingAttempt.existsSince(thirtyDaysAgo(), restaurant.id, matcher.source);
-}
-
-async function findRestaurantInDatabase(
-  identity: DiscoveredRestaurantProfile,
-  prisma: ExtendedPrismaClient
-) {
-  return prisma.restaurant.findFirst({
-    where: {
-      profiles: {
-        some: {
-          externalId: identity.externalId,
-          externalType: identity.externalType,
-          source: identity.source
-        }
-      }
-    },
-    include: {
-      profiles: true
-    }
-  });
-}
-
-async function saveRestaurantToDatabase(
-  discovered: DiscoveredRestaurantProfile,
-  prisma: ExtendedPrismaClient,
-  configuration: RestaurantMatchingConfiguration
-): Promise<RestaurantAndProfiles> {
-  return await prisma.restaurant.create({
-    data: {
-      name: discovered.name || null,
-      latitude: discovered.latitude,
-      longitude: discovered.longitude,
-      profiles: {
-        create: {
-          ...discovered,
-          version: 1,
-          tags: filterTags(discovered.tags, configuration.tags)
-        }
-      }
-    },
-    include: {
-      profiles: true
-    }
-  });
+    && !await matcher.hasReachedQuota(matchingRepository)
+    && !await matchingRepository.doesAttemptExistsSince(thirtyDaysAgo(), restaurant.id, matcher.source);
 }
 
 function completeRestaurantFromProfiles(restaurant: RestaurantAndProfiles): RestaurantAndProfiles {

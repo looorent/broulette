@@ -9,7 +9,7 @@ import type { loader as rootLoader } from "app/root";
 import type { Route } from "./+types/searches.$searchId";
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
-  const view = await findSearchViewModel(params.searchId, await getLocale(request), context.db);
+  const view = await findSearchViewModel(params.searchId, await getLocale(request), context.repositories.search);
   if (view) {
     if (view.redirectRequired) {
       return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: view.searchId, candidateId: view.latestCandidateId }))

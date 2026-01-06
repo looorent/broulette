@@ -1,3 +1,4 @@
+import type { CandidateAndRestaurantAndProfileAndSearch, RestaurantAndProfiles } from "@features/db.server";
 import { GOOGLE_PLACE_SOURCE_NAME } from "@features/google.server";
 import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
 import { DISTANCE_RANGES } from "@features/search";
@@ -5,11 +6,9 @@ import type { TagView } from "@features/tag";
 import { tagToLabel } from "@features/tag.server";
 import { TRIPADVISOR_SOURCE_NAME } from "@features/tripadvisor.server";
 import type { CandidateRedirect, CandidateView, OpeningHoursOfTheDay, RestaurantView, SearchRedirect, SearchView } from "@features/view";
-import { type DistanceRange, type Prisma, type Restaurant, type RestaurantProfile, type Search, type ServiceTimeslot } from "@persistence/client";
+import { type DistanceRange, type Restaurant, type RestaurantProfile, type Search, type ServiceTimeslot } from "@persistence/client";
 
 import { formatOpeningHoursFor } from "./opening-hours";
-
-type RestaurantModel = Prisma.RestaurantGetPayload<{ include: { profiles: true } }>;
 
 interface RestaurantProfiles {
   overpass: RestaurantProfile | undefined;
@@ -18,7 +17,7 @@ interface RestaurantProfiles {
 }
 
 export function buildViewModelOfCandidate(
-  candidate: Prisma.SearchCandidateGetPayload<{ include: { search: true, restaurant: { include: { profiles: true } } } }> | undefined | null,
+  candidate: CandidateAndRestaurantAndProfileAndSearch | undefined | null,
   locale: string,
   now: Date
 ): CandidateRedirect | CandidateView | undefined {
@@ -72,7 +71,7 @@ export function buildViewModelOfSearch(search: {
 }
 
 export function buildViewModelOfRestaurant(
-  restaurant: RestaurantModel | undefined | null,
+  restaurant: RestaurantAndProfiles | undefined | null,
   search: Search,
   locale: string
 ): RestaurantView | undefined {
@@ -194,7 +193,7 @@ function buildUrls({ tripAdvisor, google, overpass }: RestaurantProfiles): strin
   ].filter(Boolean).map(url => url!);
 }
 
-function buildMapUrl(restaurant: RestaurantModel, { tripAdvisor, google }: RestaurantProfiles): string | undefined {
+function buildMapUrl(restaurant: RestaurantAndProfiles, { tripAdvisor, google }: RestaurantProfiles): string | undefined {
   return google?.mapUrl || tripAdvisor?.mapUrl || createGoogleMapsUrl(restaurant);
 }
 

@@ -1,7 +1,6 @@
 import { data, href, redirect } from "react-router";
 
 import { ErrorUnknown } from "@components/error/error-unknown";
-import { createServiceDatetime, createServiceEnd } from "@features/search";
 import { validateCSRF } from "@features/session.server";
 import { DistanceRange, ServiceTimeslot } from "@persistence/client";
 
@@ -20,18 +19,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   const data = parseAndValidate(formData);
   console.log("[POST /searches] Saving new search in database...", data);
   try {
-    const createdSearch = await context.db.search.create({
-      data: {
-        latitude: data.latitude,
-        longitude: data.longitude,
-        serviceDate: data.date,
-        serviceTimeslot: data.timeslot,
-        serviceInstant: createServiceDatetime(data.date, data.timeslot),
-        serviceEnd: createServiceEnd(data.date, data.timeslot),
-        distanceRange: data.distanceRange,
-        exhausted: false
-      }
-    });
+    const createdSearch = await context.repositories.search.create(data.latitude, data.longitude, data.date, data.timeslot, data.distanceRange);
     console.log("[POST /searches] Search created with id:", createdSearch.id);
     return redirect(href("/searches/:searchId", { searchId: createdSearch.id }));
   } catch(e) {

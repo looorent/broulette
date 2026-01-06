@@ -84,9 +84,6 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 
 For now (2026-01-06), the build ends with this bundle:
 ```
-> build
-> react-router build
-
 Using Vite Environment API (experimental)
 vite v7.3.0 building client environment for production...
 ✓ 5163 modules transformed.
@@ -108,9 +105,9 @@ build/client/assets/searches._searchId_.candidates._candidateId-SLX02Tbr.js   31
 build/client/assets/_index-B15fbxEr.js                                        63.05 kB │ gzip: 19.08 kB
 build/client/assets/chunk-JMJ3UQ3L-BZB15f9O.js                               124.86 kB │ gzip: 42.29 kB
 build/client/assets/entry.client-0g2zKKI_.js                                 187.81 kB │ gzip: 58.94 kB
-✓ built in 1.79s
+✓ built in 1.72s
 vite v7.3.0 building ssr environment for production...
-✓ 5298 modules transformed.
+✓ 5299 modules transformed.
 rendering chunks (5)...Using vars defined in .dev.vars
 build/server/.dev.vars                                   0.64 kB
 build/server/.vite/manifest.json                         1.57 kB
@@ -118,10 +115,10 @@ build/server/wrangler.json                               4.38 kB
 build/server/assets/query_compiler_bg-BLBQOTuU.wasm  1,825.18 kB
 build/server/assets/server-build-mXnUP3Qy.css           54.39 kB
 build/server/index.js                                    0.16 kB
-build/server/assets/browser-BZ4jAvHT.js                  1.20 kB
+build/server/assets/browser-D75eHhgU.js                  1.20 kB
 build/server/assets/query_compiler_bg-gBoRaSMa.js        7.82 kB
-build/server/assets/worker-entry-BNcLiW6e.js           749.75 kB
-build/server/assets/server-build-clYKbwRf.js         1,519.74 kB
+build/server/assets/worker-entry-CSMPisKZ.js           760.88 kB
+build/server/assets/server-build-DIeq84w1.js         1,508.96 kB
 ```
 
 (next purpose: remove every wasm client and move to a lightweight/edge sql client)

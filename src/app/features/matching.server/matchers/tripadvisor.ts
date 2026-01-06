@@ -1,10 +1,9 @@
-import type { ExtendedPrismaClient } from "@features/db.server";
-import { hasReachedQuota, registerAttemptToFindTripAdvisorLocationById, registerAttemptToFindTripAdvisorLocationNearBy } from "@features/rate-limiting.server";
+import type { MatchingRepository, RestaurantAndProfiles, RestaurantProfilePayload, RestaurantRepository } from "@features/db.server";
 import { filterTags } from "@features/tag.server";
 import { findTripAdvisorLocationByIdWithRetry, searchTripAdvisorLocationNearbyWithRetry, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration, type TripAdvisorLocation } from "@features/tripadvisor.server";
 import { type Restaurant, type RestaurantProfile } from "@persistence/client";
 
-import type { RestaurantAndProfiles, RestaurantMatchingConfiguration } from "../types";
+import type { RestaurantMatchingConfiguration } from "../types";
 import { type Matcher, type Matching } from "./types";
 
 export class TripAdvisorMatcher implements Matcher {
@@ -14,17 +13,19 @@ export class TripAdvisorMatcher implements Matcher {
 
   async matchAndEnrich(
     restaurant: RestaurantAndProfiles,
-    prisma: ExtendedPrismaClient,
+    restaurantRepository: RestaurantRepository,
+    matchingRepository: MatchingRepository,
     matchingConfiguration: RestaurantMatchingConfiguration,
     language: string,
     signal?: AbortSignal | undefined
   ): Promise<Matching> {
     const profile = restaurant.profiles.find(profile => profile.source === this.source);
-    const tripAdvisor = await this.findTripAdvisorRestaurant(restaurant, profile, language, prisma, signal);
+    const tripAdvisor = await this.findTripAdvisorRestaurant(restaurant, profile, language, matchingRepository, signal);
     if (tripAdvisor) {
+      const newProfile = this.merge(restaurant, tripAdvisor, profile, matchingConfiguration);
       return {
         matched: true,
-        restaurant: profile ? await this.updateProfile(restaurant, profile, tripAdvisor, prisma, matchingConfiguration) : await this.createProfile(tripAdvisor, restaurant, prisma, matchingConfiguration)
+        restaurant: profile ? await restaurantRepository.updateProfile(profile.id, newProfile, restaurant) : await restaurantRepository.createProfile(newProfile, restaurant)
       }
     } else {
       return {
@@ -35,20 +36,20 @@ export class TripAdvisorMatcher implements Matcher {
     }
   }
 
-  async hasReachedQuota(prisma: ExtendedPrismaClient): Promise<boolean> {
-    return await hasReachedQuota(this.configuration.rateLimiting.maxNumberOfAttemptsPerMonth, this.source, prisma);
+  hasReachedQuota(matchingRepository: MatchingRepository): Promise<boolean> {
+    return matchingRepository.hasReachedQuota(this.source, this.configuration.rateLimiting.maxNumberOfAttemptsPerMonth);
   }
 
   private async findTripAdvisorRestaurant(
     restaurant: Restaurant,
     existingProfile: RestaurantProfile | undefined,
     language: string,
-    prisma: ExtendedPrismaClient,
+    matchingRepository: MatchingRepository,
     signal?: AbortSignal | undefined
   ): Promise<TripAdvisorLocation | undefined> {
     if (existingProfile) {
       const found = await findTripAdvisorLocationByIdWithRetry(existingProfile.externalId, language, this.configuration, signal);
-      await registerAttemptToFindTripAdvisorLocationById(existingProfile.externalId, existingProfile.restaurantId, found, prisma);
+      await matchingRepository.registerAttemptToFindAMatch(existingProfile.externalId, "id", this.source, restaurant.id, found !== null && found !== undefined)
       return found;
     } else {
       const textQuery = restaurant.name;
@@ -62,7 +63,7 @@ export class TripAdvisorMatcher implements Matcher {
           this.configuration,
           signal
         );
-        await registerAttemptToFindTripAdvisorLocationNearBy(textQuery, restaurant.latitude, restaurant.longitude, this.configuration.search.radiusInMeters, restaurant.id, found, prisma);
+        await matchingRepository.registerAttemptToFindAMatch(textQuery, "nearby", this.source, restaurant.id, found !== null && found !== undefined, restaurant.latitude, restaurant.longitude, this.configuration.search.radiusInMeters);
         return found;
       } else {
         return undefined;
@@ -70,45 +71,12 @@ export class TripAdvisorMatcher implements Matcher {
     }
   }
 
-  private async updateProfile(
-    restaurant: RestaurantAndProfiles,
-    profile: RestaurantProfile,
-    tripAdvisor: TripAdvisorLocation,
-    prisma: ExtendedPrismaClient,
-    matchingConfiguration: RestaurantMatchingConfiguration
-  ): Promise<RestaurantAndProfiles> {
-    const updatedProfile = await prisma.restaurantProfile.update({
-      data: this.merge(restaurant, tripAdvisor, profile, matchingConfiguration),
-      where: { id: profile.id }
-    });
-
-    return {
-      ...restaurant,
-      profiles: restaurant.profiles.map(profile => profile.id === updatedProfile.id ? updatedProfile : profile)
-    };
-  }
-
-  private async createProfile(
-    tripAdvisor: TripAdvisorLocation,
-    restaurant: RestaurantAndProfiles,
-    prisma: ExtendedPrismaClient,
-    matchingConfiguration: RestaurantMatchingConfiguration
-  ): Promise<RestaurantAndProfiles> {
-    const newProfile = await prisma.restaurantProfile.create({
-      data: this.merge(restaurant, tripAdvisor, undefined, matchingConfiguration),
-    });
-    return {
-      ...restaurant,
-      profiles: [...restaurant.profiles, newProfile]
-    };
-  }
-
   private merge(
     restaurant: Restaurant,
     tripAdvisor: TripAdvisorLocation,
     profile: RestaurantProfile | undefined,
     matchingConfiguration: RestaurantMatchingConfiguration
-  ) {
+  ): RestaurantProfilePayload {
     return {
       restaurantId: restaurant.id,
       source: this.source,

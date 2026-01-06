@@ -95,7 +95,7 @@ export const preferenceFactory = {
       services[0],
       createDeviceLocation(coordinates),
       false,
-      ranges[1]
+      ranges[0]
     );
   }
 };

@@ -15,7 +15,7 @@ import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const { searchId, candidateId } = params;
-  const view = await findCandidateViewModel(searchId, candidateId, new Date(), await getLocale(request), context.db);
+  const view = await findCandidateViewModel(searchId, candidateId, new Date(), await getLocale(request), context.repositories.search, context.repositories.candidate);
   if (view) {
     if (view.redirectRequired) {
       return redirect(

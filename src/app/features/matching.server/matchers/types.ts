@@ -1,6 +1,6 @@
-import type { ExtendedPrismaClient } from "@features/db.server";
+import type { MatchingRepository, RestaurantAndProfiles, RestaurantRepository } from "@features/db.server";
 
-import type { RestaurantAndProfiles, RestaurantMatchingConfiguration } from "../types";
+import type { RestaurantMatchingConfiguration } from "../types";
 
 export interface Matching {
   restaurant: RestaurantAndProfiles;
@@ -12,10 +12,11 @@ export interface Matcher {
   source: string;
   matchAndEnrich(
     restaurant: RestaurantAndProfiles,
-    prisma: ExtendedPrismaClient,
+    restaurantRepository: RestaurantRepository,
+    matchingRepository: MatchingRepository,
     matchingConfiguration: RestaurantMatchingConfiguration,
     language: string,
     signal?: AbortSignal | undefined
   ): Promise<Matching>;
-  hasReachedQuota(prisma: ExtendedPrismaClient): Promise<boolean>;
+  hasReachedQuota(matchingRepository: MatchingRepository): Promise<boolean>;
 }
