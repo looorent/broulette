@@ -78,7 +78,7 @@
     // OVERPASS CONFIGURATION
     // -------------------------------------------------------------------------
     "BROULETTE_OVERPASS_ENABLED": "true",
-    "BROULETTE_OVERPASS_API_INSTANCE_URLS": "https://overpass-api.de/api/interpreter",
+    "BROULETTE_OVERPASS_API_INSTANCE_URLS": "https://overpass-api.de/api/interpreter,https://maps.mail.ru/osm/tools/overpass/api/interpreter,https://overpass.private.coffee/api/interpreter",
     "BROULETTE_OVERPASS_API_RETRIES": "3",
     "BROULETTE_OVERPASS_API_TIMEOUT": "10000",
     "BROULETTE_OVERPASS_API_CLOSE_AFTER": "5",

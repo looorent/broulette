@@ -5,7 +5,7 @@ export interface RestaurantView {
   name: string;
   description: string | undefined;
   priceRange: string | undefined;
-  imageUrl: string;
+  imageUrl: string | undefined;
   source: string;
   rating: {
     score: number;
@@ -15,7 +15,7 @@ export interface RestaurantView {
   tags: TagView[];
   phoneNumber: string | undefined;
   internationalPhoneNumber: string | undefined;
-  openingHoursOfTheDay: OpeningHoursOfTheDay | undefined;
+  openingHoursOfTheDay: OpeningHoursOfTheDay;
   address: string | undefined;
   urls: string[];
   mapUrl: string | undefined;

@@ -116,9 +116,8 @@ function buildPriceRange({ overpass, tripAdvisor, google }: RestaurantProfiles):
   return google?.priceLabel || tripAdvisor?.priceLabel || overpass?.priceLabel || undefined;
 }
 
-const NO_IMAGE_DEFAULT_URL = "https://placehold.co/600x400?text=No+Image";
-function buildImageUrl({ overpass, tripAdvisor, google }: RestaurantProfiles): string {
-  return google?.imageUrl || tripAdvisor?.imageUrl || overpass?.imageUrl || NO_IMAGE_DEFAULT_URL;
+function buildImageUrl({ overpass, tripAdvisor, google }: RestaurantProfiles): string| undefined {
+  return google?.imageUrl || tripAdvisor?.imageUrl || overpass?.imageUrl || undefined;
 }
 
 function computeRating(profiles: RestaurantProfiles): {
@@ -179,13 +178,9 @@ function buildInternationalPhoneNumber({ overpass, tripAdvisor, google }: Restau
   return google?.internationalPhoneNumber || tripAdvisor?.internationalPhoneNumber || overpass?.internationalPhoneNumber || undefined;
 }
 
-function buildOpeningHoursOfTheDay(search: Search, { overpass, tripAdvisor, google }: RestaurantProfiles, locale: string): OpeningHoursOfTheDay | undefined {
+function buildOpeningHoursOfTheDay(search: Search, { overpass, tripAdvisor, google }: RestaurantProfiles, locale: string): OpeningHoursOfTheDay {
   const openingHours = tripAdvisor?.openingHours || google?.openingHours || overpass?.openingHours || undefined;
-  if (openingHours) {
-    return formatOpeningHoursFor(search.serviceInstant, openingHours, locale);
-  } else {
-    return undefined;
-  }
+  return formatOpeningHoursFor(search.serviceInstant, openingHours, locale);
 }
 
 function buildAddress({ overpass, tripAdvisor, google }: RestaurantProfiles): string | undefined {

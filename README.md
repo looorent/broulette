@@ -81,16 +81,13 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 
 ## TODO
 
-* "back to Lobby" is "fixed" while it should be absolute (wrongly placed on desktop)
 * The "candidate page" is almost too long on my pixel 9a. (ex: Le Brazier)
 * Haptics do not work on Android?
 * Make it a PWA
 * Use KV for circuit breaker? https://community.cloudflare.com/t/session-management/46770/4
 * "back" does not work properly, the "candidate" page seems to be skipped
-* Add a tag "unknown opening hours"
 * Add indexes based on the actual calls
 * Streaming HTTP during search
 * Preference form:
-    * Default values in preference form ("close" should be selected by default)
     * Use localstorage
 * Add some cache on Nominatim

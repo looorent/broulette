@@ -17,7 +17,7 @@ nearby.json
 .mf
 .wrangler
 .dev.vars*
-worker-configuration.d.ts
+src/worker-configuration.d.ts
 
 !.dev.vars.example
 !.env.example

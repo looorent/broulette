@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { href, redirect } from "react-router";
 
 import { BackToHomeButton } from "@components/back-to-home-button";
-import { AddressLink, OpenMapButton, RerollButton, RestaurantPrice, RestaurantRating, RestaurantTags, ShareButton, SourceBadge, WebsiteLink } from "@components/candidate";
+import { AddressLink, NoImageBox, OpenMapButton, RerollButton, RestaurantPrice, RestaurantRating, RestaurantTags, ShareButton, SourceBadge, WebsiteLink } from "@components/candidate";
 import { OpeningHoursCard } from "@components/candidate/opening-hour-card";
 import { PhoneLink } from "@components/candidate/phone-link";
 import { NoResults } from "@components/error";
@@ -80,14 +80,20 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
                 relative m-0 h-56 overflow-hidden border-b-4 border-fun-dark
                 bg-fun-cream
               `}>
-                <img
-                  id="candidate-image"
-                  src={restaurant.imageUrl}
-                  className="h-full w-full animate-image-zoom object-cover"
-                  alt={`Restaurant named '${restaurant.name}'`}
-                  loading="lazy"
-                  decoding="async"
-                />
+                {
+                  restaurant.imageUrl ? (
+                    <img
+                      id="candidate-image"
+                      src={restaurant.imageUrl}
+                      className="h-full w-full animate-image-zoom object-cover"
+                      alt={`Restaurant named '${restaurant.name}'`}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <NoImageBox />
+                  )
+                }
 
                 <SourceBadge source={restaurant.source} />
 
@@ -113,7 +119,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
 
                 <div className="mt-auto space-y-3">
                   <address className={`
-                    flex flex-col gap-4 font-sans text-sm font-bold
+                    flex flex-col gap-3 font-sans text-sm font-bold
                     text-fun-dark not-italic
                   `}>
                     <AddressLink formattedAddress={restaurant.address} mapUrl={restaurant.mapUrl} />
