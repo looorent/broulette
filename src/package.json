@@ -48,6 +48,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/parser": "^8.52.0",
+    "@vite-pwa/assets-generator": "^1.0.2",
     "better-sqlite3": "^12.5.0",
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.8",
@@ -63,6 +64,8 @@
     "eslint-plugin-react-hooks": "7.0.0",
     "eslint-plugin-react-refresh": "0.4.26",
     "globals": "17.0.0",
+    "sharp": "^0.34.5",
+    "sharp-ico": "^0.1.5",
     "tailwindcss": "4.1.18",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
@@ -70,6 +73,7 @@
     "vite": "^7.3.0",
     "vite-plugin-checker": "0.12.0",
     "vite-plugin-devtools-json": "^1.0.0",
+    "vite-plugin-pwa": "^1.2.0",
     "vite-tsconfig-paths": "6.0.3",
     "wrangler": "4.57.0"
   },
@@ -80,5 +84,8 @@
     "@components": "./app/components",
     "@config/server": "./app/config.server.ts",
     "@config": "./app/config.ts"
+  },
+  "overrides": {
+    "sharp": "$sharp"
   }
 }
