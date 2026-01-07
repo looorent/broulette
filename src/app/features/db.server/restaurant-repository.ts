@@ -65,29 +65,37 @@ export class RestaurantRepositoryDrizzle implements RestaurantRepository {
     });
   }
 
-  createRestaurantFromDiscovery(discovered: DiscoveredRestaurantProfile, tags: string[]): Promise<RestaurantAndProfiles> {
-    return this.db.transaction(async (tx) => {
-      const [newRestaurant] = await tx.insert(restaurants)
-        .values({
-          name: discovered.name || null,
-          latitude: discovered.latitude,
-          longitude: discovered.longitude,
-        })
-        .returning();
 
-      const [newProfile] = await tx.insert(restaurantProfiles)
-        .values({
-          ...discovered,
-          restaurantId: newRestaurant.id,
-          version: 1,
-          tags: tags
-        })
-        .returning();
+  // TODO this seems to fail
+  async createRestaurantFromDiscovery(discovered: DiscoveredRestaurantProfile, tags: string[]): Promise<RestaurantAndProfiles> {
+    // sadly, D1 does not support interactive transactions,
+    // so we have to generate the IDs on the client side
+    const newRestaurantId = crypto.randomUUID();
+    const newProfileId = crypto.randomUUID();
 
-      return {
-        ...newRestaurant,
-        profiles: [newProfile]
-      };
-    });
+    const insertRestaurant = this.db.insert(restaurants).values({
+      id: newRestaurantId,
+      name: discovered.name || null,
+      latitude: discovered.latitude,
+      longitude: discovered.longitude,
+    }).returning();
+
+    const insertProfile = this.db.insert(restaurantProfiles).values({
+      id: newProfileId,
+      restaurantId: newRestaurantId,
+      ...discovered,
+      version: 1,
+      tags: tags
+    }).returning();
+
+    const [[newRestaurant], [newProfile]] = await this.db.batch([
+      insertRestaurant,
+      insertProfile
+    ]);
+
+    return {
+      ...newRestaurant,
+      profiles: [newProfile]
+    };
   }
 }
