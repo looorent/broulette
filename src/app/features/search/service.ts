@@ -73,7 +73,7 @@ export function createServiceDatetime(day: Date, timeslot: ServiceTimeslot | nul
     case "Dinner": {
       const hour = SERVICE_DEFAULTS[timeslot].middle.hour;
       const minute = SERVICE_DEFAULTS[timeslot].middle.minute;
-      date.setHours(hour, minute, 0);
+      date.setHours(hour, minute, 0, 0);
       return date;
     }
     case "RightNow":
@@ -89,14 +89,15 @@ export function createServiceEnd(day: Date, timeslot: ServiceTimeslot | null): D
   const date = new Date(day);
   switch (timeslot) {
     case "Lunch":
-    case "Dinner": { const hour = SERVICE_DEFAULTS[timeslot].end.hour;
-      const minute = SERVICE_DEFAULTS[timeslot].end.hour;
-      date.setHours(hour, minute, 0);
+    case "Dinner": {
+      const hour = SERVICE_DEFAULTS[timeslot].end.hour;
+      const minute = SERVICE_DEFAULTS[timeslot].end.minute;
+      date.setHours(hour, minute, 0, 0);
       return date;
     }
     case "RightNow": {
       const tomorrow = addDay(date, 1)
-      tomorrow.setHours(0, 0, 0);
+      tomorrow.setHours(0, 0, 0, 0);
       return tomorrow;
     }
     case "Custom":
@@ -106,27 +107,43 @@ export function createServiceEnd(day: Date, timeslot: ServiceTimeslot | null): D
   }
 }
 
+function getServiceTime(baseDate: Date, time: { hour: number, minute: number }): Date {
+  const date = new Date(baseDate);
+  date.setHours(time.hour, time.minute, 0, 0);
+  return date;
+}
+
 export function createNextServices(now: Date = new Date()): ServicePreference[] {
-  const currentHour = now.getHours();
+  const services: ServicePreference[] = [];
 
-  const services = [
-    createService(now, "RightNow", "Right now", "Now")
-  ];
+  const isDuringLunch = now >= getServiceTime(now, SERVICE_DEFAULTS.Lunch.start) && now < getServiceTime(now, SERVICE_DEFAULTS.Lunch.end);
+  const isDuringDinner = now >= getServiceTime(now, SERVICE_DEFAULTS.Dinner.start) && now < getServiceTime(now, SERVICE_DEFAULTS.Dinner.end);
 
-  if (currentHour < SERVICE_DEFAULTS["Lunch"].middle.hour) {
+  if (isDuringLunch) {
+    services.push(createService(now, "Lunch", "Today lunch", "Lunch"));
+  } else if (isDuringDinner) {
+    services.push(createService(now, "Dinner", "Today dinner", "Dinner"));
+  } else {
+    services.push(createService(now, "RightNow", "Right now", "Now"));
+  }
+
+  if (now < getServiceTime(now, SERVICE_DEFAULTS.Lunch.start)) {
     services.push(createService(now, "Lunch", "Today lunch", "Lunch"));
   }
 
-  if (currentHour < SERVICE_DEFAULTS["Dinner"].middle.hour) {
+  if (now < getServiceTime(now, SERVICE_DEFAULTS.Dinner.start)) {
     services.push(createService(now, "Dinner", "Today dinner", "Dinner"));
   }
 
+  const tomorrow = addDay(now, 1);
+  const afterTomorrow = addDay(now, 2);
+
   return [
     ...services,
-    createService(addDay(now, 1), "Lunch", "Tomorrow lunch", "Tmw lunch"),
-    createService(addDay(now, 1), "Dinner", "Tomorrow dinner", "Tmw dinner"),
-    createService(addDay(now, 2), null, "Pick a date", "Some day", false),
-  ].filter(Boolean);
+    createService(tomorrow, "Lunch", "Tomorrow lunch", "Tmw lunch"),
+    createService(tomorrow, "Dinner", "Tomorrow dinner", "Tmw dinner"),
+    createService(afterTomorrow, null, "Pick a date", "Some day", false),
+  ];
 }
 
 function addDay(originalDate: Date, numberOfDays: number): Date {

@@ -90,7 +90,3 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 * Preference form:
     * Use localstorage
 * Add some cache on Nominatim
-* Update the "updatedAt"
-* Select the most relevant timeslot depending on the hour :
-  * If we are currently during a service, select that service (not "right now")
-  * If we are not during a service, select the next one (not "right now")

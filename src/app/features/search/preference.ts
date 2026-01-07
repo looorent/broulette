@@ -92,10 +92,10 @@ export const preferenceFactory = {
 
   createDefaultPreference: (services: ServicePreference[], ranges: DistanceRangeOption[], coordinates: Coordinates | null) => {
     return buildPreference(
-      services[0],
+      services[1],
       createDeviceLocation(coordinates),
       false,
-      ranges[0]
+      ranges[1]
     );
   }
 };
