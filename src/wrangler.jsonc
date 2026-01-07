@@ -55,7 +55,7 @@
     // -------------------------------------------------------------------------
     // GOOGLE PLACE CONFIGURATION
     // -------------------------------------------------------------------------
-    "BROULETTE_GOOGLE_PLACE_ENABLED": "false",
+    "BROULETTE_GOOGLE_PLACE_ENABLED": "true",
     "BROULETTE_GOOGLE_PLACE_BASE_URL": "https://places.googleapis.com/v1",
     "BROULETTE_GOOGLE_PLACE_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH": "1000",
     "BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS": "1000",
@@ -70,7 +70,7 @@
     // -------------------------------------------------------------------------
     // TRIPADVISOR CONFIGURATION
     // -------------------------------------------------------------------------
-    "BROULETTE_TRIPADVISOR_ENABLED": "false",
+    "BROULETTE_TRIPADVISOR_ENABLED": "true",
     "BROULETTE_TRIPADVISOR_INSTANCE_URL": "https://api.content.tripadvisor.com/api/v1",
     "BROULETTE_TRIPADVISOR_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH": "1000",
     "BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS": "1000",
