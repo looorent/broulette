@@ -1,5 +1,4 @@
-import type { DistanceRange } from "@persistence/enums";
-
+import type { DistanceRange } from "@persistence";
 
 export interface DistanceRangeOption {
   id: DistanceRange;

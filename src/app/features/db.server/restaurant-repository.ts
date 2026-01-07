@@ -1,30 +1,28 @@
-import type { DrizzleD1Database } from "drizzle-orm/d1";
+import { eq, exists } from "drizzle-orm";
 
 import type { DiscoveredRestaurantProfile } from "@features/discovery.server";
-import { Prisma, type PrismaClient } from "@persistence/client";
 
-export type RestaurantAndProfiles = Prisma.RestaurantGetPayload<{
-  include: {
-    profiles: true;
-  }
-}>;
-
-export type RestaurantProfilePayload = Prisma.XOR<Prisma.RestaurantProfileCreateInput, Prisma.RestaurantProfileUncheckedCreateInput>;
+import type { DrizzleClient } from "./drizzle";
+import type { RestaurantAndProfiles, RestaurantProfilePayload } from "./drizzle.types";
+import { restaurantProfiles, restaurants } from "./schema";
 
 export interface RestaurantRepository {
   createProfile(profile: RestaurantProfilePayload, restaurant: RestaurantAndProfiles): Promise<RestaurantAndProfiles>;
   updateProfile(profileId: string, profile: RestaurantProfilePayload, restaurant: RestaurantAndProfiles): Promise<RestaurantAndProfiles>;
-  findRestaurantWithExternalIdentity(externalId: string, externalType: string, source: string): Promise<RestaurantAndProfiles | null>;
+  findRestaurantWithExternalIdentity(externalId: string, externalType: string, source: string): Promise<RestaurantAndProfiles | undefined>;
   createRestaurantFromDiscovery(discovered: DiscoveredRestaurantProfile, tags: string[]): Promise<RestaurantAndProfiles>;
 }
 
-export class RestaurantRepositoryPrisma implements RestaurantRepository {
-  constructor(private readonly db: PrismaClient) {}
+export class RestaurantRepositoryDrizzle implements RestaurantRepository {
+  constructor(private readonly db: DrizzleClient) { }
 
   async createProfile(profile: RestaurantProfilePayload, restaurant: RestaurantAndProfiles): Promise<RestaurantAndProfiles> {
-    const newProfile = await this.db.restaurantProfile.create({
-      data: profile
-    });
+    console.trace(`[Drizzle] Creating new profile for restaurant ${restaurant.id}`);
+    const { id, createdAt, ...dataToInsert } = profile;
+    const [newProfile] = await this.db.insert(restaurantProfiles)
+      .values(dataToInsert)
+      .returning();
+
     return {
       ...restaurant,
       profiles: [...restaurant.profiles, newProfile]
@@ -32,71 +30,64 @@ export class RestaurantRepositoryPrisma implements RestaurantRepository {
   }
 
   async updateProfile(profileId: string, profile: RestaurantProfilePayload, restaurant: RestaurantAndProfiles): Promise<RestaurantAndProfiles> {
-    const updatedProfile = await this.db.restaurantProfile.update({
-      data: profile,
-      where: { id: profileId }
-    });
+    console.trace(`[Drizzle] Updating profile ${profileId}`);
+    const { id, createdAt, restaurantId, ...dataToUpdate } = profile;
+    const [updatedProfile] = await this.db.update(restaurantProfiles)
+      .set(dataToUpdate)
+      .where(eq(restaurantProfiles.id, profileId))
+      .returning();
 
-    return {
-      ...restaurant,
-      profiles: restaurant.profiles.map(profile => profile.id === updatedProfile.id ? updatedProfile : profile)
-    };
+    if (updatedProfile) {
+      return {
+        ...restaurant,
+        profiles: restaurant.profiles.map(p => p.id === updatedProfile.id ? updatedProfile : p)
+      };
+    } else {
+      throw new Error(`Profile with id ${profileId} not found`);
+    }
   }
 
-  findRestaurantWithExternalIdentity(externalId: string, externalType: string, source: string): Promise<RestaurantAndProfiles | null> {
-    return this.db.restaurant.findFirst({
-      where: {
-        profiles: {
-          some: {
-            externalId: externalId,
-            externalType: externalType,
-            source: source
-          }
-        }
-      },
-      include: {
+  findRestaurantWithExternalIdentity(externalId: string, externalType: string, source: string): Promise<RestaurantAndProfiles | undefined> {
+    return this.db.query.restaurants.findFirst({
+      where: (r, { eq, and }) => exists(
+        this.db.select()
+          .from(restaurantProfiles)
+          .where(and(
+            eq(restaurantProfiles.restaurantId, r.id),
+            eq(restaurantProfiles.externalId, externalId),
+            eq(restaurantProfiles.externalType, externalType),
+            eq(restaurantProfiles.source, source)
+          ))
+      ),
+      with: {
         profiles: true
       }
     });
   }
 
   createRestaurantFromDiscovery(discovered: DiscoveredRestaurantProfile, tags: string[]): Promise<RestaurantAndProfiles> {
-    return this.db.restaurant.create({
-      data: {
-        name: discovered.name || null,
-        latitude: discovered.latitude,
-        longitude: discovered.longitude,
-        profiles: {
-          create: {
-            ...discovered,
-            version: 1,
-            tags: tags
-          }
-        }
-      },
-      include: {
-        profiles: true
-      }
+    return this.db.transaction(async (tx) => {
+      const [newRestaurant] = await tx.insert(restaurants)
+        .values({
+          name: discovered.name || null,
+          latitude: discovered.latitude,
+          longitude: discovered.longitude,
+        })
+        .returning();
+
+      const [newProfile] = await tx.insert(restaurantProfiles)
+        .values({
+          ...discovered,
+          restaurantId: newRestaurant.id,
+          version: 1,
+          tags: tags
+        })
+        .returning();
+
+      return {
+        ...newRestaurant,
+        profiles: [newProfile]
+      };
     });
-  }
-}
-
-export class RestaurantRepositoryDrizzle implements RestaurantRepository {
-  constructor(private readonly db: DrizzleD1Database<Record<string, never>> & { $client: D1Database; }) { }
-
-  async createProfile(_profile: RestaurantProfilePayload, _restaurant: RestaurantAndProfiles): Promise<RestaurantAndProfiles> {
-    throw new Error("not implemented");
-  }
-
-  async updateProfile(_profileId: string, _profile: RestaurantProfilePayload, _restaurant: RestaurantAndProfiles): Promise<RestaurantAndProfiles> {
-    throw new Error("not implemented");
-  }
-
-  findRestaurantWithExternalIdentity(_externalId: string, _externalType: string, _source: string): Promise<RestaurantAndProfiles | null> {
-    throw new Error("not implemented");
-  }
-
-  createRestaurantFromDiscovery(_discovered: DiscoveredRestaurantProfile, _tags: string[]): Promise<RestaurantAndProfiles> {
-    throw new Error("not implemented");
   }
 }

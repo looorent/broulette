@@ -1,6 +1,6 @@
+import { createRepositories, type DatabaseRepositories } from "@persistence";
 import { createRequestHandler } from "react-router";
 
-import { createDrizzleRepositories, createPrismaRepositories, type DatabaseRepositories } from "@features/db.server";
 import { createAppSessionStorage, createCSRFToken } from "@features/session.server";
 import { getLocale } from "@features/utils/locale.server";
 
@@ -11,7 +11,6 @@ declare module "react-router" {
     config: ReturnType<typeof createAppContext>;
     sessionStorage: ReturnType<typeof createAppSessionStorage>;
     repositories: DatabaseRepositories,
-    repositories2: DatabaseRepositories,
     locale: string;
     csrf: {
       token: string;
@@ -47,8 +46,7 @@ export default {
         token: token,
         headers: csrfHeaders
       },
-      repositories: await createPrismaRepositories(env),
-      repositories2: await createDrizzleRepositories(env)
+      repositories: await createRepositories(env)
     });
   },
 } satisfies ExportedHandler<Env>;

@@ -1,4 +1,4 @@
-import type { CandidateAndRestaurantAndProfileAndSearch, RestaurantAndProfiles } from "@features/db.server";
+
 import { GOOGLE_PLACE_SOURCE_NAME } from "@features/google.server";
 import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
 import { DISTANCE_RANGES } from "@features/search";
@@ -6,7 +6,7 @@ import type { TagView } from "@features/tag";
 import { tagToLabel } from "@features/tag.server";
 import { TRIPADVISOR_SOURCE_NAME } from "@features/tripadvisor.server";
 import type { CandidateRedirect, CandidateView, OpeningHoursOfTheDay, RestaurantView, SearchRedirect, SearchView } from "@features/view";
-import { type DistanceRange, type Restaurant, type RestaurantProfile, type Search, type ServiceTimeslot } from "@persistence/client";
+import type { CandidateAndRestaurantAndProfileAndSearch, DistanceRange, Restaurant, RestaurantAndProfiles, RestaurantProfile, Search, ServiceTimeslot } from "@persistence";
 
 import { formatOpeningHoursFor } from "./opening-hours";
 

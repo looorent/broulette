@@ -1,4 +1,4 @@
-import type { RestaurantProfile } from "@persistence/client";
+import type { RestaurantProfile } from "@persistence";
 
 export const DEFAULT_DISCOVERY_CONFIGURATION: DiscoveryConfiguration = {
   rangeIncreaseMeters: 2_000,

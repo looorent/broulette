@@ -1,10 +1,10 @@
-import { drizzle } from "drizzle-orm/d1";
 
-import { CandidateRepositoryDrizzle, CandidateRepositoryPrisma, type CandidateRepository } from "./candidate-repository";
-import { MatchingRepositoryDrizzle, MatchingRepositoryPrisma, type MatchingRepository } from "./matching-repository";
-import { getPrisma } from "./prisma";
-import { RestaurantRepositoryDrizzle, RestaurantRepositoryPrisma, type RestaurantRepository } from "./restaurant-repository";
-import { SearchRepositoryDrizzle, SearchRepositoryPrisma, type SearchRepository } from "./search-repository";
+
+import { CandidateRepositoryDrizzle, type CandidateRepository } from "./candidate-repository";
+import { getDrizzle } from "./drizzle";
+import { MatchingRepositoryDrizzle, type MatchingRepository } from "./matching-repository";
+import { RestaurantRepositoryDrizzle, type RestaurantRepository } from "./restaurant-repository";
+import { SearchRepositoryDrizzle, type SearchRepository } from "./search-repository";
 
 export interface DatabaseRepositories {
   search: SearchRepository;
@@ -13,24 +13,12 @@ export interface DatabaseRepositories {
   matching: MatchingRepository;
 }
 
-export async function createPrismaRepositories(env: Env): Promise<DatabaseRepositories> {
-  const prisma = await getPrisma(env);
+export async function createRepositories(env: Env): Promise<DatabaseRepositories> {
+  const client = getDrizzle(env);
   return {
-    search: new SearchRepositoryPrisma(prisma),
-    candidate: new CandidateRepositoryPrisma(prisma),
-    restaurant: new RestaurantRepositoryPrisma(prisma),
-    matching: new MatchingRepositoryPrisma(prisma)
+    search: new SearchRepositoryDrizzle(client),
+    candidate: new CandidateRepositoryDrizzle(client),
+    restaurant: new RestaurantRepositoryDrizzle(client),
+    matching: new MatchingRepositoryDrizzle(client)
   };
 }
-
-export async function createDrizzleRepositories(env: Env): Promise<DatabaseRepositories> {
-  const database = drizzle(env.DB);
-  return {
-    search: new SearchRepositoryDrizzle(database),
-    candidate: new CandidateRepositoryDrizzle(database),
-    restaurant: new RestaurantRepositoryDrizzle(database),
-    matching: new MatchingRepositoryDrizzle(database)
-  };
-}
-
-

@@ -1,7 +1,7 @@
-import type { MatchingRepository, RestaurantAndProfiles, RestaurantProfilePayload, RestaurantRepository } from "@features/db.server";
+
 import { filterTags } from "@features/tag.server";
 import { findTripAdvisorLocationByIdWithRetry, searchTripAdvisorLocationNearbyWithRetry, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration, type TripAdvisorLocation } from "@features/tripadvisor.server";
-import { type Restaurant, type RestaurantProfile } from "@persistence/client";
+import { type Restaurant, type RestaurantProfile , type MatchingRepository, type RestaurantAndProfiles, type RestaurantProfilePayload, type RestaurantRepository } from "@persistence";
 
 import type { RestaurantMatchingConfiguration } from "../types";
 import { type Matcher, type Matching } from "./types";

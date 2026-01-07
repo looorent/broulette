@@ -1,4 +1,4 @@
-import type { MatchingRepository, RestaurantAndProfiles, RestaurantRepository } from "@features/db.server";
+import type { MatchingRepository, RestaurantAndProfiles, RestaurantRepository } from "@persistence";
 
 import type { RestaurantMatchingConfiguration } from "../types";
 

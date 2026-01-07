@@ -1,60 +1,50 @@
-import type { DrizzleD1Database } from "drizzle-orm/d1";
+import { and, eq } from "drizzle-orm";
 
-import { SearchCandidateStatus, type Prisma, type PrismaClient, type SearchCandidate } from "@persistence/client";
+import type { DrizzleClient } from "./drizzle";
+import type { CandidateAndRestaurantAndProfileAndSearch, SearchCandidate, SearchCandidateStatus } from "./drizzle.types";
+import { searchCandidates } from "./schema";
 
 export interface CandidateRepository {
-  findById(candidateId: string, searchId: string): Promise<CandidateAndRestaurantAndProfileAndSearch | null>;
+  findById(candidateId: string, searchId: string): Promise<CandidateAndRestaurantAndProfileAndSearch | undefined>;
   create(searchId: string, restaurantId: string | null | undefined, order: number, status: SearchCandidateStatus, rejectionReason?: string | null | undefined): Promise<SearchCandidate>;
 }
 
-export type CandidateAndRestaurantAndProfileAndSearch = Prisma.SearchCandidateGetPayload<{
-  include: {
-    search: true,
-    restaurant: {
-      include: {
-        profiles: true
-      }
-    }
-  }
-}>;
-
-export class CandidateRepositoryPrisma implements CandidateRepository {
-  constructor(private readonly db: PrismaClient) { }
-
-  async findById(candidateId: string, searchId: string): Promise<CandidateAndRestaurantAndProfileAndSearch | null> {
-    return await this.db.searchCandidate.findUnique({
-      where: {
-        id: candidateId,
-        searchId: searchId
-      },
-      include: {
-        search: true,
-        restaurant: { include: { profiles: true } }
-      }
-    });
-  }
-
-  create(searchId: string, restaurantId: string | null | undefined, order: number, status: SearchCandidateStatus, rejectionReason: string | null | undefined = undefined): Promise<SearchCandidate> {
-    return this.db.searchCandidate.create({
-      data: {
-        searchId: searchId,
-        restaurantId: restaurantId,
-        order: order,
-        status: status,
-        rejectionReason: rejectionReason
-      }
-    });
-  }
-}
-
 export class CandidateRepositoryDrizzle implements CandidateRepository {
-  constructor(private readonly db: DrizzleD1Database<Record<string, never>> & { $client: D1Database; }) { }
+  constructor(private readonly db: DrizzleClient) { }
 
-  async findById(_candidateId: string, _searchId: string): Promise<CandidateAndRestaurantAndProfileAndSearch | null> {
-    throw new Error("not implemented");
+  async findById(candidateId: string,searchId: string): Promise<CandidateAndRestaurantAndProfileAndSearch | undefined> {
+    return this.db.query.searchCandidates.findFirst({
+      where: and(
+        eq(searchCandidates.id, candidateId),
+        eq(searchCandidates.searchId, searchId)
+      ),
+      with: {
+        search: true,
+        restaurant: {
+          with: {
+            profiles: true
+          }
+        }
+      }
+    });
   }
 
-  create(_searchId: string, _restaurantId: string | null | undefined, _order: number, _status: SearchCandidateStatus, _rejectionReason: string | null | undefined = undefined): Promise<SearchCandidate> {
-    throw new Error("not implemented");
+  async create(
+    searchId: string,
+    restaurantId: string | null | undefined,
+    order: number,
+    status: SearchCandidateStatus,
+    rejectionReason: string | null | undefined = undefined
+  ): Promise<SearchCandidate> {
+    const [candidate] = await this.db.insert(searchCandidates)
+      .values({
+        searchId,
+        restaurantId: restaurantId ?? null,
+        order,
+        status,
+        rejectionReason: rejectionReason ?? null
+      })
+      .returning();
+    return candidate;
   }
 }

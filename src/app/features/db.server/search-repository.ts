@@ -1,24 +1,13 @@
-import type { DrizzleD1Database } from "drizzle-orm/d1";
+import { eq } from "drizzle-orm";
 
 import { createServiceDatetime, createServiceEnd } from "@features/search";
-import type { DistanceRange, Prisma, PrismaClient, Search, SearchCandidateStatus, ServiceTimeslot } from "@persistence/client";
 
-export type SearchAndRestaurantsAndProfiles = Prisma.SearchGetPayload<{
-  include: {
-    candidates: {
-      include: {
-        restaurant: {
-          include: {
-            profiles: true
-          }
-        }
-      }
-    }
-  }
-}>;
+import type { DrizzleClient } from "./drizzle";
+import type { DistanceRange, Search, SearchAndRestaurantsAndProfiles, SearchCandidateStatus, ServiceTimeslot } from "./drizzle.types";
+import { searches } from "./schema";
 
 export interface SearchRepository {
-  create(latitude: number,longitude: number,date: Date,timeslot: ServiceTimeslot,distanceRange: DistanceRange): Promise<Search>;
+  create(latitude: number,longitude: number,date: Date,timeslot: ServiceTimeslot, distanceRange: DistanceRange): Promise<Search>;
   findWithLatestCandidateId(searchId: string | undefined | null, candidateStatus?: SearchCandidateStatus | undefined): Promise<{
     searchId: string;
     exhausted: boolean;
@@ -28,12 +17,12 @@ export interface SearchRepository {
     distanceRange: DistanceRange;
     latestCandidateId: string | undefined;
   } | undefined>;
-  findByIdWithRestaurantAndProfiles(searchId: string): Promise<SearchAndRestaurantsAndProfiles | null>;
+  findByIdWithRestaurantAndProfiles(searchId: string): Promise<SearchAndRestaurantsAndProfiles | undefined>;
   markSearchAsExhausted(searchId: string): Promise<void>;
 }
 
-export class SearchRepositoryPrisma implements SearchRepository {
-  constructor(private readonly db: PrismaClient) { }
+export class SearchRepositoryDrizzle implements SearchRepository {
+  constructor(private readonly db: DrizzleClient) { }
 
   async create(
     latitude: number,
@@ -42,19 +31,18 @@ export class SearchRepositoryPrisma implements SearchRepository {
     timeslot: ServiceTimeslot,
     distanceRange: DistanceRange
   ): Promise<Search> {
-    console.trace(`[Prisma] creating Search...`);
-    return this.db.search.create({
-      data: {
-        latitude: latitude,
-        longitude: longitude,
-        serviceDate: date,
-        serviceTimeslot: timeslot,
-        serviceInstant: createServiceDatetime(date, timeslot),
-        serviceEnd: createServiceEnd(date, timeslot),
-        distanceRange: distanceRange,
-        exhausted: false
-      }
-    });
+    console.trace(`[Drizzle] creating Search...`);
+    const [newSearch] = await this.db.insert(searches).values({
+      latitude: latitude,
+      longitude: longitude,
+      serviceDate: date,
+      serviceTimeslot: timeslot,
+      serviceInstant: createServiceDatetime(date, timeslot),
+      serviceEnd: createServiceEnd(date, timeslot),
+      distanceRange: distanceRange,
+      exhausted: false
+    }).returning();
+    return newSearch;
   }
 
   async findWithLatestCandidateId(
@@ -70,42 +58,40 @@ export class SearchRepositoryPrisma implements SearchRepository {
     latestCandidateId: string | undefined;
   } | undefined> {
     if (searchId) {
-      console.trace(`[Prisma] findWithLatestCandidateId: Querying searchId="${searchId}", status=${candidateStatus || "ALL"}`);
-      const search = await this.db.search.findUnique({
-        select: {
+      const search = await this.db.query.searches.findFirst({
+        where: eq(searches.id, searchId),
+        columns: {
           id: true,
           exhausted: true,
           serviceTimeslot: true,
           serviceInstant: true,
-          distanceRange: true,
-          candidates: {
-            select: { id: true, order: true },
-            orderBy: { order: "desc" as const },
-            where: {
-              status: candidateStatus ?? undefined
-            },
-            take: 1
-          }
+          distanceRange: true
         },
-        where: {
-          id: searchId
+        with: {
+          candidates: {
+            columns: { id: true, order: true },
+            orderBy: (candidates, { desc }) => [desc(candidates.order)],
+            limit: 1,
+            where: (candidates, { eq }) => candidateStatus ? eq(candidates.status, candidateStatus) : undefined
+          }
         }
       });
 
       if (search) {
-        const latestId = search.candidates?.[0]?.id;
-        console.trace(`[Prisma] findWithLatestCandidateId: Found search. Latest candidate: ${latestId ? latestId : "None"}`);
+        const latestCandidate = search.candidates[0];
+        const latestId = latestCandidate?.id;
+        console.trace(`[Drizzle] findWithLatestCandidateId: Found search. Latest candidate: ${latestId ? latestId : "None"}`);
         return {
           searchId: search.id,
           exhausted: search.exhausted,
-          serviceTimeslot: search.serviceTimeslot,
+          serviceTimeslot: search.serviceTimeslot as ServiceTimeslot,
           serviceInstant: search.serviceInstant,
-          distanceRange: search.distanceRange,
-          latestCandidateId: latestId || undefined,
-          order: search.candidates?.[0]?.order || 0
+          distanceRange: search.distanceRange as DistanceRange,
+          latestCandidateId: latestId,
+          order: latestCandidate?.order ?? 0
         };
       } else {
-        console.trace(`[Prisma] findWithLatestCandidateId: Search "${searchId}" not found`);
+        console.trace(`[Drizzle] findWithLatestCandidateId: Search "${searchId}" not found`);
         return undefined;
       }
     } else {
@@ -113,61 +99,28 @@ export class SearchRepositoryPrisma implements SearchRepository {
     }
   }
 
-  async findByIdWithRestaurantAndProfiles(searchId: string): Promise<SearchAndRestaurantsAndProfiles | null> {
-    console.trace(`[Prisma] findUniqueWithRestaurantAndProfiles: Querying searchId="${searchId}"`);
-    return this.db.search.findUnique({
-      where: { id: searchId },
-      include: {
+  async findByIdWithRestaurantAndProfiles(searchId: string): Promise<SearchAndRestaurantsAndProfiles | undefined> {
+    console.trace(`[Drizzle] findUniqueWithRestaurantAndProfiles: Querying searchId="${searchId}"`);
+    return this.db.query.searches.findFirst({
+      where: eq(searches.id, searchId),
+      with: {
         candidates: {
-          include: { restaurant: { include: { profiles: true } } }
+          with: {
+            restaurant: {
+              with: {
+                profiles: true
+              }
+            }
+          }
         }
       }
     });
   }
 
   async markSearchAsExhausted(searchId: string): Promise<void> {
-    console.log(`[SearchEngine] Marking search "${searchId}" as EXHAUSTED.`);
-    await this.db.search.update({
-      data: { exhausted: true },
-      where: { id: searchId }
-    });
-  }
-}
-
-
-export class SearchRepositoryDrizzle implements SearchRepository {
-  constructor(private readonly db: DrizzleD1Database<Record<string, never>> & { $client: D1Database; }) { }
-
-  async create(
-    _latitude: number,
-    _longitude: number,
-    _date: Date,
-    _timeslot: ServiceTimeslot,
-    _distanceRange: DistanceRange
-  ): Promise<Search> {
-    throw new Error("not implemented");
-  }
-
-  async findWithLatestCandidateId(
-    _searchId: string | undefined | null,
-    _candidateStatus: SearchCandidateStatus | undefined = undefined
-  ): Promise<{
-    searchId: string;
-    exhausted: boolean;
-    serviceTimeslot: ServiceTimeslot;
-    serviceInstant: Date;
-    order: number;
-    distanceRange: DistanceRange;
-    latestCandidateId: string | undefined;
-  } | undefined> {
-    throw new Error("not implemented");
-  }
-
-  async findByIdWithRestaurantAndProfiles(_searchId: string): Promise<SearchAndRestaurantsAndProfiles | null> {
-    throw new Error("not implemented");
-  }
-
-  async markSearchAsExhausted(_searchId: string): Promise<void> {
-    throw new Error("not implemented");
+    console.log(`[Drizzle] Marking search '${searchId}' as EXHAUSTED.`);
+    this.db.update(searches)
+      .set({ exhausted: true })
+      .where(eq(searches.id, searchId));
   }
 }

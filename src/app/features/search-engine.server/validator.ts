@@ -1,6 +1,6 @@
-import type { RestaurantAndProfiles } from "@features/db.server";
 import { buildViewModelOfRestaurant } from "@features/view.server/factory";
-import type { Search } from "@persistence/client";
+import type { Search , RestaurantAndProfiles } from "@persistence";
+
 
 const SUCCESS = {
   valid: true

@@ -1,10 +1,9 @@
-import type { CandidateRepository, MatchingRepository, RestaurantRepository, SearchRepository } from "@features/db.server";
 import { RestaurantDiscoveryScanner, type DiscoveredRestaurantProfile } from "@features/discovery.server";
 import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlaceConfiguration } from "@features/google.server";
 import { enrichRestaurant } from "@features/matching.server";
 import { DEFAULT_OVERPASS_CONFIGURATION, type OverpassConfiguration } from "@features/overpass.server";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
-import { DistanceRange, SearchCandidateStatus, type RestaurantProfile, type Search, type SearchCandidate } from "@persistence/client";
+import { DistanceRange, SearchCandidateStatus, type CandidateRepository, type MatchingRepository, type RestaurantProfile, type RestaurantRepository, type Search, type SearchCandidate, type SearchRepository } from "@persistence";
 
 import { SearchNotFoundError } from "./error";
 import { randomize } from "./randomizer";

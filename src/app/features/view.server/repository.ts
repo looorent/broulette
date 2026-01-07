@@ -1,5 +1,5 @@
-import type { CandidateRepository, SearchRepository } from "@features/db.server";
 import type { CandidateRedirect, CandidateView, SearchRedirect, SearchView } from "@features/view";
+import type { CandidateRepository, SearchRepository } from "@persistence";
 
 import { buildViewModelOfCandidate, buildViewModelOfSearch } from "./factory";
 

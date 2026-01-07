@@ -20,10 +20,7 @@ export default defineConfig(
       ".react-router",
       "build",
       "public",
-      "worker-configuration.d.ts",
-      "db/schema.ts",
-      "db/schema2.ts",
-      "app/features/generated/prisma.server/internal/query_compiler_bg.js"
+      "worker-configuration.d.ts"
     ]
   },
   {

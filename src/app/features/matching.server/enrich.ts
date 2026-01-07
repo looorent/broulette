@@ -1,10 +1,10 @@
-import { type MatchingRepository, type RestaurantAndProfiles, type RestaurantRepository } from "@features/db.server";
 import type { DiscoveredRestaurantProfile } from "@features/discovery.server";
 import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, GOOGLE_PLACE_SOURCE_NAME, type GooglePlaceConfiguration } from "@features/google.server";
 import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
 import { filterTags } from "@features/tag.server";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
 import { isOlderThanAMonth, thirtyDaysAgo } from "@features/utils/date";
+import { type MatchingRepository, type RestaurantAndProfiles, type RestaurantRepository } from "@persistence";
 
 import { registeredMatchers } from "./matchers/registry";
 import type { Matcher } from "./matchers/types";

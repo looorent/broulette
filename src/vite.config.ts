@@ -7,7 +7,7 @@ import { defineConfig } from "vite";
 import devtoolsJson from "vite-plugin-devtools-json";
 
 export const baseConfigurationAlias = {
-  "@persistence": path.resolve(__dirname, "./app/features/generated/prisma.server"),
+  "@persistence": path.resolve(__dirname, "./app/features/db.server/index.ts"),
   "@features": path.resolve(__dirname, "./app/features"),
   "@routes": path.resolve(__dirname, "./app/routes"),
   "@components": path.resolve(__dirname, "./app/components/"),

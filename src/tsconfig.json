@@ -22,8 +22,8 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@persistence/*": [
-        "./app/features/generated/prisma.server/*"
+      "@persistence": [
+        "./app/features/db.server/index.ts"
       ],
       "@features/*": [
         "./app/features/*"

@@ -1,6 +1,7 @@
+import type { RestaurantProfile } from "@persistence";
+
 import type { Coordinates } from "@features/coordinate";
 import type { OverpassConfiguration } from "@features/overpass.server";
-import type { RestaurantProfile } from "@persistence/client";
 
 import { loadBalancer } from "./providers";
 import { type DiscoveredRestaurantProfile, type DiscoveryConfiguration, type DiscoveryRestaurantIdentity } from "./types";
