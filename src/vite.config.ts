@@ -25,7 +25,6 @@ export default defineConfig({
     devtoolsJson()
   ],
   resolve: {
-    alias: baseConfigurationAlias,
-    // dedupe: ["react", "react-dom", "@prisma/client"]
+    alias: baseConfigurationAlias
   }
 });

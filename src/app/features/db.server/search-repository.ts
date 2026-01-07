@@ -1,3 +1,5 @@
+import type { DrizzleD1Database } from "drizzle-orm/d1";
+
 import { createServiceDatetime, createServiceEnd } from "@features/search";
 import type { DistanceRange, Prisma, PrismaClient, Search, SearchCandidateStatus, ServiceTimeslot } from "@persistence/client";
 
@@ -129,5 +131,43 @@ export class SearchRepositoryPrisma implements SearchRepository {
       data: { exhausted: true },
       where: { id: searchId }
     });
+  }
+}
+
+
+export class SearchRepositoryDrizzle implements SearchRepository {
+  constructor(private readonly db: DrizzleD1Database<Record<string, never>> & { $client: D1Database; }) { }
+
+  async create(
+    _latitude: number,
+    _longitude: number,
+    _date: Date,
+    _timeslot: ServiceTimeslot,
+    _distanceRange: DistanceRange
+  ): Promise<Search> {
+    throw new Error("not implemented");
+  }
+
+  async findWithLatestCandidateId(
+    _searchId: string | undefined | null,
+    _candidateStatus: SearchCandidateStatus | undefined = undefined
+  ): Promise<{
+    searchId: string;
+    exhausted: boolean;
+    serviceTimeslot: ServiceTimeslot;
+    serviceInstant: Date;
+    order: number;
+    distanceRange: DistanceRange;
+    latestCandidateId: string | undefined;
+  } | undefined> {
+    throw new Error("not implemented");
+  }
+
+  async findByIdWithRestaurantAndProfiles(_searchId: string): Promise<SearchAndRestaurantsAndProfiles | null> {
+    throw new Error("not implemented");
+  }
+
+  async markSearchAsExhausted(_searchId: string): Promise<void> {
+    throw new Error("not implemented");
   }
 }

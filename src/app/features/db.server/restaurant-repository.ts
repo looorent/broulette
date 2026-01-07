@@ -1,3 +1,5 @@
+import type { DrizzleD1Database } from "drizzle-orm/d1";
+
 import type { DiscoveredRestaurantProfile } from "@features/discovery.server";
 import { Prisma, type PrismaClient } from "@persistence/client";
 
@@ -76,5 +78,25 @@ export class RestaurantRepositoryPrisma implements RestaurantRepository {
         profiles: true
       }
     });
+  }
+}
+
+export class RestaurantRepositoryDrizzle implements RestaurantRepository {
+  constructor(private readonly db: DrizzleD1Database<Record<string, never>> & { $client: D1Database; }) { }
+
+  async createProfile(_profile: RestaurantProfilePayload, _restaurant: RestaurantAndProfiles): Promise<RestaurantAndProfiles> {
+    throw new Error("not implemented");
+  }
+
+  async updateProfile(_profileId: string, _profile: RestaurantProfilePayload, _restaurant: RestaurantAndProfiles): Promise<RestaurantAndProfiles> {
+    throw new Error("not implemented");
+  }
+
+  findRestaurantWithExternalIdentity(_externalId: string, _externalType: string, _source: string): Promise<RestaurantAndProfiles | null> {
+    throw new Error("not implemented");
+  }
+
+  createRestaurantFromDiscovery(_discovered: DiscoveredRestaurantProfile, _tags: string[]): Promise<RestaurantAndProfiles> {
+    throw new Error("not implemented");
   }
 }

@@ -4,7 +4,7 @@
   "main": "./workers/app.ts",
   "compatibility_date": "2025-04-04",
   "compatibility_flags": [
-    "nodejs_compat" // TODO not sure this is still necessary
+    "nodejs_compat" // TODO not sure this is still necessary (drizzle)
   ],
   "observability": {
     "enabled": true
@@ -17,6 +17,14 @@
     {
       "pattern": "biteroulette.com",
       "custom_domain": true
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "local-db",
+      "migrations_dir": "drizzle",
+      "database_id": "xxxx-xxxx-xxxx-xxxx"
     }
   ],
   "vars": {

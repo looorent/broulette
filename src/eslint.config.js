@@ -21,6 +21,8 @@ export default defineConfig(
       "build",
       "public",
       "worker-configuration.d.ts",
+      "db/schema.ts",
+      "db/schema2.ts",
       "app/features/generated/prisma.server/internal/query_compiler_bg.js"
     ]
   },

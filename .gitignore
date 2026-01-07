@@ -7,7 +7,6 @@ dist
 .react-router/
 /build/
 /src/build/
-nearby.json
 
 .DS_Store
 /node_modules/

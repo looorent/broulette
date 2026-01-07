@@ -1,3 +1,5 @@
+import type { DrizzleD1Database } from "drizzle-orm/d1";
+
 import { computeMonthBounds } from "@features/utils/date";
 import type { PrismaClient, RestaurantMatchingAttempt } from "@persistence/client";
 
@@ -76,5 +78,35 @@ export class MatchingRepositoryPrisma implements MatchingRepository {
         radius: radiusInMeter
       }
     });
+  }
+}
+
+
+export class MatchingRepositoryDrizzle implements MatchingRepository {
+  constructor(private readonly db: DrizzleD1Database<Record<string, never>> & { $client: D1Database; }) { }
+
+  async doesAttemptExistsSince(_instant: Date, _restaurantId: string, _source: string): Promise<boolean> {
+    throw new Error("not implemented");
+  }
+
+  async hasReachedQuota(_source: string, _maxNumberOfAttemptsPerMonth: number): Promise<boolean> {
+    throw new Error("not implemented");
+  }
+
+  countMatchingAttemptsDuringMonth(_source: string, _month: Date): Promise<number> {
+    throw new Error("not implemented");
+  }
+
+  registerAttemptToFindAMatch(
+    _query: string,
+    _queryType: string,
+    _source: string,
+    _restaurantId: string,
+    _found: boolean,
+    _latitude: number | undefined = undefined,
+    _longitude: number | undefined = undefined,
+    _radiusInMeter: number | undefined = undefined
+  ): Promise<RestaurantMatchingAttempt> {
+    throw new Error("not implemented");
   }
 }

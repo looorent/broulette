@@ -1,3 +1,5 @@
+import type { DrizzleD1Database } from "drizzle-orm/d1";
+
 import { SearchCandidateStatus, type Prisma, type PrismaClient, type SearchCandidate } from "@persistence/client";
 
 export interface CandidateRepository {
@@ -42,5 +44,17 @@ export class CandidateRepositoryPrisma implements CandidateRepository {
         rejectionReason: rejectionReason
       }
     });
+  }
+}
+
+export class CandidateRepositoryDrizzle implements CandidateRepository {
+  constructor(private readonly db: DrizzleD1Database<Record<string, never>> & { $client: D1Database; }) { }
+
+  async findById(_candidateId: string, _searchId: string): Promise<CandidateAndRestaurantAndProfileAndSearch | null> {
+    throw new Error("not implemented");
+  }
+
+  create(_searchId: string, _restaurantId: string | null | undefined, _order: number, _status: SearchCandidateStatus, _rejectionReason: string | null | undefined = undefined): Promise<SearchCandidate> {
+    throw new Error("not implemented");
   }
 }

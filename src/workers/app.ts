@@ -1,7 +1,6 @@
 import { createRequestHandler } from "react-router";
 
-import { createRepositories, type SearchRepository } from "@features/db.server";
-import type { DatabaseRepositories } from "@features/db.server/types";
+import { createDrizzleRepositories, createPrismaRepositories, type DatabaseRepositories } from "@features/db.server";
 import { createAppSessionStorage, createCSRFToken } from "@features/session.server";
 import { getLocale } from "@features/utils/locale.server";
 
@@ -12,6 +11,7 @@ declare module "react-router" {
     config: ReturnType<typeof createAppContext>;
     sessionStorage: ReturnType<typeof createAppSessionStorage>;
     repositories: DatabaseRepositories,
+    repositories2: DatabaseRepositories,
     locale: string;
     csrf: {
       token: string;
@@ -36,7 +36,6 @@ export default {
       env.BROULETTE_SESSION_SECURE?.toLowerCase() === "true"
     );
 
-
     const { token, headers: csrfHeaders } = await createCSRFToken(request.headers, sessionStorage);
 
     return requestHandler(request, {
@@ -48,7 +47,8 @@ export default {
         token: token,
         headers: csrfHeaders
       },
-      repositories: await createRepositories(env)
+      repositories: await createPrismaRepositories(env),
+      repositories2: await createDrizzleRepositories(env)
     });
   },
 } satisfies ExportedHandler<Env>;

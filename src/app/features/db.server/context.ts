@@ -1,8 +1,10 @@
-import { CandidateRepositoryPrisma, type CandidateRepository } from "./candidate-repository";
-import { MatchingRepositoryPrisma, type MatchingRepository } from "./matching-repository";
+import { drizzle } from "drizzle-orm/d1";
+
+import { CandidateRepositoryDrizzle, CandidateRepositoryPrisma, type CandidateRepository } from "./candidate-repository";
+import { MatchingRepositoryDrizzle, MatchingRepositoryPrisma, type MatchingRepository } from "./matching-repository";
 import { getPrisma } from "./prisma";
-import { RestaurantRepositoryPrisma, type RestaurantRepository } from "./restaurant-repository";
-import { SearchRepositoryPrisma, type SearchRepository } from "./search-repository";
+import { RestaurantRepositoryDrizzle, RestaurantRepositoryPrisma, type RestaurantRepository } from "./restaurant-repository";
+import { SearchRepositoryDrizzle, SearchRepositoryPrisma, type SearchRepository } from "./search-repository";
 
 export interface DatabaseRepositories {
   search: SearchRepository;
@@ -11,7 +13,7 @@ export interface DatabaseRepositories {
   matching: MatchingRepository;
 }
 
-export async function createRepositories(env: Env): Promise<DatabaseRepositories> {
+export async function createPrismaRepositories(env: Env): Promise<DatabaseRepositories> {
   const prisma = await getPrisma(env);
   return {
     search: new SearchRepositoryPrisma(prisma),
@@ -20,3 +22,15 @@ export async function createRepositories(env: Env): Promise<DatabaseRepositories
     matching: new MatchingRepositoryPrisma(prisma)
   };
 }
+
+export async function createDrizzleRepositories(env: Env): Promise<DatabaseRepositories> {
+  const database = drizzle(env.DB);
+  return {
+    search: new SearchRepositoryDrizzle(database),
+    candidate: new CandidateRepositoryDrizzle(database),
+    restaurant: new RestaurantRepositoryDrizzle(database),
+    matching: new MatchingRepositoryDrizzle(database)
+  };
+}
+
+
