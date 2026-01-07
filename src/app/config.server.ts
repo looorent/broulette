@@ -13,7 +13,7 @@ export const APP_CONFIG = {
   name: "BiteRoulette",
   version: "0.0.1",
   privacy: {
-    updatedAt: "December 29, 2025",
+    updatedAt: "January 7th, 2026",
     contactEmail: "hello@biteroulette.com"
   }
 } as const;

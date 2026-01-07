@@ -1,7 +1,7 @@
-import { type Restaurant, type RestaurantProfile, type MatchingRepository, type RestaurantAndProfiles, type RestaurantProfilePayload, type RestaurantRepository } from "@persistence";
 
 import { findGoogleRestaurantById, GOOGLE_PLACE_SOURCE_NAME, searchGoogleRestaurantByText, type GooglePlaceConfiguration, type GoogleRestaurant } from "@features/google.server";
 import { filterTags } from "@features/tag.server";
+import { type Restaurant, type RestaurantProfile, type MatchingRepository, type RestaurantAndProfiles, type RestaurantProfilePayload, type RestaurantRepository } from "@persistence";
 
 import type { RestaurantMatchingConfiguration } from "../types";
 import { type Matcher, type Matching } from "./types";

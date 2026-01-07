@@ -28,16 +28,16 @@ npm run dev
 
 ## Database Management
 
-This project uses **Prisma** for database management.
+This project uses **Drizzle** for database management.
 
-* **Update Schema:** If you modify `prisma/schema.prisma`, run:
+* **Update Schema:** If you modify `schema.ts`, run:
     ```bash
-    npm run prisma:generate
+    npm run db:gen
     ```
 
 * **View Data:** To explore your data visually:
     ```bash
-    npm run prisma:studio
+    npm run db:studio:local
     ```
 
 ## Source of data
@@ -72,99 +72,12 @@ BROULETTE_TRIPADVISOR_ENABLED=true
 
 ## Secrets
 
-* npx wrangler secret put BROULETTE_DATABASE_URL
+* npx wrangler secret rm BROULETTE_DATABASE_URL
 * npx wrangler secret put BROULETTE_GOOGLE_PLACE_API_KEY
 * npx wrangler secret put BROULETTE_TRIPADVISOR_API_KEY
 * npx wrangler secret put BROULETTE_SESSION_SECRET
 
 Use `npx wrangler secret put <KEY>` to create each secret.
-
-
-## Build optimization
-
-For now (2026-01-06), the build ends with this bundle:
-```
-Using Vite Environment API (experimental)
-vite v7.3.0 building client environment for production...
-✓ 5163 modules transformed.
-Generated an empty chunk: "_.api.address-searches".
-Generated an empty chunk: "_.api.health".
-build/client/.vite/manifest.json                                               4.22 kB │ gzip:  0.66 kB
-build/client/assets/root-mXnUP3Qy.css                                         54.39 kB │ gzip:  9.76 kB
-build/client/assets/_.api.address-searches-l0sNRNKZ.js                         0.00 kB │ gzip:  0.02 kB
-build/client/assets/_.api.health-l0sNRNKZ.js                                   0.00 kB │ gzip:  0.02 kB
-build/client/assets/searches._index-Cqqh6Nmg.js                                0.27 kB │ gzip:  0.23 kB
-build/client/assets/searches._searchId_.candidates._index-BqiPCKIH.js          0.27 kB │ gzip:  0.23 kB
-build/client/assets/searches._searchId-BsRSRPyH.js                             0.64 kB │ gzip:  0.45 kB
-build/client/assets/haptics-C5YlcInJ.js                                        1.02 kB │ gzip:  0.52 kB
-build/client/assets/ambient-pulse-Bxys2kOP.js                                  1.40 kB │ gzip:  0.82 kB
-build/client/assets/error-unknown-DY4xhMWd.js                                  2.43 kB │ gzip:  1.00 kB
-build/client/assets/chunk-YNUBSHFH-CCdznonb.js                                 3.04 kB │ gzip:  1.53 kB
-build/client/assets/root-CyswwTOb.js                                           5.98 kB │ gzip:  2.23 kB
-build/client/assets/searches._searchId_.candidates._candidateId-SLX02Tbr.js   31.81 kB │ gzip: 11.48 kB
-build/client/assets/_index-B15fbxEr.js                                        63.05 kB │ gzip: 19.08 kB
-build/client/assets/chunk-JMJ3UQ3L-BZB15f9O.js                               124.86 kB │ gzip: 42.29 kB
-build/client/assets/entry.client-0g2zKKI_.js                                 187.81 kB │ gzip: 58.94 kB
-✓ built in 1.72s
-vite v7.3.0 building ssr environment for production...
-✓ 5299 modules transformed.
-rendering chunks (5)...Using vars defined in .dev.vars
-build/server/.dev.vars                                   0.64 kB
-build/server/.vite/manifest.json                         1.57 kB
-build/server/wrangler.json                               4.38 kB
-build/server/assets/query_compiler_bg-BLBQOTuU.wasm  1,825.18 kB
-build/server/assets/server-build-mXnUP3Qy.css           54.39 kB
-build/server/index.js                                    0.16 kB
-build/server/assets/browser-D75eHhgU.js                  1.20 kB
-build/server/assets/query_compiler_bg-gBoRaSMa.js        7.82 kB
-build/server/assets/worker-entry-CSMPisKZ.js           760.88 kB
-build/server/assets/server-build-DIeq84w1.js         1,508.96 kB
-```
-
-(next purpose: remove every wasm client and move to a lightweight/edge sql client)
-
-With Drizzle instead of Prisma:
-```
-➜  src git:(d1) ✗ npm run build    
-
-> build
-> react-router build
-
-Using Vite Environment API (experimental)
-vite v7.3.0 building client environment for production...
-✓ 5163 modules transformed.
-Generated an empty chunk: "_.api.address-searches".
-Generated an empty chunk: "_.api.health".
-build/client/.vite/manifest.json                                               4.22 kB │ gzip:  0.66 kB
-build/client/assets/root-CaEYtsLN.css                                         54.20 kB │ gzip:  9.75 kB
-build/client/assets/_.api.address-searches-l0sNRNKZ.js                         0.00 kB │ gzip:  0.02 kB
-build/client/assets/_.api.health-l0sNRNKZ.js                                   0.00 kB │ gzip:  0.02 kB
-build/client/assets/searches._index-Cqqh6Nmg.js                                0.27 kB │ gzip:  0.23 kB
-build/client/assets/searches._searchId_.candidates._index-BqiPCKIH.js          0.27 kB │ gzip:  0.23 kB
-build/client/assets/searches._searchId-BsRSRPyH.js                             0.64 kB │ gzip:  0.45 kB
-build/client/assets/haptics-C5YlcInJ.js                                        1.02 kB │ gzip:  0.52 kB
-build/client/assets/ambient-pulse-Bxys2kOP.js                                  1.40 kB │ gzip:  0.82 kB
-build/client/assets/error-unknown-DY4xhMWd.js                                  2.43 kB │ gzip:  1.00 kB
-build/client/assets/chunk-YNUBSHFH-CCdznonb.js                                 3.04 kB │ gzip:  1.53 kB
-build/client/assets/root--CFtgR2C.js                                           5.98 kB │ gzip:  2.23 kB
-build/client/assets/searches._searchId_.candidates._candidateId-SLX02Tbr.js   31.81 kB │ gzip: 11.48 kB
-build/client/assets/_index-DCBzG5U1.js                                        63.05 kB │ gzip: 19.08 kB
-build/client/assets/chunk-JMJ3UQ3L-BZB15f9O.js                               124.86 kB │ gzip: 42.29 kB
-build/client/assets/entry.client-0g2zKKI_.js                                 187.81 kB │ gzip: 58.94 kB
-✓ built in 1.62s
-vite v7.3.0 building ssr environment for production...
-✓ 5377 modules transformed.
-rendering chunks (3)...Using vars defined in .dev.vars
-build/server/.dev.vars                             0.64 kB
-build/server/.vite/manifest.json                   0.72 kB
-build/server/wrangler.json                         4.48 kB
-build/server/assets/server-build-CaEYtsLN.css     54.20 kB
-build/server/index.js                              0.13 kB
-build/server/assets/worker-entry-DbaHgLRi.js     507.83 kB
-build/server/assets/server-build-BexmNWBR.js   1,508.92 kB
-```
-
-
 
 ## TODO
 
@@ -173,9 +86,11 @@ build/server/assets/server-build-BexmNWBR.js   1,508.92 kB
 * Make it a PWA
 * Use KV for circuit breaker? https://community.cloudflare.com/t/session-management/46770/4
 * "back" does not work properly, the "candidate" page seems to be skipped
-* Add indexes based on the actual calls
 * Streaming HTTP during search
 * Preference form:
     * Use localstorage
 * Add some cache on Nominatim
 * Update the "updatedAt"
+* Select the most relevant timeslot depending on the hour :
+  * If we are currently during a service, select that service (not "right now")
+  * If we are not during a service, select the next one (not "right now")

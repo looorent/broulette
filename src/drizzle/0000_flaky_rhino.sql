@@ -51,7 +51,6 @@ CREATE INDEX `idx_restaurant_profile_to_restaurant` ON `restaurant_profile` (`re
 CREATE TABLE `restaurant` (
 	`id` text(36) PRIMARY KEY NOT NULL,
 	`created_at` integer NOT NULL,
-	`updated_at` integer NOT NULL,
 	`name` text(100),
 	`latitude` real NOT NULL,
 	`longitude` real NOT NULL

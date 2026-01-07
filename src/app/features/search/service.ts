@@ -1,6 +1,7 @@
-import type { ServiceTimeslot } from "@persistence";
 import { CalendarPlus, Clock, Moon, Sun, type LucideProps } from "lucide-react";
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
+
+import type { ServiceTimeslot } from "@persistence";
 
 
 export type ServicePreferenceIcon = "clock" | "moon" | "sun" | "calendar";

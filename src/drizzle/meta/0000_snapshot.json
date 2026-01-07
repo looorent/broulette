@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c8eb96d1-ede0-4fa5-af15-efc94e8336f4",
+  "id": "3aff023f-2dac-4450-9459-33c2e67647d9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "restaurant_matching_attempt": {
@@ -364,13 +364,6 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,

@@ -26,7 +26,6 @@ const timestamp = (name: string) => integer(name, { mode: "timestamp_ms" }).notN
 export const restaurants = sqliteTable("restaurant", {
   id: uuidPrimaryKey(),
   createdAt: timestamp("created_at"),
-  updatedAt: timestamp("updated_at"),
   name: text("name", { length: 100 }),
   latitude: real("latitude").notNull(),
   longitude: real("longitude").notNull()

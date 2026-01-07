@@ -1,8 +1,11 @@
 import { defineConfig, } from "drizzle-kit";
 
+// only used to run the studio locally
 export default defineConfig({
   out: "./drizzle",
   schema: "./app/features/db.server/schema.ts",
   dialect: "sqlite",
-  driver: "d1-http"
+  dbCredentials: {
+    url: process.env.DB_PATH || "db.sqlite"
+  },
 });

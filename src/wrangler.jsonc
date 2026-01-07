@@ -33,7 +33,7 @@
     // NOMINATIM CONFIGURATION
     // -------------------------------------------------------------------------
     "BROULETTE_NOMINATIM_ENABLED": "true",
-    "BROULETTE_NOMINATIM_INSTANCE_URLS": "https://nominatim.openstreetmap.org",
+    "BROULETTE_NOMINATIM_INSTANCE_URLS": "https://nominatim.openstreetmap.org/search",
     "BROULETTE_NOMINATIM_USER_AGENT": "BiteRoulette/0.0.1",
     "BROULETTE_NOMINATIM_BOTTOM_NOTE": "by OpenStreetMap",
     "BROULETTE_NOMINATIM_NUMBER_0F_ADDRESSES": "5",
@@ -45,7 +45,7 @@
     // PHOTON CONFIGURATION
     // -------------------------------------------------------------------------
     "BROULETTE_PHOTON_ENABLED": "true",
-    "BROULETTE_PHOTON_INSTANCE_URLS": "https://photon.komoot.io",
+    "BROULETTE_PHOTON_INSTANCE_URLS": "https://photon.komoot.io/api",
     "BROULETTE_PHOTON_BOTTOM_NOTE": "by Photon",
     "BROULETTE_PHOTON_NUMBER_0F_ADDRESSES": "5",
     "BROULETTE_PHOTON_API_RETRIES": "3",
@@ -56,7 +56,7 @@
     // GOOGLE PLACE CONFIGURATION
     // -------------------------------------------------------------------------
     "BROULETTE_GOOGLE_PLACE_ENABLED": "false",
-    "BROULETTE_GOOGLE_PLACE_BASE_URL": "https://maps.googleapis.com/maps/api/place",
+    "BROULETTE_GOOGLE_PLACE_BASE_URL": "https://places.googleapis.com/v1",
     "BROULETTE_GOOGLE_PLACE_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH": "1000",
     "BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS": "1000",
     "BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_WIDTH_IN_PX": "400",
@@ -71,7 +71,7 @@
     // TRIPADVISOR CONFIGURATION
     // -------------------------------------------------------------------------
     "BROULETTE_TRIPADVISOR_ENABLED": "false",
-    "BROULETTE_TRIPADVISOR_INSTANCE_URL": "https://api.content.tripadvisor.com/api/v1/location",
+    "BROULETTE_TRIPADVISOR_INSTANCE_URL": "https://api.content.tripadvisor.com/api/v1",
     "BROULETTE_TRIPADVISOR_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH": "1000",
     "BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS": "1000",
     "BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_NAME": "0.7",

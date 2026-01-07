@@ -1,8 +1,8 @@
-import { createRepositories, type DatabaseRepositories } from "@persistence";
 import { createRequestHandler } from "react-router";
 
 import { createAppSessionStorage, createCSRFToken } from "@features/session.server";
 import { getLocale } from "@features/utils/locale.server";
+import { createRepositories, type DatabaseRepositories } from "@persistence";
 
 import { createAppContext } from "../app/config.server";
 

@@ -1,8 +1,8 @@
-import { DistanceRange, ServiceTimeslot } from "@persistence";
 import { data, href, redirect } from "react-router";
 
 import { ErrorUnknown } from "@components/error/error-unknown";
 import { validateCSRF } from "@features/session.server";
+import { DistanceRange, ServiceTimeslot } from "@persistence";
 
 import type { Route } from "./+types/searches._index";
 

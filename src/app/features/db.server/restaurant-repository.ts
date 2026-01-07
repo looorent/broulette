@@ -33,7 +33,10 @@ export class RestaurantRepositoryDrizzle implements RestaurantRepository {
     console.trace(`[Drizzle] Updating profile ${profileId}`);
     const { id, createdAt, restaurantId, ...dataToUpdate } = profile;
     const [updatedProfile] = await this.db.update(restaurantProfiles)
-      .set(dataToUpdate)
+      .set({
+        ...dataToUpdate,
+        updatedAt: new Date()
+      })
       .where(eq(restaurantProfiles.id, profileId))
       .returning();
 
@@ -65,8 +68,6 @@ export class RestaurantRepositoryDrizzle implements RestaurantRepository {
     });
   }
 
-
-  // TODO this seems to fail
   async createRestaurantFromDiscovery(discovered: DiscoveredRestaurantProfile, tags: string[]): Promise<RestaurantAndProfiles> {
     // sadly, D1 does not support interactive transactions,
     // so we have to generate the IDs on the client side
