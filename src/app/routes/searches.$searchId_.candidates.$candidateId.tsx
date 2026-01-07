@@ -59,17 +59,6 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
           aria-label={`Result: ${restaurant.name}`}
         >
           <div className="mx-auto flex w-full max-w-md flex-1 flex-col p-8">
-
-            {/* Header */}
-            <header className="mb-6 animate-float text-center">
-              <h2 className={`
-                -rotate-2 transform font-pop text-4xl text-fun-cream uppercase
-                drop-shadow-[3px_3px_0px_rgba(45,52,54,1)]
-              `}>
-                Jackpot!
-              </h2>
-            </header>
-
             <article className={`
               group relative mb-6 flex min-h-75 flex-1 rotate-1 transform
               flex-col overflow-hidden rounded-3xl border-4 border-fun-dark

@@ -22,9 +22,9 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "local-db",
+      "database_name": "broulette",
       "migrations_dir": "drizzle",
-      "database_id": "xxxx-xxxx-xxxx-xxxx"
+      "database_id": "cc075f18-46fe-4d6a-a642-3b773351bf5e"
     }
   ],
   "vars": {
@@ -34,7 +34,7 @@
     // -------------------------------------------------------------------------
     "BROULETTE_NOMINATIM_ENABLED": "true",
     "BROULETTE_NOMINATIM_INSTANCE_URLS": "https://nominatim.openstreetmap.org/search",
-    "BROULETTE_NOMINATIM_USER_AGENT": "BiteRoulette/0.0.1",
+    "BROULETTE_NOMINATIM_USER_AGENT": "BiteRoulette/0.0.2",
     "BROULETTE_NOMINATIM_BOTTOM_NOTE": "by OpenStreetMap",
     "BROULETTE_NOMINATIM_NUMBER_0F_ADDRESSES": "5",
     "BROULETTE_NOMINATIM_API_RETRIES": "3",
@@ -96,7 +96,7 @@
     // -------------------------------------------------------------------------
     "BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS": "500",
     "BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS": "5",
-    "BROULETTE_TAGS_TO_EXCLUDE": "fast_food,chain",
+    "BROULETTE_TAGS_TO_EXCLUDE": "restaurant,establishment,point_of_interest,food",
     "BROULETTE_TAGS_TO_PRIORITIZE": "restaurant,cafe",
     "BROULETTE_TAGS_MAXIMUM": "20",
     "BROULETTE_SEARCH_ENGINE_CLOSE_RANGE_IN_METERS": "500",

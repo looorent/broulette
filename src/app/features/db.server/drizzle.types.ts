@@ -1,13 +1,11 @@
 import type { CANDIDATE_STATUSES, DISTANCE_RANGES, restaurantMatchingAttempts, restaurantProfiles, restaurants, searchCandidates, searches, TIMESLOTS } from "./schema";
 
-// TODO canonic types
 export type Search = typeof searches.$inferSelect;
 export type Restaurant = typeof restaurants.$inferSelect;
 export type RestaurantProfile = typeof restaurantProfiles.$inferSelect;
 export type SearchCandidate = typeof searchCandidates.$inferSelect;
 export type RestaurantMatchingAttempt = typeof restaurantMatchingAttempts.$inferSelect;
 
-// TODO enums
 export type ServiceTimeslot = (typeof TIMESLOTS)[number];
 export const ServiceTimeslot = {
   Dinner: "Dinner",
@@ -27,7 +25,6 @@ export const SearchCandidateStatus = {
   Returned: "Returned",
 } as const;
 
-// TODO relations
 export type SearchAndRestaurantsAndProfiles = Search & {
   candidates: (SearchCandidate & {
     restaurant: (Restaurant & {
@@ -47,5 +44,4 @@ export type CandidateAndRestaurantAndProfileAndSearch = SearchCandidate & {
   }) | null;
 };
 
-// TODO input
 export type RestaurantProfilePayload = typeof restaurantProfiles.$inferInsert;
