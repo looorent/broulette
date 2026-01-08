@@ -60,7 +60,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="BiteRoulette" />
-        <meta name="theme-color" content="#D64035" />
+        <meta name="theme-color" content="#c25644" />
         <link rel="manifest" href="/manifest.webmanifest" />
 
         {/* Open Graph / Facebook */}

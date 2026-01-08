@@ -37,7 +37,7 @@ export default defineConfig({
         name: "BiteRoulette",
         short_name: "BiteRoulette",
         description: "The lazy way to decide where to eat.",
-        theme_color: "#d56634",
+        theme_color: "#c25644",
         display: "standalone",
         screenshots: [
           {

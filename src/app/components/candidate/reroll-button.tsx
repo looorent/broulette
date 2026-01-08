@@ -23,7 +23,6 @@ function reRoll(
     }, {
       method: "POST",
       action: href("/searches/:searchId/candidates", { searchId: searchId }),
-      replace: true,
       viewTransition: true
     });
   }
