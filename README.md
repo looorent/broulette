@@ -60,6 +60,21 @@ A secret key must be defined in `BROULETTE_SESSION_SECRET`
 $ openssl rand -hex 32
 ```
 
+## Manually backuping the database
+
+To get the SQL backup from D1:
+```bash
+$ npx wrangler d1 export broulette-eu --remote --no-data --output=./schema.sql
+$ npx wrangler d1 export broulette-eu --remote --no-schema --output=./data.sql
+```
+
+To import them:
+```bash
+$ npx wrangler d1 execute broulette-eu --remote --file=./schema.sql
+$ npx wrangler d1 execute broulette-eu --remote --file=./data.sql
+```
+(pay attention that the data file is not always created in the most clean order, this can produces foreign key issues, even when deferring them)
+
 ## Mandatory environment variables
 
 ```
@@ -81,10 +96,8 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 
 ## TODO
 
-* The "candidate page" is almost too long on my pixel 9a. (ex: Le Brazier)
 * Haptics do not work on Android?
 * Use KV for circuit breaker? https://community.cloudflare.com/t/session-management/46770/4
-* "back" does not work properly, the "candidate" page seems to be skipped
 * Streaming HTTP during search
 * Preference form:
     * Use localstorage

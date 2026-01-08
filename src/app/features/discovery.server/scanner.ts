@@ -28,7 +28,7 @@ export class RestaurantDiscoveryScanner {
       return [];
     } else {
       this.iteration += 1;
-      const range = this.initialRangeInMeters + this.iteration * this.configuration.rangeIncreaseMeters;
+      const range = this.initialRangeInMeters + (this.iteration - 1) * this.configuration.rangeIncreaseMeters;
       console.trace(`[Discovery] Iteration ${this.iteration}/${this.configuration.maxDiscoveryIterations}: Scanning range ${range}m...`);
 
       try {

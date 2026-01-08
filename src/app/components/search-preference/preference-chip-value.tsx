@@ -1,21 +1,22 @@
-import type { LucideProps } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 interface PreferenceChipValueProps {
-  label: string;
-  icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
+  label?: string | undefined;
   className?: string;
+  iconClassName?: string;
   isValid?: boolean;
   isBuzzing?: boolean;
+  icon?: LucideIcon | undefined;
 }
 
 export function PreferenceChipValue({
-  icon,
+  icon: Icon,
   label,
   className = "",
+  iconClassName = "h-4 w-4",
   isValid = true,
   isBuzzing = false,
 }: PreferenceChipValueProps) {
-  const Icon = icon;
   return (
     <div className="group/tag relative">
       <div className={`
@@ -34,21 +35,23 @@ export function PreferenceChipValue({
         ${className}
       `}>
         { Icon ? (
-          <Icon className="h-4 w-4" />
+          <Icon className={iconClassName} />
         ) : null}
 
-        <span className={`
-          max-w-32 truncate text-sm font-bold tracking-wide whitespace-nowrap
-          uppercase
-        `}>
-          {label}
-        </span>
+        { label ? (
+          <span className={`
+            max-w-32 truncate text-sm font-bold tracking-wide whitespace-nowrap
+            uppercase
+          `}>
+            {label}
+          </span>
+        ) : null }
 
         {!isValid && (
           <span className={`
             absolute -top-1 -right-1 h-3 w-3 rounded-full border-2
             border-fun-cream bg-fun-red
-            ${isBuzzing ? 'animate-buzz' : ''}
+            ${isBuzzing ? "animate-buzz" : ""}
           `} />
         )}
       </div>

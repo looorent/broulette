@@ -16,7 +16,7 @@ export default defineConfig({
     },
     maskable: {
       sizes: [512],
-      padding: 0,
+      padding: 0.3,
       resizeOptions: {
         background: "#d56634"
       }

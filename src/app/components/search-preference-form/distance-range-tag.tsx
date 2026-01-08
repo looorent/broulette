@@ -6,7 +6,7 @@ interface DistanceRangeTagProps {
 export function DistanceRangeTag({ text, className = "" }: DistanceRangeTagProps) {
   return (
     <div className={`
-      relative mt-1 h-10 w-[90px] shrink-0
+      relative mt-1 h-10 w-22.5 shrink-0
       ${className}
     `}>
       <svg

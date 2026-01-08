@@ -11,15 +11,15 @@ export const DEFAULT_SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
   matching: DEFAULT_MATCHING_CONFIGURATION,
   range: {
     close: {
-      rangeInMeters: 1_000,
+      rangeInMeters: 1_500,
       timeoutInMs: 5_000
     },
     midRange: {
-      rangeInMeters: 5_000,
+      rangeInMeters: 15_000,
       timeoutInMs: 10_000
     },
     far: {
-      rangeInMeters: 20_000,
+      rangeInMeters: 40_000,
       timeoutInMs: 30_000
     }
   }

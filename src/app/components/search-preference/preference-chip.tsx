@@ -1,8 +1,8 @@
 import { useDrag } from "@use-gesture/react";
-import { Footprints, MapPin } from "lucide-react";
+import { BadgeQuestionMark, Car, Footprints, MapPin, Rocket, type LucideIcon } from "lucide-react";
 import { forwardRef, useImperativeHandle, useState } from "react";
 
-import { findIconFor, type Preference } from "@features/search";
+import { findIconFor, type DistanceRangeOption, type Preference } from "@features/search";
 
 import { PreferenceChipValue } from "./preference-chip-value";
 
@@ -45,6 +45,8 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
     }));
 
     const isLocationValid = preferences ? !preferences.isDeviceLocationAttempted || preferences.hasValidLocation : true;
+    const distanceIcon = findDistanceIcon(preferences?.range);
+
     return (
       <section className="w-full px-2 pb-0">
         <button className={`
@@ -75,12 +77,12 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
               />
 
             <PreferenceChipValue
-              label={preferences?.range?.label?.compact}
               className={`
-                mt-1.5 rotate-2
+                mt-1.5 rotate-2 p-1
                 hover:rotate-0
               `}
-              icon={Footprints}
+              iconClassName="h-5 w-5"
+              icon={distanceIcon}
               />
 
             <PreferenceChipValue
@@ -97,4 +99,17 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
     );
   }
 );
-PreferenceChip.displayName = "MyInput";
+PreferenceChip.displayName = "PreferenceChip";
+
+function findDistanceIcon(range: DistanceRangeOption | undefined): LucideIcon {
+  switch(range?.id) {
+    case "Close":
+      return Footprints;
+    case "MidRange":
+      return Car;
+    case "Far":
+      return Rocket;
+    default:
+      return BadgeQuestionMark;
+  }
+}

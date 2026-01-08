@@ -1,12 +1,12 @@
 import {
   AlertTriangle,
   Cookie,
+  DatabaseZap,
   Lightbulb,
   Mail,
   Map,
   MapPin,
   Scroll,
-  Server,
   ShieldCheck,
   Sparkles
 } from "lucide-react";
@@ -54,7 +54,7 @@ export function HelpModal({ configuration, isOpen, onClose }: HelpModalProps) {
             mb-4 text-sm opacity-80
             sm:mb-8
           `}>
-            In a world of infinite choices, the hardest question is often, <em>"Where should we eat?"</em>
+            The hardest question is always: <em>"Where should we eat?"</em> We answer it.
           </p>
         </div>
 
@@ -162,7 +162,6 @@ function DietTab({ configuration }: { configuration: AppConfiguration }) {
         </div>
       </div>
 
-      {/* Location */}
       <div className="flex items-start gap-3">
         <div className="mt-1 shrink-0 rounded-lg bg-blue-100 p-2">
           <MapPin className="h-5 w-5 text-blue-600" />
@@ -179,12 +178,12 @@ function DietTab({ configuration }: { configuration: AppConfiguration }) {
 
       <div className="flex items-start gap-3">
         <div className="mt-1 shrink-0 rounded-lg bg-indigo-100 p-2">
-          <Server className="h-5 w-5 text-indigo-600" />
+          <DatabaseZap className="h-5 w-5 text-indigo-600" />
         </div>
         <div>
-          <h4 className="mb-1 text-sm font-bold tracking-wide uppercase">Fortress Europe</h4>
+          <h4 className="mb-1 text-sm font-bold tracking-wide uppercase">European Edge</h4>
           <p className="text-xs leading-relaxed opacity-80">
-            Your data is securely anchored in <strong>Frankfurt, Germany</strong> (eu-central-1).
+            Your data is stored in <strong>Western Europe</strong> and delivered via the secure Cloudflare Edge network.
           </p>
         </div>
       </div>

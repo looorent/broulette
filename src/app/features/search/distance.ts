@@ -1,10 +1,10 @@
+
 import type { DistanceRange } from "@persistence";
 
 export interface DistanceRangeOption {
   id: DistanceRange;
   label: {
     display: string;
-    compact: string;
   };
 }
 
@@ -12,22 +12,19 @@ export const DISTANCE_RANGES: DistanceRangeOption[] = [
   {
     id: "Close",
     label: {
-      display: "Close",
-      compact: "Close"
+      display: "By foot"
     }
   },
   {
     id: "MidRange",
     label: {
-      display: "Mid-range",
-      compact: "Locally"
+      display: "Drive"
     }
   },
   {
     id: "Far",
     label: {
-      display: "Far",
-      compact: "Far"
+      display: "Adventure"
     }
   }
 ];
