@@ -61,7 +61,7 @@ async function findNextValidCandidate(
   let candidate: SearchCandidate | undefined = undefined;
   let orderTracker = currentOrder;
 
-  while (shouldContinueSearching(candidate, scanner)) {
+  while (shouldContinueToExploreMoreRestaurants(candidate, scanner)) {
     const restaurants = await scanner.nextRestaurants(signal);
     const randomized = await randomize(restaurants);
 
@@ -70,7 +70,7 @@ async function findNextValidCandidate(
     }
 
     for (const restaurant of randomized) {
-      if (shouldContinueSearching(candidate, scanner)) {
+      if (candidate?.status !== SearchCandidateStatus.Returned) {
         const processed = await processRestaurant(restaurant, search, orderTracker++, config, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, locale, scanner);
         if (processed) {
           candidate = processed;
@@ -119,7 +119,7 @@ async function processRestaurant(
   return await candidateRepository.create(search.id, restaurant?.id, order + 1, validation.valid ? SearchCandidateStatus.Returned : SearchCandidateStatus.Rejected, validation.rejectionReason);
 }
 
-function shouldContinueSearching(candidate: SearchCandidate | undefined, scanner: RestaurantDiscoveryScanner): boolean {
+function shouldContinueToExploreMoreRestaurants(candidate: SearchCandidate | undefined, scanner: RestaurantDiscoveryScanner): boolean {
   const foundValid = candidate?.status === SearchCandidateStatus.Returned;
   return !foundValid && !scanner.isOver;
 }

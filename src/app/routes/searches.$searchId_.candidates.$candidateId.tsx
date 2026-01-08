@@ -55,6 +55,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
           className={`
             relative flex h-full transform animate-bounce-in flex-col
             justify-between py-8 transition-transform duration-300
+            md:py-2
           `}
           aria-label={`Result: ${restaurant.name}`}
         >
@@ -99,7 +100,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
                 <RestaurantRating rating={restaurant.rating?.label} />
 
                 <h3 id="candidate-name" className={`
-                  mt-2 mb-2 font-pop text-3xl leading-tight text-fun-dark
+                  mt-2 mb-0 font-pop text-3xl leading-tight text-fun-dark
                 `}>
                   {restaurant.name}
                 </h3>

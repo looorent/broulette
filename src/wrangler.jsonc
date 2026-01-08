@@ -24,7 +24,8 @@
       "binding": "DB",
       "database_name": "broulette-eu",
       "migrations_dir": "drizzle",
-      "database_id": "d8d32375-f6d2-489f-9e78-1631ad8d771b"
+      "database_id": "d8d32375-f6d2-489f-9e78-1631ad8d771b",
+      "preview_database_id": "local-test-db"
     }
   ],
   "vars": {
@@ -101,9 +102,9 @@
     "BROULETTE_TAGS_MAXIMUM": "5",
     "BROULETTE_SEARCH_ENGINE_CLOSE_RANGE_IN_METERS": "1500",
     "BROULETTE_SEARCH_ENGINE_CLOSE_TIMEOUT_IN_MS": "5000",
-    "BROULETTE_SEARCH_ENGINE_MID_RANGE_IN_METERS": "15000",
+    "BROULETTE_SEARCH_ENGINE_MID_RANGE_IN_METERS": "12000",
     "BROULETTE_SEARCH_ENGINE_MID_TIMEOUT_IN_MS": "10000",
-    "BROULETTE_SEARCH_ENGINE_FAR_RANGE_IN_METERS": "40000",
+    "BROULETTE_SEARCH_ENGINE_FAR_RANGE_IN_METERS": "30000",
     "BROULETTE_SEARCH_ENGINE_FAR_TIMEOUT_IN_MS": "30000"
   }
 }

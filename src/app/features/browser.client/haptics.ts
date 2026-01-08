@@ -4,6 +4,11 @@ export function isHapticsSupported(): boolean {
 
 export function triggerHaptics() {
   if (isHapticsSupported()) {
-    navigator.vibrate([200, 100, 200]);
+    const vibrated = navigator.vibrate([10, 30, 10]);
+    if (!vibrated) {
+      console.warn("Haptics failed.");
+    } else {
+      console.debug("Haptics triggered!");
+    }
   }
 };

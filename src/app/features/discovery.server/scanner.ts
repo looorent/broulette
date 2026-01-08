@@ -41,15 +41,6 @@ export class RestaurantDiscoveryScanner {
       }
     }
   }
-
-  get isOver(): boolean {
-    return this.iteration >= this.configuration.maxDiscoveryIterations;
-  }
-
-  get timeoutInSeconds(): number {
-    return this.timeoutInMs / 1_000;
-  }
-
   addIdentityToExclude(identity: RestaurantProfile): this {
     if (identity) {
       const exists = this.identitiesToExclude.some(id => id.source === identity.source && id.externalId === identity.source && id.externalType === identity.externalType);
@@ -58,6 +49,14 @@ export class RestaurantDiscoveryScanner {
       }
     }
     return this;
+  }
+
+  get isOver(): boolean {
+    return this.iteration >= this.configuration.maxDiscoveryIterations;
+  }
+
+  get timeoutInSeconds(): number {
+    return this.timeoutInMs / 1_000;
   }
 
   private discoverNearbyRestaurants(rangeInMeters: number, signal: AbortSignal | undefined): Promise<DiscoveredRestaurantProfile[]> {

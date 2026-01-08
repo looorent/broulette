@@ -8,7 +8,7 @@ export function BrandTitle() {
       <h1 className={`
         mb-4 flex flex-col items-center font-display text-6xl leading-[0.9]
         tracking-tighter text-white drop-shadow-[5px_5px_0px_rgba(45,52,54,1)]
-        sm:text-7xl
+        md:text-5xl
       `}>
         <span className={`
           -rotate-6 transform transition duration-300
@@ -31,7 +31,10 @@ export function BrandTitle() {
         mt-4 inline-block -rotate-2 transform rounded-full bg-fun-dark px-4 py-2
         text-fun-cream shadow-hard-white
       `}>
-        <p className="text-sm font-bold tracking-widest uppercase">We choose, you eat.</p>
+        <p className={`
+          text-sm font-bold tracking-widest uppercase
+          md:text-xs
+        `}>We choose, you eat.</p>
       </div>
     </header>
   );

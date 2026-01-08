@@ -73,6 +73,7 @@ export function SearchSubmitButton({
           group relative z-20 flex h-48 w-48 flex-col items-center
           justify-center rounded-full border-[6px] transition-all duration-300
           ease-out
+          md:h-40 md:w-40
           ${isBuzzing ? `
             animate-buzz border-2 border-dashed border-fun-cream bg-fun-red
           ` : ""}
@@ -89,6 +90,7 @@ export function SearchSubmitButton({
       >
         <span className={`
           font-pop text-4xl tracking-wider uppercase transition-all duration-300
+          md:text-3xl
           ${showErrors
               ? "text-gray-300 decoration-red-400/50 decoration-4 blur-[0.5px]"
               : "text-fun-dark"

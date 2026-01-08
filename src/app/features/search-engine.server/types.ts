@@ -15,12 +15,12 @@ export const DEFAULT_SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
       timeoutInMs: 5_000
     },
     midRange: {
-      rangeInMeters: 15_000,
+      rangeInMeters: 12_000,
       timeoutInMs: 10_000
     },
     far: {
-      rangeInMeters: 40_000,
-      timeoutInMs: 30_000
+      rangeInMeters: 30_000,
+      timeoutInMs: 25_000
     }
   }
 }

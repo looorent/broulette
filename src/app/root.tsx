@@ -88,7 +88,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           relative h-full w-full overflow-hidden bg-fun-red
           bg-[radial-gradient(circle_at_20%_80%,rgba(255,209,102,0.6)_0%,transparent_40%),radial-gradient(circle_at_80%_20%,rgba(6,214,160,0.5)_0%,transparent_40%),conic-gradient(from_45deg_at_50%_50%,rgba(232,90,79,0.2)_0deg,rgba(255,209,102,0.2)_120deg,rgba(232,90,79,0.2)_240deg),linear-gradient(135deg,#D64035_0%,#A33028_100%)]
           background-blend
-          md:h-[85vh] md:max-w-120 md:rounded-3xl md:shadow-2xl
+          md:h-[85vh] md:max-w-120 md:rounded-xl md:shadow-2xl
         `}>
           <SearchLoaderProvider>
             {children}
