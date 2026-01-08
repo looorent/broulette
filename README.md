@@ -102,3 +102,4 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 * Preference form:
     * Use localstorage
 * Add some cache on Nominatim
+* If the website is tripadvisor and there is a tripadvisor link, do not show the website link

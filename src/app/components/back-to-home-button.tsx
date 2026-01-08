@@ -12,7 +12,7 @@ export function BackToHomeButton({
       href="/"
       aria-label="Back to Lobby"
       className={`
-        absolute top-4 right-4 z-100 flex animate-slide-in-from-top-right
+        absolute top-2 right-2 z-100 flex animate-slide-in-from-top-right
         cursor-pointer items-center justify-center gap-2 rounded-md border-[3px]
         border-fun-dark bg-fun-cream/95 px-2 py-2 font-pop text-sm font-bold
         tracking-wide text-fun-dark uppercase shadow-hard-hover backdrop-blur-md
