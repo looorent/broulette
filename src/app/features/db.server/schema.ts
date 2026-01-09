@@ -19,6 +19,12 @@ export const searchCandidateStatusEnum = (name: string) => text(name, {
   enum: CANDIDATE_STATUSES
 });
 
+export const CANDIDATE_REJECTION_REASONS = ["missing_coordinates", "unknown_opening_hours", "closed", "no_image", "no_restaurant_found"] as const;
+export const searchCandidateRejectionReasonEnum = (name: string) => text(name, {
+  length: 40,
+  enum: CANDIDATE_REJECTION_REASONS
+});
+
 const uuid = (name: string) => text(name, { length: 36 });
 const uuidPrimaryKey = () => uuid("id").primaryKey().$defaultFn(() => crypto.randomUUID());
 const timestamp = (name: string) => integer(name, { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date());
@@ -86,12 +92,14 @@ export const searchCandidates = sqliteTable("search_candidate", {
   createdAt: timestamp("created_at"),
   searchId: uuid("search_id").notNull().references(() => searches.id, { onDelete: "cascade" }),
   restaurantId: uuid("restaurant_id").references(() => restaurants.id, { onDelete: "cascade" }),
+  recoveredFromCandidateId: uuid("recovered_from_candidate_id").references((): any => searchCandidates.id, { onDelete: "set null" }),
   order: integer("order").notNull(),
   status: searchCandidateStatusEnum("status").notNull(),
-  rejectionReason: text("rejection_reason", { length: 50 })
+  rejectionReason: searchCandidateRejectionReasonEnum("rejection_reason")
 }, (table) => [
   index("idx_search_candidate_to_search").on(table.searchId),
-  index("idx_search_candidate_to_restaurant").on(table.restaurantId)
+  index("idx_search_candidate_to_restaurant").on(table.restaurantId),
+  index("idx_search_candidate_to_candidate_recovered").on(table.recoveredFromCandidateId)
 ]);
 
 export const restaurantMatchingAttempts = sqliteTable("restaurant_matching_attempt", {

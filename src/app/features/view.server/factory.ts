@@ -295,5 +295,5 @@ function formatMonthDate(instant: Date, locale: string) {
 }
 
 function formatDistance(range: DistanceRange): string | undefined {
-  return DISTANCE_RANGES.find(r => r.id === range)?.label?.compact || undefined;
+  return DISTANCE_RANGES.find(r => r.id === range)?.label?.display || undefined;
 }

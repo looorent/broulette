@@ -15,8 +15,8 @@ export function DistanceRangeCaption({ ranges, className = "" }: DistanceRangeCa
       `}
       aria-hidden="true"
     >
-      <span>{ranges[0].label.compact}</span>
-      <span>{ranges[ranges.length - 1].label.compact}</span>
+      <span>{ranges[0].label.display}</span>
+      <span>{ranges[ranges.length - 1].label.display}</span>
     </div>
   );
 }

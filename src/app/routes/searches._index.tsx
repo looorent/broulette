@@ -2,7 +2,7 @@ import { data, href, redirect } from "react-router";
 
 import { ErrorUnknown } from "@components/error/error-unknown";
 import { validateCSRF } from "@features/session.server";
-import { DistanceRange, ServiceTimeslot } from "@persistence";
+import { type DistanceRange, type ServiceTimeslot } from "@persistence";
 
 import type { Route } from "./+types/searches._index";
 
@@ -52,14 +52,6 @@ function parseAndValidate(formData: FormData) {
   if (isNaN(longitude) || longitude < -180 || longitude > 180) {
     errors.locationLongitude = "Longitude must be between -180 and 180.";
   }
-
-  if (!Object.values(ServiceTimeslot).includes(timeslot)) {
-    errors.serviceTimeslot = "Invalid timeslot";
-  }
-
-  if (!Object.values(DistanceRange).includes(distanceRange)) {
-    errors.distanceRangeId = "Invalid range";
-  };
 
   if (Object.keys(errors).length > 0) {
     throw data({ errors: errors }, { status: 400 });

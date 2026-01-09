@@ -102,5 +102,5 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 * Preference form:
     * Use localstorage
 * Add some cache on Nominatim
-* If the candidate found does not have known hours, keep it for later and try to find another one. If we really don't find a good candidate, then, take this one    
-(unknown_opening_hours should be a rejection reason, but we still could pick it up as a fallback)
+* In the search address field, use the current position (if available) to find more relevant addresses.
+* Some restaurants "Pizza chez toi" are mismatched with "Pizza Hut".

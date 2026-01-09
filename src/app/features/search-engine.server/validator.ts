@@ -1,12 +1,11 @@
 import { buildViewModelOfRestaurant } from "@features/view.server/factory";
-import type { Search , RestaurantAndProfiles } from "@persistence";
-
+import type { Search , RestaurantAndProfiles, SearchCandidateRejectionReason } from "@persistence";
 
 const SUCCESS = {
   valid: true
 };
 
-function failed(reason: string | null = null): RestaurantValidation {
+function failed(reason: SearchCandidateRejectionReason | null = null): RestaurantValidation {
   return {
     valid: false,
     rejectionReason: reason
@@ -15,7 +14,7 @@ function failed(reason: string | null = null): RestaurantValidation {
 
 export interface RestaurantValidation {
   valid: boolean;
-  rejectionReason?: string | null;
+  rejectionReason?: SearchCandidateRejectionReason | null;
 }
 
 export async function validateRestaurant(
@@ -28,8 +27,12 @@ export async function validateRestaurant(
       return failed("missing_coordinates");
     } else {
       const model = buildViewModelOfRestaurant(restaurant, search, locale)!;
-      if (model.openingHoursOfTheDay?.open === false) {
+      if (model.openingHoursOfTheDay?.unknown === true) {
+        return failed("unknown_opening_hours");
+      } else if (model.openingHoursOfTheDay?.open === false) {
         return failed("closed");
+      } else if (!model.imageUrl) {
+        return failed("no_image");
       } else {
         return SUCCESS;
       }

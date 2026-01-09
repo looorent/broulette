@@ -3,7 +3,7 @@ import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlaceConfiguration } fro
 import { enrichRestaurant } from "@features/matching.server";
 import { DEFAULT_OVERPASS_CONFIGURATION, type OverpassConfiguration } from "@features/overpass.server";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
-import { DistanceRange, SearchCandidateStatus, type CandidateRepository, type MatchingRepository, type RestaurantProfile, type RestaurantRepository, type Search, type SearchCandidate, type SearchRepository } from "@persistence";
+import { type CandidateRepository, type DistanceRange, type MatchingRepository, type RestaurantProfile, type RestaurantRepository, type Search, type SearchCandidate, type SearchRepository } from "@persistence";
 
 import { SearchNotFoundError } from "./error";
 import { randomize } from "./randomizer";
@@ -70,7 +70,7 @@ async function findNextValidCandidate(
     }
 
     for (const restaurant of randomized) {
-      if (candidate?.status !== SearchCandidateStatus.Returned) {
+      if (candidate?.status !== "Returned") {
         const processed = await processRestaurant(restaurant, search, orderTracker++, config, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, locale, scanner);
         if (processed) {
           candidate = processed;
@@ -86,8 +86,15 @@ async function findNextValidCandidate(
     console.log(`[SearchEngine] Candidate found after scanning: '${candidate.id}' in status '${candidate.status}'.`);
     return candidate;
   } else {
-    console.log(`[SearchEngine] No valid candidate found after scanning.`);
-    return createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
+    console.log(`[SearchEngine] No valid candidate found after scanning. Trying to find a fallback...`);
+    const fallbackCandidate = await candidateRepository.findBestRejectedCandidateThatCouldServeAsFallback(search.id);
+    if (fallbackCandidate) {
+      console.log(`[SearchEngine] No valid candidate found after scanning. Fallback found with candidate '${fallbackCandidate.id}'. Creating a new candidate from this one.`);
+      return await candidateRepository.recoverCandidate(fallbackCandidate, orderTracker);
+    } else {
+      console.log(`[SearchEngine] No valid candidate found after scanning.`);
+      return createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
+    }
   }
 }
 
@@ -116,11 +123,11 @@ async function processRestaurant(
     restaurant.profiles.forEach(profile => scanner.addIdentityToExclude(profile));
   }
 
-  return await candidateRepository.create(search.id, restaurant?.id, order + 1, validation.valid ? SearchCandidateStatus.Returned : SearchCandidateStatus.Rejected, validation.rejectionReason);
+  return await candidateRepository.create(search.id, restaurant?.id, order + 1, validation.valid ? "Returned" : "Rejected", validation.rejectionReason);
 }
 
 function shouldContinueToExploreMoreRestaurants(candidate: SearchCandidate | undefined, scanner: RestaurantDiscoveryScanner): boolean {
-  const foundValid = candidate?.status === SearchCandidateStatus.Returned;
+  const foundValid = candidate?.status === "Returned";
   return !foundValid && !scanner.isOver;
 }
 
@@ -134,19 +141,19 @@ async function markSearchAsExhaustedIfNecessary(
   finalCandidateFound: SearchCandidate | undefined,
   searchRepository: SearchRepository
 ) {
-  if (!finalCandidateFound || finalCandidateFound.status === SearchCandidateStatus.Rejected) {
+  if (!finalCandidateFound || finalCandidateFound.status === "Rejected") {
     searchRepository.markSearchAsExhausted(searchId);
   }
 }
 
 function defineRange(range: DistanceRange, configuration: SearchEngineConfiguration): SearchEngineRange {
   switch (range) {
-    case DistanceRange.Far:
+    case "Far":
       return configuration.range.far;
-    case DistanceRange.MidRange:
+    case "MidRange":
       return configuration.range.midRange;
     default:
-    case DistanceRange.Close:
+    case "Close":
       return configuration.range.close;
   }
 }
@@ -194,5 +201,5 @@ async function findLatestCandidateOf(searchId: string | undefined, searchReposit
 async function createDefaultCandidateWithoutRestaurant(searchId: string, searchRepository: SearchRepository, candidateRepository: CandidateRepository): Promise<SearchCandidate> {
   console.log(`[SearchEngine] Creating default 'No Restaurant Found' candidate.`);
   const order = (await searchRepository.findWithLatestCandidateId(searchId))?.order || 0;
-  return await candidateRepository.create(searchId, undefined, order + 1, SearchCandidateStatus.Rejected, "no_restaurant_found");
+  return await candidateRepository.create(searchId, undefined, order + 1, "Rejected", "no_restaurant_found");
 }
