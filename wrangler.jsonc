@@ -3,9 +3,6 @@
   "name": "broulette",
   "main": "./workers/app.ts",
   "compatibility_date": "2025-04-04",
-  "compatibility_flags": [
-    "nodejs_compat" // TODO not sure this is still necessary (drizzle)
-  ],
   "observability": {
     "enabled": true
   },
