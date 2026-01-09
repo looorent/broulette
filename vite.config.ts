@@ -8,12 +8,12 @@ import devtoolsJson from "vite-plugin-devtools-json";
 import { VitePWA } from "vite-plugin-pwa";
 
 export const baseConfigurationAlias = {
-  "@persistence": path.resolve(__dirname, "./app/features/db.server/index.ts"),
-  "@features": path.resolve(__dirname, "./app/features"),
-  "@routes": path.resolve(__dirname, "./app/routes"),
-  "@components": path.resolve(__dirname, "./app/components/"),
-  "@config/server": path.resolve(__dirname, "./app/config.server.ts"),
-  "@config": path.resolve(__dirname, "./app/config.ts")
+  "@persistence": path.resolve(__dirname, "./src/features/db.server/index.ts"),
+  "@features": path.resolve(__dirname, "./src/features"),
+  "@routes": path.resolve(__dirname, "./src/routes"),
+  "@components": path.resolve(__dirname, "./src/components/"),
+  "@config/server": path.resolve(__dirname, "./src/config.server.ts"),
+  "@config": path.resolve(__dirname, "./src/config.ts")
 };
 
 export default defineConfig({

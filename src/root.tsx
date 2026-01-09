@@ -1,3 +1,4 @@
+import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components/search-loader";
 import {
   data,
   Links,
@@ -9,7 +10,6 @@ import {
   type ShouldRevalidateFunction
 } from "react-router";
 
-import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components/search-loader";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -68,7 +68,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta property="og:url" content="https://www.biteroulette.com/" />
         <meta property="og:title" content="BiteRoulette" />
         <meta property="og:description" content="The lazy way to decide where to eat. Spin the wheel and find your next meal!" />
-        <meta property="og:image" content="https://biteroulette.app/pwa-512x512.png" />
+        <meta property="og:image" content="https://biteroulette.com/pwa-512x512.png" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />

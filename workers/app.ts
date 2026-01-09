@@ -4,7 +4,7 @@ import { createAppSessionStorage, createCSRFToken } from "@features/session.serv
 import { getLocale } from "@features/utils/locale.server";
 import { createRepositories, type DatabaseRepositories } from "@persistence";
 
-import { createAppContext } from "../app/config.server";
+import { createAppContext } from "../src/config.server";
 
 declare module "react-router" {
   interface AppLoadContext {

@@ -6,7 +6,7 @@ import { useAlertContext } from "@components/alert";
 import { getDeviceLocation, isGeolocationSupported, useDebounce } from "@features/browser.client";
 import { createDeviceLocation, hasCoordinates, type LocationPreference } from "@features/search";
 import type { action as addressLoader } from "@routes/_.api.address-searches";
-import type { loader as rootLoader } from "app/root";
+import type { loader as rootLoader } from "src/root";
 
 import { LocationSuggestionSelector } from "./location-suggestion-selector";
 

@@ -6,7 +6,7 @@ dist
 
 .react-router/
 /build/
-/src/build/
+/build/
 
 .DS_Store
 /node_modules/
@@ -16,7 +16,7 @@ dist
 .mf
 .wrangler
 .dev.vars*
-src/worker-configuration.d.ts
+worker-configuration.d.ts
 
 !.dev.vars.example
 !.env.example

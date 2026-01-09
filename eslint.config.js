@@ -63,7 +63,7 @@ export default defineConfig(
         node: true,
       },
       "better-tailwindcss": {
-        "entryPoint": "app/app.css"
+        "entryPoint": "src/app.css"
       }
     },
     rules: {
@@ -146,7 +146,7 @@ export default defineConfig(
     },
     settings: {
       "better-tailwindcss": {
-        entryPoint: "app/app.css",
+        entryPoint: "src/app.css",
       }
     }
   }

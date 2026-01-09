@@ -4,7 +4,7 @@ import { href, redirect, useRouteLoaderData, useSubmit } from "react-router";
 import { ErrorUnknown } from "@components/error/error-unknown";
 import { getLocale } from "@features/utils/locale.server";
 import { findSearchViewModel } from "@features/view.server";
-import type { loader as rootLoader } from "app/root";
+import type { loader as rootLoader } from "src/root";
 
 import type { Route } from "./+types/searches.$searchId";
 

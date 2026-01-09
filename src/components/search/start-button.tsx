@@ -5,7 +5,7 @@ import { Form, useRouteLoaderData, useSubmit } from "react-router";
 import { AmbientPulse } from "@components/ambient-pulse";
 import { triggerHaptics } from "@features/browser.client";
 import type { Preference } from "@features/search";
-import type { loader as rootLoader } from "app/root";
+import type { loader as rootLoader } from "src/root";
 
 interface SearchSubmitButtonProps {
   preferences: Preference;

@@ -23,22 +23,22 @@
     "baseUrl": ".",
     "paths": {
       "@persistence": [
-        "./app/features/db.server/index.ts"
+        "./src/features/db.server/index.ts"
       ],
       "@features/*": [
-        "./app/features/*"
+        "./src/features/*"
       ],
       "@routes/*": [
-        "./app/routes/*"
+        "./src/routes/*"
       ],
       "@components/*": [
-        "./app/components/*"
+        "./src/components/*"
       ],
       "@config/server": [
-        "./app/config.server.ts"
+        "./src/config.server.ts"
       ],
       "@config": [
-        "./app/config.ts"
+        "./src/config.ts"
       ]
     },
     "esModuleInterop": true,
