@@ -102,4 +102,5 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 * Preference form:
     * Use localstorage
 * Add some cache on Nominatim
-* If the website is tripadvisor and there is a tripadvisor link, do not show the website link
+* If the candidate found does not have known hours, keep it for later and try to find another one. If we really don't find a good candidate, then, take this one    
+(unknown_opening_hours should be a rejection reason, but we still could pick it up as a fallback)

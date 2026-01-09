@@ -187,10 +187,37 @@ function buildAddress({ overpass, tripAdvisor, google }: RestaurantProfiles): st
 }
 
 function buildUrls({ tripAdvisor, google, overpass }: RestaurantProfiles): string[] {
-  return [
+  const sources = [
     tripAdvisor?.sourceUrl,
     google?.website || tripAdvisor?.website || overpass?.website
-  ].filter(Boolean).map(url => url!);
+  ].filter((url): url is string => !!url);
+
+  const result = sources.reduce(
+    (acc, url) => {
+      try {
+        const hostname = new URL(url).hostname;
+        const parts = hostname.split('.');
+        const brand = parts.length > 1 ? parts[parts.length - 2] : parts[0];
+
+        if (acc.seenBrands.has(brand)) {
+          return acc;
+        } else {
+          return {
+            urls: [...acc.urls, url],
+            seenBrands: new Set(acc.seenBrands).add(brand)
+          };
+        }
+      } catch {
+        return {
+          ...acc,
+          urls: [...acc.urls, url]
+        };
+      }
+    },
+    { urls: [] as string[], seenBrands: new Set<string>() }
+  );
+
+  return result.urls;
 }
 
 function buildMapUrl(restaurant: RestaurantAndProfiles, { tripAdvisor, google }: RestaurantProfiles): string | undefined {
