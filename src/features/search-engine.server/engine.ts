@@ -7,10 +7,10 @@ import { type CandidateRepository, type DistanceRange, type MatchingRepository, 
 
 import { SearchNotFoundError } from "./error";
 import { randomize } from "./randomizer";
-import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration, type SearchEngineRange } from "./types";
+import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration, type SearchEngineRange, type SearchStreamEvent } from "./types";
 import { validateRestaurant } from "./validator";
 
-export async function searchCandidate(
+export async function* searchCandidate(
   searchId: string,
   locale: string,
   searchRepository: SearchRepository,
@@ -22,29 +22,43 @@ export async function searchCandidate(
   google: GooglePlaceConfiguration | undefined = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
   tripAdvisor: TripAdvisorConfiguration | undefined = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal
-): Promise<SearchCandidate> {
+): AsyncGenerator<SearchStreamEvent, void, unknown> {
   console.log(`[SearchEngine] searchCandidate: Starting search for searchId="${searchId}"`);
+
+  yield { type: "progress", message: `Starting search for ${searchId}...` };
 
   const search = await findSearchOrThrow(searchId, searchRepository);
 
   if (search.exhausted) {
+    yield { type: "progress", message: "Search exhausted. Finding fallback..." };
     console.log(`[SearchEngine] Search "${searchId}" is already exhausted. Returning fallback candidate.`);
-    return await findLatestCandidateOf(search.id, searchRepository, candidateRepository) || await createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
+    const candidate = await findLatestCandidateOf(search.id, searchRepository, candidateRepository) || await createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
+    yield { type: "result", candidate };
   } else {
     const scanner = createDiscoveryScanner(search, configuration, overpass);
     const startingOrder = computeNextCandidateOrder(search.candidates);
 
+    yield { type: "progress", message: `Scanning area (Order ${startingOrder})...` };
+
     console.log(`[SearchEngine] Initializing discovery for searchId="${searchId}". Starting order: ${startingOrder}`);
 
-    const finalCandidate = await findNextValidCandidate(search, scanner, configuration, startingOrder, locale, searchRepository, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, signal);
+    const generator = findNextValidCandidateStream(search, scanner, configuration, startingOrder, locale, searchRepository, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, signal);
 
-    await markSearchAsExhaustedIfNecessary(search.id, finalCandidate, searchRepository);
+    let finalCandidate: SearchCandidate | undefined;
+    for await (const event of generator) {
+      if (event.type === "result") {
+        finalCandidate = event.candidate;
+      }
+      yield event;
+    }
 
-    return finalCandidate;
+    if (finalCandidate) {
+      await markSearchAsExhaustedIfNecessary(search.id, finalCandidate, searchRepository);
+    }
   }
 }
 
-async function findNextValidCandidate(
+async function* findNextValidCandidateStream(
   search: Search,
   scanner: RestaurantDiscoveryScanner,
   config: SearchEngineConfiguration,
@@ -57,24 +71,27 @@ async function findNextValidCandidate(
   google: GooglePlaceConfiguration | undefined,
   tripAdvisor: TripAdvisorConfiguration | undefined,
   signal?: AbortSignal
-): Promise<SearchCandidate> {
+): AsyncGenerator<SearchStreamEvent, void, unknown> {
   let candidate: SearchCandidate | undefined = undefined;
   let orderTracker = currentOrder;
 
   while (shouldContinueToExploreMoreRestaurants(candidate, scanner)) {
+    yield { type: "progress", message: "Scanning for new restaurants..." };
     const restaurants = await scanner.nextRestaurants(signal);
     const randomized = await randomize(restaurants);
-
     if (randomized.length > 0) {
       console.log(`[SearchEngine] Processing batch of ${randomized.length} discovered restaurants...`);
+      yield { type: "progress", message: `Found ${randomized.length} places. Analyzing...` };
     }
 
     for (const restaurant of randomized) {
       if (candidate?.status !== "Returned") {
+        yield { type: "progress", message: `Checking ${restaurant.name || 'Unknown'}...` };
         const processed = await processRestaurant(restaurant, search, orderTracker++, config, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, locale, scanner);
         if (processed) {
           candidate = processed;
           console.log(`[SearchEngine] Candidate found: ${candidate.id} (Status: ${candidate.status})`);
+          yield { type: "progress", message: `Candidate found: ${candidate.id}` };
         }
       } else {
         break;
@@ -84,16 +101,19 @@ async function findNextValidCandidate(
 
   if (candidate) {
     console.log(`[SearchEngine] Candidate found after scanning: '${candidate.id}' in status '${candidate.status}'.`);
-    return candidate;
+    yield { type: "result", candidate };
   } else {
+    yield { type: "progress", message: "No valid candidates found. Recovering fallback..." };
     console.log(`[SearchEngine] No valid candidate found after scanning. Trying to find a fallback...`);
     const fallbackCandidate = await candidateRepository.findBestRejectedCandidateThatCouldServeAsFallback(search.id);
     if (fallbackCandidate) {
       console.log(`[SearchEngine] No valid candidate found after scanning. Fallback found with candidate '${fallbackCandidate.id}'. Creating a new candidate from this one.`);
-      return await candidateRepository.recoverCandidate(fallbackCandidate, orderTracker);
+      const recovered = await candidateRepository.recoverCandidate(fallbackCandidate, orderTracker);
+      yield { type: "result", candidate: recovered };
     } else {
       console.log(`[SearchEngine] No valid candidate found after scanning.`);
-      return createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
+      const candidateWithoutRestaurant = await createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
+      yield { type: "result", candidate: candidateWithoutRestaurant };
     }
   }
 }

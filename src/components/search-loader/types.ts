@@ -1,16 +1,19 @@
 export interface SearchLoaderState {
   visible: boolean;
+  streaming: boolean;
   message?: string;
 };
 
 export function defaultSearchLoaderState(): SearchLoaderState {
   return {
     visible: false,
+    streaming: false,
     message: undefined
   };
 }
 
 export interface SearchLoaderContextType {
-  setManualLoader: (visible: boolean, message?: string) => void;
+  setLoaderMessage: (message?: string | undefined) => void;
+  setLoaderStreaming: (streaming: boolean) => void;
   state: SearchLoaderState;
 }

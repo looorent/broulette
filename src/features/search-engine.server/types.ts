@@ -1,5 +1,6 @@
 import { DEFAULT_DISCOVERY_CONFIGURATION, type DiscoveryConfiguration } from "@features/discovery.server";
 import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantMatchingConfiguration } from "@features/matching.server";
+import type { SearchCandidate } from "@persistence";
 
 export interface SearchEngineRange {
   rangeInMeters: number;
@@ -35,3 +36,8 @@ export interface SearchEngineConfiguration {
     far: SearchEngineRange;
   };
 }
+
+export type SearchStreamEvent =
+  | { type: "progress"; message: string }
+  | { type: "result"; candidate: SearchCandidate }
+  | { type: "redirect"; url: string };

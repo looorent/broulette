@@ -1,4 +1,3 @@
-import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components/search-loader";
 import {
   data,
   Links,
@@ -9,6 +8,8 @@ import {
   useLoaderData,
   type ShouldRevalidateFunction
 } from "react-router";
+
+import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components/search-loader";
 
 
 import type { Route } from "./+types/root";

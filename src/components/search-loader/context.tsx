@@ -1,68 +1,49 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigation, type Navigation } from "react-router";
+import { useCallback, useState } from "react";
+import { matchPath, useLocation, useNavigation, type Navigation } from "react-router";
 
 import { SearchLoaderContext } from "./hook";
 import type { SearchLoaderState } from "./types";
 
-// A tiny buffer to bridge the gap between "submitting" -> "loading"
-// This prevents the loader from flickering off during the router state transition.
-const EXIT_DELAY_MS = 300;
+function detectVisibilityBasedOn(navigation: Navigation, pathname: string, isStreaming: boolean): boolean {
+  console.log({ navigation });
+  console.log({ pathname });
+
+  const isOnAPageStreaming = !!matchPath("/searches/:searchId", pathname) || !!matchPath("/searches/:searchId/candidates/:candidateId", pathname);
+  return navigation.state === "submitting" && navigation.formAction?.startsWith("/searches")
+    || navigation.state === "loading" && navigation.formMethod != null
+    || isOnAPageStreaming && isStreaming;
+}
 
 const defaultState: SearchLoaderState = {
   visible: false,
+  streaming: false,
   message: undefined
 };
 
-function detectLoaderState(navigation: Navigation): SearchLoaderState {
-  if (navigation.state === "submitting" && navigation.formAction?.startsWith("/searches")) {
-    return { visible: true };
-  } else if (navigation.state === "loading" && navigation.formMethod != null) {
-    return { visible: true };
-  } else {
-    return defaultState;
-  }
-}
-
 export function SearchLoaderProvider({ children }: { children: React.ReactNode }) {
   const navigation = useNavigation();
+  const { pathname } = useLocation();
 
   const [activeState, setActiveState] = useState<SearchLoaderState>(defaultState);
-  const [manualState, setManualState] = useState<SearchLoaderState>(defaultState);
-  const exitDelayTimerRef = useRef<number | null>(null);
+  const [isStreaming, setIsStreaming] = useState<boolean>(false);
+  const [message, setMessage] = useState<string | undefined>(undefined);
+  const visible = detectVisibilityBasedOn(navigation, pathname, isStreaming);
 
-  const detected = detectLoaderState(navigation);
-  const shouldShow = detected.visible || manualState.visible;
-  const targetMessage = detected.visible ? detected.message : manualState.message;
-
-  if (shouldShow && !activeState.visible) {
-    setActiveState({ visible: true, message: targetMessage });
+  if (visible !== activeState.visible || message !== activeState.message || isStreaming !== activeState.streaming) {
+    console.log("new active state", { visible: visible, streaming: isStreaming, message: message });
+    setActiveState({ visible: visible, streaming: isStreaming, message: message });
   }
 
-  useEffect(() => {
-    if (!shouldShow && activeState.visible) {
-      if (exitDelayTimerRef.current) {
-        clearTimeout(exitDelayTimerRef.current);
-      }
+  const setLoaderMessage = useCallback((message?: string | undefined) => {
+    setMessage(message);
+  }, []);
 
-      exitDelayTimerRef.current = setTimeout(() => {
-        setActiveState({ visible: false, message: undefined });
-        exitDelayTimerRef.current = null;
-      }, EXIT_DELAY_MS);
-    }
-
-    return () => {
-      if (exitDelayTimerRef.current) {
-        clearTimeout(exitDelayTimerRef.current);
-      }
-    };
-  }, [shouldShow, activeState.visible]);
-
-  const setManualLoader = useCallback((visible: boolean, message?: string) => {
-    setManualState({ visible, message });
+  const setLoaderStreaming = useCallback((streaming: boolean) => {
+    setIsStreaming(streaming);
   }, []);
 
   return (
-    <SearchLoaderContext.Provider value={{ setManualLoader, state: activeState }}>
+    <SearchLoaderContext.Provider value={{ setLoaderMessage, setLoaderStreaming, state: activeState }}>
       {children}
     </SearchLoaderContext.Provider>
   );

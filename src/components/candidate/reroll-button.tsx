@@ -1,7 +1,7 @@
-import { triggerHaptics } from "@features/browser.client";
 import { RefreshCw } from "lucide-react";
 import { href, useRouteLoaderData, useSubmit, type SubmitFunction } from "react-router";
 
+import { triggerHaptics } from "@features/browser.client";
 import type { loader as rootLoader } from "src/root";
 
 interface RerollButtonProps {

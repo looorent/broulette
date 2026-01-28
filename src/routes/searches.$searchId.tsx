@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
-import { href, redirect, useRouteLoaderData, useSubmit } from "react-router";
+import { useEffect, useState } from "react";
+import { href, redirect, useNavigate, useRouteLoaderData } from "react-router";
 
 import { ErrorUnknown } from "@components/error/error-unknown";
+import { useSearchLoader } from "@components/search-loader";
 import { getLocale } from "@features/utils/locale.server";
 import { findSearchViewModel } from "@features/view.server";
 import type { loader as rootLoader } from "src/root";
@@ -12,7 +13,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const view = await findSearchViewModel(params.searchId, await getLocale(request), context.repositories.search);
   if (view) {
     if (view.redirectRequired) {
-      return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: view.searchId, candidateId: view.latestCandidateId }))
+      return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: view.searchId, candidateId: view.latestCandidateId }));
     } else {
       return {
         view: view,
@@ -26,24 +27,89 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
 }
 
 export default function SearchPage({ loaderData }: Route.ComponentProps) {
-  const submit = useSubmit();
-  const initialized = useRef(false);
+  const navigate = useNavigate();
+  const { setLoaderMessage, setLoaderStreaming } = useSearchLoader();
   const session = useRouteLoaderData<typeof rootLoader>("root");
-
   const { view, newCandidateUrl } = loaderData;
+  const [_, setMessages] = useState<string[]>([]);
+
   useEffect(() => {
-    if (!initialized.current) {
-      initialized.current = true;
-      submit({
-        csrf: session?.csrfToken ?? ""
-      }, {
-        method: "POST",
-        action: newCandidateUrl,
-        replace: true,
-        viewTransition: true
-      });
+    const abortController = new AbortController();
+
+    async function streamSearch() {
+      try {
+        const formData = new FormData();
+        formData.append("csrf", session?.csrfToken ?? "");
+
+        setLoaderStreaming(true);
+        const response = await fetch(newCandidateUrl, {
+          method: "POST",
+          body: formData,
+          signal: abortController.signal,
+          headers: { "Accept": "text/event-stream" }
+        });
+
+        if (!response.body) {
+          throw new Error("No stream body");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          buffer += chunk;
+
+          // Split by standard SSE double newline
+          const lines = buffer.split("\n\n");
+          buffer = lines.pop() || ""; // Keep the last partial chunk
+
+          // console.log("buffer", lines);
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const jsonStr = line.replace("data: ", "");
+              try {
+                const data = JSON.parse(jsonStr);
+
+                // --- HANDLE EVENTS ---
+                if (data.type === "progress") {
+                  setLoaderMessage(data.message);
+                  setMessages((prev) => [...prev, data.message]);
+                }
+                else if (data.type === "redirect") {
+                  // Search finished, navigate to result
+                  navigate(data.url, { viewTransition: true, replace: true });
+                  return;
+                }
+              } catch (e) {
+                console.warn("Stream parse error", e);
+              }
+            }
+          }
+        }
+      } catch (error: any) {
+        if (error.name === "AbortError") {
+          console.log("Stream aborted (cleanup)");
+          setLoaderStreaming(false);
+          return;
+        }
+        console.error("Streaming failed", error);
+      }
     }
-  }, [view.id, submit, session?.csrfToken, newCandidateUrl]);
+
+    const timeoutId = setTimeout(() => {
+      setLoaderStreaming(false);
+      streamSearch();
+    }, 50);
+    return () => {
+      clearTimeout(timeoutId);
+      abortController.abort();
+    };
+  }, [newCandidateUrl, session?.csrfToken, navigate, setLoaderStreaming, setLoaderMessage]);
 
   return (
     <title>{`BiteRoulette - ${view.label} - Searching...`}</title>
