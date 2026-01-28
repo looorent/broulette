@@ -8,8 +8,7 @@ interface SearchLoaderProps {
   visible: boolean;
 }
 
-// TODO make it configurable
-const MESSAGE_DURATION = 1_500;
+const MESSAGE_MIN_DURATION = 1_000;
 
 export function SearchLoader({ title, visible }: SearchLoaderProps) {
   const [shouldRender, setShouldRender] = useState(visible);
@@ -31,7 +30,10 @@ export function SearchLoader({ title, visible }: SearchLoaderProps) {
 
   useEffect(() => {
     isMounted.current = true;
-    return () => { isMounted.current = false; };
+    return () => {
+      console.log("coucou");
+      isMounted.current = false;
+    };
   }, []);
 
   const processQueue = async () => {
@@ -41,7 +43,7 @@ export function SearchLoader({ title, visible }: SearchLoaderProps) {
         const nextTitle = queue.current.shift();
         if (nextTitle) {
           setDisplayedTitle(nextTitle);
-          await new Promise((resolve) => setTimeout(resolve, MESSAGE_DURATION));
+          await new Promise((resolve) => setTimeout(resolve, MESSAGE_MIN_DURATION));
         }
       }
       isProcessing.current = false;

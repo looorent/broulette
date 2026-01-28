@@ -10,6 +10,13 @@ import { randomize } from "./randomizer";
 import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration, type SearchEngineRange, type SearchStreamEvent } from "./types";
 import { validateRestaurant } from "./validator";
 
+
+const MESSAGES = [
+  "Consulting the Ancient Spirits of Takeout...",
+  "Syncing with local grease traps...",
+  "Locating calories. Any calories."
+];
+
 export async function* searchCandidate(
   searchId: string,
   locale: string,
@@ -25,21 +32,18 @@ export async function* searchCandidate(
 ): AsyncGenerator<SearchStreamEvent, void, unknown> {
   console.log(`[SearchEngine] searchCandidate: Starting search for searchId="${searchId}"`);
 
-  yield { type: "progress", message: `Looking nearby...` };
+  yield { type: "progress", message: MESSAGES[Math.floor(Math.random() * MESSAGES.length)] };
 
   const search = await findSearchOrThrow(searchId, searchRepository);
 
   if (search.exhausted) {
-    yield { type: "progress", message: "Search exhausted. Finding fallback..." };
+    yield { type: "progress", message: "Exhausted. Finding fallback..." };
     console.log(`[SearchEngine] Search "${searchId}" is already exhausted. Returning fallback candidate.`);
     const candidate = await findLatestCandidateOf(search.id, searchRepository, candidateRepository) || await createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
     yield { type: "result", candidate };
   } else {
     const scanner = createDiscoveryScanner(search, configuration, overpass);
     const startingOrder = computeNextCandidateOrder(search.candidates);
-
-    yield { type: "progress", message: `Scanning area (Order ${startingOrder})...` };
-
     console.log(`[SearchEngine] Initializing discovery for searchId="${searchId}". Starting order: ${startingOrder}`);
 
     const generator = findNextValidCandidateStream(search, scanner, configuration, startingOrder, locale, searchRepository, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, signal);
@@ -76,22 +80,20 @@ async function* findNextValidCandidateStream(
   let orderTracker = currentOrder;
 
   while (shouldContinueToExploreMoreRestaurants(candidate, scanner)) {
-    yield { type: "progress", message: "Scanning for new restaurants..." };
     const restaurants = await scanner.nextRestaurants(signal);
     const randomized = await randomize(restaurants);
     if (randomized.length > 0) {
       console.log(`[SearchEngine] Processing batch of ${randomized.length} discovered restaurants...`);
-      yield { type: "progress", message: `Found ${randomized.length} places. Analyzing...` };
+      yield { type: "progress", message: `${randomized.length} places found. Analyzing...` };
     }
 
     for (const restaurant of randomized) {
       if (candidate?.status !== "Returned") {
-        yield { type: "progress", message: `Checking ${restaurant.name || 'Unknown'}...` };
+        yield { type: "progress", message: `${restaurant.name || 'Unknown'} ?!?` };
         const processed = await processRestaurant(restaurant, search, orderTracker++, config, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, locale, scanner);
         if (processed) {
           candidate = processed;
           console.log(`[SearchEngine] Candidate found: ${candidate.id} (Status: ${candidate.status})`);
-          yield { type: "progress", message: `Candidate found: ${candidate.id}` };
         }
       } else {
         break;
@@ -103,7 +105,7 @@ async function* findNextValidCandidateStream(
     console.log(`[SearchEngine] Candidate found after scanning: '${candidate.id}' in status '${candidate.status}'.`);
     yield { type: "result", candidate };
   } else {
-    yield { type: "progress", message: "No valid candidates found. Recovering fallback..." };
+    yield { type: "progress", message: "Nothing found, looking for fallbacks..." };
     console.log(`[SearchEngine] No valid candidate found after scanning. Trying to find a fallback...`);
     const fallbackCandidate = await candidateRepository.findBestRejectedCandidateThatCouldServeAsFallback(search.id);
     if (fallbackCandidate) {

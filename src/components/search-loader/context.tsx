@@ -71,8 +71,8 @@ export function SearchLoaderProvider({ children }: { children: React.ReactNode }
     message: message
   }), [activeVisible, isStreaming, message]);
 
-  const setLoaderMessage = useCallback((msg?: string) => setMessage(msg), []);
-  const setLoaderStreaming = useCallback((s: boolean) => setIsStreaming(s), []);
+  const setLoaderMessage = useCallback((message?: string) => setMessage(message), []);
+  const setLoaderStreaming = useCallback((streaming: boolean) => setIsStreaming(streaming), []);
 
   return (
     <SearchLoaderContext.Provider value={{ setLoaderMessage, setLoaderStreaming, state }}>

@@ -40,7 +40,6 @@ export function SearchSubmitButton({
       triggerBuzz();
       onBuzzOnError?.();
     } else {
-      setLoaderMessage("Consulting the food gods..."); // TODO
       submit({
         serviceDate: preferences.service.date.toISOString(),
         serviceTimeslot: preferences.service.timeslot,

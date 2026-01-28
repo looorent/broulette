@@ -22,6 +22,12 @@ export async function action({
       const writer = writable.getWriter();
       const encoder = new TextEncoder();
 
+      const handleAbort = () => {
+        console.log("[Stream] Request signaled abort. Closing writer.");
+        writer.abort().catch(() => { });
+      };
+      request.signal.addEventListener("abort", handleAbort);
+
       (async () => {
         try {
           writer.closed.catch((err) => {
@@ -29,9 +35,10 @@ export async function action({
           });
 
           const send = async (event: SearchStreamEvent) => {
-            console.log("SSR New Event", event); // TODO
-            await writer.ready;
-            await writer.write(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+            if (!request.signal.aborted) {
+              await writer.ready;
+              await writer.write(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+            }
           };
 
           try {
@@ -68,11 +75,13 @@ export async function action({
         } catch (err) {
           console.error("[Stream] Broken pipe / Client disconnected", err);
         } finally {
+          request.signal.removeEventListener("abort", handleAbort);
           try {
-            await writer.close();
-          } catch (e) {
-            console.warn("Error when closing the stream", e);
-          }
+            if (!request.signal.aborted) {
+              await writer.close();
+            }
+          } catch {}
+          writer.releaseLock();
         }
       })();
 

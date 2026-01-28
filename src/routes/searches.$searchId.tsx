@@ -81,23 +81,25 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
                   setMessages((prev) => [...prev, data.message]);
                 }
                 else if (data.type === "redirect") {
-                  // Search finished, navigate to result
+                  setLoaderStreaming(false);
                   navigate(data.url, { viewTransition: true, replace: true });
                   return;
                 }
               } catch (e) {
+                setLoaderStreaming(false);
                 console.warn("Stream parse error", e);
               }
             }
           }
         }
       } catch (error: any) {
+        setLoaderStreaming(false);
         if (error.name === "AbortError") {
           console.log("Stream aborted (cleanup)");
-          setLoaderStreaming(false);
           return;
+        } else {
+          console.error("Streaming failed", error);
         }
-        console.error("Streaming failed", error);
       }
     }
 
