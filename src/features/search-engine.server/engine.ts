@@ -87,6 +87,8 @@ async function* findNextValidCandidateStream(
       yield { type: "progress", message: `${randomized.length} places found. Analyzing...` };
     }
 
+    // TODO use a different "type" that explains more what's running, so we can adapt the delay to display the message
+    // TODO we should not push messages with the current restaurant to be checked by the engine
     for (const restaurant of randomized) {
       if (candidate?.status !== "Returned") {
         yield { type: "progress", message: `${restaurant.name || 'Unknown'} ?!?` };
