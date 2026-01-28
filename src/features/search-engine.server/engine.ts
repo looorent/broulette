@@ -25,7 +25,7 @@ export async function* searchCandidate(
 ): AsyncGenerator<SearchStreamEvent, void, unknown> {
   console.log(`[SearchEngine] searchCandidate: Starting search for searchId="${searchId}"`);
 
-  yield { type: "progress", message: `Starting search for ${searchId}...` };
+  yield { type: "progress", message: `Looking nearby...` };
 
   const search = await findSearchOrThrow(searchId, searchRepository);
 

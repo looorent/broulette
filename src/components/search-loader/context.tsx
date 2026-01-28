@@ -1,49 +1,81 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { matchPath, useLocation, useNavigation, type Navigation } from "react-router";
 
 import { SearchLoaderContext } from "./hook";
-import type { SearchLoaderState } from "./types";
 
-function detectVisibilityBasedOn(navigation: Navigation, pathname: string, isStreaming: boolean): boolean {
-  console.log({ navigation });
-  console.log({ pathname });
+const MIN_STAY_VISIBLE_MS = 3000;
+const HIDE_DEBOUNCE_MS = 100;
 
-  const isOnAPageStreaming = !!matchPath("/searches/:searchId", pathname) || !!matchPath("/searches/:searchId/candidates/:candidateId", pathname);
-  return navigation.state === "submitting" && navigation.formAction?.startsWith("/searches")
-    || navigation.state === "loading" && navigation.formMethod != null
-    || isOnAPageStreaming && isStreaming;
+function detectRawVisibility(navigation: Navigation, pathname: string, isStreaming: boolean): boolean {
+  const isOnAPageStreaming = !!matchPath("/searches/:searchId", pathname) ||
+    !!matchPath("/searches/:searchId/candidates/:candidateId", pathname);
+
+  return (
+    (navigation.state === "submitting" && navigation.formAction?.startsWith("/searches")) ||
+    (navigation.state === "loading" && navigation.formMethod != null) ||
+    (isOnAPageStreaming && isStreaming)
+  );
 }
-
-const defaultState: SearchLoaderState = {
-  visible: false,
-  streaming: false,
-  message: undefined
-};
 
 export function SearchLoaderProvider({ children }: { children: React.ReactNode }) {
   const navigation = useNavigation();
   const { pathname } = useLocation();
 
-  const [activeState, setActiveState] = useState<SearchLoaderState>(defaultState);
-  const [isStreaming, setIsStreaming] = useState<boolean>(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [message, setMessage] = useState<string | undefined>(undefined);
-  const visible = detectVisibilityBasedOn(navigation, pathname, isStreaming);
 
-  if (visible !== activeState.visible || message !== activeState.message || isStreaming !== activeState.streaming) {
-    console.log("new active state", { visible: visible, streaming: isStreaming, message: message });
-    setActiveState({ visible: visible, streaming: isStreaming, message: message });
+  const [activeVisible, setActiveVisible] = useState(false);
+
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const appearanceTime = useRef<number | null>(null);
+
+  const rawVisibility = detectRawVisibility(navigation, pathname, isStreaming);
+
+  if (rawVisibility && !activeVisible) {
+    setActiveVisible(true);
   }
 
-  const setLoaderMessage = useCallback((message?: string | undefined) => {
-    setMessage(message);
-  }, []);
+  useEffect(() => {
+    if (rawVisibility) {
+      if (appearanceTime.current === null) {
+        appearanceTime.current = Date.now();
+      }
 
-  const setLoaderStreaming = useCallback((streaming: boolean) => {
-    setIsStreaming(streaming);
-  }, []);
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+        debounceTimer.current = null;
+      }
+    } else if (activeVisible) {
+      const elapsed = appearanceTime.current ? Date.now() - appearanceTime.current : 0;
+
+      const remainingMinTime = Math.max(0, MIN_STAY_VISIBLE_MS - elapsed);
+      const finalDelay = Math.max(remainingMinTime, HIDE_DEBOUNCE_MS);
+
+      debounceTimer.current = setTimeout(() => {
+        setActiveVisible(false);
+        appearanceTime.current = null;
+        debounceTimer.current = null;
+      }, finalDelay);
+    }
+
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [rawVisibility, activeVisible]);
+
+  const state = useMemo(() => ({
+    visible: activeVisible,
+    streaming: isStreaming,
+    message: message
+  }), [activeVisible, isStreaming, message]);
+
+  const setLoaderMessage = useCallback((msg?: string) => setMessage(msg), []);
+  const setLoaderStreaming = useCallback((s: boolean) => setIsStreaming(s), []);
 
   return (
-    <SearchLoaderContext.Provider value={{ setLoaderMessage, setLoaderStreaming, state: activeState }}>
+    <SearchLoaderContext.Provider value={{ setLoaderMessage, setLoaderStreaming, state }}>
       {children}
     </SearchLoaderContext.Provider>
   );

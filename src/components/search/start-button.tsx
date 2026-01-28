@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Form, useRouteLoaderData, useSubmit } from "react-router";
 
 import { AmbientPulse } from "@components/ambient-pulse";
+import { useSearchLoader } from "@components/search-loader";
 import { triggerHaptics } from "@features/browser.client";
 import type { Preference } from "@features/search";
 import type { loader as rootLoader } from "src/root";
@@ -19,6 +20,7 @@ export function SearchSubmitButton({
   className = ""
 }: SearchSubmitButtonProps) {
   const submit = useSubmit();
+  const { setLoaderMessage } = useSearchLoader();
   const session = useRouteLoaderData<typeof rootLoader>("root");
   const [isBuzzing, setIsBuzzing] = useState(false);
   const hasErrors = preferences ? !preferences.isValid : false;
@@ -38,6 +40,7 @@ export function SearchSubmitButton({
       triggerBuzz();
       onBuzzOnError?.();
     } else {
+      setLoaderMessage("Consulting the food gods..."); // TODO
       submit({
         serviceDate: preferences.service.date.toISOString(),
         serviceTimeslot: preferences.service.timeslot,
