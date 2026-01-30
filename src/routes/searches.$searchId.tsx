@@ -5,6 +5,7 @@ import { ErrorUnknown } from "@components/error/error-unknown";
 import { useSearchLoader } from "@components/search-loader";
 import type { SearchStreamEvent } from "@features/search-engine.server";
 import { getLocale } from "@features/utils/locale.server";
+import { sleep } from "@features/utils/time";
 import { findSearchViewModel } from "@features/view.server";
 import type { loader as rootLoader } from "src/root";
 
@@ -60,6 +61,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
         );
 
         if (redirectUrl) {
+          sleep(1_500);
           setLoaderStreaming(false);
           navigate(redirectUrl, { viewTransition: true, replace: true });
         }
@@ -82,7 +84,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
       clearTimeout(timeoutId);
       abortController.abort();
     };
-  }, [newCandidateUrl, session?.csrfToken, navigate, setLoaderStreaming, setLoaderMessage, setMessages]);
+  }, [newCandidateUrl, session?.csrfToken, navigate, setLoaderStreaming, setLoaderMessage]);
 
   return (
     <title>{`BiteRoulette - ${view.label} - Searching...`}</title>
@@ -100,16 +102,17 @@ export function ErrorBoundary({
 
 function handleStreamEvent(
   event: SearchStreamEvent,
-  setLoaderMessage: (message: string) => void
+  setLoaderMessage: (message: string, instant: boolean) => void
 ): string | undefined {
   if (event.type === "searching" || event.type === "exhausted" || event.type === "batch-discovered" || event.type === "looking-for-fallbacks") {
-    setLoaderMessage(event.message);
+    setLoaderMessage(event.message, false);
     return undefined;
   } else if (event.type === "checking-restaurants") {
     const messages = event.restaurantNames?.map(restaurantName => `${restaurantName} ?!?`) || [];
-    messages.forEach(setLoaderMessage);
+    messages.forEach(message => setLoaderMessage(message, false));
     return undefined;
   } else if (event.type === "redirect") {
+    setLoaderMessage("Bingo!", true);
     return event.url;
   }
 }

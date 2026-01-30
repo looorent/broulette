@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 
 import { SearchLoaderSpinner } from "./spinner";
 import { SearchLoaderTitle } from "./title";
@@ -7,8 +7,6 @@ interface SearchLoaderProps {
   title?: string;
   visible: boolean;
 }
-
-const MESSAGE_MIN_DURATION = 1_000;
 
 export function SearchLoader({ title, visible }: SearchLoaderProps) {
   const [shouldRender, setShouldRender] = useState(visible);
@@ -22,39 +20,6 @@ export function SearchLoader({ title, visible }: SearchLoaderProps) {
       setShouldRender(false);
     }
   };
-
-  const [displayedTitle, setDisplayedTitle] = useState(title);
-  const queue = useRef<string[]>([]);
-  const isProcessing = useRef(false);
-  const isMounted = useRef(false);
-
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  const processQueue = async () => {
-    if (!isProcessing.current) {
-      isProcessing.current = true;
-      while (queue.current.length > 0 && isMounted.current) {
-        const nextTitle = queue.current.shift();
-        if (nextTitle) {
-          setDisplayedTitle(nextTitle);
-          await new Promise((resolve) => setTimeout(resolve, MESSAGE_MIN_DURATION));
-        }
-      }
-      isProcessing.current = false;
-    };
-  };
-
-  useEffect(() => {
-    if (title && title !== displayedTitle) {
-      queue.current.push(title);
-      processQueue();
-    }
-  }, [title, displayedTitle]);
 
   if (shouldRender) {
     return (
@@ -74,7 +39,7 @@ export function SearchLoader({ title, visible }: SearchLoaderProps) {
           pointer-events-none absolute inset-0 flex items-center justify-center
         `}>
           <div className="mt-48 transition-all duration-500">
-            <SearchLoaderTitle title={displayedTitle} />
+            <SearchLoaderTitle title={title} />
           </div>
         </div>
       </main>

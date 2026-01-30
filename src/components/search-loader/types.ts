@@ -13,7 +13,7 @@ export function defaultSearchLoaderState(): SearchLoaderState {
 }
 
 export interface SearchLoaderContextType {
-  setLoaderMessage: (message?: string | undefined) => void;
+  setLoaderMessage: (message: string, instant?: boolean) => void;
   setLoaderStreaming: (streaming: boolean) => void;
   state: SearchLoaderState;
 }

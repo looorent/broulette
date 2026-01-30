@@ -17,12 +17,15 @@ function detectRawVisibility(navigation: Navigation, pathname: string, isStreami
   );
 }
 
+const MESSAGE_MIN_DURATION = 1_000;
 export function SearchLoaderProvider({ children }: { children: React.ReactNode }) {
   const navigation = useNavigation();
   const { pathname } = useLocation();
 
   const [isStreaming, setIsStreaming] = useState(false);
-  const [message, setMessage] = useState<string | undefined>(undefined);
+  const [messages, setMessages] = useState<string[]>([]);
+  const [instantMessage, setInstantMessage] = useState<string | null>(null);
+  const currentMessage = instantMessage ?? messages[0];
 
   const [activeVisible, setActiveVisible] = useState(false);
 
@@ -34,6 +37,15 @@ export function SearchLoaderProvider({ children }: { children: React.ReactNode }
   if (rawVisibility && !activeVisible) {
     setActiveVisible(true);
   }
+
+  useEffect(() => {
+    if (messages.length > 0 && !instantMessage) {
+      const timer = setTimeout(() => {
+        setMessages(prev => prev.slice(1));
+      }, MESSAGE_MIN_DURATION);
+      return () => clearTimeout(timer);
+    }
+  }, [messages, instantMessage]);
 
   useEffect(() => {
     if (rawVisibility) {
@@ -55,6 +67,8 @@ export function SearchLoaderProvider({ children }: { children: React.ReactNode }
         setActiveVisible(false);
         appearanceTime.current = null;
         debounceTimer.current = null;
+        setMessages([]);
+        setInstantMessage(null);
       }, finalDelay);
     }
 
@@ -68,10 +82,19 @@ export function SearchLoaderProvider({ children }: { children: React.ReactNode }
   const state = useMemo(() => ({
     visible: activeVisible,
     streaming: isStreaming,
-    message: message
-  }), [activeVisible, isStreaming, message]);
+    message: currentMessage
+  }), [activeVisible, isStreaming, currentMessage]);
 
-  const setLoaderMessage = useCallback((message?: string) => setMessage(message), []);
+  const setLoaderMessage = useCallback((message: string, instant: boolean = false) => {
+    if (instant) {
+      setMessages([]);
+      setInstantMessage(message);
+    } else {
+      setInstantMessage(null);
+      setMessages((prev) => [...prev, message]);
+    }
+  }, []);
+
   const setLoaderStreaming = useCallback((streaming: boolean) => setIsStreaming(streaming), []);
 
   return (

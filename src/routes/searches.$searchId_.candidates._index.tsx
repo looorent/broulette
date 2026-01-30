@@ -49,7 +49,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 
-async function waitToGiveThrottlingExperience(startTime: number, minimumDurationInMillis: number = 5_000) {
+async function waitToGiveThrottlingExperience(startTime: number, minimumDurationInMillis: number = 7_000) {
   const elapsedTime = Date.now() - startTime;
   const remainingTime = minimumDurationInMillis - elapsedTime;
   if (remainingTime > 0) {

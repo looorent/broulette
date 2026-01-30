@@ -1,6 +1,7 @@
 import { RefreshCw } from "lucide-react";
 import { href, useRouteLoaderData, useSubmit, type SubmitFunction } from "react-router";
 
+import { useSearchLoader } from "@components/search-loader";
 import { triggerHaptics } from "@features/browser.client";
 import type { loader as rootLoader } from "src/root";
 
@@ -14,9 +15,11 @@ function reRoll(
   enabled: boolean,
   searchId: string,
   csrfToken: string,
-  submit: SubmitFunction
+  submit: SubmitFunction,
+  setLoaderStreaming: (streaming: boolean) => void
 ) {
   if (enabled) {
+    setLoaderStreaming(true)
     triggerHaptics();
     submit({
       csrf: csrfToken
@@ -30,11 +33,12 @@ function reRoll(
 
 export function RerollButton({ enabled, searchId }: RerollButtonProps) {
   const submit = useSubmit();
+  const { setLoaderStreaming } = useSearchLoader();
   const session = useRouteLoaderData<typeof rootLoader>("root");
   if (enabled) {
     return (
       <button
-        onClick={() => reRoll(enabled, searchId, session?.csrfToken || "", submit)}
+        onClick={() => reRoll(enabled, searchId, session?.csrfToken || "", submit, setLoaderStreaming)}
         className={`
           flex w-20 cursor-pointer items-center justify-center rounded-2xl
           border-4 border-fun-dark bg-fun-yellow shadow-hard
