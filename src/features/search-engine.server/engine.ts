@@ -12,9 +12,13 @@ import { validateRestaurant } from "./validator";
 
 
 const MESSAGES = [
-  "Consulting the Ancient Spirits of Takeout...",
-  "Syncing with local grease traps...",
-  "Locating calories. Any calories."
+  "Reticulating flavor splines!",
+  "Hamsters are deciding.",
+  "Spinning foodie fortune!",
+  "Magic 8-ball says: Eat!",
+  "Shuffling deliciousness.",
+  "Locating yum.",
+  "Calibrating hunger.",
 ];
 
 export async function* searchCandidate(
@@ -37,7 +41,7 @@ export async function* searchCandidate(
   const search = await findSearchOrThrow(searchId, searchRepository);
 
   if (search.exhausted) {
-    yield { type: "exhausted", message: "Exhausted. Finding fallback..." };
+    yield { type: "exhausted", message: "We've seen it all. Let's find a fallback." };
     console.log(`[SearchEngine] Search "${searchId}" is already exhausted. Returning fallback candidate.`);
     const candidate = await findLatestCandidateOf(search.id, searchRepository, candidateRepository) || await createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
     yield { type: "result", candidate };
@@ -84,7 +88,16 @@ async function* findNextValidCandidateStream(
     const randomized = await randomize(restaurants);
     if (randomized.length > 0) {
       console.log(`[SearchEngine] Processing batch of ${randomized.length} discovered restaurants...`);
-      yield { type: "batch-discovered", count: randomized.length, message: `${randomized.length} places found. Analyzing...` };
+      yield { type: "batch-discovered", count: randomized.length, message: `${randomized.length} options detected! Digging in...` };
+
+      // Give the feeling that we are searching through a list of restaurants
+      const fakeRestaurantsToShow = randomized.slice(0, Math.min(randomized.length, 5));
+      for (const restaurant of fakeRestaurantsToShow) {
+        if (candidate?.status !== "Returned") {
+          yield { type: "checking-restaurant", restaurantName: restaurant.name || "???" };
+          await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 100));
+        }
+      }
     }
 
     for (const restaurant of randomized) {
@@ -105,7 +118,7 @@ async function* findNextValidCandidateStream(
     console.log(`[SearchEngine] Candidate found after scanning: '${candidate.id}' in status '${candidate.status}'.`);
     yield { type: "result", candidate };
   } else {
-    yield { type: "looking-for-fallbacks", message: "Nothing found, looking for fallbacks..." };
+    yield { type: "looking-for-fallbacks", message: "No winners yet. Checking the rejects..." };
     console.log(`[SearchEngine] No valid candidate found after scanning. Trying to find a fallback...`);
     const fallbackCandidate = await candidateRepository.findBestRejectedCandidateThatCouldServeAsFallback(search.id);
     if (fallbackCandidate) {

@@ -53,14 +53,17 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
           throw new Error("No stream body");
         }
 
-        const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
+        let hasRedirected = false; // Flag to stop processing after redirect
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
+        for await (const value of response.body) {
+          if (hasRedirected) {
+            // If we've already redirected, we should not process any more data.
+            // The abort signal will eventually stop the stream, and the
+            // catch block will handle the AbortError.
+            continue;
+          }
           const chunk = decoder.decode(value, { stream: true });
           buffer += chunk;
 
@@ -85,7 +88,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
                 } else if (data.type === "redirect") {
                   setLoaderStreaming(false);
                   navigate(data.url, { viewTransition: true, replace: true });
-                  return;
+                  hasRedirected = true; // Corrected
                 }
               } catch (e) {
                 setLoaderStreaming(false);

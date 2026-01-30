@@ -1,9 +1,10 @@
-
 import { href, redirect } from "react-router";
+
 
 import { searchCandidate, type SearchStreamEvent } from "@features/search-engine.server";
 import { validateCSRF } from "@features/session.server";
 import { getLocale } from "@features/utils/locale.server";
+import { sleep } from "@features/utils/time";
 
 import type { Route } from "./+types/searches.$searchId_.candidates._index";
 
@@ -29,6 +30,7 @@ export async function action({
       request.signal.addEventListener("abort", handleAbort);
 
       (async () => {
+        const startTime = Date.now();
         try {
           writer.closed.catch((err) => {
             console.log("[Stream] Client disconnected or aborted:", err); // TODO
@@ -58,6 +60,7 @@ export async function action({
 
             for await (const event of generator) {
               if (event.type === "result") {
+                await waitToGiveThrottlingExperience(startTime);
                 const redirectUrl = href("/searches/:searchId/candidates/:candidateId", {
                   searchId: event.candidate.searchId,
                   candidateId: event.candidate.id
@@ -80,7 +83,9 @@ export async function action({
             if (!request.signal.aborted) {
               await writer.close();
             }
-          } catch {}
+          } catch (_error) {
+            // ignore error on close
+          }
           writer.releaseLock();
         }
       })();
@@ -127,5 +132,14 @@ function parseAndValidate(
       searchId: params.searchId,
       locale: locale
     };
+  }
+}
+
+
+async function waitToGiveThrottlingExperience(startTime: number, minimumDurationInMillis: number = 5_000) {
+  const elapsedTime = Date.now() - startTime;
+  const remainingTime = minimumDurationInMillis - elapsedTime;
+  if (remainingTime > 0) {
+    await sleep(remainingTime);
   }
 }
