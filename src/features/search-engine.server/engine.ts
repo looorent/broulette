@@ -32,12 +32,12 @@ export async function* searchCandidate(
 ): AsyncGenerator<SearchStreamEvent, void, unknown> {
   console.log(`[SearchEngine] searchCandidate: Starting search for searchId="${searchId}"`);
 
-  yield { type: "progress", message: MESSAGES[Math.floor(Math.random() * MESSAGES.length)] };
+  yield { type: "searching", message: MESSAGES[Math.floor(Math.random() * MESSAGES.length)] };
 
   const search = await findSearchOrThrow(searchId, searchRepository);
 
   if (search.exhausted) {
-    yield { type: "progress", message: "Exhausted. Finding fallback..." };
+    yield { type: "exhausted", message: "Exhausted. Finding fallback..." };
     console.log(`[SearchEngine] Search "${searchId}" is already exhausted. Returning fallback candidate.`);
     const candidate = await findLatestCandidateOf(search.id, searchRepository, candidateRepository) || await createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
     yield { type: "result", candidate };
@@ -84,14 +84,12 @@ async function* findNextValidCandidateStream(
     const randomized = await randomize(restaurants);
     if (randomized.length > 0) {
       console.log(`[SearchEngine] Processing batch of ${randomized.length} discovered restaurants...`);
-      yield { type: "progress", message: `${randomized.length} places found. Analyzing...` };
+      yield { type: "batch-discovered", count: randomized.length, message: `${randomized.length} places found. Analyzing...` };
     }
 
-    // TODO use a different "type" that explains more what's running, so we can adapt the delay to display the message
-    // TODO we should not push messages with the current restaurant to be checked by the engine
     for (const restaurant of randomized) {
       if (candidate?.status !== "Returned") {
-        yield { type: "progress", message: `${restaurant.name || 'Unknown'} ?!?` };
+        yield { type: "checking-restaurant", restaurantName: restaurant.name || 'Unknown' };
         const processed = await processRestaurant(restaurant, search, orderTracker++, config, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, locale, scanner);
         if (processed) {
           candidate = processed;
@@ -107,7 +105,7 @@ async function* findNextValidCandidateStream(
     console.log(`[SearchEngine] Candidate found after scanning: '${candidate.id}' in status '${candidate.status}'.`);
     yield { type: "result", candidate };
   } else {
-    yield { type: "progress", message: "Nothing found, looking for fallbacks..." };
+    yield { type: "looking-for-fallbacks", message: "Nothing found, looking for fallbacks..." };
     console.log(`[SearchEngine] No valid candidate found after scanning. Trying to find a fallback...`);
     const fallbackCandidate = await candidateRepository.findBestRejectedCandidateThatCouldServeAsFallback(search.id);
     if (fallbackCandidate) {

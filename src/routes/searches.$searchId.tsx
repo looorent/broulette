@@ -68,7 +68,6 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
           const lines = buffer.split("\n\n");
           buffer = lines.pop() || ""; // Keep the last partial chunk
 
-          // console.log("buffer", lines);
           for (const line of lines) {
             if (line.startsWith("data: ")) {
               const jsonStr = line.replace("data: ", "");
@@ -76,11 +75,14 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
                 const data = JSON.parse(jsonStr);
 
                 // --- HANDLE EVENTS ---
-                if (data.type === "progress") {
+                if (data.type === "searching" || data.type === "exhausted" || data.type === "batch-discovered" || data.type === "looking-for-fallbacks") {
                   setLoaderMessage(data.message);
                   setMessages((prev) => [...prev, data.message]);
-                }
-                else if (data.type === "redirect") {
+                } else if (data.type === "checking-restaurant") {
+                  const message = `${data.restaurantName} ?!?`;
+                  setLoaderMessage(message);
+                  setMessages((prev) => [...prev, message]);
+                } else if (data.type === "redirect") {
                   setLoaderStreaming(false);
                   navigate(data.url, { viewTransition: true, replace: true });
                   return;
