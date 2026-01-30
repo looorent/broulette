@@ -103,12 +103,12 @@ async function* findNextValidCandidateStream(
       console.log(`[SearchEngine] Processing batch of ${randomized.length} discovered restaurants...`);
       yield { type: "batch-discovered", count: randomized.length, message: `${randomized.length} options detected! Digging in...` };
 
-      yield* simulateFastChecking(randomized, () => candidate?.status === "Returned");
+      yield* simulateFastChecking(randomized);
     }
 
     for (const restaurant of randomized) {
       if (candidate?.status !== "Returned") {
-        yield { type: "checking-restaurant", restaurantName: restaurant.name || 'Unknown' };
+        yield { type: "checking-restaurants", restaurantNames: [restaurant.name || "?!?"]};
         const processed = await processRestaurant(restaurant, search, orderTracker++, config, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, locale, scanner);
         if (processed) {
           candidate = processed;
