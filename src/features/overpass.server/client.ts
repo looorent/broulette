@@ -38,7 +38,7 @@ async function fetchAllRestaurantsNearby(
   const start = Date.now();
 
   const response = await fetch(instanceUrl, {
-    method: "post",
+    method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
     },

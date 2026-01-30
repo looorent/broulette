@@ -47,7 +47,7 @@ export function SearchSubmitButton({
         csrf: session?.csrfToken ?? ""
       }, {
         action: "/searches",
-        method: "post",
+        method: "POST",
         replace: false, // we want to keep the main "/" state in the history
         viewTransition: true
       });
@@ -56,7 +56,7 @@ export function SearchSubmitButton({
 
   return (
     <Form
-      method="post"
+      method="POST"
       action="/searches"
       onSubmit={handleSubmit}
       className={`

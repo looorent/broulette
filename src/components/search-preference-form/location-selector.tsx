@@ -65,7 +65,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
             csrf: session?.csrfToken ?? ""
           },
           {
-            method: "post",
+            method: "POST",
             action: "/api/address-searches"
           }
         );

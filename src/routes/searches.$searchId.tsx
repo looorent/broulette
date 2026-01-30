@@ -3,11 +3,49 @@ import { href, redirect, useNavigate, useRouteLoaderData } from "react-router";
 
 import { ErrorUnknown } from "@components/error/error-unknown";
 import { useSearchLoader } from "@components/search-loader";
+import type { SearchStreamEvent } from "@features/search-engine.server";
 import { getLocale } from "@features/utils/locale.server";
 import { findSearchViewModel } from "@features/view.server";
 import type { loader as rootLoader } from "src/root";
 
 import type { Route } from "./+types/searches.$searchId";
+
+async function processStream(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  onEvent: (event: SearchStreamEvent) => string | undefined,
+  onParseError: () => void
+): Promise<string | undefined> {
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let streamFinished = false;
+  let redirectUrl: string | undefined;
+
+  while (!streamFinished && !redirectUrl) {
+    const { value, done: readerDone } = await reader.read();
+    streamFinished = readerDone;
+
+    if (value) {
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n\n");
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (line.startsWith("data: ")) {
+          const jsonStr = line.replace("data: ", "");
+          try {
+            const event = JSON.parse(jsonStr) as SearchStreamEvent;
+            redirectUrl = onEvent(event);
+          } catch (e) {
+            onParseError();
+            console.warn("Stream parse error", e);
+          }
+        }
+      }
+    }
+  }
+
+  return redirectUrl;
+}
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const view = await findSearchViewModel(params.searchId, await getLocale(request), context.repositories.search);
@@ -53,55 +91,20 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
           throw new Error("No stream body");
         }
 
-        const decoder = new TextDecoder();
-        let buffer = "";
-        let hasRedirected = false; // Flag to stop processing after redirect
+        const redirectUrl = await processStream(
+          response.body.getReader(),
+          (event) => handleStreamEvent(event, setLoaderMessage, setMessages),
+          () => setLoaderStreaming(false)
+        );
 
-        for await (const value of response.body) {
-          if (hasRedirected) {
-            // If we've already redirected, we should not process any more data.
-            // The abort signal will eventually stop the stream, and the
-            // catch block will handle the AbortError.
-            continue;
-          }
-          const chunk = decoder.decode(value, { stream: true });
-          buffer += chunk;
-
-          // Split by standard SSE double newline
-          const lines = buffer.split("\n\n");
-          buffer = lines.pop() || ""; // Keep the last partial chunk
-
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              const jsonStr = line.replace("data: ", "");
-              try {
-                const data = JSON.parse(jsonStr);
-
-                // --- HANDLE EVENTS ---
-                if (data.type === "searching" || data.type === "exhausted" || data.type === "batch-discovered" || data.type === "looking-for-fallbacks") {
-                  setLoaderMessage(data.message);
-                  setMessages((prev) => [...prev, data.message]);
-                } else if (data.type === "checking-restaurant") {
-                  const message = `${data.restaurantName} ?!?`;
-                  setLoaderMessage(message);
-                  setMessages((prev) => [...prev, message]);
-                } else if (data.type === "redirect") {
-                  setLoaderStreaming(false);
-                  navigate(data.url, { viewTransition: true, replace: true });
-                  hasRedirected = true; // Corrected
-                }
-              } catch (e) {
-                setLoaderStreaming(false);
-                console.warn("Stream parse error", e);
-              }
-            }
-          }
+        if (redirectUrl) {
+          setLoaderStreaming(false);
+          navigate(redirectUrl, { viewTransition: true, replace: true });
         }
       } catch (error: any) {
         setLoaderStreaming(false);
         if (error.name === "AbortError") {
           console.log("Stream aborted (cleanup)");
-          return;
         } else {
           console.error("Streaming failed", error);
         }
@@ -112,15 +115,35 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
       setLoaderStreaming(false);
       streamSearch();
     }, 50);
+
     return () => {
       clearTimeout(timeoutId);
       abortController.abort();
     };
-  }, [newCandidateUrl, session?.csrfToken, navigate, setLoaderStreaming, setLoaderMessage]);
+  }, [newCandidateUrl, session?.csrfToken, navigate, setLoaderStreaming, setLoaderMessage, setMessages]);
 
   return (
     <title>{`BiteRoulette - ${view.label} - Searching...`}</title>
   );
+}
+
+function handleStreamEvent(
+  event: SearchStreamEvent,
+  setLoaderMessage: (message: string) => void,
+  setMessages: React.Dispatch<React.SetStateAction<string[]>>
+): string | undefined {
+  if (event.type === "searching" || event.type === "exhausted" || event.type === "batch-discovered" || event.type === "looking-for-fallbacks") {
+    setLoaderMessage(event.message);
+    setMessages((prev) => [...prev, event.message]);
+    return undefined;
+  } else if (event.type === "checking-restaurant") {
+    const message = `${event.restaurantName} ?!?`;
+    setLoaderMessage(message);
+    setMessages((prev) => [...prev, message]);
+    return undefined;
+  } else if (event.type === "redirect") {
+    return event.url;
+  }
 }
 
 export function ErrorBoundary({
