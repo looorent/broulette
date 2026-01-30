@@ -86,7 +86,6 @@ export function SearchLoaderProvider({ children }: { children: React.ReactNode }
   }), [activeVisible, isStreaming, currentMessage]);
 
   const setLoaderMessage = useCallback((message: string, instant: boolean = false) => {
-    console.log("coucou", message);
     if (instant) {
       setMessages([]);
       setInstantMessage(message);

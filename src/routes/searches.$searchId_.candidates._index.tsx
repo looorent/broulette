@@ -118,9 +118,9 @@ async function streamSearchResults(
           searchId: event.candidate.searchId,
           candidateId: event.candidate.id
         });
-        send({ type: "redirect", url: redirectUrl });
+        await send({ type: "redirect", url: redirectUrl });
       } else {
-        send(event);
+        await send(event);
       }
     }
   } catch (error) {
