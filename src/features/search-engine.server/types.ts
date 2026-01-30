@@ -41,7 +41,7 @@ export type SearchStreamEvent =
   | { type: "searching"; message: string }
   | { type: "exhausted"; message: string }
   | { type: "batch-discovered"; count: number; message: string }
-  | { type: "checking-restaurant"; restaurantName: string }
+  | { type: "checking-restaurants"; restaurantNames: string[] }
   | { type: "looking-for-fallbacks"; message: string }
   | { type: "result"; candidate: SearchCandidate }
   | { type: "redirect"; url: string };

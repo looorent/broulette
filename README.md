@@ -98,7 +98,6 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 
 * Haptics do not work on Android?
 * Use KV for circuit breaker? https://community.cloudflare.com/t/session-management/46770/4
-* Streaming HTTP during search
 * Preference form:
     * Use localstorage
 * Add some cache on Nominatim

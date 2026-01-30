@@ -31,7 +31,6 @@ export function SearchLoader({ title, visible }: SearchLoaderProps) {
   useEffect(() => {
     isMounted.current = true;
     return () => {
-      console.log("coucou");
       isMounted.current = false;
     };
   }, []);

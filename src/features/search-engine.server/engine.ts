@@ -66,6 +66,19 @@ export async function* searchCandidate(
   }
 }
 
+async function* simulateFastChecking(
+  restaurants: DiscoveredRestaurantProfile[],
+  maxToShow: number = 10
+): AsyncGenerator<SearchStreamEvent, void, unknown> {
+  const fakeRestaurantsToShow = restaurants.slice(0, Math.min(restaurants.length, maxToShow))
+    .map(restaurant => restaurant.name!)
+    .filter(Boolean);
+
+  if (fakeRestaurantsToShow.length > 0) {
+    yield { type: "checking-restaurants", restaurantNames: fakeRestaurantsToShow };
+  }
+}
+
 async function* findNextValidCandidateStream(
   search: Search,
   scanner: RestaurantDiscoveryScanner,
@@ -90,14 +103,7 @@ async function* findNextValidCandidateStream(
       console.log(`[SearchEngine] Processing batch of ${randomized.length} discovered restaurants...`);
       yield { type: "batch-discovered", count: randomized.length, message: `${randomized.length} options detected! Digging in...` };
 
-      // Give the feeling that we are searching through a list of restaurants
-      const fakeRestaurantsToShow = randomized.slice(0, Math.min(randomized.length, 5));
-      for (const restaurant of fakeRestaurantsToShow) {
-        if (candidate?.status !== "Returned") {
-          yield { type: "checking-restaurant", restaurantName: restaurant.name || "???" };
-          await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 100));
-        }
-      }
+      yield* simulateFastChecking(randomized, () => candidate?.status === "Returned");
     }
 
     for (const restaurant of randomized) {
