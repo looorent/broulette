@@ -10,7 +10,6 @@ import { randomize } from "./randomizer";
 import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration, type SearchEngineRange, type SearchStreamEvent } from "./types";
 import { validateRestaurant } from "./validator";
 
-
 const MESSAGES = [
   "Reticulating flavor splines!",
   "Hamsters are deciding.",
@@ -98,24 +97,21 @@ async function* findNextValidCandidateStream(
 
   while (shouldContinueToExploreMoreRestaurants(candidate, scanner)) {
     const restaurants = await scanner.nextRestaurants(signal);
-    const randomized = await randomize(restaurants);
-    if (randomized.length > 0) {
-      console.log(`[SearchEngine] Processing batch of ${randomized.length} discovered restaurants...`);
-      yield { type: "batch-discovered", count: randomized.length, message: `${randomized.length} options detected! Digging in...` };
-
-      yield* simulateFastChecking(randomized);
-    }
-
-    for (const restaurant of randomized) {
-      if (candidate?.status !== "Returned") {
-        yield { type: "checking-restaurants", restaurantNames: [restaurant.name || "?!?"]};
-        const processed = await processRestaurant(restaurant, search, orderTracker++, config, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, locale, scanner);
-        if (processed) {
-          candidate = processed;
-          console.log(`[SearchEngine] Candidate found: ${candidate.id} (Status: ${candidate.status})`);
+    if (restaurants.length > 0) {
+      console.log(`[SearchEngine] Processing batch of ${restaurants.length} discovered restaurants...`);
+      yield { type: "batch-discovered", count: restaurants.length, message: `${restaurants.length} options detected! Digging in...` };
+      yield* simulateFastChecking(await randomize(restaurants));
+      for (const restaurant of await randomize(restaurants)) {
+        if (candidate?.status !== "Returned") {
+          yield { type: "checking-restaurants", restaurantNames: [restaurant.name || "?!?"]};
+          const processed = await processRestaurant(restaurant, search, orderTracker++, config, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, locale, scanner);
+          if (processed) {
+            candidate = processed;
+            console.log(`[SearchEngine] Candidate found: ${candidate.id} (Status: ${candidate.status})`);
+          }
+        } else {
+          break;
         }
-      } else {
-        break;
       }
     }
   }

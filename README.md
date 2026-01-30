@@ -103,3 +103,5 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 * Add some cache on Nominatim
 * In the search address field, use the current position (if available) to find more relevant addresses.
 * Some restaurants "Pizza chez toi" are mismatched with "Pizza Hut".
+* Add an option to avoid fast foods
+* Move the default range to "by foot" (short range) and offer the capability to extend if nothing has been found.
