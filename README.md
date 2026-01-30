@@ -96,6 +96,7 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 
 ## TODO
 
+* ERROR on the backend side: `Uncaught Error: The Workers runtime canceled this request because it detected that your Worker's code had hung and would never generate a response. Refer to: https://developers.cloudflare.com/workers/observability/errors/`
 * Haptics do not work on Android?
 * Use KV for circuit breaker? https://community.cloudflare.com/t/session-management/46770/4
 * Preference form:

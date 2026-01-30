@@ -71,8 +71,7 @@ async function* simulateFastChecking(
 ): AsyncGenerator<SearchStreamEvent, void, unknown> {
   const fakeRestaurantsToShow = restaurants.slice(0, Math.min(restaurants.length, maxToShow))
     .map(restaurant => restaurant.name!)
-    .filter(Boolean);
-
+    .filter(Boolean) || [];
   if (fakeRestaurantsToShow.length > 0) {
     yield { type: "checking-restaurants", restaurantNames: fakeRestaurantsToShow };
   }
@@ -95,24 +94,34 @@ async function* findNextValidCandidateStream(
   let candidate: SearchCandidate | undefined = undefined;
   let orderTracker = currentOrder;
 
-  while (shouldContinueToExploreMoreRestaurants(candidate, scanner)) {
+  while (shouldContinueToExploreMoreRestaurants(candidate, scanner) && !signal?.aborted) {
     const restaurants = await scanner.nextRestaurants(signal);
+
     if (restaurants.length > 0) {
-      console.log(`[SearchEngine] Processing batch of ${restaurants.length} discovered restaurants...`);
-      yield { type: "batch-discovered", count: restaurants.length, message: `${restaurants.length} options detected! Digging in...` };
-      yield* simulateFastChecking(await randomize(restaurants));
-      for (const restaurant of await randomize(restaurants)) {
+      const randomized = await randomize(restaurants);
+      console.log(`[SearchEngine] Processing batch of ${randomized.length} discovered restaurants...`);
+      yield { type: "batch-discovered", count: randomized.length, message: `${randomized.length} options detected! Digging in...` };
+
+      yield* simulateFastChecking(randomized, 10);
+
+      for (const restaurant of randomized) {
         if (candidate?.status !== "Returned") {
-          yield { type: "checking-restaurants", restaurantNames: [restaurant.name || "?!?"]};
-          const processed = await processRestaurant(restaurant, search, orderTracker++, config, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, locale, scanner);
-          if (processed) {
-            candidate = processed;
-            console.log(`[SearchEngine] Candidate found: ${candidate.id} (Status: ${candidate.status})`);
+          if (signal?.aborted) {
+            break;
+          } else {
+            yield { type: "checking-restaurants", restaurantNames: [restaurant.name || "?!?"]};
+            const processed = await processRestaurant(restaurant, search, orderTracker++, config, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, locale, scanner);
+            if (processed) {
+              candidate = processed;
+              console.log(`[SearchEngine] Candidate found: ${candidate.id} (Status: ${candidate.status})`);
+            }
           }
         } else {
           break;
         }
       }
+    } else {
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
   }
 
