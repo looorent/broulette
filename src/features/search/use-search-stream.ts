@@ -76,28 +76,32 @@ async function processStream(
   let streamFinished = false;
   let redirectUrl: string | undefined;
 
-  while (!streamFinished && !redirectUrl) {
-    const { value, done: readerDone } = await reader.read();
-    streamFinished = readerDone;
+  try {
+    while (!streamFinished && !redirectUrl) {
+      const { value, done: readerDone } = await reader.read();
+      streamFinished = readerDone;
 
-    if (value) {
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n\n");
-      buffer = lines.pop() || "";
+      if (value) {
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n\n");
+        buffer = lines.pop() || "";
 
-      for (const line of lines) {
-        if (line.startsWith("data: ")) {
-          const jsonStr = line.replace("data: ", "");
-          try {
-            const event = JSON.parse(jsonStr) as SearchStreamEvent;
-            redirectUrl = await onEvent(event);
-          } catch (e) {
-            onParseError();
-            console.warn("[Search engine] Stream parse error", e);
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const jsonStr = line.replace("data: ", "");
+            try {
+              const event = JSON.parse(jsonStr) as SearchStreamEvent;
+              redirectUrl = await onEvent(event);
+            } catch (e) {
+              onParseError();
+              console.warn("[Search engine] Stream parse error", e);
+            }
           }
         }
       }
     }
+  } finally {
+    await reader.cancel().catch(() => {});
   }
   return redirectUrl;
 }

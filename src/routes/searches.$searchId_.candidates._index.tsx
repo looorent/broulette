@@ -34,6 +34,7 @@ export async function action({
       },
     });
   } catch (error) {
+    console.error("[Action] Error:", error);
     return new Response(JSON.stringify({ error: String(error) }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
@@ -82,13 +83,8 @@ async function streamSearchResults(
   context: Route.LoaderArgs["context"]
 ) {
   const encoder = new TextEncoder();
-  const handleAbort = () => {
-    console.log("[Search engine] Request signaled abort. Closing writer.");
-    writer.abort().catch(() => { /* ignore */ });
-  };
-  signal.addEventListener("abort", handleAbort);
-
   const startTime = Date.now();
+
   try {
     const send = async (event: SearchStreamEvent) => {
       if (!signal.aborted) {
@@ -119,24 +115,16 @@ async function streamSearchResults(
           candidateId: event.candidate.id
         });
         await send({ type: "redirect", url: redirectUrl });
+        break;
       } else {
         await send(event);
       }
     }
   } catch (error) {
     if (error instanceof Error && error.name !== 'AbortError') {
-      console.error("Stream error", error);
+      console.error("[Streaming] Error:", error);
     }
   } finally {
-    signal.removeEventListener("abort", handleAbort);
-    if (!writer.closed) {
-      try {
-        if (!signal.aborted) {
-          await writer.close();
-        }
-      } catch (_error) {
-        // ignore error on close
-      }
-    }
+    await writer.close();
   }
 }

@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "react-router dev",
     "build": "react-router build",
-    "start": "wrangler dev --local",
+    "start": "wrangler dev --local --log-level info",
     "preview": "npm run build && wrangler dev --local",
     "deploy": "npm run build && wrangler deploy",
     "db:gen": "dotenv -e .dev.vars -- drizzle-kit generate",

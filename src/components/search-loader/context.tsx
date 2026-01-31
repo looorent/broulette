@@ -39,7 +39,7 @@ export function SearchLoaderProvider({ children }: { children: React.ReactNode }
   }
 
   useEffect(() => {
-    if (messages.length > 0 && !instantMessage) {
+    if (messages.length > 1 && !instantMessage) {
       const timer = setTimeout(() => {
         setMessages(prev => prev.slice(1));
       }, MESSAGE_MIN_DURATION);
