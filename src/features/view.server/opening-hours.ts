@@ -1,5 +1,6 @@
 import opening_hours from "opening_hours";
 
+import { logger } from "@features/utils/logger";
 import type { OpeningHoursOfTheDay } from "@features/view";
 
 export function formatOpeningHoursFor(
@@ -22,7 +23,7 @@ export function formatOpeningHoursFor(
         hoursLabel: formatHours(oh, from, to, locale)
       }
     } catch (error) {
-      console.error(`Invalid opening_hours string: "${osmOpeningHours}"`, error);
+      logger.error("Invalid opening_hours string: '%s' %s", osmOpeningHours, error);
       return {
         unknown: true,
         open: undefined,

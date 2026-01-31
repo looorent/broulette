@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 
 import { useSearchLoader } from "@components/search-loader";
 import type { SearchStreamEvent } from "@features/search-engine.server";
+import { logger } from "@features/utils/logger";
 import { sleep } from "@features/utils/time";
 
 export function useSearchStream() {
@@ -39,9 +40,9 @@ export function useSearchStream() {
     } catch (error: any) {
       setLoaderStreaming(false);
       if (error.name === "AbortError") {
-        console.log("[Search engine] Stream aborted (cleanup)");
+        logger.log("[Search engine] Stream aborted (cleanup)");
       } else {
-        console.error("Streaming failed", error);
+        logger.error("Streaming failed", error);
       }
     }
   }, [navigate, setLoaderMessage, setLoaderStreaming]);
@@ -94,7 +95,7 @@ async function processStream(
               redirectUrl = await onEvent(event);
             } catch (e) {
               onParseError();
-              console.warn("[Search engine] Stream parse error", e);
+              logger.warn("[Search engine] Stream parse error", e);
             }
           }
         }

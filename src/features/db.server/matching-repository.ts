@@ -1,6 +1,7 @@
 import { and, count, eq, gte, lt } from "drizzle-orm";
 
 import { computeMonthBounds } from "@features/utils/date";
+import { logger } from "@features/utils/logger";
 
 import type { DrizzleClient } from "./drizzle";
 import type { RestaurantMatchingAttempt } from "./drizzle.types";
@@ -22,7 +23,7 @@ export class MatchingRepositoryDrizzle implements MatchingRepository {
     restaurantId: string,
     source: string
   ): Promise<boolean> {
-    console.trace(`[Drizzle] doesAttemptExistsSince: Checking attempts for restaurant="${restaurantId}" from source="${source}" since ${instant.toISOString()}`);
+    logger.trace("[Drizzle] doesAttemptExistsSince: Checking attempts for restaurant='%s' from source='%s' since %s", restaurantId, source, instant.toISOString());
     const recentAttempt = await this.db.query.restaurantMatchingAttempts.findFirst({
       where: and(
         eq(restaurantMatchingAttempts.restaurantId, restaurantId),
@@ -35,14 +36,14 @@ export class MatchingRepositoryDrizzle implements MatchingRepository {
     });
 
     const exists = !!recentAttempt;
-    console.trace(`[Drizzle] doesAttemptExistsSince: Result = ${exists}`);
+    logger.trace("[Drizzle] doesAttemptExistsSince: Result = %s", exists);
     return exists;
   }
 
   async hasReachedQuota(source: string, maxNumberOfAttemptsPerMonth: number): Promise<boolean> {
     const numberOfAttemptsThisMonth = await this.countMatchingAttemptsDuringMonth(source, new Date());
     if (numberOfAttemptsThisMonth > maxNumberOfAttemptsPerMonth) {
-      console.warn(`We have exceeded the monthly quota of ${source}: ${numberOfAttemptsThisMonth}/${maxNumberOfAttemptsPerMonth}`);
+      logger.warn("We have exceeded the monthly quota of %s: %d/%d", source, numberOfAttemptsThisMonth, maxNumberOfAttemptsPerMonth);
       return true;
     } else {
       return false;

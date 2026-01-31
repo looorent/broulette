@@ -1,6 +1,7 @@
 
 import type { Coordinates } from "@features/coordinate";
 import type { OverpassConfiguration } from "@features/overpass.server";
+import { logger } from "@features/utils/logger";
 import type { RestaurantProfile } from "@persistence";
 
 import { loadBalancer } from "./providers";
@@ -24,19 +25,19 @@ export class RestaurantDiscoveryScanner {
 
   async nextRestaurants(signal: AbortSignal | undefined): Promise<DiscoveredRestaurantProfile[]> {
     if (this.isOver) {
-      console.trace("[Discovery] Max iterations reached. Stopping scan.");
+      logger.trace("[Discovery] Max iterations reached. Stopping scan.");
       return [];
     } else {
       this.iteration += 1;
       const range = this.initialRangeInMeters + (this.iteration - 1) * this.configuration.rangeIncreaseMeters;
-      console.trace(`[Discovery] Iteration ${this.iteration}/${this.configuration.maxDiscoveryIterations}: Scanning range ${range}m...`);
+      logger.trace("[Discovery] Iteration %d/%d: Scanning range %dm...", this.iteration, this.configuration.maxDiscoveryIterations, range);
 
       try {
         const result = await this.discoverNearbyRestaurants(range, signal);
-        console.trace(`[Discovery] Iteration ${this.iteration}: Found ${result.length} candidates.`);
+        logger.trace("[Discovery] Iteration %d: Found %d candidates.", this.iteration, result.length);
         return result;
       } catch (error) {
-        console.error(`[Discovery] Iteration ${this.iteration}: Scan failed.`, error);
+        logger.error("[Discovery] Iteration %d: Scan failed. %s", this.iteration, error);
         throw error;
       }
     }

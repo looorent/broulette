@@ -5,6 +5,7 @@ import { ErrorUnknown } from "@components/error/error-unknown";
 import { useSearchLoader } from "@components/search-loader";
 import { useSearchStream } from "@features/search";
 import { getLocale } from "@features/utils/locale.server";
+import { logger } from "@features/utils/logger";
 import { findSearchViewModel } from "@features/view.server";
 import type { loader as rootLoader } from "src/root";
 
@@ -22,7 +23,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
       };
     }
   } else {
-    console.error(`No candidate found for searchId='${params.searchId}'`);
+    logger.error("[GET search] No candidate found for searchId='%s'", params.searchId);
     return redirect(href("/"));
   }
 }
@@ -55,7 +56,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
 export function ErrorBoundary({
   error,
 }: Route.ErrorBoundaryProps) {
-  console.error("[POST search] Unexpected error", error);
+  logger.error("[POST search] Unexpected error", error);
   return (
     <ErrorUnknown />
   );

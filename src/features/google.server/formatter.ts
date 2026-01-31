@@ -1,3 +1,5 @@
+import { logger } from "@features/utils/logger";
+
 interface GoogleMoney {
   currencyCode?: string;
   units?: string; // API returns string for int64
@@ -77,7 +79,7 @@ function formatMoney(
       minimumFractionDigits: 0
     }).format(value);
   } catch (e) {
-    console.warn(`Error when parsing money object '${JSON.stringify(money)}'. Returning '${value} ${money.currencyCode}'.`, e);
+    logger.warn("Error when parsing money object '%j'. Returning '%s %s'. %s", money, value, money.currencyCode, e);
     return `${value} ${money.currencyCode}`;
   }
 }

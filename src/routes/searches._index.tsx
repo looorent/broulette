@@ -2,6 +2,7 @@ import { data, href, redirect } from "react-router";
 
 import { ErrorUnknown } from "@components/error/error-unknown";
 import { validateCSRF } from "@features/session.server";
+import { logger } from "@features/utils/logger";
 import { type DistanceRange, type ServiceTimeslot } from "@persistence";
 
 import type { Route } from "./+types/searches._index";
@@ -14,16 +15,16 @@ export async function loader() {
 // POST
 export async function action({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
-  console.log("[POST /searches] Creating search with payload...", formData);
+  logger.log("[POST /searches] Creating search with payload...", formData);
   await validateCSRF(formData, request.headers, context.sessionStorage);
   const data = parseAndValidate(formData);
-  console.log("[POST /searches] Saving new search in database...", data);
+  logger.log("[POST /searches] Saving new search in database...", data);
   try {
     const createdSearch = await context.repositories.search.create(data.latitude, data.longitude, data.date, data.timeslot, data.distanceRange);
-    console.log("[POST /searches] Search created with id:", createdSearch.id);
+    logger.log("[POST /searches] Search created with id:", createdSearch.id);
     return redirect(href("/searches/:searchId", { searchId: createdSearch.id }));
   } catch(e) {
-    console.log("[POST /searches] Failed when creating new search in database", e);
+    logger.log("[POST /searches] Failed when creating new search in database", e);
     throw e;
   }
 }
@@ -69,7 +70,7 @@ function parseAndValidate(formData: FormData) {
 export function ErrorBoundary({
   error,
 }: Route.ErrorBoundaryProps) {
-  console.error("[GET searches] Unexpected error", error);
+  logger.error("[GET searches] Unexpected error", error);
   return (
     <ErrorUnknown />
   );

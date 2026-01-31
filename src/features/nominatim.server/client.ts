@@ -1,4 +1,5 @@
 import type { LocationPreference, LocationSuggestions } from "@features/search";
+import { logger } from "@features/utils/logger";
 
 import { nominatimCircuitBreaker } from "./circuit-breaker";
 import { NominatimError, NominatimHttpError, NominatimServerError } from "./error";
@@ -20,7 +21,7 @@ export async function fetchLocationFromNominatim(
   configuration: NominatimConfiguration = DEFAULT_NOMINATIM_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<LocationSuggestions> {
-  console.log(`[Nominatim] fetchLocationFromNominatim: Processing query="${query}" via ${instanceUrl}`);
+  logger.log("[Nominatim] fetchLocationFromNominatim: Processing query='%s' via %s", query, instanceUrl);
 
   const rawData = await (await nominatimCircuitBreaker(instanceUrl, configuration.failover)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
@@ -33,7 +34,7 @@ export async function fetchLocationFromNominatim(
     .filter((item) => item && item.lat && item.lon)
     .map(convertNominatimToLocation);
 
-  console.log(`[Nominatim] fetchLocationFromNominatim: Returned ${locations.length} locations for "${query}"`);
+  logger.log("[Nominatim] fetchLocationFromNominatim: Returned %d locations for '%s'", locations.length, query);
 
   return {
     locations: locations,
@@ -59,7 +60,7 @@ async function fetchNominatimAddresses(
   userAgent: string,
   signal: AbortSignal | undefined
 ): Promise<NominatimPlace[]> {
-  console.log(`[Nominatim] fetchNominatimAddresses: Querying API with q='${query}'...`);
+  logger.log("[Nominatim] fetchNominatimAddresses: Querying API with q='%s'...", query);
   const start = Date.now();
   const params = new URLSearchParams({
     q: query,
@@ -89,7 +90,7 @@ async function fetchNominatimAddresses(
 
     const filtered = body.filter(address => APPROXIMATE_LOCATION_CLASSES.has(address.class) && !EXCLUDED_TYPES.has(address.type));
 
-    console.log(`[Nominatim] fetchNominatimAddresses: Success in ${durationInMs}ms. Raw results: ${body.length}. Filtered results: ${filtered.length}.`);
+    logger.log("[Nominatim] fetchNominatimAddresses: Success in %dms. Raw results: %d. Filtered results: %d.", durationInMs, body.length, filtered.length);
 
     return filtered;
   } else {
@@ -113,7 +114,7 @@ function convertNominatimToLocation(place: NominatimPlace): LocationPreference {
 
 async function parseError(url: string, response: Response, durationInMs: number): Promise<NominatimError> {
   const body = await response.text();
-  console.error(`[Nominatim] Request failed after ${durationInMs}ms. Status: ${response.status}. URL: ${url}`);
+  logger.error("[Nominatim] Request failed after %dms. Status: %d. URL: %s", durationInMs, response.status, url);
 
   if (response.status >= 500) {
     return new NominatimServerError(

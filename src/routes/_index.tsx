@@ -11,6 +11,7 @@ import { PreferencesForm, type PreferencesFormHandle } from "@components/search-
 import { APP_CONFIG } from "@config/server";
 import { getDeviceLocation } from "@features/browser.client";
 import { createDeviceLocation, createNextServices, DISTANCE_RANGES, preferenceFactory, type LocationPreference, type Preference } from "@features/search";
+import { logger } from "@features/utils/logger";
 
 export async function loader() {
   const services = createNextServices(new Date());
@@ -30,7 +31,7 @@ async function fetchLocation(): Promise<LocationPreference | undefined> {
       return undefined;
     }
   } catch (error) {
-    console.warn("Location access denied or failed:", error);
+    logger.warn("Location access denied or failed:", error);
     return undefined;
   }
 }

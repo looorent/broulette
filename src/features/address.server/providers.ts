@@ -2,6 +2,7 @@ import { LoadBalancer, type ServiceStrategy } from "@features/balancer.server";
 import { fetchLocationFromNominatim, type NominatimConfiguration } from "@features/nominatim.server";
 import { fetchLocationFromPhoton, type PhotonConfiguration } from "@features/photon.server";
 import type { LocationSuggestions } from "@features/search";
+import { logger } from "@features/utils/logger";
 
 let LOAD_BALANCER: LoadBalancer<[string, AbortSignal?], LocationSuggestions>;
 
@@ -14,7 +15,7 @@ function loadBalancer(
       ...registerNominatim(nominatim),
       ...registerPhoton(photon)
     ]);
-    console.info(`[Address Search] Load Balancer initialized with ${LOAD_BALANCER.numberOfProviders} active strategies.`);
+    logger.info("[Address Search] Load Balancer initialized with %d active strategies.", LOAD_BALANCER.numberOfProviders);
   }
   return LOAD_BALANCER;
 }
@@ -25,41 +26,41 @@ export async function searchLocations(
   photon: PhotonConfiguration | undefined, // Fixed type: was NominatimConfiguration
   signal?: AbortSignal | undefined
 ): Promise<LocationSuggestions> {
-  console.log(`[Address Search] Executing search for query: "${query}"`);
+  logger.log("[Address Search] Executing search for query: '%s'", query);
   try {
     const results = await loadBalancer(nominatim, photon).execute(query, signal);
-    console.log(`[Address Search] Found ${results?.locations?.length} results for "${query}"`);
+    logger.log("[Address Search] Found %d results for '%s'", results?.locations?.length, query);
     return results;
   } catch (error) {
-    console.error(`[Address Search] Error searching for "${query}":`, error);
+    logger.error("[Address Search] Error searching for '%s': %s", query, error);
     throw error;
   }
 }
 
 function registerNominatim(configuration: NominatimConfiguration | undefined): ServiceStrategy<[string, AbortSignal?], LocationSuggestions>[] {
   if (configuration?.enabled) {
-    console.info(`[Address Search] Registering Nominatim with ${configuration.instanceUrls.length} instances.`);
+    logger.info("[Address Search] Registering Nominatim with %d instances.", configuration.instanceUrls.length);
     return configuration.instanceUrls.map(instanceUrl => ({
       name: `nominatim:${instanceUrl}`,
       execute: (query: string, signal?: AbortSignal | undefined): Promise<LocationSuggestions> =>
         fetchLocationFromNominatim(query, instanceUrl, configuration, signal)
     }));
   } else {
-    console.info("[Address Search] Nominatim is disabled or unconfigured.");
+    logger.info("[Address Search] Nominatim is disabled or unconfigured.");
     return [];
   }
 }
 
 function registerPhoton(configuration: PhotonConfiguration | undefined) {
   if (configuration?.enabled) {
-    console.info(`[Address Search] Registering Photon with ${configuration.instanceUrls.length} instances.`);
+    logger.info("[Address Search] Registering Photon with %d instances.", configuration.instanceUrls.length);
     return configuration.instanceUrls.map(instanceUrl => ({
       name: `photon:${instanceUrl}`,
       execute: (query: string, signal?: AbortSignal | undefined): Promise<LocationSuggestions> =>
         fetchLocationFromPhoton(query, instanceUrl, configuration, signal)
     }));
   } else {
-    console.info("[Address Search] Photon is disabled or unconfigured.");
+    logger.info("[Address Search] Photon is disabled or unconfigured.");
     return [];
   }
 }

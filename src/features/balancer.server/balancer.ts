@@ -1,4 +1,5 @@
 import { isAbortError } from "@features/utils/error";
+import { logger } from "@features/utils/logger";
 
 import type { ServiceStrategy } from "./types";
 
@@ -34,7 +35,7 @@ export class LoadBalancer<TArgs extends any[], TResult> {
         if (isAbortError(error) || signal?.aborted) {
           throw error;
         }
-        console.warn(`[Balancer] ${provider.name} failed. Failing over...`, error);
+        logger.warn("[Balancer] %s failed. Failing over... %s", provider.name, error);
         attempts++;
       }
     }

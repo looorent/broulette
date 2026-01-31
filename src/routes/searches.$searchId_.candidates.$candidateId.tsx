@@ -9,6 +9,7 @@ import { NoResults } from "@components/error";
 import { ErrorUnknown } from "@components/error/error-unknown";
 import { triggerHaptics } from "@features/browser.client";
 import { getLocale } from "@features/utils/locale.server";
+import { logger } from "@features/utils/logger";
 import { findCandidateViewModel } from "@features/view.server";
 
 import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId";
@@ -28,7 +29,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
       return view;
     }
   } else {
-    console.error(`No candidate found for searchId='${searchId}' and candidateId='${candidateId}'`);
+    logger.error("[GET candidate] No candidate found for searchId='%s' and candidateId='%s'", searchId, candidateId);
     return redirect(href("/"));
   }
 }
@@ -134,7 +135,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
 export function ErrorBoundary({
   error,
 }: Route.ErrorBoundaryProps) {
-  console.error("[GET candidate] Unexpected error", error);
+  logger.error("[GET candidate] Unexpected error", error);
   return (
     <ErrorUnknown />
   );

@@ -1,4 +1,5 @@
 import { isAbortError } from "@features/utils/error";
+import { logger } from "@features/utils/logger";
 
 import { CircuitBreakerError, CircuitOpenError } from "./error";
 import type { FailingOperation, FailoverConfiguration } from "./types";
@@ -50,7 +51,7 @@ export class CircuitBreaker {
     if (this.failures >= this.configuration.consecutiveFailures || this.state === "HALF_OPEN") {
       this.state = "OPEN";
       this.nextAttempt = Date.now() + this.configuration.halfOpenAfterInMs;
-      console.warn(`[CircuitBreaker] Circuit '${this.name}' opened! Next attempt in ${this.configuration.halfOpenAfterInMs}ms`);
+      logger.warn("[CircuitBreaker] Circuit '%s' opened! Next attempt in %dms", this.name, this.configuration.halfOpenAfterInMs);
     }
   }
 

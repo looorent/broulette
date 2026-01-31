@@ -3,6 +3,8 @@ import { renderToReadableStream } from "react-dom/server";
 import type { AppLoadContext, EntryContext } from "react-router";
 import { ServerRouter } from "react-router";
 
+import { logger } from "@features/utils/logger";
+
 export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
@@ -22,7 +24,7 @@ export default async function handleRequest(
         // errors encountered during initial shell rendering since they'll
         // reject and get logged in handleDocumentRequest.
         if (shellRendered) {
-          console.error(error);
+          logger.error(error);
         }
       },
     }

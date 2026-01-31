@@ -1,4 +1,5 @@
 import type { LocationPreference, LocationSuggestions } from "@features/search";
+import { logger } from "@features/utils/logger";
 
 import { photonCircuitBreaker } from "./circuit-breaker";
 import { PhotonError, PhotonHttpError, PhotonServerError } from "./error";
@@ -31,7 +32,7 @@ export async function fetchLocationFromPhoton(
   configuration: PhotonConfiguration = DEFAULT_PHOTON_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<LocationSuggestions> {
-  console.log(`[Photon] fetchLocationFromPhoton: Processing query="${query}" via ${instanceUrl}`);
+  logger.log("[Photon] fetchLocationFromPhoton: Processing query='%s' via %s", query, instanceUrl);
 
   const rawData = await (await photonCircuitBreaker(instanceUrl, configuration.failover)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
@@ -44,7 +45,7 @@ export async function fetchLocationFromPhoton(
     .filter(item => item?.geometry?.coordinates?.length === 2)
     .map(convertPhotonToLocation);
 
-  console.log(`[Photon] fetchLocationFromPhoton: Returned ${locations.length} locations for "${query}"`);
+  logger.log("[Photon] fetchLocationFromPhoton: Returned %d locations for '%s'", locations.length, query);
 
   return {
     locations: locations,
@@ -58,7 +59,7 @@ async function fetchPhotonAddresses(
   maxNumberOfAddresses: number,
   signal: AbortSignal | undefined
 ): Promise<PhotonFeature[]> {
-  console.log(`[Photon] fetchPhotonAddresses: Querying API with q='${query}'...`);
+  logger.log("[Photon] fetchPhotonAddresses: Querying API with q='%s'...", query);
   const start = Date.now();
   const params = new URLSearchParams({
     q: query,
@@ -76,7 +77,7 @@ async function fetchPhotonAddresses(
   if (response.ok) {
     const data: PhotonResponse = await response.json();
     const count = data.features?.length || 0;
-    console.log(`[Photon] fetchPhotonAddresses: Success in ${durationInMs}ms. Found ${count} features.`);
+    logger.log("[Photon] fetchPhotonAddresses: Success in %dms. Found %d features.", durationInMs, count);
     return data.features || [];
   } else {
     throw await parseError(url, response, durationInMs);
@@ -109,7 +110,7 @@ function convertPhotonToLocation(feature: PhotonFeature): LocationPreference {
 
 async function parseError(url: string, response: Response, durationInMs: number): Promise<PhotonError> {
   const body = await response.text();
-  console.error(`[Photon] Request failed after ${durationInMs}ms. Status: ${response.status}. URL: ${url}`);
+  logger.error("[Photon] Request failed after %dms. Status: %d. URL: %s", durationInMs, response.status, url);
 
   if (response.status >= 500) {
     return new PhotonServerError(

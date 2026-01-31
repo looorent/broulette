@@ -1,6 +1,7 @@
 import { eq, exists } from "drizzle-orm";
 
 import type { DiscoveredRestaurantProfile } from "@features/discovery.server";
+import { logger } from "@features/utils/logger";
 
 import type { DrizzleClient } from "./drizzle";
 import type { RestaurantAndProfiles, RestaurantProfilePayload } from "./drizzle.types";
@@ -17,7 +18,7 @@ export class RestaurantRepositoryDrizzle implements RestaurantRepository {
   constructor(private readonly db: DrizzleClient) { }
 
   async createProfile(profile: RestaurantProfilePayload, restaurant: RestaurantAndProfiles): Promise<RestaurantAndProfiles> {
-    console.trace(`[Drizzle] Creating new profile for restaurant ${restaurant.id}`);
+    logger.trace("[Drizzle] Creating new profile for restaurant %s", restaurant.id);
     const { id, createdAt, ...dataToInsert } = profile;
     const [newProfile] = await this.db.insert(restaurantProfiles)
       .values(dataToInsert)
@@ -30,7 +31,7 @@ export class RestaurantRepositoryDrizzle implements RestaurantRepository {
   }
 
   async updateProfile(profileId: string, profile: RestaurantProfilePayload, restaurant: RestaurantAndProfiles): Promise<RestaurantAndProfiles> {
-    console.trace(`[Drizzle] Updating profile ${profileId}`);
+    logger.trace("[Drizzle] Updating profile %s", profileId);
     const { id, createdAt, restaurantId, ...dataToUpdate } = profile;
     const [updatedProfile] = await this.db.update(restaurantProfiles)
       .set({

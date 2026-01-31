@@ -1,4 +1,5 @@
 import type { FailoverConfiguration } from "@features/circuit-breaker.server";
+import { logger } from "@features/utils/logger";
 
 import { overpassCircuitBreaker } from "./circuit-breaker";
 import { OsmEmptyResponseError, OsmError, OsmHttpError, OsmServerError } from "./error";
@@ -14,7 +15,7 @@ export async function fetchAllRestaurantsNearbyWithRetry(
   failoverConfiguration: FailoverConfiguration,
   signal?: AbortSignal | undefined
 ): Promise<OverpassResponse | undefined> {
-  console.log(`[OSM] fetchAllRestaurantsNearbyWithRetry: Requesting restaurants near [${latitude}, ${longitude}] (radius: ${distanceRangeInMeters}m)`);
+  logger.log("[OSM] fetchAllRestaurantsNearbyWithRetry: Requesting restaurants near [%f, %f] (radius: %dm)", latitude, longitude, distanceRangeInMeters);
 
   return await (await overpassCircuitBreaker(instanceUrl, failoverConfiguration)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
@@ -33,7 +34,7 @@ async function fetchAllRestaurantsNearby(
   timeoutInSeconds: number,
   signal: AbortSignal
 ): Promise<OverpassResponse | undefined> {
-  console.trace(`[OSM] fetchAllRestaurantsNearby: Building query with ${idsToExclude.length} exclusions...`);
+  logger.trace("[OSM] fetchAllRestaurantsNearby: Building query with %d exclusions...", idsToExclude.length);
   const query = createQueryToListAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, timeoutInSeconds);
   const start = Date.now();
 
@@ -49,11 +50,11 @@ async function fetchAllRestaurantsNearby(
   const durationInMs = Date.now() - start;
 
   if (response.ok) {
-    console.log(`[OSM] fetchAllRestaurantsNearby: Query successful. Duration: ${durationInMs}ms.`);
+    logger.log("[OSM] fetchAllRestaurantsNearby: Query successful. Duration: %dms.", durationInMs);
     const body = await response.json();
     if (body) {
       const parsed = parseResponse(body, durationInMs);
-      console.log(`[OSM] fetchAllRestaurantsNearby: Parsed ${parsed?.restaurants.length || 0} restaurants.`);
+      logger.log("[OSM] fetchAllRestaurantsNearby: Parsed %d restaurants.", parsed?.restaurants.length || 0);
       return parsed;
     } else {
       throw new OsmEmptyResponseError(
@@ -216,7 +217,7 @@ function buildOpenStreetMapUrl(id: string, type: string): string {
 
 async function parseError(query: string, response: Response, durationInMs: number): Promise<OsmError> {
   const body = await response.text();
-  console.error(`[OSM] Request failed after ${durationInMs}ms. Status: ${response.status}.`);
+  logger.error("[OSM] Request failed after %dms. Status: %d.", durationInMs, response.status);
 
   if (response.status >= 500) {
     return new OsmServerError(

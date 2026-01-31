@@ -5,6 +5,7 @@ import { useFetcher, useRouteLoaderData } from "react-router";
 import { useAlertContext } from "@components/alert";
 import { getDeviceLocation, isGeolocationSupported, useDebounce } from "@features/browser.client";
 import { createDeviceLocation, hasCoordinates, type LocationPreference } from "@features/search";
+import { logger } from "@features/utils/logger";
 import type { action as addressLoader } from "@routes/_.api.address-searches";
 import type { loader as rootLoader } from "src/root";
 
@@ -120,7 +121,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
           onChange(deviceLocation);
           closeSearchMode();
         } catch (e) {
-          console.error(e);
+          logger.error(e);
           openGeolocationErrorInAlert();
         } finally {
           setIsLocating(false);

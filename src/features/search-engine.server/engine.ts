@@ -3,6 +3,7 @@ import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlaceConfiguration } fro
 import { enrichRestaurant } from "@features/matching.server";
 import { DEFAULT_OVERPASS_CONFIGURATION, type OverpassConfiguration } from "@features/overpass.server";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
+import { logger } from "@features/utils/logger";
 import { type CandidateRepository, type DistanceRange, type MatchingRepository, type RestaurantProfile, type RestaurantRepository, type Search, type SearchCandidate, type SearchRepository } from "@persistence";
 
 import { SearchNotFoundError } from "./error";
@@ -33,7 +34,7 @@ export async function* searchCandidate(
   tripAdvisor: TripAdvisorConfiguration | undefined = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal
 ): AsyncGenerator<SearchStreamEvent, void, unknown> {
-  console.log(`[SearchEngine] searchCandidate: Starting search for searchId="${searchId}"`);
+  logger.log("[SearchEngine] searchCandidate: Starting search for searchId='%s'", searchId);
 
   yield { type: "searching", message: MESSAGES[Math.floor(Math.random() * MESSAGES.length)] };
 
@@ -41,13 +42,13 @@ export async function* searchCandidate(
 
   if (search.exhausted) {
     yield { type: "exhausted", message: "We've seen it all. Let's find a fallback." };
-    console.log(`[SearchEngine] Search "${searchId}" is already exhausted. Returning fallback candidate.`);
+    logger.log("[SearchEngine] Search '%s' is already exhausted. Returning fallback candidate.", searchId);
     const candidate = await findLatestCandidateOf(search.id, searchRepository, candidateRepository) || await createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
     yield { type: "result", candidate };
   } else {
     const scanner = createDiscoveryScanner(search, configuration, overpass);
     const startingOrder = computeNextCandidateOrder(search.candidates);
-    console.log(`[SearchEngine] Initializing discovery for searchId="${searchId}". Starting order: ${startingOrder}`);
+    logger.log("[SearchEngine] Initializing discovery for searchId='%s'. Starting order: %d", searchId, startingOrder);
 
     const generator = findNextValidCandidateStream(search, scanner, configuration, startingOrder, locale, searchRepository, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, signal);
 
@@ -99,8 +100,8 @@ async function* findNextValidCandidateStream(
 
     if (restaurants.length > 0) {
       const randomized = await randomize(restaurants);
-      console.log(`[SearchEngine] Processing batch of ${randomized.length} discovered restaurants...`);
-      yield { type: "batch-discovered", count: randomized.length, message: `${randomized.length} options detected! Digging in...` };
+      logger.log("[SearchEngine] Processing batch of %d discovered restaurants...", randomized.length);
+      yield { type: "batch-discovered", count: randomized.length, message: randomized.length + " options detected! Digging in..." };
 
       yield* simulateFastChecking(randomized, 10);
 
@@ -113,7 +114,7 @@ async function* findNextValidCandidateStream(
             const processed = await processRestaurant(restaurant, search, orderTracker++, config, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, locale, scanner);
             if (processed) {
               candidate = processed;
-              console.log(`[SearchEngine] Candidate found: ${candidate.id} (Status: ${candidate.status})`);
+              logger.log("[SearchEngine] Candidate found: %s (Status: %s)", candidate.id, candidate.status);
             }
           }
         } else {
@@ -126,18 +127,18 @@ async function* findNextValidCandidateStream(
   }
 
   if (candidate) {
-    console.log(`[SearchEngine] Candidate found after scanning: '${candidate.id}' in status '${candidate.status}'.`);
+    logger.log("[SearchEngine] Candidate found after scanning: '%s' in status '%s'.", candidate.id, candidate.status);
     yield { type: "result", candidate };
   } else {
     yield { type: "looking-for-fallbacks", message: "No winners yet. Checking the rejects..." };
-    console.log(`[SearchEngine] No valid candidate found after scanning. Trying to find a fallback...`);
+    logger.log("[SearchEngine] No valid candidate found after scanning. Trying to find a fallback...");
     const fallbackCandidate = await candidateRepository.findBestRejectedCandidateThatCouldServeAsFallback(search.id);
     if (fallbackCandidate) {
-      console.log(`[SearchEngine] No valid candidate found after scanning. Fallback found with candidate '${fallbackCandidate.id}'. Creating a new candidate from this one.`);
+      logger.log("[SearchEngine] No valid candidate found after scanning. Fallback found with candidate '%s'. Creating a new candidate from this one.", fallbackCandidate.id);
       const recovered = await candidateRepository.recoverCandidate(fallbackCandidate, orderTracker);
       yield { type: "result", candidate: recovered };
     } else {
-      console.log(`[SearchEngine] No valid candidate found after scanning.`);
+      logger.log("[SearchEngine] No valid candidate found after scanning.");
       const candidateWithoutRestaurant = await createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
       yield { type: "result", candidate: candidateWithoutRestaurant };
     }
@@ -157,12 +158,12 @@ async function processRestaurant(
   locale: string,
   scanner: RestaurantDiscoveryScanner
 ): Promise<SearchCandidate | undefined> {
-  console.trace(`[SearchEngine] Enriching and validating restaurant...`);
+  logger.trace("[SearchEngine] Enriching and validating restaurant...");
   const restaurant = await enrichRestaurant(discovered, locale, restaurantRepository, matchingRepository, configuration.matching, google, tripAdvisor);
 
   const validation = await validateRestaurant(restaurant, search, locale);
   if (!validation.valid) {
-    console.log(`[SearchEngine] Restaurant rejected. Reason: ${validation.rejectionReason}`);
+    logger.log("[SearchEngine] Restaurant rejected. Reason: %s", validation.rejectionReason);
   }
 
   if (restaurant) {
@@ -232,7 +233,7 @@ function createDiscoveryScanner(
 async function findSearchOrThrow(searchId: string, searchRepository: SearchRepository) {
   const search = await searchRepository.findByIdWithRestaurantAndProfiles(searchId);
   if (!search) {
-    console.error(`[SearchEngine] Error: Search ID "${searchId}" not found.`);
+    logger.error("[SearchEngine] Error: Search ID '%s' not found.", searchId);
     throw new SearchNotFoundError(searchId);
   }
   return search;
@@ -245,7 +246,7 @@ async function findLatestCandidateOf(searchId: string | undefined, searchReposit
 }
 
 async function createDefaultCandidateWithoutRestaurant(searchId: string, searchRepository: SearchRepository, candidateRepository: CandidateRepository): Promise<SearchCandidate> {
-  console.log(`[SearchEngine] Creating default 'No Restaurant Found' candidate.`);
+  logger.log("[SearchEngine] Creating default 'No Restaurant Found' candidate.");
   const order = (await searchRepository.findWithLatestCandidateId(searchId))?.order || 0;
   return await candidateRepository.create(searchId, undefined, order + 1, "Rejected", "no_restaurant_found");
 }

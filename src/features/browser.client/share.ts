@@ -1,3 +1,5 @@
+import { logger } from "@features/utils/logger";
+
 import { copyToClipboard, isClipboardSupported } from "./clipboard";
 
 export function isSharingSupported(): boolean {
@@ -17,11 +19,11 @@ export async function shareSocial(
         url: url
       });
     } catch (error) {
-      console.warn("Error sharing or user canceled:", error);
+      logger.warn("Error sharing or user canceled:", error);
     }
   } else if (isClipboardSupported()) {
     copyToClipboard(url);
   } else {
-    console.warn("No sharing or clipboard capabilities enabled.");
+    logger.warn("No sharing or clipboard capabilities enabled.");
   }
 }

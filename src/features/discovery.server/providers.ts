@@ -1,6 +1,7 @@
 import { LoadBalancer } from "@features/balancer.server";
 import type { Coordinates } from "@features/coordinate";
 import { fetchAllRestaurantsNearbyWithRetry, OVERPASS_SOURCE_NAME, type OverpassConfiguration } from "@features/overpass.server";
+import { logger } from "@features/utils/logger";
 
 import { fromOverpass } from "./factory";
 import type { DiscoveredRestaurantProfile, DiscoveryRestaurantIdentity } from "./types";
@@ -20,14 +21,14 @@ export function loadBalancer(
     LOAD_BALANCER = new LoadBalancer([
       ...registerOverpass(overpass)
     ]);
-    console.info(`[Discovery] Load Balancer initialized with ${LOAD_BALANCER.numberOfProviders} active strategies.`);
+    logger.info("[Discovery] Load Balancer initialized with %d active strategies.", LOAD_BALANCER.numberOfProviders);
   }
   return LOAD_BALANCER;
 }
 
 function registerOverpass(configuration: OverpassConfiguration | undefined) {
   if (configuration?.enabled) {
-    console.log(`[Discovery] Registering Overpass with ${configuration.instanceUrls.length} instances`);
+    logger.log("[Discovery] Registering Overpass with %d instances", configuration.instanceUrls.length);
     return configuration.instanceUrls
       .map(instanceUrl => ({
         name: `overpass:${instanceUrl}`,
@@ -37,18 +38,18 @@ function registerOverpass(configuration: OverpassConfiguration | undefined) {
             .filter(id => id.source === OVERPASS_SOURCE_NAME)
             .map(id => ({ osmId: id.externalId, osmType: id.externalType }));
 
-          console.trace(`[Discovery] Executing ${instanceUrl} | Center: [${nearBy.latitude}, ${nearBy.longitude}] | Radius: ${distanceRangeInMeters}m | Excluded: ${idsToExclude.length}`);
+          logger.trace("[Discovery] Executing %s | Center: [%f, %f] | Radius: %dm | Excluded: %d", instanceUrl, nearBy.latitude, nearBy.longitude, distanceRangeInMeters, idsToExclude.length);
 
           const response = await fetchAllRestaurantsNearbyWithRetry(nearBy.latitude, nearBy.longitude, distanceRangeInMeters, instanceUrl, timeoutInSeconds, idsToExclude, configuration.failover, signal);
 
           const results = (response?.restaurants || []).map(fromOverpass).filter(Boolean);
-          console.trace(`[Discovery] Finished ${instanceUrl} | Found: ${results.length} restaurants`);
+          logger.trace("[Discovery] Finished %s | Found: %d restaurants", instanceUrl, results.length);
 
           return results;
         }
       }));
   } else {
-    console.log("[Discovery] Overpass service is disabled");
+    logger.log("[Discovery] Overpass service is disabled");
     return [];
   }
 }

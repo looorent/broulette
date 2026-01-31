@@ -1,4 +1,5 @@
 import { convertLocaleToSnakecase, DEFAULT_LANGUAGE } from "@features/utils/locale";
+import { logger } from "@features/utils/logger";
 
 import { tripAdvisorCircuitBreaker } from "./circuit-breaker";
 import { TripAdvisorAuthorizationError, TripAdvisorEmptyResponseError, TripAdvisorError, TripAdvisorHttpError, TripAdvisorServerError, type TripAdvisorErrorPayload } from "./error";
@@ -12,7 +13,7 @@ export async function findTripAdvisorLocationByIdWithRetry(
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocation | undefined> {
-  console.log(`[TripAdvisor] findTripAdvisorLocationByIdWithRetry: Processing request for locationId="${locationId}"`);
+  logger.log("[TripAdvisor] findTripAdvisorLocationByIdWithRetry: Processing request for locationId='%s'", locationId);
 
   const location = await (await tripAdvisorCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
@@ -33,7 +34,7 @@ export async function searchTripAdvisorLocationNearbyWithRetry(
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocation | undefined> {
-  console.log(`[TripAdvisor] searchTripAdvisorLocationNearbyWithRetry: Searching for "${name}" near [${latitude}, ${longitude}]`);
+  logger.log("[TripAdvisor] searchTripAdvisorLocationNearbyWithRetry: Searching for '%s' near [%f, %f]", name, latitude, longitude);
 
   return await (await tripAdvisorCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
@@ -49,7 +50,7 @@ export async function findBestTripAdvisorLocationPictureWithRetry(
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorPhoto | undefined> {
-  console.log(`[TripAdvisor] findBestTripAdvisorLocationPictureWithRetry: Fetching photo for locationId="${locationId}"`);
+  logger.log("[TripAdvisor] findBestTripAdvisorLocationPictureWithRetry: Fetching photo for locationId='%s'", locationId);
 
   return await (await tripAdvisorCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
@@ -64,7 +65,7 @@ export function parseTripAdvisorPhotoSize(value: string | undefined): TripAdviso
     if ((TRIPADVISOR_PHOTO_SIZES as readonly string[]).includes(value)) {
       return value as TripAdvisorPhotoSize;
     } else {
-      console.warn(`[TripAdvisor] Invalid photo size found in env: "${value}". Default to '${TRIPADVISOR_DEFAULT_PHOTO_SIZE}'`);
+      logger.warn("[TripAdvisor] Invalid photo size found in env: '%s'. Default to '%s'", value, TRIPADVISOR_DEFAULT_PHOTO_SIZE);
       return TRIPADVISOR_DEFAULT_PHOTO_SIZE;
     }
   } else {
@@ -78,7 +79,7 @@ async function findTripAdvisorLocationById(
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocation | undefined> {
-  console.log(`[TripAdvisor] findTripAdvisorLocationById: Fetching details for id='${locationId}'...`);
+  logger.log("[TripAdvisor] findTripAdvisorLocationById: Fetching details for id='%s'...", locationId);
   const url = buildUrlToFindLocationById(locationId, locale, configuration);
   const authenticatedUrl = addAuthenticationOn(url, configuration);
   const start = Date.now();
@@ -90,7 +91,7 @@ async function findTripAdvisorLocationById(
 
   const durationInMs = Date.now() - start;
   if (response.ok) {
-    console.log(`[TripAdvisor] findTripAdvisorLocationById: Success. Done in ${durationInMs}ms.`);
+    logger.log("[TripAdvisor] findTripAdvisorLocationById: Success. Done in %dms.", durationInMs);
     const body = await response.json();
     if (body) {
       return parseLocationDetails(body);
@@ -117,14 +118,14 @@ async function searchTripAdvisorLocationNearby(
 ): Promise<TripAdvisorLocation | undefined> {
   const locationsNearby = await findTripAdvisorLocationsNearby(latitude, longitude, radiusInMeters, locale, configuration, signal);
 
-  console.log(`[TripAdvisor] searchTripAdvisorLocationNearby: Found ${locationsNearby.length} candidates. Calculating best match for "${name}"...`);
+  logger.log("[TripAdvisor] searchTripAdvisorLocationNearby: Found %d candidates. Calculating best match for '%s'...", locationsNearby.length, name);
   const bestLocation = findBestTripAdvisorMatch(name, locationsNearby, configuration.similarity);
 
   if (bestLocation) {
-    console.log(`[TripAdvisor] searchTripAdvisorLocationNearby: Match found (ID: ${bestLocation.locationId}). Fetching details...`);
+    logger.log("[TripAdvisor] searchTripAdvisorLocationNearby: Match found (ID: %s). Fetching details...", bestLocation.locationId);
     return findTripAdvisorLocationById(bestLocation.locationId, locale, configuration, signal);
   } else {
-    console.log(`[TripAdvisor] searchTripAdvisorLocationNearby: No suitable match found for "${name}".`);
+    logger.log("[TripAdvisor] searchTripAdvisorLocationNearby: No suitable match found for '%s'.", name);
     return undefined;
   }
 }
@@ -137,7 +138,7 @@ async function findTripAdvisorLocationsNearby(
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocationNearby[]> {
-  console.log(`[TripAdvisor] findTripAdvisorLocationsNearby: Querying radius ${radiusInMeters}m around [${latitude},${longitude}]...`);
+  logger.log("[TripAdvisor] findTripAdvisorLocationsNearby: Querying radius %dm around [%f,%f]...", radiusInMeters, latitude, longitude);
   const url = buildUrlToFindLocationNearby(latitude, longitude, radiusInMeters, locale, configuration);
   const authenticatedUrl = addAuthenticationOn(url, configuration);
   const start = Date.now();
@@ -151,7 +152,7 @@ async function findTripAdvisorLocationsNearby(
   if (response.ok) {
     const body = await response.json() as any;
     const count = Array.isArray(body?.data) ? body.data.length : 0;
-    console.log(`[TripAdvisor] findTripAdvisorLocationsNearby: Success. Found ${count} raw results in ${durationInMs}ms.`);
+    logger.log("[TripAdvisor] findTripAdvisorLocationsNearby: Success. Found %d raw results in %dms.", count, durationInMs);
 
     if (body) {
       return parseLocationsNearby(body.data);
@@ -173,7 +174,7 @@ async function findBestTripAdvisorLocationPicture(
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorPhoto | undefined> {
-  console.log(`[TripAdvisor] findBestTripAdvisorLocationPicture: Fetching photos for id='${locationId}'...`);
+  logger.log("[TripAdvisor] findBestTripAdvisorLocationPicture: Fetching photos for id='%s'...", locationId);
   const url = buildUrlToFindPhotoForLocation(locationId, locale, configuration);
   const authenticatedUrl = addAuthenticationOn(url, configuration);
   const start = Date.now();
@@ -185,7 +186,7 @@ async function findBestTripAdvisorLocationPicture(
 
   const durationInMs = Date.now() - start;
   if (response.ok) {
-    console.log(`[TripAdvisor] findBestTripAdvisorLocationPicture: Success. Done in ${durationInMs}ms.`);
+    logger.log("[TripAdvisor] findBestTripAdvisorLocationPicture: Success. Done in %dms.", durationInMs);
     const body = await response.json() as any;
     if (body) {
       const photos = parseLocationPhotos(body.data);
@@ -334,7 +335,7 @@ function parseLocationNearby(body: any): TripAdvisorLocationNearby | undefined {
 
 function parseLocationsNearby(body: any): TripAdvisorLocationNearby[] {
   if (!Array.isArray(body)) {
-    console.warn("[TripAdvisor] parseLocationsNearby: Received non-array body", body);
+    logger.warn("[TripAdvisor] parseLocationsNearby: Received non-array body", body);
     return [];
   } else {
     return body.map(parseLocationNearby).filter(Boolean).map(location => location!);
@@ -533,7 +534,7 @@ function parseDistanceInMeters(distance: any): number {
 async function parseError(url: string, response: Response, durationInMs: number): Promise<TripAdvisorError> {
   const body: TripAdvisorErrorPayload = (await response.json() as any)?.error;
 
-  console.error(`[TripAdvisor] Request failed after ${durationInMs}ms. Status: ${response.status}. URL: ${url}`);
+  logger.error("[TripAdvisor] Request failed after %dms. Status: %d. URL: %s", durationInMs, response.status, url);
 
   if (response.status >= 500) {
     return new TripAdvisorServerError(

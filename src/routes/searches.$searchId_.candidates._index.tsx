@@ -3,6 +3,7 @@ import { href, redirect } from "react-router";
 import { searchCandidate, type SearchStreamEvent } from "@features/search-engine.server";
 import { validateCSRF } from "@features/session.server";
 import { getLocale } from "@features/utils/locale.server";
+import { logger } from "@features/utils/logger";
 import { sleep } from "@features/utils/time";
 
 import type { Route } from "./+types/searches.$searchId_.candidates._index";
@@ -34,7 +35,7 @@ export async function action({
       },
     });
   } catch (error) {
-    console.error("[Action] Error:", error);
+    logger.error("[Action] Error:", error);
     return new Response(JSON.stringify({ error: String(error) }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
@@ -122,7 +123,7 @@ async function streamSearchResults(
     }
   } catch (error) {
     if (error instanceof Error && error.name !== 'AbortError') {
-      console.error("[Streaming] Error:", error);
+      logger.error("[Streaming] Error:", error);
     }
   } finally {
     await writer.close();

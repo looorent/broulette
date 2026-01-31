@@ -1,3 +1,5 @@
+import { logger } from "./logger";
+
 export const DEFAULT_LANGUAGE = "en";
 export function convertLocaleToLanguage(text: string): string {
   try {
@@ -6,7 +8,7 @@ export function convertLocaleToLanguage(text: string): string {
       .filter(Boolean)
       .join("-");
   } catch (error) {
-    console.warn(`An error occurred during conversion of locale '${text}' to language. Returning '${DEFAULT_LANGUAGE}'`, error);
+    logger.warn("An error occurred during conversion of locale '%s' to language. Returning '%s' %s", text, DEFAULT_LANGUAGE, error);
     return DEFAULT_LANGUAGE;
   }
 }
@@ -18,7 +20,7 @@ export function convertLocaleToSnakecase(text: string): string {
       .filter(Boolean)
       .join("_");
   } catch (error) {
-    console.warn(`An error occurred during conversion of locale '${text}' to snakecase. Returning '${DEFAULT_LANGUAGE}'`, error);
+    logger.warn("An error occurred during conversion of locale '%s' to snakecase. Returning '%s' %s", text, DEFAULT_LANGUAGE, error);
     return DEFAULT_LANGUAGE;
   }
 }

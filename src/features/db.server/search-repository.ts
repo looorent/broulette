@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import { createServiceDatetime, createServiceEnd } from "@features/search";
+import { logger } from "@features/utils/logger";
 
 import type { DrizzleClient } from "./drizzle";
 import type { DistanceRange, Search, SearchAndRestaurantsAndProfiles, SearchCandidateStatus, ServiceTimeslot } from "./drizzle.types";
@@ -31,7 +32,7 @@ export class SearchRepositoryDrizzle implements SearchRepository {
     timeslot: ServiceTimeslot,
     distanceRange: DistanceRange
   ): Promise<Search> {
-    console.trace(`[Drizzle] creating Search...`);
+    logger.trace("[Drizzle] creating Search...");
     const [newSearch] = await this.db.insert(searches).values({
       latitude: latitude,
       longitude: longitude,
@@ -80,7 +81,7 @@ export class SearchRepositoryDrizzle implements SearchRepository {
       if (search) {
         const latestCandidate = search.candidates[0];
         const latestId = latestCandidate?.id;
-        console.trace(`[Drizzle] findWithLatestCandidateId: Found search. Latest candidate: ${latestId ? latestId : "None"}`);
+        logger.trace("[Drizzle] findWithLatestCandidateId: Found search. Latest candidate: %s", latestId ? latestId : "None");
         return {
           searchId: search.id,
           exhausted: search.exhausted,
@@ -91,7 +92,7 @@ export class SearchRepositoryDrizzle implements SearchRepository {
           order: latestCandidate?.order ?? 0
         };
       } else {
-        console.trace(`[Drizzle] findWithLatestCandidateId: Search "${searchId}" not found`);
+        logger.trace("[Drizzle] findWithLatestCandidateId: Search '%s' not found", searchId);
         return undefined;
       }
     } else {
@@ -100,7 +101,7 @@ export class SearchRepositoryDrizzle implements SearchRepository {
   }
 
   async findByIdWithRestaurantAndProfiles(searchId: string): Promise<SearchAndRestaurantsAndProfiles | undefined> {
-    console.trace(`[Drizzle] findUniqueWithRestaurantAndProfiles: Querying searchId="${searchId}"`);
+    logger.trace("[Drizzle] findUniqueWithRestaurantAndProfiles: Querying searchId='%s'", searchId);
     return this.db.query.searches.findFirst({
       where: eq(searches.id, searchId),
       with: {
@@ -118,7 +119,7 @@ export class SearchRepositoryDrizzle implements SearchRepository {
   }
 
   async markSearchAsExhausted(searchId: string): Promise<void> {
-    console.log(`[Drizzle] Marking search '${searchId}' as EXHAUSTED.`);
+    logger.log("[Drizzle] Marking search '%s' as EXHAUSTED.", searchId);
     await this.db.update(searches)
       .set({ exhausted: true })
       .where(eq(searches.id, searchId));

@@ -2,6 +2,7 @@ import type { ActionFunctionArgs } from "react-router";
 
 import { searchLocations } from "@features/address.server";
 import { validateCSRF } from "@features/session.server";
+import { logger } from "@features/utils/logger";
 
 export async function action({ request, context }: ActionFunctionArgs) {
   if (request.method !== "POST") {
@@ -25,7 +26,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
         throw new Error("AppContext is not initialized.");
       }
     } catch (error) {
-      console.error("Address lookup failed:", error);
+      logger.error("Address lookup failed:", error);
       return {
         locations: [],
         note: undefined,
