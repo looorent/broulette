@@ -1,8 +1,8 @@
+import { circuitBreaker } from "@features/circuit-breaker.server";
 import { computeViewportFromCircle } from "@features/coordinate";
 import { isAbortError } from "@features/utils/error";
 import { logger } from "@features/utils/logger";
 
-import { googleCircuitBreaker } from "./circuit-breaker";
 import { GoogleAuthorizationError, GoogleError, GoogleHttpError, GoogleServerError } from "./error";
 import { convertBusinessStatusToOperational, formatPrices } from "./formatter";
 import { convertGooglePeriodsToOpeningHours } from "./opening-hours";
@@ -35,6 +35,7 @@ const FIELDS_TO_FETCH = [
 
 const SEARCH_FIELDS_MASK = FIELDS_TO_FETCH.map(field => `places.${field}`).join(",");
 const DETAIL_FIELDS_MASK = FIELDS_TO_FETCH.join(",");
+const CIRCUIT_BREAKER_NAME = "google";
 
 export async function findGoogleRestaurantById(
   placeId: string,
@@ -43,7 +44,7 @@ export async function findGoogleRestaurantById(
 ): Promise<GoogleRestaurant | undefined> {
   logger.log("[Google Place] findGoogleRestaurantById: Processing request for placeId='%s'", placeId);
 
-  const place = await (await googleCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
+  const place = await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
@@ -262,7 +263,7 @@ async function addPhotoUriOn(
 ): Promise<GoogleRestaurant | undefined> {
   const photoId = restaurant?.photoIds?.[0];
   if (photoId) {
-    const photoUrl = await (await googleCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
+    const photoUrl = await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
       if (combinedSignal?.aborted) {
         throw combinedSignal.reason;
       }

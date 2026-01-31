@@ -1,7 +1,7 @@
+import { circuitBreaker } from "@features/circuit-breaker.server";
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { logger } from "@features/utils/logger";
 
-import { nominatimCircuitBreaker } from "./circuit-breaker";
 import { NominatimError, NominatimHttpError, NominatimServerError } from "./error";
 import { DEFAULT_NOMINATIM_CONFIGURATION, type NominatimConfiguration } from "./types";
 
@@ -15,6 +15,7 @@ interface NominatimPlace {
   lon: string;
 }
 
+const CIRCUIT_BREAKER_NAME_PREFIX = "nominatim";
 export async function fetchLocationFromNominatim(
   query: string,
   instanceUrl: string = DEFAULT_NOMINATIM_CONFIGURATION.instanceUrls[0],
@@ -23,7 +24,7 @@ export async function fetchLocationFromNominatim(
 ): Promise<LocationSuggestions> {
   logger.log("[Nominatim] fetchLocationFromNominatim: Processing query='%s' via %s", query, instanceUrl);
 
-  const rawData = await (await nominatimCircuitBreaker(instanceUrl, configuration.failover)).execute(async combinedSignal => {
+  const rawData = await circuitBreaker(`${CIRCUIT_BREAKER_NAME_PREFIX}:${instanceUrl}`, configuration.failover).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason
     };

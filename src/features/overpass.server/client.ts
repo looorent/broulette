@@ -1,10 +1,10 @@
-import type { FailoverConfiguration } from "@features/circuit-breaker.server";
+import { circuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
 import { logger } from "@features/utils/logger";
 
-import { overpassCircuitBreaker } from "./circuit-breaker";
 import { OsmEmptyResponseError, OsmError, OsmHttpError, OsmServerError } from "./error";
 import type { OverpassResponse, OverpassRestaurant } from "./types";
 
+const CIRCUIT_BREAKER_NAME_PREFIX = "overpass";
 export async function fetchAllRestaurantsNearbyWithRetry(
   latitude: number,
   longitude: number,
@@ -17,7 +17,7 @@ export async function fetchAllRestaurantsNearbyWithRetry(
 ): Promise<OverpassResponse | undefined> {
   logger.log("[OSM] fetchAllRestaurantsNearbyWithRetry: Requesting restaurants near [%f, %f] (radius: %dm)", latitude, longitude, distanceRangeInMeters);
 
-  return await (await overpassCircuitBreaker(instanceUrl, failoverConfiguration)).execute(async combinedSignal => {
+  return await circuitBreaker(`${CIRCUIT_BREAKER_NAME_PREFIX}:${instanceUrl}`, failoverConfiguration).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }

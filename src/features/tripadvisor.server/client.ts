@@ -1,12 +1,13 @@
+import { circuitBreaker } from "@features/circuit-breaker.server";
 import { convertLocaleToSnakecase, DEFAULT_LANGUAGE } from "@features/utils/locale";
 import { logger } from "@features/utils/logger";
 
-import { tripAdvisorCircuitBreaker } from "./circuit-breaker";
 import { TripAdvisorAuthorizationError, TripAdvisorEmptyResponseError, TripAdvisorError, TripAdvisorHttpError, TripAdvisorServerError, type TripAdvisorErrorPayload } from "./error";
 import { convertTripAdvisorHoursToOpeningHours } from "./opening-hours";
 import { findBestTripAdvisorMatch } from "./similarity";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, TRIPADVISOR_DEFAULT_PHOTO_SIZE, TRIPADVISOR_PHOTO_SIZES, type AddressInfo, type Award, type LocalizedName, type LocationHours, type OperatingPeriod, type RankingData, type TripAdvisorConfiguration, type TripAdvisorImageSet, type TripAdvisorImageVariant, type TripAdvisorLocation, type TripAdvisorLocationNearby, type TripAdvisorPhoto, type TripAdvisorPhotoSize, type TripType } from "./types";
 
+const CIRCUIT_BREAKER_NAME = "tripadvisor";
 export async function findTripAdvisorLocationByIdWithRetry(
   locationId: string,
   locale: string = "en",
@@ -15,7 +16,7 @@ export async function findTripAdvisorLocationByIdWithRetry(
 ): Promise<TripAdvisorLocation | undefined> {
   logger.log("[TripAdvisor] findTripAdvisorLocationByIdWithRetry: Processing request for locationId='%s'", locationId);
 
-  const location = await (await tripAdvisorCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
+  const location = await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
@@ -36,7 +37,7 @@ export async function searchTripAdvisorLocationNearbyWithRetry(
 ): Promise<TripAdvisorLocation | undefined> {
   logger.log("[TripAdvisor] searchTripAdvisorLocationNearbyWithRetry: Searching for '%s' near [%f, %f]", name, latitude, longitude);
 
-  return await (await tripAdvisorCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
+  return await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
@@ -52,7 +53,7 @@ export async function findBestTripAdvisorLocationPictureWithRetry(
 ): Promise<TripAdvisorPhoto | undefined> {
   logger.log("[TripAdvisor] findBestTripAdvisorLocationPictureWithRetry: Fetching photo for locationId='%s'", locationId);
 
-  return await (await tripAdvisorCircuitBreaker(configuration.failover)).execute(async combinedSignal => {
+  return await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }

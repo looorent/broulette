@@ -1,7 +1,7 @@
+import { circuitBreaker } from "@features/circuit-breaker.server";
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { logger } from "@features/utils/logger";
 
-import { photonCircuitBreaker } from "./circuit-breaker";
 import { PhotonError, PhotonHttpError, PhotonServerError } from "./error";
 import { DEFAULT_PHOTON_CONFIGURATION, type PhotonConfiguration } from "./types";
 
@@ -26,6 +26,7 @@ interface PhotonResponse {
   features: PhotonFeature[];
 }
 
+const CIRCUIT_BREAKER_NAME_PREFIX = "photon";
 export async function fetchLocationFromPhoton(
   query: string,
   instanceUrl: string,
@@ -34,7 +35,7 @@ export async function fetchLocationFromPhoton(
 ): Promise<LocationSuggestions> {
   logger.log("[Photon] fetchLocationFromPhoton: Processing query='%s' via %s", query, instanceUrl);
 
-  const rawData = await (await photonCircuitBreaker(instanceUrl, configuration.failover)).execute(async combinedSignal => {
+  const rawData = await circuitBreaker(`${CIRCUIT_BREAKER_NAME_PREFIX}:${instanceUrl}`, configuration.failover).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason
     };
