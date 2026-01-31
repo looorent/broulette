@@ -6,7 +6,7 @@ export function isHapticsSupported(): boolean {
 
 export function triggerHaptics() {
   if (isHapticsSupported()) {
-    const vibrated = navigator.vibrate([10, 30, 10]);
+    const vibrated = navigator.vibrate(20);
     if (!vibrated) {
       logger.warn("Haptics failed.");
     } else {
