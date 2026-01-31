@@ -146,7 +146,10 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
       setIsLocating(false);
       setIsSearchMode(true);
       setSearchText("");
-      setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 1);
+      setTimeout(() => {
+        inputRef.current?.focus({ preventScroll: true });
+        inputRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     };
 
     const closeSearchMode = () => {
