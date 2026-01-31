@@ -1,5 +1,4 @@
-
-import { DEFAULT_FAILOVER } from "@features/circuit-breaker.server";
+import { DEFAULT_FAILOVER, type FailoverConfiguration } from "@features/circuit-breaker.server";
 import { DEFAULT_DISCOVERY_CONFIGURATION } from "@features/discovery.server";
 import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlaceConfiguration } from "@features/google.server";
 import { DEFAULT_NOMINATIM_CONFIGURATION, type NominatimConfiguration } from "@features/nominatim.server";
@@ -18,172 +17,281 @@ export const APP_CONFIG = {
   }
 } as const;
 
-function readArray(text: string | undefined): string[] | undefined {
-  if (text && text?.length > 0) {
-    return text.split(",");
+export type AppConfiguration = typeof APP_CONFIG;
+
+interface Env {
+  // Nominatim
+  BROULETTE_NOMINATIM_ENABLED?: string;
+  BROULETTE_NOMINATIM_INSTANCE_URLS?: string;
+  BROULETTE_NOMINATIM_USER_AGENT?: string;
+  BROULETTE_NOMINATIM_BOTTOM_NOTE?: string;
+  BROULETTE_NOMINATIM_NUMBER_OF_ADDRESSES?: string;
+  BROULETTE_NOMINATIM_API_RETRIES?: string;
+  BROULETTE_NOMINATIM_API_TIMEOUT?: string;
+  BROULETTE_NOMINATIM_API_CLOSE_AFTER?: string;
+  BROULETTE_NOMINATIM_CONSECUTIVE_FAILURES?: string;
+
+  // Photon
+  BROULETTE_PHOTON_ENABLED?: string;
+  BROULETTE_PHOTON_INSTANCE_URLS?: string;
+  BROULETTE_PHOTON_BOTTOM_NOTE?: string;
+  BROULETTE_PHOTON_NUMBER_OF_ADDRESSES?: string;
+  BROULETTE_PHOTON_API_RETRIES?: string;
+  BROULETTE_PHOTON_API_TIMEOUT?: string;
+  BROULETTE_PHOTON_API_CLOSE_AFTER?: string;
+  BROULETTE_PHOTON_CONSECUTIVE_FAILURES?: string;
+
+  // Google
+  BROULETTE_GOOGLE_PLACE_ENABLED?: string;
+  BROULETTE_GOOGLE_PLACE_BASE_URL?: string;
+  BROULETTE_GOOGLE_PLACE_API_KEY?: string;
+  BROULETTE_GOOGLE_PLACE_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH?: string;
+  BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS?: string;
+  BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_WIDTH_IN_PX?: string;
+  BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_HEIGHT_IN_PX?: string;
+  BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_NAME?: string;
+  BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_LOCATION?: string;
+  BROULETTE_GOOGLE_PLACE_API_RETRIES?: string;
+  BROULETTE_GOOGLE_PLACE_API_TIMEOUT?: string;
+  BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER?: string;
+  BROULETTE_GOOGLE_PLACE_API_CONSECUTIVE_FAILURES?: string;
+
+  // TripAdvisor
+  BROULETTE_TRIPADVISOR_ENABLED?: string;
+  BROULETTE_TRIPADVISOR_INSTANCE_URL?: string;
+  BROULETTE_TRIPADVISOR_API_KEY?: string;
+  BROULETTE_TRIPADVISOR_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH?: string;
+  BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS?: string;
+  BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_NAME?: string;
+  BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_LOCATION?: string;
+  BROULETTE_TRIPADVISOR_API_SEARCH_MIN_SCORE_TRESHOLD?: string;
+  BROULETTE_TRIPADVISOR_API_PHOTO_SIZE?: string;
+  BROULETTE_TRIPADVISOR_API_RETRIES?: string;
+  BROULETTE_TRIPADVISOR_API_TIMEOUT?: string;
+  BROULETTE_TRIPADVISOR_API_CLOSE_AFTER?: string;
+  BROULETTE_TRIPADVISOR_CONSECUTIVE_FAILURES?: string;
+
+  // Overpass
+  BROULETTE_OVERPASS_ENABLED?: string;
+  BROULETTE_OVERPASS_API_INSTANCE_URLS?: string;
+  BROULETTE_OVERPASS_API_RETRIES?: string;
+  BROULETTE_OVERPASS_API_TIMEOUT?: string;
+  BROULETTE_OVERPASS_API_CLOSE_AFTER?: string;
+  BROULETTE_OVERPASS_API_CONSECUTIVE_FAILURES?: string;
+
+  // Search Engine
+  BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS?: string;
+  BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS?: string;
+  BROULETTE_TAGS_TO_EXCLUDE?: string;
+  BROULETTE_TAGS_TO_PRIORITIZE?: string;
+  BROULETTE_TAGS_MAXIMUM?: string;
+  BROULETTE_SEARCH_ENGINE_CLOSE_RANGE_IN_METERS?: string;
+  BROULETTE_SEARCH_ENGINE_CLOSE_TIMEOUT_IN_MS?: string;
+  BROULETTE_SEARCH_ENGINE_MID_RANGE_IN_METERS?: string;
+  BROULETTE_SEARCH_ENGINE_MID_TIMEOUT_IN_MS?: string;
+  BROULETTE_SEARCH_ENGINE_FAR_RANGE_IN_METERS?: string;
+  BROULETTE_SEARCH_ENGINE_FAR_TIMEOUT_IN_MS?: string;
+}
+
+function parseNumber(value: string | undefined, fallback: number): number {
+  if (value === undefined || value === null || value.trim() === "") {
+    return fallback;
   } else {
-    return undefined;
+    const parsed = Number(value);
+    return isNaN(parsed) ? fallback : parsed;
   }
 }
 
-export type AppConfiguration = typeof APP_CONFIG;
+function parseBoolean(value: string | undefined, fallback: boolean = false): boolean {
+  if (value === undefined || value === null) {
+    return fallback;
+  } else {
+    const normalized = value.toLowerCase().trim();
+    return normalized === "true";
+  }
+}
+
+function parseArray(value: string | undefined, fallback: string[] = []): string[] {
+  if (value && value.length > 0) {
+    return value.split(",").map(s => s.trim()).filter(s => s.length > 0);
+  } else {
+    return fallback;
+  }
+}
+
+function parseFailover(
+  retries: string | undefined,
+  timeout: string | undefined,
+  closeAfter: string | undefined,
+  consecutiveFailures: string | undefined,
+  defaults: typeof DEFAULT_FAILOVER
+): FailoverConfiguration {
+  return {
+    retry: parseNumber(retries, defaults.retry),
+    halfOpenAfterInMs: parseNumber(timeout, defaults.halfOpenAfterInMs),
+    closeAfterNumberOfFailures: parseNumber(closeAfter, defaults.closeAfterNumberOfFailures),
+    timeoutInMs: parseNumber(timeout, defaults.timeoutInMs),
+    consecutiveFailures: parseNumber(consecutiveFailures, defaults.consecutiveFailures),
+  };
+}
 
 let NOMINATIM_CONFIG: NominatimConfiguration;
-function nominatimConfig(env: any): NominatimConfiguration {
+function nominatimConfig(env: Env): NominatimConfiguration {
   if (!NOMINATIM_CONFIG) {
     NOMINATIM_CONFIG = {
-      enabled: env.BROULETTE_NOMINATIM_ENABLED?.toLowerCase() === "true",
-      instanceUrls: readArray(env.BROULETTE_NOMINATIM_INSTANCE_URLS) || DEFAULT_NOMINATIM_CONFIGURATION.instanceUrls,
+      enabled: parseBoolean(env.BROULETTE_NOMINATIM_ENABLED),
+      instanceUrls: parseArray(env.BROULETTE_NOMINATIM_INSTANCE_URLS, DEFAULT_NOMINATIM_CONFIGURATION.instanceUrls),
       userAgent: env.BROULETTE_NOMINATIM_USER_AGENT ?? `${APP_CONFIG.name}/${APP_CONFIG.version}`,
       bottomNote: env.BROULETTE_NOMINATIM_BOTTOM_NOTE ?? DEFAULT_NOMINATIM_CONFIGURATION.bottomNote,
-      maxNumberOfAddresses: Number(env.BROULETTE_NOMINATIM_NUMBER_OF_ADDRESSES || DEFAULT_NOMINATIM_CONFIGURATION.maxNumberOfAddresses),
-      failover: {
-        retry: Number(env.BROULETTE_NOMINATIM_API_RETRIES || DEFAULT_FAILOVER.retry),
-        halfOpenAfterInMs: Number(env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-        closeAfterNumberOfFailures: Number(env.BROULETTE_NOMINATIM_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-        timeoutInMs: Number(env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs),
-        consecutiveFailures: Number(env.BROULETTE_NOMINATIM_CONSECUTIVE_FAILURES || DEFAULT_FAILOVER.consecutiveFailures),
-      }
+      maxNumberOfAddresses: parseNumber(env.BROULETTE_NOMINATIM_NUMBER_OF_ADDRESSES, DEFAULT_NOMINATIM_CONFIGURATION.maxNumberOfAddresses),
+      failover: parseFailover(
+        env.BROULETTE_NOMINATIM_API_RETRIES,
+        env.BROULETTE_NOMINATIM_API_TIMEOUT,
+        env.BROULETTE_NOMINATIM_API_CLOSE_AFTER,
+        env.BROULETTE_NOMINATIM_CONSECUTIVE_FAILURES,
+        DEFAULT_FAILOVER
+      )
     };
   }
   return NOMINATIM_CONFIG;
 }
 
 let PHOTON_CONFIG: PhotonConfiguration;
-function photonConfig(env: any): PhotonConfiguration {
+function photonConfig(env: Env): PhotonConfiguration {
   if (!PHOTON_CONFIG) {
     PHOTON_CONFIG = {
-      enabled: env.BROULETTE_PHOTON_ENABLED?.toLowerCase() === "true",
-      instanceUrls: readArray(env.BROULETTE_PHOTON_INSTANCE_URLS) || DEFAULT_PHOTON_CONFIGURATION.instanceUrls,
+      enabled: parseBoolean(env.BROULETTE_PHOTON_ENABLED),
+      instanceUrls: parseArray(env.BROULETTE_PHOTON_INSTANCE_URLS, DEFAULT_PHOTON_CONFIGURATION.instanceUrls),
       bottomNote: env.BROULETTE_PHOTON_BOTTOM_NOTE ?? DEFAULT_PHOTON_CONFIGURATION.bottomNote,
-      maxNumberOfAddresses: Number(env.BROULETTE_PHOTON_NUMBER_0F_ADDRESSES || DEFAULT_PHOTON_CONFIGURATION.maxNumberOfAddresses),
-      failover: {
-        retry: Number(env.BROULETTE_PHOTON_API_RETRIES || DEFAULT_FAILOVER.retry),
-        halfOpenAfterInMs: Number(env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-        closeAfterNumberOfFailures: Number(env.BROULETTE_PHOTON_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-        timeoutInMs: Number(env.BROULETTE_PHOTON_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs),
-        consecutiveFailures: Number(env.BROULETTE_PHOTON_CONSECUTIVE_FAILURES || DEFAULT_FAILOVER.consecutiveFailures),
-      }
+      // Note: BROULETTE_PHOTON_NUMBER_OF_ADDRESSES contains a typo '0' (zero) instead of 'O' in the environment variable name.
+      maxNumberOfAddresses: parseNumber(env.BROULETTE_PHOTON_NUMBER_OF_ADDRESSES, DEFAULT_PHOTON_CONFIGURATION.maxNumberOfAddresses),
+      failover: parseFailover(
+        env.BROULETTE_PHOTON_API_RETRIES,
+        env.BROULETTE_PHOTON_API_TIMEOUT,
+        env.BROULETTE_PHOTON_API_CLOSE_AFTER,
+        env.BROULETTE_PHOTON_CONSECUTIVE_FAILURES,
+        DEFAULT_FAILOVER
+      )
     };
   }
   return PHOTON_CONFIG;
 }
 
 let GOOGLE_PLACE_CONFIG: GooglePlaceConfiguration;
-function googleConfig(env: any): GooglePlaceConfiguration {
+function googleConfig(env: Env): GooglePlaceConfiguration {
   if (!GOOGLE_PLACE_CONFIG) {
     GOOGLE_PLACE_CONFIG = {
-      enabled: env.BROULETTE_GOOGLE_PLACE_ENABLED?.toLowerCase() === "true",
+      enabled: parseBoolean(env.BROULETTE_GOOGLE_PLACE_ENABLED),
       baseUrl: env.BROULETTE_GOOGLE_PLACE_BASE_URL || DEFAULT_GOOGLE_PLACE_CONFIGURATION.baseUrl,
       apiKey: env.BROULETTE_GOOGLE_PLACE_API_KEY ?? "",
       rateLimiting: {
-        maxNumberOfAttemptsPerMonth: Number(env.BROULETTE_GOOGLE_PLACE_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || DEFAULT_GOOGLE_PLACE_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),
+        maxNumberOfAttemptsPerMonth: parseNumber(env.BROULETTE_GOOGLE_PLACE_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH, DEFAULT_GOOGLE_PLACE_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),
       },
       search: {
-        radiusInMeters: Number(env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS || DEFAULT_GOOGLE_PLACE_CONFIGURATION.search.radiusInMeters)
+        radiusInMeters: parseNumber(env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS, DEFAULT_GOOGLE_PLACE_CONFIGURATION.search.radiusInMeters)
       },
       photo: {
-        maxWidthInPx: Number(env.BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_WIDTH_IN_PX || DEFAULT_GOOGLE_PLACE_CONFIGURATION.photo.maxWidthInPx),
-        maxHeightInPx: Number(env.BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_HEIGHT_IN_PX || DEFAULT_GOOGLE_PLACE_CONFIGURATION.photo.maxHeightInPx)
+        maxWidthInPx: parseNumber(env.BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_WIDTH_IN_PX, DEFAULT_GOOGLE_PLACE_CONFIGURATION.photo.maxWidthInPx),
+        maxHeightInPx: parseNumber(env.BROULETTE_GOOGLE_PLACE_API_PHOTO_MAX_HEIGHT_IN_PX, DEFAULT_GOOGLE_PLACE_CONFIGURATION.photo.maxHeightInPx)
       },
       similarity: {
         weight: {
-          name: Number(env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_NAME || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.weight.name),
-          location: Number(env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_LOCATION || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.weight.location),
+          name: parseNumber(env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_NAME, DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.weight.name),
+          location: parseNumber(env.BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_LOCATION, DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.weight.location),
         },
-        maxDistanceInMeters: Number(env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS || DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.maxDistanceInMeters)
+        maxDistanceInMeters: parseNumber(env.BROULETTE_GOOGLE_PLACE_API_SEARCH_RADIUS_IN_METERS, DEFAULT_GOOGLE_PLACE_CONFIGURATION.similarity.maxDistanceInMeters)
       },
-      failover: {
-        retry: Number(env.BROULETTE_GOOGLE_PLACE_API_RETRIES || DEFAULT_FAILOVER.retry),
-        halfOpenAfterInMs: Number(env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-        closeAfterNumberOfFailures: Number(env.BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-        timeoutInMs: Number(env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs),
-        consecutiveFailures: Number(env.BROULETTE_GOOGLE_PLACE_API_CONSECUTIVE_FAILURES || DEFAULT_FAILOVER.consecutiveFailures),
-      }
+      failover: parseFailover(
+        env.BROULETTE_GOOGLE_PLACE_API_RETRIES,
+        env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT,
+        env.BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER,
+        env.BROULETTE_GOOGLE_PLACE_API_CONSECUTIVE_FAILURES,
+        DEFAULT_FAILOVER
+      )
     };
   }
   return GOOGLE_PLACE_CONFIG;
 }
 
 let TRIPADVISOR_CONFIG: TripAdvisorConfiguration;
-function tripAdvisorConfig(env: any): TripAdvisorConfiguration {
+function tripAdvisorConfig(env: Env): TripAdvisorConfiguration {
   if (!TRIPADVISOR_CONFIG) {
     TRIPADVISOR_CONFIG = {
-      enabled: env.BROULETTE_TRIPADVISOR_ENABLED?.toLowerCase() === "true",
+      enabled: parseBoolean(env.BROULETTE_TRIPADVISOR_ENABLED),
       instanceUrl: env.BROULETTE_TRIPADVISOR_INSTANCE_URL ?? DEFAULT_TRIPADVISOR_CONFIGURATION.instanceUrl,
       apiKey: env.BROULETTE_TRIPADVISOR_API_KEY ?? "",
       rateLimiting: {
-        maxNumberOfAttemptsPerMonth: Number(env.BROULETTE_TRIPADVISOR_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH || DEFAULT_TRIPADVISOR_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),
+        maxNumberOfAttemptsPerMonth: parseNumber(env.BROULETTE_TRIPADVISOR_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH, DEFAULT_TRIPADVISOR_CONFIGURATION.rateLimiting.maxNumberOfAttemptsPerMonth),
       },
       search: {
-        radiusInMeters: Number(env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS || DEFAULT_TRIPADVISOR_CONFIGURATION.search.radiusInMeters)
+        radiusInMeters: parseNumber(env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS, DEFAULT_TRIPADVISOR_CONFIGURATION.search.radiusInMeters)
       },
       similarity: {
         weight: {
-          name: Number(env.BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_NAME || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.weight.name),
-          location: Number(env.BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_LOCATION || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.weight.location),
+          name: parseNumber(env.BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_NAME, DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.weight.name),
+          location: parseNumber(env.BROULETTE_TRIPADVISOR_API_SIMILARITY_WEIGHT_LOCATION, DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.weight.location),
         },
-        maxDistanceInMeters: Number(env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.maxDistanceInMeters),
-        minScoreThreshold: Number(env.BROULETTE_TRIPADVISOR_API_SEARCH_MIN_SCORE_TRESHOLD || DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.minScoreThreshold)
+        maxDistanceInMeters: parseNumber(env.BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS, DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.maxDistanceInMeters),
+        minScoreThreshold: parseNumber(env.BROULETTE_TRIPADVISOR_API_SEARCH_MIN_SCORE_TRESHOLD, DEFAULT_TRIPADVISOR_CONFIGURATION.similarity.minScoreThreshold)
       },
       photo: parseTripAdvisorPhotoSize(env.BROULETTE_TRIPADVISOR_API_PHOTO_SIZE) || DEFAULT_TRIPADVISOR_CONFIGURATION.photo,
-      failover: {
-        retry: Number(env.BROULETTE_TRIPADVISOR_API_RETRIES || DEFAULT_FAILOVER.retry),
-        halfOpenAfterInMs: Number(env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-        closeAfterNumberOfFailures: Number(env.BROULETTE_TRIPADVISOR_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-        timeoutInMs: Number(env.BROULETTE_TRIPADVISOR_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs),
-        consecutiveFailures: Number(env.BROULETTE_TRIPADVISOR_CONSECUTIVE_FAILURES || DEFAULT_FAILOVER.consecutiveFailures),
-      }
+      failover: parseFailover(
+        env.BROULETTE_TRIPADVISOR_API_RETRIES,
+        env.BROULETTE_TRIPADVISOR_API_TIMEOUT,
+        env.BROULETTE_TRIPADVISOR_API_CLOSE_AFTER,
+        env.BROULETTE_TRIPADVISOR_CONSECUTIVE_FAILURES,
+        DEFAULT_FAILOVER
+      )
     };
   }
   return TRIPADVISOR_CONFIG;
 }
 
 let OVERPASS_CONFIG: OverpassConfiguration;
-function overpassConfig(env: any): OverpassConfiguration {
+function overpassConfig(env: Env): OverpassConfiguration {
   if (!OVERPASS_CONFIG) {
     OVERPASS_CONFIG = {
-      enabled: env.BROULETTE_OVERPASS_ENABLED?.toLowerCase() === "true",
-      instanceUrls: readArray(env.BROULETTE_OVERPASS_API_INSTANCE_URLS) || DEFAULT_OVERPASS_CONFIGURATION.instanceUrls,
-      failover: {
-        retry: Number(env.BROULETTE_OVERPASS_API_RETRIES || DEFAULT_FAILOVER.retry),
-        halfOpenAfterInMs: Number(env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),
-        closeAfterNumberOfFailures: Number(env.BROULETTE_OVERPASS_API_CLOSE_AFTER || DEFAULT_FAILOVER.closeAfterNumberOfFailures),
-        timeoutInMs: Number(env.BROULETTE_OVERPASS_API_TIMEOUT || DEFAULT_FAILOVER.timeoutInMs),
-        consecutiveFailures: Number(env.BROULETTE_OVERPASS_API_CONSECUTIVE_FAILURES || DEFAULT_FAILOVER.consecutiveFailures),
-      }
+      enabled: parseBoolean(env.BROULETTE_OVERPASS_ENABLED),
+      instanceUrls: parseArray(env.BROULETTE_OVERPASS_API_INSTANCE_URLS, DEFAULT_OVERPASS_CONFIGURATION.instanceUrls),
+      failover: parseFailover(
+        env.BROULETTE_OVERPASS_API_RETRIES,
+        env.BROULETTE_OVERPASS_API_TIMEOUT,
+        env.BROULETTE_OVERPASS_API_CLOSE_AFTER,
+        env.BROULETTE_OVERPASS_API_CONSECUTIVE_FAILURES,
+        DEFAULT_FAILOVER
+      )
     };
   }
   return OVERPASS_CONFIG;
 }
 
 let SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration;
-function searchEngineConfig(env: any): SearchEngineConfiguration {
+function searchEngineConfig(env: Env): SearchEngineConfiguration {
   if (!SEARCH_ENGINE_CONFIGURATION) {
     SEARCH_ENGINE_CONFIGURATION = {
       discovery: {
-        rangeIncreaseMeters: Number(env.BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS ?? DEFAULT_DISCOVERY_CONFIGURATION.rangeIncreaseMeters),
-        maxDiscoveryIterations: Number(env.BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS ?? DEFAULT_DISCOVERY_CONFIGURATION.maxDiscoveryIterations)
+        rangeIncreaseMeters: parseNumber(env.BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS, DEFAULT_DISCOVERY_CONFIGURATION.rangeIncreaseMeters),
+        maxDiscoveryIterations: parseNumber(env.BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS, DEFAULT_DISCOVERY_CONFIGURATION.maxDiscoveryIterations)
       },
       matching: {
         tags: {
-          hiddenTags: readArray(env.BROULETTE_TAGS_TO_EXCLUDE) || DEFAULT_TAG_CONFIGURATION.hiddenTags,
-          priorityTags: readArray(env.BROULETTE_TAGS_TO_PRIORITIZE) || DEFAULT_TAG_CONFIGURATION.priorityTags,
-          maxTags: Number(env.BROULETTE_TAGS_MAXIMUM || readArray(env.BROULETTE_TAGS_TO_EXCLUDE) || DEFAULT_TAG_CONFIGURATION.maxTags)
+          hiddenTags: parseArray(env.BROULETTE_TAGS_TO_EXCLUDE, DEFAULT_TAG_CONFIGURATION.hiddenTags),
+          priorityTags: parseArray(env.BROULETTE_TAGS_TO_PRIORITIZE, DEFAULT_TAG_CONFIGURATION.priorityTags),
+          maxTags: parseNumber(env.BROULETTE_TAGS_MAXIMUM, DEFAULT_TAG_CONFIGURATION.maxTags)
         }
       },
       range: {
         close: {
-          rangeInMeters: Number(env.BROULETTE_SEARCH_ENGINE_CLOSE_RANGE_IN_METERS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.close.rangeInMeters),
-          timeoutInMs: Number(env.BROULETTE_SEARCH_ENGINE_CLOSE_TIMEOUT_IN_MS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.close.timeoutInMs)
+          rangeInMeters: parseNumber(env.BROULETTE_SEARCH_ENGINE_CLOSE_RANGE_IN_METERS, DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.close.rangeInMeters),
+          timeoutInMs: parseNumber(env.BROULETTE_SEARCH_ENGINE_CLOSE_TIMEOUT_IN_MS, DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.close.timeoutInMs)
         },
         midRange: {
-          rangeInMeters: Number(env.BROULETTE_SEARCH_ENGINE_MID_RANGE_IN_METERS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.midRange.rangeInMeters),
-          timeoutInMs: Number(env.BROULETTE_SEARCH_ENGINE_MID_TIMEOUT_IN_MS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.midRange.timeoutInMs)
+          rangeInMeters: parseNumber(env.BROULETTE_SEARCH_ENGINE_MID_RANGE_IN_METERS, DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.midRange.rangeInMeters),
+          timeoutInMs: parseNumber(env.BROULETTE_SEARCH_ENGINE_MID_TIMEOUT_IN_MS, DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.midRange.timeoutInMs)
         },
         far: {
-          rangeInMeters: Number(env.BROULETTE_SEARCH_ENGINE_FAR_RANGE_IN_METERS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.far.rangeInMeters),
-          timeoutInMs: Number(env.BROULETTE_SEARCH_ENGINE_FAR_TIMEOUT_IN_MS || DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.far.timeoutInMs)
+          rangeInMeters: parseNumber(env.BROULETTE_SEARCH_ENGINE_FAR_RANGE_IN_METERS, DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.far.rangeInMeters),
+          timeoutInMs: parseNumber(env.BROULETTE_SEARCH_ENGINE_FAR_TIMEOUT_IN_MS, DEFAULT_SEARCH_ENGINE_CONFIGURATION.range.far.timeoutInMs)
         }
       }
     };
@@ -201,7 +309,7 @@ export interface AppContext {
 }
 
 let APP_CONTEXT: AppContext | undefined;
-export function createAppContext(env: any): AppContext {
+export function createAppContext(env: Env): AppContext {
   if (!APP_CONTEXT) {
     APP_CONTEXT = {
       nominatim: nominatimConfig(env).enabled ? nominatimConfig(env) : undefined,

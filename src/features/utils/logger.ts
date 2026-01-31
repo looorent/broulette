@@ -98,7 +98,6 @@ const createLogFunction = (logLevel: LogLevel, minLevel: number): LoggerFunction
       }
     };
   } else {
-    console.info("Log level not supported", logLevel);
     return () => {};
   }
 };

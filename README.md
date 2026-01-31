@@ -105,3 +105,4 @@ Use `npx wrangler secret put <KEY>` to create each secret.
 * Some restaurants "Pizza chez toi" are mismatched with "Pizza Hut".
 * Add an option to avoid fast foods
 * Move the default range to "by foot" (short range) and offer the capability to extend if nothing has been found.
+* Write some automated tests
