@@ -41,11 +41,11 @@
     "simple-icons": "16.6.1"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "1.22.0",
+    "@cloudflare/vite-plugin": "1.22.1",
     "@eslint/js": "9.39.2",
     "@react-router/dev": "7.13.0",
     "@tailwindcss/vite": "4.1.18",
-    "@types/node": "25.0.10",
+    "@types/node": "25.1.0",
     "@types/react": "19.2.10",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/parser": "8.54.0",
@@ -76,7 +76,7 @@
     "vite-plugin-devtools-json": "^1.0.0",
     "vite-plugin-pwa": "^1.2.0",
     "vite-tsconfig-paths": "6.0.5",
-    "wrangler": "4.61.0"
+    "wrangler": "4.61.1"
   },
   "exports": {
     "@persistence": "./src/features/db.server/index.ts",
