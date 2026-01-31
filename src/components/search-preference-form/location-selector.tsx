@@ -3,7 +3,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "re
 import { useFetcher, useRouteLoaderData } from "react-router";
 
 import { useAlertContext } from "@components/alert";
-import { getDeviceLocation, isGeolocationSupported, useDebounce } from "@features/browser.client";
+import { getDeviceLocation, getGeolocationPermissionStatus, isGeolocationSupported, useDebounce } from "@features/browser.client";
 import { createDeviceLocation, hasCoordinates, type LocationPreference } from "@features/search";
 import { logger } from "@features/utils/logger";
 import type { action as addressLoader } from "@routes/_.api.address-searches";
@@ -81,9 +81,9 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
       closeSearchMode();
     };
 
-    const openGeolocationErrorInAlert = () => {
+    const openGeolocationErrorInAlert = (message?: string) => {
       openAlert({
-        title: "Geolocation is not supported by your browser.",
+        title: message ?? "Geolocation is not supported by your browser.",
         variant: "danger",
         showCloseButton: false,
         actions: (
@@ -112,22 +112,33 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
 
     const triggerDeviceLocation = async () => {
       if (isGeolocationSupported()) {
-        setIsLocating(true);
-        setShowSuggestions(false);
+        const permission = await getGeolocationPermissionStatus();
+        if (permission === "denied") {
+          openGeolocationErrorInAlert("Location access is denied. Please enable it in your browser settings.");
+        } else {
+          setIsLocating(true);
+          setShowSuggestions(false);
 
-        try {
-          const position = await getDeviceLocation();
-          const deviceLocation = createDeviceLocation(position.coords);
-          onChange(deviceLocation);
-          closeSearchMode();
-        } catch (e) {
-          logger.error(e);
-          openGeolocationErrorInAlert();
-        } finally {
-          setIsLocating(false);
+          try {
+            const position = await getDeviceLocation();
+            const deviceLocation = createDeviceLocation(position.coords);
+            onChange(deviceLocation);
+            closeSearchMode();
+          } catch (e: any) {
+            logger.error(e);
+            if (e?.code === 1) {
+              openGeolocationErrorInAlert("Location access was denied.");
+            } else if (e?.code === 3) {
+              openGeolocationErrorInAlert("Location request timed out. Please try again.");
+            } else {
+              openGeolocationErrorInAlert("Unable to retrieve location.");
+            }
+          } finally {
+            setIsLocating(false);
+          }
         }
       } else {
-        openGeolocationErrorInAlert();
+        openGeolocationErrorInAlert("Geolocation is not supported by your browser.");
       }
     };
 

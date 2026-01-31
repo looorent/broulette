@@ -9,7 +9,7 @@ import { SearchSubmitButton } from "@components/search";
 import { PreferenceChip, type PreferenceChipHandle } from "@components/search-preference";
 import { PreferencesForm, type PreferencesFormHandle } from "@components/search-preference-form";
 import { APP_CONFIG } from "@config/server";
-import { getDeviceLocation } from "@features/browser.client";
+import { getDeviceLocation, getGeolocationPermissionStatus } from "@features/browser.client";
 import { createDeviceLocation, createNextServices, DISTANCE_RANGES, preferenceFactory, type LocationPreference, type Preference } from "@features/search";
 import { logger } from "@features/utils/logger";
 
@@ -49,14 +49,19 @@ function HomeContent() {
     if (needsLocation) {
       let isMounted = true;
       const initializeLocation = async () => {
-        const newLocation = await fetchLocation();
-        if (isMounted && newLocation) {
-          setPreferences((prev) => {
-            const current = preferenceFactory.withLocation(prev, newLocation);
-            return preferenceFactory.withDeviceLocationAttempted(current);
-          });
-        } else {
+        const permission = await getGeolocationPermissionStatus();
+        if (permission === "denied") {
           setPreferences((prev) => preferenceFactory.withDeviceLocationAttempted(prev));
+        } else {
+          const newLocation = await fetchLocation();
+          if (isMounted && newLocation) {
+            setPreferences((prev) => {
+              const current = preferenceFactory.withLocation(prev, newLocation);
+              return preferenceFactory.withDeviceLocationAttempted(current);
+            });
+          } else {
+            setPreferences((prev) => preferenceFactory.withDeviceLocationAttempted(prev));
+          }
         }
       };
       initializeLocation();
