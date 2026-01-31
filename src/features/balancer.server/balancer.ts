@@ -1,3 +1,5 @@
+import { isAbortError } from "@features/utils/error";
+
 import type { ServiceStrategy } from "./types";
 
 export class LoadBalancer<TArgs extends any[], TResult> {
@@ -28,9 +30,8 @@ export class LoadBalancer<TArgs extends any[], TResult> {
         const result = await provider.execute(...args);
         this.currentOffset = (index + 1) % numberOfProviders;
         return result;
-      } catch (error: any) {
-        const isAbort = error.name === "AbortError" || signal?.aborted;
-        if (isAbort) {
+      } catch (error: unknown) {
+        if (isAbortError(error) || signal?.aborted) {
           throw error;
         }
         console.warn(`[Balancer] ${provider.name} failed. Failing over...`, error);

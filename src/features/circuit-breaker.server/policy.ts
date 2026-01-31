@@ -1,3 +1,5 @@
+import { isAbortError } from "@features/utils/error";
+
 import { CircuitBreakerError, CircuitOpenError } from "./error";
 import type { FailingOperation, FailoverConfiguration } from "./types";
 
@@ -90,7 +92,7 @@ export class CircuitBreaker {
   }
 
   private async withRetry<T>(op: FailingOperation<T>, parentSignal?: AbortSignal): Promise<T> {
-    let lastError: any;
+    let lastError: unknown;
 
     for (let attempt = 1; attempt <= this.configuration.retry + 1; attempt++) {
       if (parentSignal?.aborted) {
@@ -99,10 +101,9 @@ export class CircuitBreaker {
 
       try {
         return await op(parentSignal!);
-      } catch (error: any) {
+      } catch (error: unknown) {
         lastError = error;
-        const isAbort = error.name === "AbortError";
-        if (isAbort) {
+        if (isAbortError(error)) {
           throw error;
         } else {
           const isCircuitError = error instanceof CircuitBreakerError;

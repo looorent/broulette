@@ -36,7 +36,7 @@ function nominatimConfig(env: any): NominatimConfiguration {
       instanceUrls: readArray(env.BROULETTE_NOMINATIM_INSTANCE_URLS) || DEFAULT_NOMINATIM_CONFIGURATION.instanceUrls,
       userAgent: env.BROULETTE_NOMINATIM_USER_AGENT ?? `${APP_CONFIG.name}/${APP_CONFIG.version}`,
       bottomNote: env.BROULETTE_NOMINATIM_BOTTOM_NOTE ?? DEFAULT_NOMINATIM_CONFIGURATION.bottomNote,
-      maxNumberOfAddresses: Number(env.BROULETTE_NOMINATIM_NUMBER_0F_ADDRESSES || DEFAULT_NOMINATIM_CONFIGURATION.maxNumberOfAddresses),
+      maxNumberOfAddresses: Number(env.BROULETTE_NOMINATIM_NUMBER_OF_ADDRESSES || DEFAULT_NOMINATIM_CONFIGURATION.maxNumberOfAddresses),
       failover: {
         retry: Number(env.BROULETTE_NOMINATIM_API_RETRIES || DEFAULT_FAILOVER.retry),
         halfOpenAfterInMs: Number(env.BROULETTE_NOMINATIM_API_TIMEOUT || DEFAULT_FAILOVER.halfOpenAfterInMs),

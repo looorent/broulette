@@ -41,9 +41,10 @@ export class RestaurantDiscoveryScanner {
       }
     }
   }
+
   addIdentityToExclude(identity: RestaurantProfile): this {
     if (identity) {
-      const exists = this.identitiesToExclude.some(id => id.source === identity.source && id.externalId === identity.source && id.externalType === identity.externalType);
+      const exists = this.identitiesToExclude.some(id => id.source === identity.source && id.externalId === identity.externalId && id.externalType === identity.externalType);
       if (!exists) {
         this.identitiesToExclude.push(identity);
       }

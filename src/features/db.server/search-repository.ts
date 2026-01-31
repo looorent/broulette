@@ -119,7 +119,7 @@ export class SearchRepositoryDrizzle implements SearchRepository {
 
   async markSearchAsExhausted(searchId: string): Promise<void> {
     console.log(`[Drizzle] Marking search '${searchId}' as EXHAUSTED.`);
-    this.db.update(searches)
+    await this.db.update(searches)
       .set({ exhausted: true })
       .where(eq(searches.id, searchId));
   }

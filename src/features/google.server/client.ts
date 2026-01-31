@@ -1,4 +1,5 @@
 import { computeViewportFromCircle } from "@features/coordinate";
+import { isAbortError } from "@features/utils/error";
 
 import { googleCircuitBreaker } from "./circuit-breaker";
 import { GoogleAuthorizationError, GoogleError, GoogleHttpError, GoogleServerError } from "./error";
@@ -83,10 +84,13 @@ async function findPlaceById(
     const data = await response.json();
     console.log(`[Google Place] findPlaceById: Success. Duration: ${Date.now() - start}ms`);
     return data as GooglePlace;
-  } catch (e: any) {
+  } catch (error: unknown) {
+    if (isAbortError(error)) {
+      throw error;
+    }
     const duration = Date.now() - start;
-    console.error(`[Google Place] findPlaceById: Failed after ${duration}ms. Error:`, e);
-    throw parseError(e, `placeId='${placeId}'`, duration);
+    console.error(`[Google Place] findPlaceById: Failed after ${duration}ms. Error:`, error);
+    throw parseError(error, `placeId='${placeId}'`, duration);
   }
 }
 
@@ -178,10 +182,13 @@ async function findPlacesByText(
     const data = await response.json() as any;
     console.log(`[Google Place] findPlacesByText: Success. Found ${(data.places || []).length} places. Duration: ${Date.now() - start}ms`);
     return (data.places || []) as GooglePlace[];
-  } catch (e: any) {
+  } catch (error: unknown) {
+    if (isAbortError(error)) {
+      throw error;
+    }
     const duration = Date.now() - start;
-    console.error(`[Google Place] findPlacesByText: Failed after ${duration}ms. Error:`, e);
-    throw parseError(e, `near '${latitude},${longitude}' with text = '${searchableText}'`, duration);
+    console.error(`[Google Place] findPlacesByText: Failed after ${duration}ms. Error:`, error);
+    throw parseError(error, `near '${latitude},${longitude}' with text = '${searchableText}'`, duration);
   }
 }
 
