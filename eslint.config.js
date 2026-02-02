@@ -20,7 +20,8 @@ export default defineConfig(
       ".react-router",
       "build",
       "public",
-      "worker-configuration.d.ts"
+      "worker-configuration.d.ts",
+      "coverage"
     ]
   },
   {

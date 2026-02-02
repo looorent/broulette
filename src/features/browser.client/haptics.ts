@@ -1,5 +1,3 @@
-import { logger } from "@features/utils/logger";
-
 export function isHapticsSupported(): boolean {
   return typeof navigator !== "undefined" && !!navigator.vibrate;
 }
