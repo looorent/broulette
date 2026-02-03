@@ -1,3 +1,10 @@
+# 0.0.4 (2026-02-03)
+
+* [Feature] Use the device location (when available) as a bias when searching for addresses (via Photon and Nominatim)
+* [Feature] During search, stream information to the user in realtime
+* [Technical] Improve the retrieval of geolocation from the browser API (using cache and different accuracy modes)
+* [Technical] First bunch of automated tests
+
 # 0.0.3 (2026-01-09)
 
 * [Feature] Reject restaurants without image url or without unknown opening hours, but try to return them as fallback if nothing else is returned.

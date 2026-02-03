@@ -1,4 +1,5 @@
 import { circuitBreaker } from "@features/circuit-breaker.server";
+import { computeViewportFromCircle, type Coordinates } from "@features/coordinate";
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { logger } from "@features/utils/logger";
 
@@ -20,15 +21,16 @@ export async function fetchLocationFromNominatim(
   query: string,
   instanceUrl: string = DEFAULT_NOMINATIM_CONFIGURATION.instanceUrls[0],
   configuration: NominatimConfiguration = DEFAULT_NOMINATIM_CONFIGURATION,
+  locationBias?: Coordinates | undefined,
   signal?: AbortSignal | undefined
 ): Promise<LocationSuggestions> {
-  logger.log("[Nominatim] fetchLocationFromNominatim: Processing query='%s' via %s", query, instanceUrl);
+  logger.log("[Nominatim] fetchLocationFromNominatim: Processing query='%s' via %s%s", query, instanceUrl, locationBias ? ` with location bias` : "");
 
   const rawData = await circuitBreaker(`${CIRCUIT_BREAKER_NAME_PREFIX}:${instanceUrl}`, configuration.failover).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason
     };
-    return fetchNominatimAddresses(query, instanceUrl, configuration.maxNumberOfAddresses, configuration.userAgent, combinedSignal);
+    return fetchNominatimAddresses(query, instanceUrl, configuration.maxNumberOfAddresses, configuration.userAgent, locationBias, combinedSignal);
   }, signal);
 
   const locations = rawData
@@ -54,14 +56,17 @@ const EXCLUDED_TYPES = new Set([
   "residential"
 ]);
 
+const VIEWBOX_RADIUS_IN_METERS = 100_000;
+
 async function fetchNominatimAddresses(
   query: string,
   instanceUrl: string,
   maxNumberOfAddresses: number,
   userAgent: string,
+  locationBias: Coordinates | undefined,
   signal: AbortSignal | undefined
 ): Promise<NominatimPlace[]> {
-  logger.log("[Nominatim] fetchNominatimAddresses: Querying API with q='%s'...", query);
+  logger.log("[Nominatim] fetchNominatimAddresses: Querying API with q='%s'%s...", query, locationBias ? ` near (${locationBias.latitude}, ${locationBias.longitude})` : "");
   const start = Date.now();
   const params = new URLSearchParams({
     q: query,
@@ -75,6 +80,11 @@ async function fetchNominatimAddresses(
     dedupe: "1",
     layer: "address"
   });
+
+  if (locationBias) {
+    const viewport = computeViewportFromCircle(locationBias, VIEWBOX_RADIUS_IN_METERS);
+    params.set("viewbox", `${viewport.bottomLeft.longitude},${viewport.bottomLeft.latitude},${viewport.topRight.longitude},${viewport.topRight.latitude}`);
+  }
 
   const url = `${instanceUrl}?${params.toString()}`;
   const response = await fetch(url, {

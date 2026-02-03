@@ -4,6 +4,7 @@ import { useFetcher, useRouteLoaderData } from "react-router";
 
 import { useAlertContext } from "@components/alert";
 import { getDeviceLocation, getGeolocationPermissionStatus, isGeolocationSupported, useDebounce } from "@features/browser.client";
+import type { Coordinates } from "@features/coordinate";
 import { createDeviceLocation, hasCoordinates, type LocationPreference } from "@features/search";
 import { logger } from "@features/utils/logger";
 import type { action as addressLoader } from "@routes/_.api.address-searches";
@@ -28,6 +29,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
     const [isLocating, setIsLocating] = useState(false);
     const [isSearchMode, setIsSearchMode] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [deviceLocationBias, setDeviceLocationBias] = useState<Coordinates | null>(null);
     const debouncedSearchText = useDebounce(searchText, 300);
     const { openAlert, closeAlert } = useAlertContext();
 
@@ -55,24 +57,43 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    // Silently fetch device location for biasing address suggestions
+    useEffect(() => {
+      const fetchDeviceLocationBias = async () => {
+        try {
+          if (isGeolocationSupported()) {
+            const permission = await getGeolocationPermissionStatus();
+            if (permission === "granted") {
+              const position = await getDeviceLocation();
+              setDeviceLocationBias({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+              });
+              logger.log("[LocationSelector] Device location bias obtained: %s, %s", position.coords.latitude, position.coords.longitude);
+            }
+          }
+        } catch (e) {
+          logger.trace("[LocationSelector] Device location not found.", e);
+        }
+      };
+
+      fetchDeviceLocationBias();
+    }, []);
+
     // Search and debounce
     useEffect(() => {
       if (!isSearchMode || debouncedSearchText.trim().length === 0) {
         setShowSuggestions(false);
       } else {
-        submit(
-          {
-            query: debouncedSearchText,
-            csrf: session?.csrfToken ?? ""
-          },
-          {
-            method: "POST",
-            action: "/api/address-searches"
-          }
-        );
+        const payload = createPayload(debouncedSearchText, session?.csrfToken ?? "", deviceLocationBias);
+
+        submit(payload, {
+          method: "POST",
+          action: "/api/address-searches"
+        });
         setShowSuggestions(true);
       }
-    }, [debouncedSearchText, isSearchMode, submit, session?.csrfToken]);
+    }, [debouncedSearchText, isSearchMode, submit, session?.csrfToken, deviceLocationBias]);
 
     const handleSelectSuggestion = (suggestion: LocationPreference) => {
       setSearchText("");
@@ -122,6 +143,13 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
           try {
             const position = await getDeviceLocation();
             const deviceLocation = createDeviceLocation(position.coords);
+
+            // for future searches
+            setDeviceLocationBias({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            });
+
             onChange(deviceLocation);
             closeSearchMode();
           } catch (e: any) {
@@ -265,5 +293,23 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
     );
   }
 );
+
+function createPayload(
+  searchText: string,
+  csrfToken: string,
+  deviceLocationBias: Coordinates | null
+): { [parameterName: string]: string } {
+  const payload: { [parameterName: string]: string } = {
+    query: searchText,
+    csrf: csrfToken
+  };
+
+  if(deviceLocationBias) {
+    payload.latitudeBias = deviceLocationBias.latitude.toString();
+    payload.longitudeBias = deviceLocationBias.longitude.toString();
+  }
+
+  return payload;
+}
 
 LocationSelector.displayName = "LocationSelector";

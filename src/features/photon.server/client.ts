@@ -1,4 +1,5 @@
 import { circuitBreaker } from "@features/circuit-breaker.server";
+import type { Coordinates } from "@features/coordinate";
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { logger } from "@features/utils/logger";
 
@@ -31,15 +32,16 @@ export async function fetchLocationFromPhoton(
   query: string,
   instanceUrl: string,
   configuration: PhotonConfiguration = DEFAULT_PHOTON_CONFIGURATION,
+  locationBias?: Coordinates | undefined,
   signal?: AbortSignal | undefined
 ): Promise<LocationSuggestions> {
-  logger.log("[Photon] fetchLocationFromPhoton: Processing query='%s' via %s", query, instanceUrl);
+  logger.log("[Photon] fetchLocationFromPhoton: Processing query='%s' via %s%s", query, instanceUrl, locationBias ? ` with location bias` : "");
 
   const rawData = await circuitBreaker(`${CIRCUIT_BREAKER_NAME_PREFIX}:${instanceUrl}`, configuration.failover).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason
     };
-    return fetchPhotonAddresses(query, instanceUrl, configuration.maxNumberOfAddresses, combinedSignal);
+    return fetchPhotonAddresses(query, instanceUrl, configuration.maxNumberOfAddresses, locationBias, combinedSignal);
   }, signal);
 
   const locations = rawData
@@ -58,14 +60,21 @@ async function fetchPhotonAddresses(
   query: string,
   instanceUrl: string,
   maxNumberOfAddresses: number,
+  locationBias: Coordinates | undefined,
   signal: AbortSignal | undefined
 ): Promise<PhotonFeature[]> {
-  logger.log("[Photon] fetchPhotonAddresses: Querying API with q='%s'...", query);
+  logger.log("[Photon] fetchPhotonAddresses: Querying API with q='%s'%s...", query, locationBias ? ` near (${locationBias.latitude}, ${locationBias.longitude})` : "");
   const start = Date.now();
   const params = new URLSearchParams({
     q: query,
     limit: maxNumberOfAddresses.toString()
   });
+
+  if (locationBias) {
+    params.set("lat", locationBias.latitude.toString());
+    params.set("lon", locationBias.longitude.toString());
+  }
+
   const url = `${instanceUrl}?${params.toString()}`;
   const response = await fetch(url, {
     headers: {
