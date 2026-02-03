@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { computeMonthBounds, isOlderThanTwoMonths, thirtyDaysAgo } from "./date";
+import { computeMonthBounds, isOlderThanTwoMonths, sixtyDaysAgo } from "./date";
 
-describe("thirtyDaysAgo", () => {
+describe("sixtyDaysAgo", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -11,14 +11,14 @@ describe("thirtyDaysAgo", () => {
     vi.useRealTimers();
   });
 
-  it("returns a date 30 days before the current date", () => {
+  it("returns a date 60 days before the current date", () => {
     const now = new Date("2024-03-15T12:00:00Z");
     vi.setSystemTime(now);
 
-    const result = thirtyDaysAgo();
+    const result = sixtyDaysAgo();
 
-    expect(result.getDate()).toBe(14);
-    expect(result.getMonth()).toBe(1);
+    expect(result.getDate()).toBe(15);
+    expect(result.getMonth()).toBe(0);
     expect(result.getFullYear()).toBe(2024);
   });
 
@@ -26,9 +26,9 @@ describe("thirtyDaysAgo", () => {
     const now = new Date("2024-01-15T12:00:00Z");
     vi.setSystemTime(now);
 
-    const result = thirtyDaysAgo();
+    const result = sixtyDaysAgo();
 
-    expect(result.getMonth()).toBe(11);
+    expect(result.getMonth()).toBe(10);
     expect(result.getFullYear()).toBe(2023);
   });
 });
@@ -42,15 +42,15 @@ describe("isOlderThanTwoMonths", () => {
     vi.useRealTimers();
   });
 
-  it("returns true for dates older than 30 days", () => {
+  it("returns true for dates older than 60 days", () => {
     const now = new Date("2024-03-15T12:00:00Z");
     vi.setSystemTime(now);
 
-    const oldDate = new Date("2024-02-01T12:00:00Z");
+    const oldDate = new Date("2024-01-02T12:00:00Z");
     expect(isOlderThanTwoMonths(oldDate)).toBe(true);
   });
 
-  it("returns false for dates within 30 days", () => {
+  it("returns false for dates within 60 days", () => {
     const now = new Date("2024-03-15T12:00:00Z");
     vi.setSystemTime(now);
 
@@ -58,7 +58,7 @@ describe("isOlderThanTwoMonths", () => {
     expect(isOlderThanTwoMonths(recentDate)).toBe(false);
   });
 
-  it("returns false for exactly 30 days ago", () => {
+  it("returns false for exactly 60 days ago", () => {
     const now = new Date("2024-03-15T12:00:00Z");
     vi.setSystemTime(now);
 

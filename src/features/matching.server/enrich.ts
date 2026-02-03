@@ -3,7 +3,7 @@ import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, GOOGLE_PLACE_SOURCE_NAME, type Goog
 import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
 import { filterTags } from "@features/tag.server";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
-import { isOlderThanTwoMonths, thirtyDaysAgo } from "@features/utils/date";
+import { isOlderThanTwoMonths, sixtyDaysAgo } from "@features/utils/date";
 import { type MatchingRepository, type RestaurantAndProfiles, type RestaurantRepository } from "@persistence";
 
 import { registeredMatchers } from "./matchers/registry";
@@ -39,21 +39,33 @@ async function enrich(
   tripAdvisor?: TripAdvisorConfiguration | undefined,
   signal?: AbortSignal | undefined
 ): Promise<RestaurantAndProfiles> {
-  let result = restaurant;
-
-  for (const matcher of registeredMatchers(google, tripAdvisor)) {
-    if (signal?.aborted) {
-      throw signal.reason;
-    }
-
-    // We could parallelize.
-    // However, every iteration has side-effects, so this is not so useful.
-    if (await shouldBeMatched(result, matcher, matchingRepository)) {
-      result = (await matcher.matchAndEnrich(result, restaurantRepository, matchingRepository, configuration, language, signal))?.restaurant;
-    }
+  if (signal?.aborted) {
+    throw signal.reason;
   }
 
-  return completeRestaurantFromProfiles(result);
+  const matchers = registeredMatchers(google, tripAdvisor);
+
+  const eligibility = await Promise.all(
+    matchers.map(matcher => shouldBeMatched(restaurant, matcher, matchingRepository))
+  );
+  const eligibleMatchers = matchers.filter((_, index) => eligibility[index]);
+
+  if (eligibleMatchers.length === 0) {
+    return completeRestaurantFromProfiles(restaurant);
+  } else {
+    const matchings = await Promise.all(
+      eligibleMatchers.map(matcher =>
+        matcher.matchAndEnrich(restaurant, restaurantRepository, matchingRepository, configuration, language, signal)
+      )
+    );
+
+    const allProfiles = matchings.flatMap(matching => matching.restaurant.profiles);
+    const mergedProfiles = Object.values(
+      Object.fromEntries([...restaurant.profiles, ...allProfiles].map(p => [p.id, p]))
+    );
+
+    return completeRestaurantFromProfiles({ ...restaurant, profiles: mergedProfiles });
+  }
 }
 
 async function shouldBeMatched(
@@ -71,7 +83,7 @@ async function shouldBeMatched(
 
   return (!lastUpdate || isOlderThanTwoMonths(lastUpdate))
     && !await matcher.hasReachedQuota(matchingRepository)
-    && !await matchingRepository.doesAttemptExistSince(thirtyDaysAgo(), restaurant.id, matcher.source);
+    && !await matchingRepository.doesAttemptExistSince(sixtyDaysAgo(), restaurant.id, matcher.source);
 }
 
 function completeRestaurantFromProfiles(restaurant: RestaurantAndProfiles): RestaurantAndProfiles {

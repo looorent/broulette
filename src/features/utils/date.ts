@@ -1,6 +1,6 @@
-export function thirtyDaysAgo(): Date {
+export function sixtyDaysAgo(): Date {
   const result = new Date();
-  result.setDate(result.getDate() - 30);
+  result.setDate(result.getDate() - 60);
   return result;
 }
 
