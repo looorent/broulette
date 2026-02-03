@@ -4,6 +4,7 @@
 * [Feature] During search, stream information to the user in realtime
 * [Technical] Improve the retrieval of geolocation from the browser API (using cache and different accuracy modes)
 * [Technical] First bunch of automated tests
+* [Performance] Parallel calls to external APIs to enrich restaurants
 
 # 0.0.3 (2026-01-09)
 

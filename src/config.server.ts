@@ -28,7 +28,7 @@ interface Env {
   BROULETTE_NOMINATIM_NUMBER_OF_ADDRESSES?: string;
   BROULETTE_NOMINATIM_API_RETRIES?: string;
   BROULETTE_NOMINATIM_API_TIMEOUT?: string;
-  BROULETTE_NOMINATIM_API_CLOSE_AFTER?: string;
+  BROULETTE_NOMINATIM_API_HALF_OPEN_AFTER_MS?: string;
   BROULETTE_NOMINATIM_CONSECUTIVE_FAILURES?: string;
 
   // Photon
@@ -38,7 +38,7 @@ interface Env {
   BROULETTE_PHOTON_NUMBER_OF_ADDRESSES?: string;
   BROULETTE_PHOTON_API_RETRIES?: string;
   BROULETTE_PHOTON_API_TIMEOUT?: string;
-  BROULETTE_PHOTON_API_CLOSE_AFTER?: string;
+  BROULETTE_PHOTON_API_HALF_OPEN_AFTER_MS?: string;
   BROULETTE_PHOTON_CONSECUTIVE_FAILURES?: string;
 
   // Google
@@ -53,7 +53,7 @@ interface Env {
   BROULETTE_GOOGLE_PLACE_API_SIMILARITY_WEIGHT_LOCATION?: string;
   BROULETTE_GOOGLE_PLACE_API_RETRIES?: string;
   BROULETTE_GOOGLE_PLACE_API_TIMEOUT?: string;
-  BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER?: string;
+  BROULETTE_GOOGLE_PLACE_API_HALF_OPEN_AFTER_MS?: string;
   BROULETTE_GOOGLE_PLACE_API_CONSECUTIVE_FAILURES?: string;
 
   // TripAdvisor
@@ -68,7 +68,7 @@ interface Env {
   BROULETTE_TRIPADVISOR_API_PHOTO_SIZE?: string;
   BROULETTE_TRIPADVISOR_API_RETRIES?: string;
   BROULETTE_TRIPADVISOR_API_TIMEOUT?: string;
-  BROULETTE_TRIPADVISOR_API_CLOSE_AFTER?: string;
+  BROULETTE_TRIPADVISOR_API_HALF_OPEN_AFTER_MS?: string;
   BROULETTE_TRIPADVISOR_CONSECUTIVE_FAILURES?: string;
 
   // Overpass
@@ -76,7 +76,7 @@ interface Env {
   BROULETTE_OVERPASS_API_INSTANCE_URLS?: string;
   BROULETTE_OVERPASS_API_RETRIES?: string;
   BROULETTE_OVERPASS_API_TIMEOUT?: string;
-  BROULETTE_OVERPASS_API_CLOSE_AFTER?: string;
+  BROULETTE_OVERPASS_API_HALF_OPEN_AFTER_MS?: string;
   BROULETTE_OVERPASS_API_CONSECUTIVE_FAILURES?: string;
 
   // Search Engine
@@ -122,14 +122,13 @@ function parseArray(value: string | undefined, fallback: string[] = []): string[
 function parseFailover(
   retries: string | undefined,
   timeout: string | undefined,
-  closeAfter: string | undefined,
+  halfOpenAfter: string | undefined,
   consecutiveFailures: string | undefined,
   defaults: typeof DEFAULT_FAILOVER
 ): FailoverConfiguration {
   return {
     retry: parseNumber(retries, defaults.retry),
-    halfOpenAfterInMs: parseNumber(timeout, defaults.halfOpenAfterInMs),
-    closeAfterNumberOfFailures: parseNumber(closeAfter, defaults.closeAfterNumberOfFailures),
+    halfOpenAfterInMs: parseNumber(halfOpenAfter, defaults.halfOpenAfterInMs),
     timeoutInMs: parseNumber(timeout, defaults.timeoutInMs),
     consecutiveFailures: parseNumber(consecutiveFailures, defaults.consecutiveFailures),
   };
@@ -147,7 +146,7 @@ function nominatimConfig(env: Env): NominatimConfiguration {
       failover: parseFailover(
         env.BROULETTE_NOMINATIM_API_RETRIES,
         env.BROULETTE_NOMINATIM_API_TIMEOUT,
-        env.BROULETTE_NOMINATIM_API_CLOSE_AFTER,
+        env.BROULETTE_NOMINATIM_API_HALF_OPEN_AFTER_MS,
         env.BROULETTE_NOMINATIM_CONSECUTIVE_FAILURES,
         DEFAULT_FAILOVER
       )
@@ -168,7 +167,7 @@ function photonConfig(env: Env): PhotonConfiguration {
       failover: parseFailover(
         env.BROULETTE_PHOTON_API_RETRIES,
         env.BROULETTE_PHOTON_API_TIMEOUT,
-        env.BROULETTE_PHOTON_API_CLOSE_AFTER,
+        env.BROULETTE_PHOTON_API_HALF_OPEN_AFTER_MS,
         env.BROULETTE_PHOTON_CONSECUTIVE_FAILURES,
         DEFAULT_FAILOVER
       )
@@ -204,7 +203,7 @@ function googleConfig(env: Env): GooglePlaceConfiguration {
       failover: parseFailover(
         env.BROULETTE_GOOGLE_PLACE_API_RETRIES,
         env.BROULETTE_GOOGLE_PLACE_API_TIMEOUT,
-        env.BROULETTE_GOOGLE_PLACE_API_CLOSE_AFTER,
+        env.BROULETTE_GOOGLE_PLACE_API_HALF_OPEN_AFTER_MS,
         env.BROULETTE_GOOGLE_PLACE_API_CONSECUTIVE_FAILURES,
         DEFAULT_FAILOVER
       )
@@ -238,7 +237,7 @@ function tripAdvisorConfig(env: Env): TripAdvisorConfiguration {
       failover: parseFailover(
         env.BROULETTE_TRIPADVISOR_API_RETRIES,
         env.BROULETTE_TRIPADVISOR_API_TIMEOUT,
-        env.BROULETTE_TRIPADVISOR_API_CLOSE_AFTER,
+        env.BROULETTE_TRIPADVISOR_API_HALF_OPEN_AFTER_MS,
         env.BROULETTE_TRIPADVISOR_CONSECUTIVE_FAILURES,
         DEFAULT_FAILOVER
       )
@@ -256,7 +255,7 @@ function overpassConfig(env: Env): OverpassConfiguration {
       failover: parseFailover(
         env.BROULETTE_OVERPASS_API_RETRIES,
         env.BROULETTE_OVERPASS_API_TIMEOUT,
-        env.BROULETTE_OVERPASS_API_CLOSE_AFTER,
+        env.BROULETTE_OVERPASS_API_HALF_OPEN_AFTER_MS,
         env.BROULETTE_OVERPASS_API_CONSECUTIVE_FAILURES,
         DEFAULT_FAILOVER
       )
