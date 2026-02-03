@@ -3,7 +3,7 @@ import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, GOOGLE_PLACE_SOURCE_NAME, type Goog
 import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
 import { filterTags } from "@features/tag.server";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
-import { isOlderThanAMonth, thirtyDaysAgo } from "@features/utils/date";
+import { isOlderThanTwoMonths, thirtyDaysAgo } from "@features/utils/date";
 import { type MatchingRepository, type RestaurantAndProfiles, type RestaurantRepository } from "@persistence";
 
 import { registeredMatchers } from "./matchers/registry";
@@ -69,9 +69,9 @@ async function shouldBeMatched(
     ? relevantDates.reduce((latest, current) => (current > latest ? current : latest))
     : undefined;
 
-  return (!lastUpdate || !isOlderThanAMonth(lastUpdate))
+  return (!lastUpdate || isOlderThanTwoMonths(lastUpdate))
     && !await matcher.hasReachedQuota(matchingRepository)
-    && !await matchingRepository.doesAttemptExistsSince(thirtyDaysAgo(), restaurant.id, matcher.source);
+    && !await matchingRepository.doesAttemptExistSince(thirtyDaysAgo(), restaurant.id, matcher.source);
 }
 
 function completeRestaurantFromProfiles(restaurant: RestaurantAndProfiles): RestaurantAndProfiles {
@@ -81,7 +81,7 @@ function completeRestaurantFromProfiles(restaurant: RestaurantAndProfiles): Rest
   return {
     ...restaurant,
     name: google?.name || tripAdvisor?.name || overpass?.name || restaurant?.name,
-    latitude: google?.latitude || tripAdvisor?.latitude || overpass?.latitude || restaurant?.latitude,
-    longitude: google?.longitude || tripAdvisor?.longitude || overpass?.longitude || restaurant?.longitude
+    latitude: google?.latitude ?? tripAdvisor?.latitude ?? overpass?.latitude ?? restaurant?.latitude,
+    longitude: google?.longitude ?? tripAdvisor?.longitude ?? overpass?.longitude ?? restaurant?.longitude
   };
 }

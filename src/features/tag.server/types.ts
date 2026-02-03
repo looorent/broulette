@@ -3,8 +3,7 @@ export const DEFAULT_TAG_CONFIGURATION: RestaurantTagConfiguration = {
     "restaurant",
     "establishment",
     "point_of_interest",
-    "food",
-    "restaurant"
+    "food"
   ],
   maxTags: 5,
   priorityTags: []

@@ -281,10 +281,10 @@ function addAuthenticationOn(url: string, configuration: TripAdvisorConfiguratio
 function parseLocationDetails(
   body: any,
 ): TripAdvisorLocation | undefined {
-  if (body || typeof body === "object") {
+  if (body && typeof body === "object") {
     const hours = parseHours(body.hours);
     return {
-      id: typeof body.location_id === "string" ? parseInt(body.location_id) : body.location_id,
+      id: body.location_id,
       name: body.name,
       description: body.description || undefined,
       latitude: typeof body.latitude === "string" ? parseFloat(body.latitude) : body.latitude || undefined,
@@ -303,7 +303,7 @@ function parseLocationDetails(
           return perRating;
         }, {} as { [rating: number]: number })
         : {},
-      photoCount: typeof body.rating === "string" ? parseInt(body.photo_count) : 0,
+      photoCount: typeof body.photo_count === "string" ? parseInt(body.photo_count) : (body.photo_count ?? 0),
       priceLevel: body.price_level || undefined,
       cuisine: parseLocalizedNames(body.cuisine),
       category: parseLocalizedName(body.category),

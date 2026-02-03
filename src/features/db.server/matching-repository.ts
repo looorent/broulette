@@ -9,7 +9,7 @@ import { restaurantMatchingAttempts } from "./schema";
 
 
 export interface MatchingRepository {
-  doesAttemptExistsSince(instant: Date, restaurantId: string, source: string): Promise<boolean>;
+  doesAttemptExistSince(instant: Date, restaurantId: string, source: string): Promise<boolean>;
   hasReachedQuota(source: string, maxNumberOfAttemptsPerMonth: number): Promise<boolean>;
   countMatchingAttemptsDuringMonth(source: string, month: Date): Promise<number>;
   registerAttemptToFindAMatch(query: string, queryType: string, source: string, restaurantId: string, found: boolean, latitude?: number, longitude?: number, radiusInMeter?: number): Promise<RestaurantMatchingAttempt>
@@ -18,12 +18,12 @@ export interface MatchingRepository {
 export class MatchingRepositoryDrizzle implements MatchingRepository {
   constructor(private readonly db: DrizzleClient) { }
 
-  async doesAttemptExistsSince(
+  async doesAttemptExistSince(
     instant: Date,
     restaurantId: string,
     source: string
   ): Promise<boolean> {
-    logger.trace("[Drizzle] doesAttemptExistsSince: Checking attempts for restaurant='%s' from source='%s' since %s", restaurantId, source, instant.toISOString());
+    logger.trace("[Drizzle] doesAttemptExistSince: Checking attempts for restaurant='%s' from source='%s' since %s", restaurantId, source, instant.toISOString());
     const recentAttempt = await this.db.query.restaurantMatchingAttempts.findFirst({
       where: and(
         eq(restaurantMatchingAttempts.restaurantId, restaurantId),
@@ -36,7 +36,7 @@ export class MatchingRepositoryDrizzle implements MatchingRepository {
     });
 
     const exists = !!recentAttempt;
-    logger.trace("[Drizzle] doesAttemptExistsSince: Result = %s", exists);
+    logger.trace("[Drizzle] doesAttemptExistSince: Result = %s", exists);
     return exists;
   }
 

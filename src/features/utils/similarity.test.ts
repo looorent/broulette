@@ -27,7 +27,7 @@ describe("compareTwoStrings", () => {
     expect(compareTwoStrings("abc", "a")).toBe(0);
   });
 
-  it("returns 0 for empty strings", () => {
+  it("returns 1 for empty strings", () => {
     expect(compareTwoStrings("", "")).toBe(1);
   });
 

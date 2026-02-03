@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { computeMonthBounds, isOlderThanAMonth, thirtyDaysAgo } from "./date";
+import { computeMonthBounds, isOlderThanTwoMonths, thirtyDaysAgo } from "./date";
 
 describe("thirtyDaysAgo", () => {
   beforeEach(() => {
@@ -33,7 +33,7 @@ describe("thirtyDaysAgo", () => {
   });
 });
 
-describe("isOlderThanAMonth", () => {
+describe("isOlderThanTwoMonths", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -47,7 +47,7 @@ describe("isOlderThanAMonth", () => {
     vi.setSystemTime(now);
 
     const oldDate = new Date("2024-02-01T12:00:00Z");
-    expect(isOlderThanAMonth(oldDate)).toBe(true);
+    expect(isOlderThanTwoMonths(oldDate)).toBe(true);
   });
 
   it("returns false for dates within 30 days", () => {
@@ -55,7 +55,7 @@ describe("isOlderThanAMonth", () => {
     vi.setSystemTime(now);
 
     const recentDate = new Date("2024-03-10T12:00:00Z");
-    expect(isOlderThanAMonth(recentDate)).toBe(false);
+    expect(isOlderThanTwoMonths(recentDate)).toBe(false);
   });
 
   it("returns false for exactly 30 days ago", () => {
@@ -63,7 +63,7 @@ describe("isOlderThanAMonth", () => {
     vi.setSystemTime(now);
 
     const exactlyThirtyDays = new Date("2024-02-14T12:00:00Z");
-    expect(isOlderThanAMonth(exactlyThirtyDays)).toBe(false);
+    expect(isOlderThanTwoMonths(exactlyThirtyDays)).toBe(false);
   });
 
   it("returns true for dates in the distant past", () => {
@@ -71,7 +71,7 @@ describe("isOlderThanAMonth", () => {
     vi.setSystemTime(now);
 
     const oldDate = new Date("2023-01-01T12:00:00Z");
-    expect(isOlderThanAMonth(oldDate)).toBe(true);
+    expect(isOlderThanTwoMonths(oldDate)).toBe(true);
   });
 });
 

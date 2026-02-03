@@ -15,20 +15,20 @@ export interface PreferenceChipHandle {
   handleBuzzOnLocationError?: () => void;
 }
 
-const DRAG_TRESHOLD_IN_PIXELS = 20;
+const DRAG_THRESHOLD_IN_PIXELS = 20;
 
 export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipProps>(
   ({ onOpen, preferences }, ref) => {
     const [isBuzzing, setIsBuzzing] = useState(false);
     const swipeUp = useDrag(({ down, movement: [, my], velocity: [, _vy], direction: [, _dy] }) => {
-        if (!down && my < -DRAG_TRESHOLD_IN_PIXELS) {
+        if (!down && my < -DRAG_THRESHOLD_IN_PIXELS) {
           onOpen?.();
         }
       },
       {
         axis: "y",
         filterTaps: true,
-        threshold: DRAG_TRESHOLD_IN_PIXELS
+        threshold: DRAG_THRESHOLD_IN_PIXELS
       });
 
     const triggerLocationBuzz = () => {

@@ -4,10 +4,10 @@ export function thirtyDaysAgo(): Date {
   return result;
 }
 
-export function isOlderThanAMonth(date: Date): boolean {
-  const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+const TWO_MONTHS_IN_MS = 2 * 30 * 24 * 60 * 60 * 1000;
+export function isOlderThanTwoMonths(date: Date): boolean {
   const timeDifference = Date.now() - date.getTime();
-  return timeDifference > thirtyDaysInMs;
+  return timeDifference > TWO_MONTHS_IN_MS;
 }
 
 export function computeMonthBounds(date: Date): { start: Date, end: Date } {

@@ -10,7 +10,7 @@ interface BottomSheetProps {
   className?: string;
 }
 
-const DRAG_TRESHOLD_IN_PIXELS = 10;
+const DRAG_THRESHOLD_IN_PIXELS = 10;
 
 export function BottomSheet({
   isOpen,
@@ -41,13 +41,13 @@ export function BottomSheet({
   }, [isOpen]);
 
   const bindDrag = useDrag(({ down, movement: [, my] }) => {
-    if (down && my > DRAG_TRESHOLD_IN_PIXELS) {
+    if (down && my > DRAG_THRESHOLD_IN_PIXELS) {
       onClose();
     }
   }, {
     axis: "y",
     filterTaps: true,
-    threshold: DRAG_TRESHOLD_IN_PIXELS
+    threshold: DRAG_THRESHOLD_IN_PIXELS
   });
 
   if (isMounted) {

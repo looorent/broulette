@@ -28,7 +28,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
     currentSearch.delete("modal");
     nextSearch.delete("modal");
 
-    return currentSearch.toString() !== nextSearch.toString() || defaultShouldRevalidate;
+    return currentSearch.toString() !== nextSearch.toString();
   }
 };
 

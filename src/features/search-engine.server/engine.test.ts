@@ -34,7 +34,7 @@ function createMockRestaurantRepository(): RestaurantRepository {
 
 function createMockMatchingRepository(): MatchingRepository {
   return {
-    doesAttemptExistsSince: vi.fn(),
+    doesAttemptExistSince: vi.fn(),
     hasReachedQuota: vi.fn(),
     countMatchingAttemptsDuringMonth: vi.fn(),
     registerAttemptToFindAMatch: vi.fn()

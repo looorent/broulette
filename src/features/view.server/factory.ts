@@ -149,7 +149,7 @@ function computeRating(profiles: RestaurantProfiles): {
       const score = rating / count;
       return {
         score: score,
-        numberOfVotes: rating,
+        numberOfVotes: count,
         label: score.toFixed(1)
       };
     } else {

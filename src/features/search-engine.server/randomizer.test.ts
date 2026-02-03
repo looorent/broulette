@@ -33,33 +33,33 @@ function createMockRestaurant(id: string): DiscoveredRestaurantProfile {
 }
 
 describe("randomize", () => {
-  it("returns an array of the same length", async () => {
+  it("returns an array of the same length", () => {
     const restaurants = [
       createMockRestaurant("1"),
       createMockRestaurant("2"),
       createMockRestaurant("3")
     ];
 
-    const result = await randomize(restaurants);
+    const result = randomize(restaurants);
 
     expect(result).toHaveLength(3);
   });
 
-  it("returns an array containing all original elements", async () => {
+  it("returns an array containing all original elements", () => {
     const restaurants = [
       createMockRestaurant("1"),
       createMockRestaurant("2"),
       createMockRestaurant("3")
     ];
 
-    const result = await randomize(restaurants);
+    const result = randomize(restaurants);
 
     expect(result).toContainEqual(restaurants[0]);
     expect(result).toContainEqual(restaurants[1]);
     expect(result).toContainEqual(restaurants[2]);
   });
 
-  it("does not modify the original array", async () => {
+  it("does not modify the original array", () => {
     const restaurants = [
       createMockRestaurant("1"),
       createMockRestaurant("2"),
@@ -67,21 +67,21 @@ describe("randomize", () => {
     ];
     const originalOrder = [...restaurants];
 
-    await randomize(restaurants);
+    randomize(restaurants);
 
     expect(restaurants).toEqual(originalOrder);
   });
 
-  it("returns an empty array when given an empty array", async () => {
-    const result = await randomize([]);
+  it("returns an empty array when given an empty array", () => {
+    const result = randomize([]);
 
     expect(result).toEqual([]);
   });
 
-  it("returns single element array unchanged", async () => {
+  it("returns single element array unchanged", () => {
     const restaurants = [createMockRestaurant("1")];
 
-    const result = await randomize(restaurants);
+    const result = randomize(restaurants);
 
     expect(result).toEqual(restaurants);
   });
@@ -102,7 +102,7 @@ describe("randomize", () => {
     expect(uniqueOrderings.size).toBeGreaterThan(1);
   });
 
-  it("uses Fisher-Yates shuffle algorithm", async () => {
+  it("uses Fisher-Yates shuffle algorithm", () => {
     const mockRandom = vi.spyOn(Math, "random");
     mockRandom.mockReturnValue(0.5);
 
@@ -112,7 +112,7 @@ describe("randomize", () => {
       createMockRestaurant("3")
     ];
 
-    await randomize(restaurants);
+    randomize(restaurants);
 
     expect(mockRandom).toHaveBeenCalled();
 

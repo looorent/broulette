@@ -207,7 +207,12 @@ async function findGoogleImageUrl(
 
   const resourceName = photoId?.endsWith("/media") ? photoId : `${photoId}/media`;
   try {
-    const response = await fetch(`${baseUrl}/${resourceName}?maxWidthPx=${maxWidthPx}&maxHeightPx=${maxHeightPx}&key=${apiKey}&skipHttpRedirect=true`, { signal });
+    const response = await fetch(`${baseUrl}/${resourceName}?maxWidthPx=${maxWidthPx}&maxHeightPx=${maxHeightPx}&skipHttpRedirect=true`, {
+      headers: {
+        "X-Goog-Api-Key": apiKey
+      },
+      signal
+    });
 
     if (!response.ok) {
       throw await response.json();

@@ -99,7 +99,7 @@ async function* findNextValidCandidateStream(
     const restaurants = await scanner.nextRestaurants(signal);
 
     if (restaurants.length > 0) {
-      const randomized = await randomize(restaurants);
+      const randomized = randomize(restaurants);
       logger.log("[SearchEngine] Processing batch of %d discovered restaurants...", randomized.length);
       yield { type: "batch-discovered", count: randomized.length, message: randomized.length + " options detected! Digging in..." };
 
@@ -239,9 +239,9 @@ async function findSearchOrThrow(searchId: string, searchRepository: SearchRepos
   return search;
 }
 
-async function findLatestCandidateOf(searchId: string | undefined, searchRepository: SearchRepository, candidateRepository: CandidateRepository): Promise<SearchCandidate | undefined> {
+async function findLatestCandidateOf(searchId: string, searchRepository: SearchRepository, candidateRepository: CandidateRepository): Promise<SearchCandidate | undefined> {
   const finalCandidateId = (await searchRepository.findWithLatestCandidateId(searchId))?.latestCandidateId;
-  const finalCandidate = finalCandidateId ? await candidateRepository.findById(finalCandidateId, searchId!) : undefined;
+  const finalCandidate = finalCandidateId ? await candidateRepository.findById(finalCandidateId, searchId) : undefined;
   return finalCandidate || undefined;
 }
 

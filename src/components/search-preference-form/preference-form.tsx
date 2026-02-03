@@ -3,7 +3,7 @@ import { forwardRef, useImperativeHandle, useRef } from "react";
 
 import { areLocationEquals, DISTANCE_RANGES, type DistanceRangeOption, type LocationPreference, type Preference, type ServicePreference } from "@features/search";
 
-import { DistanceRangeSelector } from "./distange-range-selector";
+import { DistanceRangeSelector } from "./distance-range-selector";
 import { LocationSelector, type LocationSelectorHandle } from "./location-selector";
 import ServiceSelector from "./service-selector";
 
