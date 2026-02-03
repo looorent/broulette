@@ -1,9 +1,17 @@
 export const DEFAULT_FAILOVER: FailoverConfiguration = {
   retry: 3,
-  halfOpenAfterInMs: 5_000,
+  halfOpenAfterInMs: 10_000,
   closeAfterNumberOfFailures: 5,
-  timeoutInMs: 5_000,
+  timeoutInMs: 10_000,
   consecutiveFailures: 5
+};
+
+export const SLOW_NETWORK_FAILOVER: FailoverConfiguration = {
+  retry: 4,
+  halfOpenAfterInMs: 15_000,
+  closeAfterNumberOfFailures: 7,
+  timeoutInMs: 20_000,
+  consecutiveFailures: 7
 };
 
 export interface FailoverConfiguration {

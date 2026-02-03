@@ -102,6 +102,16 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
       closeSearchMode();
     };
 
+    const handleRetry = () => {
+      if (debouncedSearchText.trim().length > 0) {
+        const payload = createPayload(debouncedSearchText, session?.csrfToken ?? "", deviceLocationBias);
+        submit(payload, {
+          method: "POST",
+          action: "/api/address-searches"
+        });
+      }
+    };
+
     const openGeolocationErrorInAlert = (message?: string) => {
       openAlert({
         title: message ?? "Geolocation is not supported by your browser.",
@@ -281,12 +291,14 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
             </div>
           </div>
 
-          {isSearchMode && showSuggestions && (fetcher.data?.locations || fetcher.state !== "idle") && (
+          {isSearchMode && showSuggestions && (fetcher.data?.locations || fetcher.data?.error || fetcher.state !== "idle") && (
             <LocationSuggestionSelector
               suggestions={fetcher.data?.locations}
               note={fetcher.data?.note}
+              error={fetcher.data?.error}
               isSearching={fetcher.state !== "idle"}
-              onSelect={handleSelectSuggestion} />
+              onSelect={handleSelectSuggestion}
+              onRetry={handleRetry} />
           )}
         </div>
       </>

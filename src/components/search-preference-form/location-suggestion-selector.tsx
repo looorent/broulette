@@ -1,4 +1,4 @@
-import { History } from "lucide-react";
+import { AlertTriangle, History, RefreshCw } from "lucide-react";
 
 import type { LocationPreference } from "@features/search";
 
@@ -7,11 +7,13 @@ import { SkeletonList } from "./location-skeleton-list";
 interface LocationSuggestionSelectorProps {
   suggestions: LocationPreference[] | undefined;
   note: string | undefined;
+  error: string | undefined;
   isSearching: boolean;
   onSelect: (suggestion: LocationPreference) => void;
+  onRetry: () => void;
 }
 
-export function LocationSuggestionSelector({ suggestions, note, isSearching, onSelect }: LocationSuggestionSelectorProps) {
+export function LocationSuggestionSelector({ suggestions, note, error, isSearching, onSelect, onRetry }: LocationSuggestionSelectorProps) {
   return (
     <div className={`
       absolute top-full left-0 z-50 mt-2 w-full overflow-hidden rounded-2xl
@@ -20,6 +22,29 @@ export function LocationSuggestionSelector({ suggestions, note, isSearching, onS
       {
         isSearching ? (
           <SkeletonList />
+        ) : error ? (
+          <div className="p-4 text-center">
+            <div className="mb-2 flex items-center justify-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-fun-red" />
+              <p className="font-sans text-sm font-bold text-fun-dark">
+                {error}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onRetry}
+              className={`
+                inline-flex items-center gap-2 rounded-lg border-2
+                border-fun-dark bg-fun-yellow px-4 py-2 font-sans text-sm
+                font-bold text-fun-dark transition-all
+                hover:bg-fun-yellow/80 hover:shadow-hard-hover
+                active:scale-95
+              `}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Try again
+            </button>
+          </div>
         ) : (suggestions && suggestions.length > 0 ? (
           <>
             <ul className="max-h-60 overflow-y-auto py-1"

@@ -12,6 +12,7 @@ export interface LocationPreference {
 export interface LocationSuggestions {
   locations: LocationPreference[];
   note: string | undefined;
+  error?: string;
 }
 
 export function areLocationEquals(location: LocationPreference, otherLocation: LocationPreference): boolean {
