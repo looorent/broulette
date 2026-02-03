@@ -97,15 +97,16 @@ async function streamSearchResults(
     const generator = searchCandidate(
       data.searchId,
       data.locale,
-      context.repositories.search,
-      context.repositories.candidate,
-      context.repositories.restaurant,
-      context.repositories.matching,
-      context.config!.search,
-      context.config!.overpass,
-      context.config!.google,
-      context.config!.tripAdvisor,
-      signal
+      {
+        config: context.config!.search,
+        repositories: context.repositories,
+        services: {
+          overpass: context.config!.overpass,
+          google: context.config!.google,
+          tripAdvisor: context.config!.tripAdvisor,
+        },
+        signal,
+      }
     );
 
     for await (const event of generator) {

@@ -134,6 +134,10 @@ function parseFailover(
   };
 }
 
+// Configurations are cached at module scope so they are parsed only once per
+// Cloudflare Worker isolate. The env object is read on the first call and the
+// result is reused for all subsequent requests handled by the same isolate.
+// Changing an environment variable therefore requires a new deployment to take effect.
 let NOMINATIM_CONFIG: NominatimConfiguration;
 function nominatimConfig(env: Env): NominatimConfiguration {
   if (!NOMINATIM_CONFIG) {

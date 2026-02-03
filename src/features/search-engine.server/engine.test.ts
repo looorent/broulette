@@ -4,6 +4,7 @@ import type { CandidateRepository, MatchingRepository, RestaurantRepository, Sea
 
 import { searchCandidate } from "./engine";
 import { SearchNotFoundError } from "./error";
+import type { SearchContext } from "./types";
 
 function createMockSearchRepository(): SearchRepository {
   return {
@@ -41,19 +42,47 @@ function createMockMatchingRepository(): MatchingRepository {
   };
 }
 
+function createMockContext(overrides: Partial<SearchContext> = {}): SearchContext {
+  return {
+    config: overrides.config ?? {
+      discovery: { rangeIncreaseMeters: 5000, maxDiscoveryIterations: 1 },
+      matching: { tags: { hiddenTags: [], priorityTags: [], maxTags: 5 } },
+      range: {
+        close: { rangeInMeters: 1500, timeoutInMs: 5000 },
+        midRange: { rangeInMeters: 12000, timeoutInMs: 10000 },
+        far: { rangeInMeters: 30000, timeoutInMs: 25000 },
+      },
+    },
+    repositories: overrides.repositories ?? {
+      search: createMockSearchRepository(),
+      candidate: createMockCandidateRepository(),
+      restaurant: createMockRestaurantRepository(),
+      matching: createMockMatchingRepository(),
+    },
+    services: overrides.services ?? {},
+    signal: overrides.signal,
+  };
+}
+
 describe("searchCandidate", () => {
   describe("when search is not found", () => {
     it("throws SearchNotFoundError", async () => {
       const searchRepository = createMockSearchRepository();
       vi.mocked(searchRepository.findByIdWithRestaurantAndProfiles).mockResolvedValue(undefined);
 
+      const context = createMockContext({
+        repositories: {
+          search: searchRepository,
+          candidate: createMockCandidateRepository(),
+          restaurant: createMockRestaurantRepository(),
+          matching: createMockMatchingRepository(),
+        },
+      });
+
       const generator = searchCandidate(
         "non-existent-search",
         "en-US",
-        searchRepository,
-        createMockCandidateRepository(),
-        createMockRestaurantRepository(),
-        createMockMatchingRepository()
+        context
       );
 
       const firstEvent = await generator.next();
@@ -105,13 +134,19 @@ describe("searchCandidate", () => {
         restaurant: null
       });
 
+      const context = createMockContext({
+        repositories: {
+          search: searchRepository,
+          candidate: candidateRepository,
+          restaurant: createMockRestaurantRepository(),
+          matching: createMockMatchingRepository(),
+        },
+      });
+
       const generator = searchCandidate(
         "search-1",
         "en-US",
-        searchRepository,
-        candidateRepository,
-        createMockRestaurantRepository(),
-        createMockMatchingRepository()
+        context
       );
 
       const events = [];
@@ -166,13 +201,19 @@ describe("searchCandidate", () => {
       };
       vi.mocked(candidateRepository.create).mockResolvedValue(defaultCandidate);
 
+      const context = createMockContext({
+        repositories: {
+          search: searchRepository,
+          candidate: candidateRepository,
+          restaurant: createMockRestaurantRepository(),
+          matching: createMockMatchingRepository(),
+        },
+      });
+
       const generator = searchCandidate(
         "search-1",
         "en-US",
-        searchRepository,
-        candidateRepository,
-        createMockRestaurantRepository(),
-        createMockMatchingRepository()
+        context
       );
 
       const events = [];
@@ -189,13 +230,19 @@ describe("searchCandidate", () => {
       const searchRepository = createMockSearchRepository();
       vi.mocked(searchRepository.findByIdWithRestaurantAndProfiles).mockResolvedValue(undefined);
 
+      const context = createMockContext({
+        repositories: {
+          search: searchRepository,
+          candidate: createMockCandidateRepository(),
+          restaurant: createMockRestaurantRepository(),
+          matching: createMockMatchingRepository(),
+        },
+      });
+
       const generator = searchCandidate(
         "search-1",
         "en-US",
-        searchRepository,
-        createMockCandidateRepository(),
-        createMockRestaurantRepository(),
-        createMockMatchingRepository()
+        context
       );
 
       const firstEvent = await generator.next();

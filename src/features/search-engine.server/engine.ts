@@ -1,14 +1,11 @@
 import { RestaurantDiscoveryScanner, type DiscoveredRestaurantProfile } from "@features/discovery.server";
-import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlaceConfiguration } from "@features/google.server";
 import { enrichRestaurant } from "@features/matching.server";
-import { DEFAULT_OVERPASS_CONFIGURATION, type OverpassConfiguration } from "@features/overpass.server";
-import { DEFAULT_TRIPADVISOR_CONFIGURATION, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
 import { logger } from "@features/utils/logger";
-import { type CandidateRepository, type DistanceRange, type MatchingRepository, type RestaurantProfile, type RestaurantRepository, type Search, type SearchCandidate, type SearchRepository } from "@persistence";
+import { type CandidateRepository, type DistanceRange, type RestaurantProfile, type Search, type SearchCandidate, type SearchRepository } from "@persistence";
 
 import { SearchNotFoundError } from "./error";
 import { randomize } from "./randomizer";
-import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration, type SearchEngineRange, type SearchStreamEvent } from "./types";
+import { type SearchContext, type SearchEngineConfiguration, type SearchEngineRange, type SearchStreamEvent } from "./types";
 import { validateRestaurant } from "./validator";
 
 const MESSAGES = [
@@ -24,33 +21,25 @@ const MESSAGES = [
 export async function* searchCandidate(
   searchId: string,
   locale: string,
-  searchRepository: SearchRepository,
-  candidateRepository: CandidateRepository,
-  restaurantRepository: RestaurantRepository,
-  matchingRepository: MatchingRepository,
-  configuration: SearchEngineConfiguration = DEFAULT_SEARCH_ENGINE_CONFIGURATION,
-  overpass: OverpassConfiguration | undefined = DEFAULT_OVERPASS_CONFIGURATION,
-  google: GooglePlaceConfiguration | undefined = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
-  tripAdvisor: TripAdvisorConfiguration | undefined = DEFAULT_TRIPADVISOR_CONFIGURATION,
-  signal?: AbortSignal
+  context: SearchContext
 ): AsyncGenerator<SearchStreamEvent, void, unknown> {
   logger.log("[SearchEngine] searchCandidate: Starting search for searchId='%s'", searchId);
 
   yield { type: "searching", message: MESSAGES[Math.floor(Math.random() * MESSAGES.length)] };
 
-  const search = await findSearchOrThrow(searchId, searchRepository);
+  const search = await findSearchOrThrow(searchId, context.repositories.search);
 
   if (search.exhausted) {
     yield { type: "exhausted", message: "We've seen it all. Let's find a fallback." };
     logger.log("[SearchEngine] Search '%s' is already exhausted. Returning fallback candidate.", searchId);
-    const candidate = await findLatestCandidateOf(search.id, searchRepository, candidateRepository) || await createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
+    const candidate = await findLatestCandidateOf(search.id, context.repositories.search, context.repositories.candidate) || await createDefaultCandidateWithoutRestaurant(search.id, context.repositories.search, context.repositories.candidate);
     yield { type: "result", candidate };
   } else {
-    const scanner = createDiscoveryScanner(search, configuration, overpass);
+    const scanner = createDiscoveryScanner(search, context);
     const startingOrder = computeNextCandidateOrder(search.candidates);
     logger.log("[SearchEngine] Initializing discovery for searchId='%s'. Starting order: %d", searchId, startingOrder);
 
-    const generator = findNextValidCandidateStream(search, scanner, configuration, startingOrder, locale, searchRepository, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, signal);
+    const generator = findNextValidCandidateStream(search, scanner, startingOrder, locale, context);
 
     let finalCandidate: SearchCandidate | undefined;
     for await (const event of generator) {
@@ -61,7 +50,7 @@ export async function* searchCandidate(
     }
 
     if (finalCandidate) {
-      await markSearchAsExhaustedIfNecessary(search.id, finalCandidate, searchRepository);
+      await markSearchAsExhaustedIfNecessary(search.id, finalCandidate, context.repositories.search);
     }
   }
 }
@@ -81,22 +70,15 @@ async function* simulateFastChecking(
 async function* findNextValidCandidateStream(
   search: Search,
   scanner: RestaurantDiscoveryScanner,
-  config: SearchEngineConfiguration,
   currentOrder: number,
   locale: string,
-  searchRepository: SearchRepository,
-  restaurantRepository: RestaurantRepository,
-  matchingRepository: MatchingRepository,
-  candidateRepository: CandidateRepository,
-  google: GooglePlaceConfiguration | undefined,
-  tripAdvisor: TripAdvisorConfiguration | undefined,
-  signal?: AbortSignal
+  context: SearchContext
 ): AsyncGenerator<SearchStreamEvent, void, unknown> {
   let candidate: SearchCandidate | undefined = undefined;
   let orderTracker = currentOrder;
 
-  while (shouldContinueToExploreMoreRestaurants(candidate, scanner) && !signal?.aborted) {
-    const restaurants = await scanner.nextRestaurants(signal);
+  while (shouldContinueToExploreMoreRestaurants(candidate, scanner) && !context.signal?.aborted) {
+    const restaurants = await scanner.nextRestaurants(context.signal);
 
     if (restaurants.length > 0) {
       const randomized = randomize(restaurants);
@@ -107,11 +89,11 @@ async function* findNextValidCandidateStream(
 
       for (const restaurant of randomized) {
         if (candidate?.status !== "Returned") {
-          if (signal?.aborted) {
+          if (context.signal?.aborted) {
             break;
           } else {
             yield { type: "checking-restaurants", restaurantNames: [restaurant.name || "?!?"]};
-            const processed = await processRestaurant(restaurant, search, orderTracker++, config, restaurantRepository, matchingRepository, candidateRepository, google, tripAdvisor, locale, scanner);
+            const processed = await processRestaurant(restaurant, search, orderTracker++, locale, scanner, context);
             if (processed) {
               candidate = processed;
               logger.log("[SearchEngine] Candidate found: %s (Status: %s)", candidate.id, candidate.status);
@@ -132,14 +114,14 @@ async function* findNextValidCandidateStream(
   } else {
     yield { type: "looking-for-fallbacks", message: "No winners yet. Checking the rejects..." };
     logger.log("[SearchEngine] No valid candidate found after scanning. Trying to find a fallback...");
-    const fallbackCandidate = await candidateRepository.findBestRejectedCandidateThatCouldServeAsFallback(search.id);
+    const fallbackCandidate = await context.repositories.candidate.findBestRejectedCandidateThatCouldServeAsFallback(search.id);
     if (fallbackCandidate) {
       logger.log("[SearchEngine] No valid candidate found after scanning. Fallback found with candidate '%s'. Creating a new candidate from this one.", fallbackCandidate.id);
-      const recovered = await candidateRepository.recoverCandidate(fallbackCandidate, orderTracker);
+      const recovered = await context.repositories.candidate.recoverCandidate(fallbackCandidate, orderTracker);
       yield { type: "result", candidate: recovered };
     } else {
       logger.log("[SearchEngine] No valid candidate found after scanning.");
-      const candidateWithoutRestaurant = await createDefaultCandidateWithoutRestaurant(search.id, searchRepository, candidateRepository);
+      const candidateWithoutRestaurant = await createDefaultCandidateWithoutRestaurant(search.id, context.repositories.search, context.repositories.candidate);
       yield { type: "result", candidate: candidateWithoutRestaurant };
     }
   }
@@ -149,17 +131,12 @@ async function processRestaurant(
   discovered: DiscoveredRestaurantProfile,
   search: Search,
   order: number,
-  configuration: SearchEngineConfiguration,
-  restaurantRepository: RestaurantRepository,
-  matchingRepository: MatchingRepository,
-  candidateRepository: CandidateRepository,
-  google: GooglePlaceConfiguration | undefined,
-  tripAdvisor: TripAdvisorConfiguration | undefined,
   locale: string,
-  scanner: RestaurantDiscoveryScanner
+  scanner: RestaurantDiscoveryScanner,
+  context: SearchContext
 ): Promise<SearchCandidate | undefined> {
   logger.trace("[SearchEngine] Enriching and validating restaurant...");
-  const restaurant = await enrichRestaurant(discovered, locale, restaurantRepository, matchingRepository, configuration.matching, google, tripAdvisor);
+  const restaurant = await enrichRestaurant(discovered, locale, context.repositories.restaurant, context.repositories.matching, context.config.matching, context.services.google, context.services.tripAdvisor, context.signal);
 
   const validation = await validateRestaurant(restaurant, search, locale);
   if (!validation.valid) {
@@ -170,7 +147,7 @@ async function processRestaurant(
     restaurant.profiles.forEach(profile => scanner.addIdentityToExclude(profile));
   }
 
-  return await candidateRepository.create(search.id, restaurant?.id, order + 1, validation.valid ? "Returned" : "Rejected", validation.rejectionReason);
+  return await context.repositories.candidate.create(search.id, restaurant?.id, order + 1, validation.valid ? "Returned" : "Rejected", validation.rejectionReason);
 }
 
 function shouldContinueToExploreMoreRestaurants(candidate: SearchCandidate | undefined, scanner: RestaurantDiscoveryScanner): boolean {
@@ -193,15 +170,15 @@ async function markSearchAsExhaustedIfNecessary(
   }
 }
 
-function defineRange(range: DistanceRange, configuration: SearchEngineConfiguration): SearchEngineRange {
+function defineRange(range: DistanceRange, config: SearchEngineConfiguration): SearchEngineRange {
   switch (range) {
     case "Far":
-      return configuration.range.far;
+      return config.range.far;
     case "MidRange":
-      return configuration.range.midRange;
+      return config.range.midRange;
     default:
     case "Close":
-      return configuration.range.close;
+      return config.range.close;
   }
 }
 
@@ -216,16 +193,15 @@ function createDiscoveryScanner(
       } | undefined | null
     }[] | undefined
   },
-  configuration: SearchEngineConfiguration,
-  overpass: OverpassConfiguration | undefined
+  context: SearchContext
 ): RestaurantDiscoveryScanner {
-  const { timeoutInMs, rangeInMeters } = defineRange(search.distanceRange, configuration);
+  const { timeoutInMs, rangeInMeters } = defineRange(search.distanceRange, context.config);
   return new RestaurantDiscoveryScanner(
     { latitude: search.latitude, longitude: search.longitude },
     rangeInMeters,
     timeoutInMs,
-    configuration.discovery,
-    overpass,
+    context.config.discovery,
+    context.services.overpass,
     (search.candidates || []).flatMap(candidate => candidate?.restaurant?.profiles || [])
   );
 }

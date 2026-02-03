@@ -1,6 +1,9 @@
 import { DEFAULT_DISCOVERY_CONFIGURATION, type DiscoveryConfiguration } from "@features/discovery.server";
+import type { GooglePlaceConfiguration } from "@features/google.server";
 import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantMatchingConfiguration } from "@features/matching.server";
-import type { SearchCandidate } from "@persistence";
+import type { OverpassConfiguration } from "@features/overpass.server";
+import type { TripAdvisorConfiguration } from "@features/tripadvisor.server";
+import type { CandidateRepository, MatchingRepository, RestaurantRepository, SearchCandidate, SearchRepository } from "@persistence";
 
 export interface SearchEngineRange {
   rangeInMeters: number;
@@ -35,6 +38,22 @@ export interface SearchEngineConfiguration {
     midRange: SearchEngineRange;
     far: SearchEngineRange;
   };
+}
+
+export interface SearchContext {
+  config: SearchEngineConfiguration;
+  repositories: {
+    search: SearchRepository;
+    candidate: CandidateRepository;
+    restaurant: RestaurantRepository;
+    matching: MatchingRepository;
+  };
+  services: {
+    overpass?: OverpassConfiguration;
+    google?: GooglePlaceConfiguration;
+    tripAdvisor?: TripAdvisorConfiguration;
+  };
+  signal?: AbortSignal;
 }
 
 export type SearchStreamEvent =
