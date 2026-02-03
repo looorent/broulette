@@ -69,6 +69,8 @@ async function fetchPhotonAddresses(
     q: query,
     limit: maxNumberOfAddresses.toString()
   });
+  params.append("osm_tag", "place:city");
+  params.append("osm_tag", "place:town");
 
   if (locationBias) {
     params.set("lat", locationBias.latitude.toString());
