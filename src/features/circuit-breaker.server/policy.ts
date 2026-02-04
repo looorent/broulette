@@ -59,36 +59,18 @@ export class CircuitBreaker {
     op: FailingOperation<T>,
     parentSignal?: AbortSignal
   ): Promise<T> {
-    const timeoutController = new AbortController();
-    const timeoutPromise = new Promise<never>((_resolve, reject) => {
-      const id = setTimeout(() => {
-        timeoutController.abort(); // Cancel the signal
-        reject(new Error(`Operation timed out after ${this.configuration.timeoutInMs}ms`));
-      }, this.configuration.timeoutInMs);
-      if (parentSignal) {
-        parentSignal.addEventListener("abort", () => {
-          clearTimeout(id);
-          reject(parentSignal.reason);
-        }, { once: true });
-      }
-    });
-
-    let combinedSignal = timeoutController.signal;
-    if (parentSignal) {
-      const mergeController = new AbortController();
-      const abort = () => mergeController.abort(parentSignal.reason || timeoutController.signal.reason);
-      parentSignal.addEventListener("abort", abort, { once: true });
-      timeoutController.signal.addEventListener("abort", abort, { once: true });
-      combinedSignal = mergeController.signal;
-    }
+    const timeoutSignal = AbortSignal.timeout(this.configuration.timeoutInMs);
+    const combinedSignal = parentSignal
+      ? AbortSignal.any([parentSignal, timeoutSignal])
+      : timeoutSignal;
 
     try {
-      return await Promise.race([
-        op(combinedSignal),
-        timeoutPromise
-      ]);
-    } finally {
-      timeoutController.abort();
+      return await op(combinedSignal);
+    } catch (error) {
+      if (isAbortError(error) && timeoutSignal.aborted && !parentSignal?.aborted) {
+        throw new Error(`Operation timed out after ${this.configuration.timeoutInMs}ms`);
+      }
+      throw error;
     }
   }
 
