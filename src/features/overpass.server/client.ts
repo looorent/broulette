@@ -1,7 +1,7 @@
 import { circuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
 import { logger } from "@features/utils/logger";
 
-import { OsmEmptyResponseError, OsmError, OsmHttpError, OsmServerError } from "./error";
+import { OsmError, OsmHttpError, OsmServerError } from "./error";
 import type { OverpassRawElement, OverpassRawResponse, OverpassResponse, OverpassRestaurant } from "./types";
 
 const CIRCUIT_BREAKER_NAME_PREFIX = "overpass";
@@ -52,18 +52,9 @@ async function fetchAllRestaurantsNearby(
   if (response.ok) {
     logger.log("[OSM] fetchAllRestaurantsNearby: Query successful. Duration: %dms.", durationInMs);
     const body = await response.json() as OverpassRawResponse;
-    if (body) {
-      const parsed = parseResponse(body, durationInMs);
-      logger.log("[OSM] fetchAllRestaurantsNearby: Parsed %d restaurants.", parsed?.restaurants.length || 0);
-      return parsed;
-    } else {
-      throw new OsmEmptyResponseError(
-        query,
-        response.status,
-        await response.text(),
-        durationInMs
-      );
-    }
+    const parsed = parseResponse(body, durationInMs);
+    logger.log("[OSM] fetchAllRestaurantsNearby: Parsed %d restaurants.", parsed?.restaurants.length || 0);
+    return parsed;
   } else {
     throw await parseError(query, response, durationInMs);
   }

@@ -58,24 +58,3 @@ export class OsmHttpError extends OsmError {
     return false;
   }
 }
-
-export class OsmEmptyResponseError extends OsmError {
-  constructor(
-    query: string,
-    responseStatusCode: number,
-    responseBody: string,
-    durationInMs: number
-  ) {
-    super(
-      `[OSM] Fetching OSM restaurants: empty response after ${durationInMs} ms with status code ${responseStatusCode}`,
-      query,
-      responseStatusCode,
-      responseBody,
-      durationInMs
-    );
-    this.name = "OsmEmptyResponseError";
-  }
-  override isRetriable(): boolean {
-    return true;
-  }
-}
