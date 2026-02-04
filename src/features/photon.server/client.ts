@@ -3,7 +3,7 @@ import type { Coordinates } from "@features/coordinate";
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { logger } from "@features/utils/logger";
 
-import { PhotonError, PhotonHttpError, PhotonServerError } from "./error";
+import { parsePhotonError } from "./error";
 import { DEFAULT_PHOTON_CONFIGURATION, type PhotonConfiguration } from "./types";
 
 interface PhotonFeature {
@@ -92,7 +92,7 @@ async function fetchPhotonAddresses(
     logger.log("[Photon] fetchPhotonAddresses: Success in %dms. Found %d features.", durationInMs, count);
     return data.features || [];
   } else {
-    throw await parseError(url, response, durationInMs);
+    throw await parsePhotonError(url, response, durationInMs);
   }
 }
 
@@ -120,23 +120,3 @@ function convertPhotonToLocation(feature: PhotonFeature): LocationPreference {
   };
 }
 
-async function parseError(url: string, response: Response, durationInMs: number): Promise<PhotonError> {
-  const body = await response.text();
-  logger.error("[Photon] Request failed after %dms. Status: %d. URL: %s", durationInMs, response.status, url);
-
-  if (response.status >= 500) {
-    return new PhotonServerError(
-      url,
-      response.status,
-      body,
-      durationInMs
-    );
-  } else {
-    return new PhotonHttpError(
-      url,
-      response.status,
-      body,
-      durationInMs
-    );
-  }
-}

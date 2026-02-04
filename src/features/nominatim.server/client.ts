@@ -3,7 +3,7 @@ import { computeViewportFromCircle, type Coordinates } from "@features/coordinat
 import type { LocationPreference, LocationSuggestions } from "@features/search";
 import { logger } from "@features/utils/logger";
 
-import { NominatimError, NominatimHttpError, NominatimServerError } from "./error";
+import { parseNominatimError } from "./error";
 import { DEFAULT_NOMINATIM_CONFIGURATION, type NominatimConfiguration } from "./types";
 
 interface NominatimPlace {
@@ -105,7 +105,7 @@ async function fetchNominatimAddresses(
 
     return filtered;
   } else {
-    throw await parseError(url, response, durationInMs);
+    throw await parseNominatimError(url, response, durationInMs);
   }
 }
 
@@ -123,23 +123,3 @@ function convertNominatimToLocation(place: NominatimPlace): LocationPreference {
   };
 }
 
-async function parseError(url: string, response: Response, durationInMs: number): Promise<NominatimError> {
-  const body = await response.text();
-  logger.error("[Nominatim] Request failed after %dms. Status: %d. URL: %s", durationInMs, response.status, url);
-
-  if (response.status >= 500) {
-    return new NominatimServerError(
-      url,
-      response.status,
-      body,
-      durationInMs
-    );
-  } else {
-    return new NominatimHttpError(
-      url,
-      response.status,
-      body,
-      durationInMs
-    );
-  }
-}

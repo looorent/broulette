@@ -1,7 +1,7 @@
 import { circuitBreaker, type FailoverConfiguration } from "@features/circuit-breaker.server";
 import { logger } from "@features/utils/logger";
 
-import { OsmError, OsmHttpError, OsmServerError } from "./error";
+import { parseOsmError } from "./error";
 import type { OverpassRawElement, OverpassRawResponse, OverpassResponse, OverpassRestaurant } from "./types";
 
 const CIRCUIT_BREAKER_NAME_PREFIX = "overpass";
@@ -56,7 +56,7 @@ async function fetchAllRestaurantsNearby(
     logger.log("[OSM] fetchAllRestaurantsNearby: Parsed %d restaurants.", parsed?.restaurants.length || 0);
     return parsed;
   } else {
-    throw await parseError(query, response, durationInMs);
+    throw await parseOsmError(query, response, durationInMs);
   }
 }
 
@@ -206,23 +206,3 @@ function buildOpenStreetMapUrl(id: string | number, type: string): string {
   return `https://www.openstreetmap.org/${type}/${id}`;
 }
 
-async function parseError(query: string, response: Response, durationInMs: number): Promise<OsmError> {
-  const body = await response.text();
-  logger.error("[OSM] Request failed after %dms. Status: %d.", durationInMs, response.status);
-
-  if (response.status >= 500) {
-    return new OsmServerError(
-      query,
-      response.status,
-      body,
-      durationInMs
-    );
-  } else {
-    return new OsmHttpError(
-      query,
-      response.status,
-      body,
-      durationInMs
-    );
-  }
-}
