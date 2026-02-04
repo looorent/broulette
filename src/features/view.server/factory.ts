@@ -103,20 +103,32 @@ export function buildViewModelOfRestaurant(
   }
 }
 
+function pickFirst<K extends keyof RestaurantProfile>(
+  field: K,
+  ...profiles: (RestaurantProfile | undefined)[]
+): RestaurantProfile[K] | undefined {
+  for (const profile of profiles) {
+    if (profile?.[field]) {
+      return profile[field];
+    }
+  }
+  return undefined;
+}
+
 function buildSource({ overpass, tripAdvisor, google }: RestaurantProfiles): string {
-  return google?.source || tripAdvisor?.source || overpass?.source || OVERPASS_SOURCE_NAME;
+  return pickFirst("source", google, tripAdvisor, overpass) || OVERPASS_SOURCE_NAME;
 }
 
 function buildDescription({ overpass, tripAdvisor, google }: RestaurantProfiles): string | undefined {
-  return tripAdvisor?.description || google?.description || overpass?.description || undefined;
+  return pickFirst("description", tripAdvisor, google, overpass) || undefined;
 }
 
 function buildPriceRange({ overpass, tripAdvisor, google }: RestaurantProfiles): string | undefined {
-  return google?.priceLabel || tripAdvisor?.priceLabel || overpass?.priceLabel || undefined;
+  return pickFirst("priceLabel", google, tripAdvisor, overpass) || undefined;
 }
 
-function buildImageUrl({ overpass, tripAdvisor, google }: RestaurantProfiles): string| undefined {
-  return google?.imageUrl || tripAdvisor?.imageUrl || overpass?.imageUrl || undefined;
+function buildImageUrl({ overpass, tripAdvisor, google }: RestaurantProfiles): string | undefined {
+  return pickFirst("imageUrl", google, tripAdvisor, overpass) || undefined;
 }
 
 function computeRating(profiles: RestaurantProfiles): {
@@ -166,24 +178,24 @@ function computeRating(profiles: RestaurantProfiles): {
 }
 
 function buildTags({ overpass, tripAdvisor, google }: RestaurantProfiles): TagView[] {
-  return (tripAdvisor?.tags || google?.tags || overpass?.tags || []).map(tagToLabel);
+  return (pickFirst("tags", tripAdvisor, google, overpass) || []).map(tagToLabel);
 }
 
 function buildPhoneNumber({ overpass, tripAdvisor, google }: RestaurantProfiles): string | undefined {
-  return google?.phoneNumber || tripAdvisor?.phoneNumber || overpass?.phoneNumber || undefined;
+  return pickFirst("phoneNumber", google, tripAdvisor, overpass) || undefined;
 }
 
 function buildInternationalPhoneNumber({ overpass, tripAdvisor, google }: RestaurantProfiles): string | undefined {
-  return google?.internationalPhoneNumber || tripAdvisor?.internationalPhoneNumber || overpass?.internationalPhoneNumber || undefined;
+  return pickFirst("internationalPhoneNumber", google, tripAdvisor, overpass) || undefined;
 }
 
 function buildOpeningHoursOfTheDay(search: Search, { overpass, tripAdvisor, google }: RestaurantProfiles, locale: string): OpeningHoursOfTheDay {
-  const openingHours = tripAdvisor?.openingHours || google?.openingHours || overpass?.openingHours || undefined;
+  const openingHours = pickFirst("openingHours", tripAdvisor, google, overpass) || undefined;
   return formatOpeningHoursFor(search.serviceInstant, openingHours, locale);
 }
 
 function buildAddress({ overpass, tripAdvisor, google }: RestaurantProfiles): string | undefined {
-  return google?.address || tripAdvisor?.address || overpass?.address || undefined;
+  return pickFirst("address", google, tripAdvisor, overpass) || undefined;
 }
 
 function buildUrls({ tripAdvisor, google, overpass }: RestaurantProfiles): string[] {
