@@ -1,6 +1,7 @@
 import { data, href, redirect } from "react-router";
 
 import { ErrorUnknown } from "@components/error/error-unknown";
+import { DISTANCE_RANGES, TIMESLOTS } from "@features/db.server/schema";
 import { validateCSRF } from "@features/session.server";
 import { logger } from "@features/utils/logger";
 import { type DistanceRange, type ServiceTimeslot } from "@persistence";
@@ -35,8 +36,8 @@ function parseAndValidate(formData: FormData) {
   const rawDate = formData.get("serviceDate")?.toString() ?? "";
   const rawLatitude = Number(formData.get("locationLatitude"))?.toString() ?? "";
   const rawLongitude = Number(formData.get("locationLongitude"))?.toString() ?? "";
-  const timeslot = formData.get("serviceTimeslot") as ServiceTimeslot;
-  const distanceRange = formData.get("distanceRangeId") as DistanceRange;
+  const rawTimeslot = formData.get("serviceTimeslot")?.toString();
+  const rawDistanceRange = formData.get("distanceRangeId")?.toString();
 
   const date = new Date(Date.parse(rawDate))
   const latitude = parseFloat(rawLatitude);
@@ -54,6 +55,14 @@ function parseAndValidate(formData: FormData) {
     errors.locationLongitude = "Longitude must be between -180 and 180.";
   }
 
+  if (!rawTimeslot || !TIMESLOTS.includes(rawTimeslot as ServiceTimeslot)) {
+    errors.serviceTimeslot = "Invalid timeslot.";
+  }
+
+  if (!rawDistanceRange || !DISTANCE_RANGES.includes(rawDistanceRange as DistanceRange)) {
+    errors.distanceRangeId = "Invalid distance range.";
+  }
+
   if (Object.keys(errors).length > 0) {
     throw data({ errors: errors }, { status: 400 });
   } else {
@@ -61,9 +70,9 @@ function parseAndValidate(formData: FormData) {
       date: date!,
       latitude,
       longitude,
-      timeslot,
-      distanceRange
-    } as const;
+      timeslot: rawTimeslot as ServiceTimeslot,
+      distanceRange: rawDistanceRange as DistanceRange
+    };
   }
 }
 
