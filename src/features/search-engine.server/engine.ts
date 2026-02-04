@@ -207,7 +207,7 @@ function createDiscoveryScanner(
 }
 
 async function findSearchOrThrow(searchId: string, searchRepository: SearchRepository) {
-  const search = await searchRepository.findByIdWithRestaurantAndProfiles(searchId);
+  const search = await searchRepository.findByIdWithCandidateContext(searchId);
   if (!search) {
     logger.error("[SearchEngine] Error: Search ID '%s' not found.", searchId);
     throw new SearchNotFoundError(searchId);

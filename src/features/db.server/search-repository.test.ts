@@ -124,18 +124,17 @@ describe("SearchRepositoryDrizzle", () => {
     });
   });
 
-  describe("findByIdWithRestaurantAndProfiles", () => {
-    it("returns search with candidates and restaurant profiles", async () => {
+  describe("findByIdWithCandidateContext", () => {
+    it("returns search with candidate context", async () => {
       const mockDb = createMockDb();
       const mockSearch = {
         id: "search-1",
         exhausted: false,
         candidates: [
           {
-            id: "candidate-1",
+            order: 1,
             restaurant: {
-              id: "restaurant-1",
-              profiles: [{ id: "profile-1", source: "google_place" }]
+              profiles: [{ source: "google_place", externalId: "ext-1", externalType: "place" }]
             }
           }
         ],
@@ -151,7 +150,7 @@ describe("SearchRepositoryDrizzle", () => {
       vi.mocked(mockDb.query.searches.findFirst).mockResolvedValue(mockSearch);
       const repository = new SearchRepositoryDrizzle(mockDb);
 
-      const result = await repository.findByIdWithRestaurantAndProfiles("search-1");
+      const result = await repository.findByIdWithCandidateContext("search-1");
 
       expect(result).toBeDefined();
       expect(result!.id).toBe("search-1");
@@ -163,7 +162,7 @@ describe("SearchRepositoryDrizzle", () => {
       vi.mocked(mockDb.query.searches.findFirst).mockResolvedValue(undefined);
       const repository = new SearchRepositoryDrizzle(mockDb);
 
-      const result = await repository.findByIdWithRestaurantAndProfiles("non-existent");
+      const result = await repository.findByIdWithCandidateContext("non-existent");
 
       expect(result).toBeUndefined();
     });

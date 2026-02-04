@@ -10,7 +10,7 @@ function createMockSearchRepository(): SearchRepository {
   return {
     create: vi.fn(),
     findWithLatestCandidateId: vi.fn(),
-    findByIdWithRestaurantAndProfiles: vi.fn(),
+    findByIdWithCandidateContext: vi.fn(),
     markSearchAsExhausted: vi.fn()
   };
 }
@@ -68,7 +68,7 @@ describe("searchCandidate", () => {
   describe("when search is not found", () => {
     it("throws SearchNotFoundError", async () => {
       const searchRepository = createMockSearchRepository();
-      vi.mocked(searchRepository.findByIdWithRestaurantAndProfiles).mockResolvedValue(undefined);
+      vi.mocked(searchRepository.findByIdWithCandidateContext).mockResolvedValue(undefined);
 
       const context = createMockContext({
         repositories: {
@@ -111,7 +111,7 @@ describe("searchCandidate", () => {
         candidates: []
       };
 
-      vi.mocked(searchRepository.findByIdWithRestaurantAndProfiles).mockResolvedValue(exhaustedSearch);
+      vi.mocked(searchRepository.findByIdWithCandidateContext).mockResolvedValue(exhaustedSearch);
       vi.mocked(searchRepository.findWithLatestCandidateId).mockResolvedValue({
         searchId: "search-1",
         exhausted: true,
@@ -177,7 +177,7 @@ describe("searchCandidate", () => {
         candidates: []
       };
 
-      vi.mocked(searchRepository.findByIdWithRestaurantAndProfiles).mockResolvedValue(exhaustedSearch);
+      vi.mocked(searchRepository.findByIdWithCandidateContext).mockResolvedValue(exhaustedSearch);
       vi.mocked(searchRepository.findWithLatestCandidateId).mockResolvedValue({
         searchId: "search-1",
         exhausted: true,
@@ -228,7 +228,7 @@ describe("searchCandidate", () => {
   describe("event types", () => {
     it("always yields searching event first", async () => {
       const searchRepository = createMockSearchRepository();
-      vi.mocked(searchRepository.findByIdWithRestaurantAndProfiles).mockResolvedValue(undefined);
+      vi.mocked(searchRepository.findByIdWithCandidateContext).mockResolvedValue(undefined);
 
       const context = createMockContext({
         repositories: {

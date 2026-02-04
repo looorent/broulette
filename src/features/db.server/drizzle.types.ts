@@ -17,6 +17,19 @@ export type SearchAndRestaurantsAndProfiles = Search & {
   })[];
 };
 
+export type SearchWithCandidateContext = Search & {
+  candidates: {
+    order: number;
+    restaurant: {
+      profiles: {
+        source: string;
+        externalId: string;
+        externalType: string;
+      }[];
+    } | null;
+  }[];
+};
+
 export type SearchCandidateRejectionReason = (typeof CANDIDATE_REJECTION_REASONS)[number];
 
 export type RestaurantAndProfiles = Restaurant & {

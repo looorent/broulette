@@ -4,7 +4,7 @@ import { createServiceDatetime, createServiceEnd } from "@features/search";
 import { logger } from "@features/utils/logger";
 
 import type { DrizzleClient } from "./drizzle";
-import type { DistanceRange, Search, SearchAndRestaurantsAndProfiles, SearchCandidateStatus, ServiceTimeslot } from "./drizzle.types";
+import type { DistanceRange, Search, SearchCandidateStatus, SearchWithCandidateContext, ServiceTimeslot } from "./drizzle.types";
 import { searches } from "./schema";
 
 export interface SearchRepository {
@@ -18,7 +18,7 @@ export interface SearchRepository {
     distanceRange: DistanceRange;
     latestCandidateId: string | undefined;
   } | undefined>;
-  findByIdWithRestaurantAndProfiles(searchId: string): Promise<SearchAndRestaurantsAndProfiles | undefined>;
+  findByIdWithCandidateContext(searchId: string): Promise<SearchWithCandidateContext | undefined>;
   markSearchAsExhausted(searchId: string): Promise<void>;
 }
 
@@ -100,16 +100,20 @@ export class SearchRepositoryDrizzle implements SearchRepository {
     }
   }
 
-  async findByIdWithRestaurantAndProfiles(searchId: string): Promise<SearchAndRestaurantsAndProfiles | undefined> {
-    logger.trace("[Drizzle] findUniqueWithRestaurantAndProfiles: Querying searchId='%s'", searchId);
+  async findByIdWithCandidateContext(searchId: string): Promise<SearchWithCandidateContext | undefined> {
+    logger.trace("[Drizzle] findByIdWithCandidateContext: Querying searchId='%s'", searchId);
     return this.db.query.searches.findFirst({
       where: eq(searches.id, searchId),
       with: {
         candidates: {
+          columns: { order: true },
           with: {
             restaurant: {
+              columns: {},
               with: {
-                profiles: true
+                profiles: {
+                  columns: { source: true, externalId: true, externalType: true }
+                }
               }
             }
           }
