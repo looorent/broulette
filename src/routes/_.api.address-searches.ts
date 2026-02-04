@@ -2,8 +2,10 @@ import type { ActionFunctionArgs } from "react-router";
 
 import { searchLocations } from "@features/address.server";
 import type { Coordinates } from "@features/coordinate";
+import { checkRateLimit } from "@features/rate-limit.server";
 import { validateCSRF } from "@features/session.server";
 import { logger } from "@features/utils/logger";
+import { getClientIp } from "@features/utils/request";
 
 export async function action({ request, context }: ActionFunctionArgs) {
   if (request.method !== "POST") {
@@ -14,19 +16,38 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const query = formData.get("query");
   await validateCSRF(formData, request.headers, context.sessionStorage);
 
-  if (!query || typeof query !== "string" || query.length < 2) {
+  if (!context.config) {
+    logger.error("Address lookup failed: AppContext is not initialized.");
+    return {
+      locations: [],
+      note: undefined,
+      error: "Unable to fetch addresses at this time. Please try again."
+    };
+  }
+
+  const ip = getClientIp(request.headers);
+
+  const rateLimit = await checkRateLimit(
+    context.cloudflare.env.KV,
+    `ratelimit:address-search:${ip}`,
+    context.config.addressSearchRateLimit
+  );
+
+  if (!rateLimit.allowed) {
+    return {
+      locations: [],
+      error: "Too many requests. Please wait a moment.",
+      note: undefined
+    };
+  } else if (!query || typeof query !== "string" || query.length < 2) {
     return {
       locations: [],
       note: undefined
     };
   } else {
     try {
-      if (context.config) {
-        const locationBias = parseLocationBias(formData);
-        return await searchLocations(query, context.config.nominatim, context.config.photon, locationBias, request.signal);
-      } else {
-        throw new Error("AppContext is not initialized.");
-      }
+      const locationBias = parseLocationBias(formData);
+      return await searchLocations(query, context.config.nominatim, context.config.photon, locationBias, request.signal);
     } catch (error) {
       logger.error("Address lookup failed:", error);
       return {

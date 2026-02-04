@@ -1,3 +1,7 @@
+# 0.0.5 (2026-02-04)
+
+* [Technical] Add a rate limiter by IP to search addresses (use Cloudfare's KV)
+
 # 0.0.4 (2026-02-03)
 
 * [Feature] Use the device location (when available) as a bias when searching for addresses (via Photon and Nominatim)

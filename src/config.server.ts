@@ -4,6 +4,7 @@ import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlaceConfiguration } fro
 import { DEFAULT_NOMINATIM_CONFIGURATION, type NominatimConfiguration } from "@features/nominatim.server";
 import { DEFAULT_OVERPASS_CONFIGURATION, type OverpassConfiguration } from "@features/overpass.server";
 import { DEFAULT_PHOTON_CONFIGURATION, type PhotonConfiguration } from "@features/photon.server";
+import { DEFAULT_RATE_LIMIT_CONFIGURATION, type RateLimitConfiguration } from "@features/rate-limit.server";
 import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration } from "@features/search-engine.server";
 import { DEFAULT_TAG_CONFIGURATION } from "@features/tag.server";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, parseTripAdvisorPhotoSize, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
@@ -78,6 +79,10 @@ interface Env {
   BROULETTE_OVERPASS_API_TIMEOUT?: string;
   BROULETTE_OVERPASS_API_HALF_OPEN_AFTER_MS?: string;
   BROULETTE_OVERPASS_API_CONSECUTIVE_FAILURES?: string;
+
+  // Rate Limiting
+  BROULETTE_ADDRESS_SEARCH_RATE_LIMIT?: string;
+  BROULETTE_ADDRESS_SEARCH_RATE_WINDOW_SECONDS?: string;
 
   // Search Engine
   BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS?: string;
@@ -302,6 +307,17 @@ function searchEngineConfig(env: Env): SearchEngineConfiguration {
   return SEARCH_ENGINE_CONFIGURATION;
 }
 
+let RATE_LIMIT_CONFIG: RateLimitConfiguration;
+function rateLimitConfig(env: Env): RateLimitConfiguration {
+  if (!RATE_LIMIT_CONFIG) {
+    RATE_LIMIT_CONFIG = {
+      limit: parseNumber(env.BROULETTE_ADDRESS_SEARCH_RATE_LIMIT, DEFAULT_RATE_LIMIT_CONFIGURATION.limit),
+      windowSeconds: parseNumber(env.BROULETTE_ADDRESS_SEARCH_RATE_WINDOW_SECONDS, DEFAULT_RATE_LIMIT_CONFIGURATION.windowSeconds)
+    };
+  }
+  return RATE_LIMIT_CONFIG;
+}
+
 export interface AppContext {
   nominatim: NominatimConfiguration | undefined;
   photon: PhotonConfiguration | undefined;
@@ -309,6 +325,7 @@ export interface AppContext {
   google: GooglePlaceConfiguration | undefined;
   tripAdvisor: TripAdvisorConfiguration | undefined;
   search: SearchEngineConfiguration;
+  addressSearchRateLimit: RateLimitConfiguration;
 }
 
 let APP_CONTEXT: AppContext | undefined;
@@ -320,7 +337,8 @@ export function createAppContext(env: Env): AppContext {
       overpass: overpassConfig(env).enabled ? overpassConfig(env) : undefined,
       google: googleConfig(env).enabled ? googleConfig(env) : undefined,
       tripAdvisor: tripAdvisorConfig(env).enabled ? tripAdvisorConfig(env) : undefined,
-      search: searchEngineConfig(env)
+      search: searchEngineConfig(env),
+      addressSearchRateLimit: rateLimitConfig(env)
     };
   }
   return APP_CONTEXT;

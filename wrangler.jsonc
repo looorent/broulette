@@ -16,6 +16,13 @@
       "custom_domain": true
     }
   ],
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "6f083c0e9baf47acbf6ac54c3dcc7021",
+      "preview_id": "ae8990af5b124a11bf7b219c5bd4d0b2"
+    }
+  ],
   "d1_databases": [
     {
       "binding": "DB",
@@ -102,6 +109,11 @@
     "BROULETTE_SEARCH_ENGINE_MID_RANGE_IN_METERS": "12000",
     "BROULETTE_SEARCH_ENGINE_MID_TIMEOUT_IN_MS": "10000",
     "BROULETTE_SEARCH_ENGINE_FAR_RANGE_IN_METERS": "30000",
-    "BROULETTE_SEARCH_ENGINE_FAR_TIMEOUT_IN_MS": "30000"
+    "BROULETTE_SEARCH_ENGINE_FAR_TIMEOUT_IN_MS": "30000",
+    // -------------------------------------------------------------------------
+    // RATE LIMITING CONFIGURATION
+    // -------------------------------------------------------------------------
+    "BROULETTE_ADDRESS_SEARCH_RATE_LIMIT": "30",
+    "BROULETTE_ADDRESS_SEARCH_RATE_WINDOW_SECONDS": "60"
   }
 }

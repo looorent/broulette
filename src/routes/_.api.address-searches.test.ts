@@ -49,8 +49,19 @@ describe("Address Search API Route", () => {
     });
   }
 
-  function createContext(config: any = { nominatim: { enabled: true }, photon: { enabled: true } }) {
-    return { sessionStorage, config };
+  function createContext(config: any = { nominatim: { enabled: true }, photon: { enabled: true }, addressSearchRateLimit: { limit: 30, windowSeconds: 60 } }) {
+    return {
+      sessionStorage,
+      config,
+      cloudflare: {
+        env: {
+          KV: {
+            get: vi.fn().mockResolvedValue(null),
+            put: vi.fn().mockResolvedValue(undefined)
+          }
+        }
+      }
+    };
   }
 
   describe("HTTP method validation", () => {
@@ -232,7 +243,7 @@ describe("Address Search API Route", () => {
       const { searchLocations } = await import("@features/address.server");
 
       const request = createRequest("POST", { query: "Brussels" });
-      const context = { sessionStorage, config: null };
+      const context = createContext(null);
       const result = await action({ request, context, params: {} } as any);
 
       expect(result.locations).toEqual([]);
