@@ -93,5 +93,14 @@ export interface GooglePlace {
     endPrice?: { currencyCode: string; units: string; nanos: number };
   };
   priceLevel?: string;
-  photos?: Array<{ name: string; widthPx: number; heightPx: number; authorAttributions: any[] }>;
+  photos?: Array<{ name: string; widthPx: number; heightPx: number; authorAttributions: Array<{ displayName?: string; uri?: string; photoUri?: string }> }>;
+}
+
+export interface GoogleTextSearchResponse {
+  places?: GooglePlace[];
+}
+
+export interface GooglePhotoMediaResponse {
+  name?: string;
+  photoUri?: string;
 }

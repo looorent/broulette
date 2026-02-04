@@ -92,6 +92,7 @@ export const searchCandidates = sqliteTable("search_candidate", {
   createdAt: timestamp("created_at"),
   searchId: uuid("search_id").notNull().references(() => searches.id, { onDelete: "cascade" }),
   restaurantId: uuid("restaurant_id").references(() => restaurants.id, { onDelete: "cascade" }),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   recoveredFromCandidateId: uuid("recovered_from_candidate_id").references((): any => searchCandidates.id, { onDelete: "set null" }),
   order: integer("order").notNull(),
   status: searchCandidateStatusEnum("status").notNull(),

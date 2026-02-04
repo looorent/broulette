@@ -2,7 +2,7 @@ import { circuitBreaker, type FailoverConfiguration } from "@features/circuit-br
 import { logger } from "@features/utils/logger";
 
 import { OsmEmptyResponseError, OsmError, OsmHttpError, OsmServerError } from "./error";
-import type { OverpassResponse, OverpassRestaurant } from "./types";
+import type { OverpassRawElement, OverpassRawResponse, OverpassResponse, OverpassRestaurant } from "./types";
 
 const CIRCUIT_BREAKER_NAME_PREFIX = "overpass";
 export async function fetchAllRestaurantsNearbyWithRetry(
@@ -51,7 +51,7 @@ async function fetchAllRestaurantsNearby(
 
   if (response.ok) {
     logger.log("[OSM] fetchAllRestaurantsNearby: Query successful. Duration: %dms.", durationInMs);
-    const body = await response.json();
+    const body = await response.json() as OverpassRawResponse;
     if (body) {
       const parsed = parseResponse(body, durationInMs);
       logger.log("[OSM] fetchAllRestaurantsNearby: Parsed %d restaurants.", parsed?.restaurants.length || 0);
@@ -125,12 +125,12 @@ function buildExclusionQuery(idsToExclude: { osmId: string; osmType: string }[])
 }
 
 function parseRestaurantFromResponse(
-  body: any
+  body: OverpassRawElement
 ): OverpassRestaurant | undefined {
-  const latitude = body?.lat || body?.center?.lat;
-  const longitude = body?.lon || body?.center?.lon;
+  const latitude = body.lat ?? body.center?.lat;
+  const longitude = body.lon ?? body.center?.lon;
   if (latitude && longitude) {
-    const tags = body.tags || [];
+    const tags = body.tags ?? {};
     const countryCode = tags["addr:country"];
     const street = tags["addr:street"];
     const houseNumber = tags["addr:housenumber"];
@@ -167,7 +167,7 @@ function parseRestaurantFromResponse(
 }
 
 function parseResponse(
-  body: any,
+  body: OverpassRawResponse,
   durationInMs: number
 ): OverpassResponse | undefined {
   if (body) {
@@ -177,7 +177,7 @@ function parseResponse(
       copyright: body.osm3s?.copyright,
       timestampInUtc: body.osm3s?.timestamp_osm_base,
       durationInMs: durationInMs,
-      restaurants: body.elements?.map(parseRestaurantFromResponse)?.filter(Boolean) || []
+      restaurants: body.elements?.map(parseRestaurantFromResponse)?.filter(Boolean).map(restaurant => restaurant!) || []
     };
   } else {
     return undefined;
@@ -211,7 +211,7 @@ function createFormattedAddress(
   }
 }
 
-function buildOpenStreetMapUrl(id: string, type: string): string {
+function buildOpenStreetMapUrl(id: string | number, type: string): string {
   return `https://www.openstreetmap.org/${type}/${id}`;
 }
 

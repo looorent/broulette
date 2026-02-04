@@ -137,7 +137,7 @@ export interface LocationHours {
 export interface TripType {
   name: string;
   localizedName: string;
-  value: number;
+  value: number | undefined;
 }
 
 export interface TripAdvisorImageVariant {
@@ -152,4 +152,122 @@ export interface TripAdvisorImageSet {
   medium?: TripAdvisorImageVariant | undefined;
   large?: TripAdvisorImageVariant | undefined;
   original?: TripAdvisorImageVariant | undefined;
+}
+
+export interface TripAdvisorRawLocationDetails {
+  location_id: string;
+  name: string;
+  description?: string;
+  latitude?: string | number;
+  longitude?: string | number;
+  timezone: string;
+  web_url?: string;
+  website?: string;
+  phone?: string;
+  address_obj?: TripAdvisorRawAddress;
+  ranking_data?: TripAdvisorRawRankingData;
+  rating?: string | number;
+  num_reviews?: string;
+  review_rating_count?: Record<string, string>;
+  photo_count?: string | number;
+  price_level?: string;
+  cuisine?: TripAdvisorRawLocalizedName[];
+  category?: TripAdvisorRawLocalizedName;
+  subcategory?: TripAdvisorRawLocalizedName[];
+  hours?: TripAdvisorRawHours;
+  features?: string[];
+  trip_types?: TripAdvisorRawTripType[];
+  awards?: TripAdvisorRawAward[];
+}
+
+export interface TripAdvisorRawAddress {
+  street1?: string;
+  street2?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalcode?: string;
+  address_string?: string;
+}
+
+export interface TripAdvisorRawRankingData {
+  geo_location_id?: string;
+  geo_location_name?: string;
+  ranking_string?: string;
+  ranking_out_of?: string;
+  ranking?: string;
+}
+
+export interface TripAdvisorRawLocalizedName {
+  name: string;
+  localized_name: string;
+}
+
+export interface TripAdvisorRawTripType {
+  name: string;
+  localized_name: string;
+  value?: string | number;
+}
+
+export interface TripAdvisorRawHours {
+  periods?: TripAdvisorRawPeriod[];
+  weekday_text?: string[];
+}
+
+export interface TripAdvisorRawPeriod {
+  open?: { day: number | string; time?: string };
+  close?: { day: number | string; time?: string };
+}
+
+export interface TripAdvisorRawAward {
+  award_type: string;
+  year: string | number;
+  categories: string[];
+  display_name: string;
+}
+
+export interface TripAdvisorRawLocationNearby {
+  location_id: string;
+  name: string;
+  distance?: string | number;
+  bearing: string;
+  address_obj?: TripAdvisorRawAddress;
+}
+
+export interface TripAdvisorRawNearbyResponse {
+  data: TripAdvisorRawLocationNearby[];
+}
+
+export interface TripAdvisorRawPhoto {
+  id: number;
+  is_blessed: boolean;
+  caption: string;
+  source?: TripAdvisorRawLocalizedName;
+  images?: TripAdvisorRawImageSet;
+}
+
+export interface TripAdvisorRawImageSet {
+  thumbnail?: TripAdvisorRawImageVariant;
+  small?: TripAdvisorRawImageVariant;
+  medium?: TripAdvisorRawImageVariant;
+  large?: TripAdvisorRawImageVariant;
+  original?: TripAdvisorRawImageVariant;
+}
+
+export interface TripAdvisorRawImageVariant {
+  height: number;
+  width: number;
+  url: string;
+}
+
+export interface TripAdvisorRawPhotoResponse {
+  data: TripAdvisorRawPhoto[];
+}
+
+export interface TripAdvisorRawErrorResponse {
+  error?: {
+    message: string;
+    type: string;
+    code: number
+  };
 }

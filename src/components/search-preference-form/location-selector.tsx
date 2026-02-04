@@ -162,11 +162,12 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
 
             onChange(deviceLocation);
             closeSearchMode();
-          } catch (e: any) {
+          } catch (e: unknown) {
             logger.error(e);
-            if (e?.code === 1) {
+            const geoError = e instanceof GeolocationPositionError ? e : undefined;
+            if (geoError?.code === GeolocationPositionError.PERMISSION_DENIED) {
               openGeolocationErrorInAlert("Location access was denied.");
-            } else if (e?.code === 3) {
+            } else if (geoError?.code === GeolocationPositionError.TIMEOUT) {
               openGeolocationErrorInAlert("Location request timed out. Please try again.");
             } else {
               openGeolocationErrorInAlert("Unable to retrieve location.");

@@ -3,7 +3,7 @@ import { logger } from "@features/utils/logger";
 
 import type { ServiceStrategy } from "./types";
 
-export class LoadBalancer<TArgs extends any[], TResult> {
+export class LoadBalancer<TArgs extends unknown[], TResult> {
   private providers: ServiceStrategy<TArgs, TResult>[];
   private currentOffset: number = 0;
 

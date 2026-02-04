@@ -76,7 +76,7 @@ export default defineConfig(
       ...eslintPluginBetterTailwindcss.configs["recommended-warn"].rules,
       "react-compiler/react-compiler": "error",
       "react/react-in-jsx-scope": "off",
-      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-explicit-any": "error",
       "react/no-unescaped-entities": "off",
       "react-hooks/exhaustive-deps": "warn",
       "react-refresh/only-export-components": [
@@ -128,6 +128,12 @@ export default defineConfig(
           },
         },
       ]
+    }
+  },
+  {
+    files: ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off"
     }
   },
   {

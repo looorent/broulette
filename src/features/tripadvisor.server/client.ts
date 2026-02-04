@@ -2,10 +2,10 @@ import { circuitBreaker } from "@features/circuit-breaker.server";
 import { convertLocaleToSnakecase, DEFAULT_LANGUAGE } from "@features/utils/locale";
 import { logger } from "@features/utils/logger";
 
-import { TripAdvisorAuthorizationError, TripAdvisorEmptyResponseError, TripAdvisorError, TripAdvisorHttpError, TripAdvisorServerError, type TripAdvisorErrorPayload } from "./error";
+import { TripAdvisorAuthorizationError, TripAdvisorEmptyResponseError, TripAdvisorError, TripAdvisorHttpError, TripAdvisorServerError } from "./error";
 import { convertTripAdvisorHoursToOpeningHours } from "./opening-hours";
 import { findBestTripAdvisorMatch } from "./similarity";
-import { DEFAULT_TRIPADVISOR_CONFIGURATION, TRIPADVISOR_DEFAULT_PHOTO_SIZE, TRIPADVISOR_PHOTO_SIZES, type AddressInfo, type Award, type LocalizedName, type LocationHours, type OperatingPeriod, type RankingData, type TripAdvisorConfiguration, type TripAdvisorImageSet, type TripAdvisorImageVariant, type TripAdvisorLocation, type TripAdvisorLocationNearby, type TripAdvisorPhoto, type TripAdvisorPhotoSize, type TripType } from "./types";
+import { DEFAULT_TRIPADVISOR_CONFIGURATION, TRIPADVISOR_DEFAULT_PHOTO_SIZE, TRIPADVISOR_PHOTO_SIZES, type AddressInfo, type Award, type LocalizedName, type LocationHours, type OperatingPeriod, type RankingData, type TripAdvisorConfiguration, type TripAdvisorImageSet, type TripAdvisorImageVariant, type TripAdvisorLocation, type TripAdvisorLocationNearby, type TripAdvisorPhoto, type TripAdvisorPhotoSize, type TripAdvisorRawAddress, type TripAdvisorRawAward, type TripAdvisorRawErrorResponse, type TripAdvisorRawHours, type TripAdvisorRawImageSet, type TripAdvisorRawImageVariant, type TripAdvisorRawLocalizedName, type TripAdvisorRawLocationDetails, type TripAdvisorRawLocationNearby, type TripAdvisorRawNearbyResponse, type TripAdvisorRawPeriod, type TripAdvisorRawPhoto, type TripAdvisorRawPhotoResponse, type TripAdvisorRawRankingData, type TripAdvisorRawTripType, type TripType } from "./types";
 
 const CIRCUIT_BREAKER_NAME = "tripadvisor";
 export async function findTripAdvisorLocationByIdWithRetry(
@@ -93,7 +93,7 @@ async function findTripAdvisorLocationById(
   const durationInMs = Date.now() - start;
   if (response.ok) {
     logger.log("[TripAdvisor] findTripAdvisorLocationById: Success. Done in %dms.", durationInMs);
-    const body = await response.json();
+    const body = await response.json() as TripAdvisorRawLocationDetails;
     if (body) {
       return parseLocationDetails(body);
     } else {
@@ -151,7 +151,7 @@ async function findTripAdvisorLocationsNearby(
 
   const durationInMs = Date.now() - start;
   if (response.ok) {
-    const body = await response.json() as any;
+    const body = await response.json() as TripAdvisorRawNearbyResponse;
     const count = Array.isArray(body?.data) ? body.data.length : 0;
     logger.log("[TripAdvisor] findTripAdvisorLocationsNearby: Success. Found %d raw results in %dms.", count, durationInMs);
 
@@ -188,7 +188,7 @@ async function findBestTripAdvisorLocationPicture(
   const durationInMs = Date.now() - start;
   if (response.ok) {
     logger.log("[TripAdvisor] findBestTripAdvisorLocationPicture: Success. Done in %dms.", durationInMs);
-    const body = await response.json() as any;
+    const body = await response.json() as TripAdvisorRawPhotoResponse;
     if (body) {
       const photos = parseLocationPhotos(body.data);
       return findBestPhotoIn(photos);
@@ -279,9 +279,9 @@ function addAuthenticationOn(url: string, configuration: TripAdvisorConfiguratio
 }
 
 function parseLocationDetails(
-  body: any,
+  body: TripAdvisorRawLocationDetails,
 ): TripAdvisorLocation | undefined {
-  if (body && typeof body === "object") {
+  if (body) {
     const hours = parseHours(body.hours);
     return {
       id: body.location_id,
@@ -320,7 +320,7 @@ function parseLocationDetails(
   }
 }
 
-function parseLocationNearby(body: any): TripAdvisorLocationNearby | undefined {
+function parseLocationNearby(body: TripAdvisorRawLocationNearby): TripAdvisorLocationNearby | undefined {
   if (body) {
     return {
       locationId: body.location_id,
@@ -334,7 +334,7 @@ function parseLocationNearby(body: any): TripAdvisorLocationNearby | undefined {
   }
 }
 
-function parseLocationsNearby(body: any): TripAdvisorLocationNearby[] {
+function parseLocationsNearby(body: TripAdvisorRawLocationNearby[] | undefined): TripAdvisorLocationNearby[] {
   if (!Array.isArray(body)) {
     logger.warn("[TripAdvisor] parseLocationsNearby: Received non-array body", body);
     return [];
@@ -343,7 +343,7 @@ function parseLocationsNearby(body: any): TripAdvisorLocationNearby[] {
   }
 }
 
-function parseLocationPhotos(body: any): TripAdvisorPhoto[] {
+function parseLocationPhotos(body: TripAdvisorRawPhoto[] | undefined): TripAdvisorPhoto[] {
   if (body && Array.isArray(body)) {
     return body.map(parseLocationPhoto).filter(Boolean).map(photo => photo!);
   } else {
@@ -351,7 +351,7 @@ function parseLocationPhotos(body: any): TripAdvisorPhoto[] {
   }
 }
 
-function parseLocationPhoto(body: any): TripAdvisorPhoto | undefined {
+function parseLocationPhoto(body: TripAdvisorRawPhoto): TripAdvisorPhoto | undefined {
   if (body) {
     return {
       id: body.id,
@@ -365,7 +365,7 @@ function parseLocationPhoto(body: any): TripAdvisorPhoto | undefined {
   }
 }
 
-function parseImageSet(body: any): TripAdvisorImageSet {
+function parseImageSet(body: TripAdvisorRawImageSet | undefined): TripAdvisorImageSet {
   if (body) {
     return {
       thumbnail: parseImageVariant(body.thumbnail),
@@ -379,7 +379,7 @@ function parseImageSet(body: any): TripAdvisorImageSet {
   }
 }
 
-function parseImageVariant(body: any): TripAdvisorImageVariant | undefined {
+function parseImageVariant(body: TripAdvisorRawImageVariant | undefined): TripAdvisorImageVariant | undefined {
   if (body) {
     return {
       height: body.height,
@@ -392,7 +392,7 @@ function parseImageVariant(body: any): TripAdvisorImageVariant | undefined {
 }
 
 
-function parseAddress(body: any): AddressInfo | undefined {
+function parseAddress(body: TripAdvisorRawAddress | undefined): AddressInfo | undefined {
   if (body) {
     const street1 = body?.street1 || undefined;
     const street2 = body?.street2 || undefined;
@@ -419,7 +419,7 @@ function parseAddress(body: any): AddressInfo | undefined {
   }
 }
 
-function parseRankingData(body: any | undefined): RankingData | undefined {
+function parseRankingData(body: TripAdvisorRawRankingData | undefined): RankingData | undefined {
   if (body) {
     return {
       geoLocationId: body.geo_location_id,
@@ -433,7 +433,7 @@ function parseRankingData(body: any | undefined): RankingData | undefined {
   }
 }
 
-function parseLocalizedNames(body: any): LocalizedName[] {
+function parseLocalizedNames(body: TripAdvisorRawLocalizedName[] | undefined): LocalizedName[] {
   if (body && Array.isArray(body)) {
     return body.map(parseLocalizedName).filter(Boolean).map(name => name!);
   } else {
@@ -441,7 +441,7 @@ function parseLocalizedNames(body: any): LocalizedName[] {
   }
 }
 
-function parseLocalizedName(body: any): LocalizedName | undefined {
+function parseLocalizedName(body: TripAdvisorRawLocalizedName | undefined): LocalizedName | undefined {
   if (body) {
     return {
       name: body.name,
@@ -452,7 +452,7 @@ function parseLocalizedName(body: any): LocalizedName | undefined {
   }
 }
 
-function parseTripTypes(body: any): TripType[] {
+function parseTripTypes(body: TripAdvisorRawTripType[] | undefined): TripType[] {
   if (Array.isArray(body)) {
     return body.map(parseTripType).filter(Boolean).map(trip => trip!);
   } else {
@@ -460,7 +460,7 @@ function parseTripTypes(body: any): TripType[] {
   }
 }
 
-function parseTripType(body: any): TripType | undefined {
+function parseTripType(body: TripAdvisorRawTripType): TripType | undefined {
   if (body) {
     return {
       name: body.name,
@@ -472,9 +472,9 @@ function parseTripType(body: any): TripType | undefined {
   }
 }
 
-function parseHours(body: any): LocationHours | undefined {
+function parseHours(body: TripAdvisorRawHours | undefined): LocationHours | undefined {
   if (body && Array.isArray(body.periods)) {
-    const periods: OperatingPeriod[] = body.periods.map((item: any) => {
+    const periods: OperatingPeriod[] = body.periods.map((item: TripAdvisorRawPeriod) => {
       if (!item.open) {
         return undefined;
       } else {
@@ -494,7 +494,7 @@ function parseHours(body: any): LocationHours | undefined {
 
         return period;
       }
-    }).filter(Boolean).map((period: OperatingPeriod) => period!);
+    }).filter(Boolean).map(period => period!);
 
     return {
       periods: periods,
@@ -505,7 +505,7 @@ function parseHours(body: any): LocationHours | undefined {
   }
 }
 
-function parseAwards(body: any): Award[] {
+function parseAwards(body: TripAdvisorRawAward[] | undefined): Award[] {
   if (body && Array.isArray(body)) {
     return body.map(parseAward).filter(Boolean).map(award => award!);
   } else {
@@ -513,7 +513,7 @@ function parseAwards(body: any): Award[] {
   }
 }
 
-function parseAward(body: any): Award | undefined {
+function parseAward(body: TripAdvisorRawAward): Award | undefined {
   if (body) {
     return {
       type: body.award_type,
@@ -527,13 +527,13 @@ function parseAward(body: any): Award | undefined {
 }
 
 const MILES_TO_METERS_FACTOR = 1609.34;
-function parseDistanceInMeters(distance: any): number {
-  const distanceInMiles = typeof distance === "string" ? parseFloat(distance) : distance;
+function parseDistanceInMeters(distance: string | number | undefined): number {
+  const distanceInMiles = typeof distance === "string" ? parseFloat(distance) : (distance ?? 0);
   return distanceInMiles * MILES_TO_METERS_FACTOR;
 }
 
 async function parseError(url: string, response: Response, durationInMs: number): Promise<TripAdvisorError> {
-  const body: TripAdvisorErrorPayload = (await response.json() as any)?.error;
+  const body = (await response.json() as TripAdvisorRawErrorResponse)?.error;
 
   logger.error("[TripAdvisor] Request failed after %dms. Status: %d. URL: %s", durationInMs, response.status, url);
 

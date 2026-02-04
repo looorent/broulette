@@ -7,7 +7,7 @@ import { GoogleAuthorizationError, GoogleError, GoogleHttpError, GoogleServerErr
 import { convertBusinessStatusToOperational, formatPrices } from "./formatter";
 import { convertGooglePeriodsToOpeningHours } from "./opening-hours";
 import { compareSimilarity } from "./similarity";
-import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePlace, type GooglePlaceConfiguration, type GoogleRestaurant } from "./types";
+import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, type GooglePhotoMediaResponse, type GooglePlace, type GooglePlaceConfiguration, type GoogleRestaurant, type GoogleTextSearchResponse } from "./types";
 
 // pay attention to the fields we import, we currently do not require the "Enterprise + Atmosphere" SKU.
 // https://developers.google.com/maps/documentation/places/web-service/data-fields
@@ -181,9 +181,9 @@ async function findPlacesByText(
       throw await response.json();
     }
 
-    const data = await response.json() as any;
+    const data = await response.json() as GoogleTextSearchResponse;
     logger.log("[Google Place] findPlacesByText: Success. Found %d places. Duration: %dms", (data.places || []).length, Date.now() - start);
-    return (data.places || []) as GooglePlace[];
+    return data.places || [];
   } catch (error: unknown) {
     if (isAbortError(error)) {
       throw error;
@@ -218,10 +218,10 @@ async function findGoogleImageUrl(
       throw await response.json();
     }
 
-    const data = await response.json() as any;
+    const data = await response.json() as GooglePhotoMediaResponse;
     logger.log("[Google Place] findGoogleImageUrl: Success. Duration: %dms.", Date.now() - start);
     return data?.photoUri;
-  } catch (e: any) {
+  } catch (e: unknown) {
     const duration = Date.now() - start;
     logger.error("[Google Place] findGoogleImageUrl: Failed after %dms. Error:", duration, e);
     throw parseError(e, `photoId='${photoId}'`, duration);
@@ -287,11 +287,12 @@ async function addPhotoUriOn(
 const GRPC_ERROR_CODES = [4, 14];
 const AUTHORIZATION_ERROR_CODES = [3, 401, 403];
 
-function parseError(e: any, query: string, durationInMs: number): GoogleError {
+function parseError(e: unknown, query: string, durationInMs: number): GoogleError {
   // Handle native fetch error response (which might be an object with .error field or just status)
-  const errorObj = e.error || e;
-  const statusCode = errorObj.code || errorObj.status || 500;
-  const responseBody = errorObj.message || errorObj.details || JSON.stringify(e) || "Unknown error";
+  const errorRecord = (typeof e === "object" && e !== null ? e : {}) as Record<string, unknown>;
+  const errorObj = (typeof errorRecord.error === "object" && errorRecord.error !== null ? errorRecord.error : errorRecord) as Record<string, unknown>;
+  const statusCode = (typeof errorObj.code === "number" ? errorObj.code : typeof errorObj.status === "number" ? errorObj.status : 500);
+  const responseBody = (typeof errorObj.message === "string" ? errorObj.message : typeof errorObj.details === "string" ? errorObj.details : JSON.stringify(e)) || "Unknown error";
 
   if (statusCode >= 500 || GRPC_ERROR_CODES.includes(statusCode)) {
     return new GoogleServerError(

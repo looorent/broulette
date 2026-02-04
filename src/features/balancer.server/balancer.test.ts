@@ -7,7 +7,7 @@ vi.mock("@features/utils/error", () => ({
   isAbortError: (error: unknown) => error instanceof Error && error.name === "AbortError"
 }));
 
-function createMockProvider<TArgs extends any[], TResult>(
+function createMockProvider<TArgs extends unknown[], TResult>(
   name: string,
   execute: (...args: TArgs) => Promise<TResult>
 ): ServiceStrategy<TArgs, TResult> {

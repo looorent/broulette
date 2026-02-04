@@ -47,9 +47,28 @@ export interface OverpassRestaurant {
 export interface OverpassResponse {
   generator: string;
   version: number;
-  copyright: string;
-  timestampInUtc: string;
+  copyright: string | undefined;
+  timestampInUtc: string | undefined;
   durationInMs: number;
   restaurants: OverpassRestaurant[];
+}
+
+export interface OverpassRawResponse {
+  generator: string;
+  version: number;
+  osm3s?: {
+    copyright: string;
+    timestamp_osm_base: string;
+  };
+  elements?: OverpassRawElement[];
+}
+
+export interface OverpassRawElement {
+  id: number;
+  type: OverpassLocationType;
+  lat?: number;
+  lon?: number;
+  center?: { lat: number; lon: number };
+  tags?: {[tagName: string]: string};
 }
 

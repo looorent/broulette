@@ -37,9 +37,9 @@ export function useSearchStream() {
         setLoaderStreaming(false);
         navigate(redirectUrl, { viewTransition: true, replace: true });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setLoaderStreaming(false);
-      if (error.name === "AbortError") {
+      if (error instanceof Error && error.name === "AbortError") {
         logger.log("[Search engine] Stream aborted (cleanup)");
       } else {
         logger.error("Streaming failed", error);

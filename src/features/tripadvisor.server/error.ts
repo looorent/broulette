@@ -21,7 +21,7 @@ export class TripAdvisorServerError extends TripAdvisorError {
   constructor(
     query: string,
     responseStatusCode: number,
-    responseBody: TripAdvisorErrorPayload,
+    responseBody: TripAdvisorErrorPayload | undefined,
     durationInMs: number
   ) {
     super(
@@ -42,7 +42,7 @@ export class TripAdvisorAuthorizationError extends TripAdvisorError {
   constructor(
     query: string,
     responseStatusCode: number,
-    responseBody: TripAdvisorErrorPayload,
+    responseBody: TripAdvisorErrorPayload | undefined,
     durationInMs: number
   ) {
     super(
@@ -63,7 +63,7 @@ export class TripAdvisorHttpError extends TripAdvisorError {
   constructor(
     query: string,
     responseStatusCode: number,
-    responseBody: TripAdvisorErrorPayload,
+    responseBody: TripAdvisorErrorPayload | undefined,
     durationInMs: number
   ) {
     super(
