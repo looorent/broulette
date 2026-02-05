@@ -47,7 +47,17 @@ export async function action({ request, context }: ActionFunctionArgs) {
   } else {
     try {
       const locationBias = parseLocationBias(formData);
-      return await searchLocations(query, context.config.nominatim, context.config.photon, locationBias, request.signal);
+      return await searchLocations(
+        query,
+        context.config.nominatim,
+        context.config.photon,
+        locationBias,
+        request.signal,
+        {
+          keyStore: context.cloudflare.env.KV,
+          ttlSeconds: context.config.addressSearchCache.ttlSeconds
+        }
+      );
     } catch (error) {
       logger.error("Address lookup failed:", error);
       return {

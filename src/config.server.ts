@@ -84,6 +84,9 @@ interface Env {
   BROULETTE_ADDRESS_SEARCH_RATE_LIMIT?: string;
   BROULETTE_ADDRESS_SEARCH_RATE_WINDOW_SECONDS?: string;
 
+  // Address Search Cache
+  BROULETTE_ADDRESS_SEARCH_CACHE_TTL_SECONDS?: string;
+
   // Search Engine
   BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS?: string;
   BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS?: string;
@@ -318,6 +321,24 @@ function rateLimitConfig(env: Env): RateLimitConfiguration {
   return RATE_LIMIT_CONFIG;
 }
 
+export interface AddressSearchCacheConfiguration {
+  ttlSeconds: number;
+}
+
+export const DEFAULT_ADDRESS_SEARCH_CACHE_CONFIGURATION: AddressSearchCacheConfiguration = {
+  ttlSeconds: 3600 // 1 hour
+};
+
+let ADDRESS_SEARCH_CACHE_CONFIG: AddressSearchCacheConfiguration;
+function addressSearchCacheConfig(env: Env): AddressSearchCacheConfiguration {
+  if (!ADDRESS_SEARCH_CACHE_CONFIG) {
+    ADDRESS_SEARCH_CACHE_CONFIG = {
+      ttlSeconds: parseNumber(env.BROULETTE_ADDRESS_SEARCH_CACHE_TTL_SECONDS, DEFAULT_ADDRESS_SEARCH_CACHE_CONFIGURATION.ttlSeconds)
+    };
+  }
+  return ADDRESS_SEARCH_CACHE_CONFIG;
+}
+
 export interface AppContext {
   nominatim: NominatimConfiguration | undefined;
   photon: PhotonConfiguration | undefined;
@@ -326,6 +347,7 @@ export interface AppContext {
   tripAdvisor: TripAdvisorConfiguration | undefined;
   search: SearchEngineConfiguration;
   addressSearchRateLimit: RateLimitConfiguration;
+  addressSearchCache: AddressSearchCacheConfiguration;
 }
 
 let APP_CONTEXT: AppContext | undefined;
@@ -338,7 +360,8 @@ export function createAppContext(env: Env): AppContext {
       google: googleConfig(env).enabled ? googleConfig(env) : undefined,
       tripAdvisor: tripAdvisorConfig(env).enabled ? tripAdvisorConfig(env) : undefined,
       search: searchEngineConfig(env),
-      addressSearchRateLimit: rateLimitConfig(env)
+      addressSearchRateLimit: rateLimitConfig(env),
+      addressSearchCache: addressSearchCacheConfig(env)
     };
   }
   return APP_CONTEXT;

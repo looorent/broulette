@@ -49,7 +49,7 @@ describe("Address Search API Route", () => {
     });
   }
 
-  function createContext(config: any = { nominatim: { enabled: true }, photon: { enabled: true }, addressSearchRateLimit: { limit: 30, windowSeconds: 60 } }) {
+  function createContext(config: any = { nominatim: { enabled: true }, photon: { enabled: true }, addressSearchRateLimit: { limit: 30, windowSeconds: 60 }, addressSearchCache: { ttlSeconds: 3600 } }) {
     return {
       sessionStorage,
       config,
@@ -174,6 +174,7 @@ describe("Address Search API Route", () => {
         context.config.nominatim,
         context.config.photon,
         { latitude: 50.85, longitude: 4.35 },
+        expect.anything(),
         expect.anything()
       );
     });
@@ -194,6 +195,7 @@ describe("Address Search API Route", () => {
         context.config.nominatim,
         context.config.photon,
         undefined,
+        expect.anything(),
         expect.anything()
       );
     });
@@ -214,6 +216,7 @@ describe("Address Search API Route", () => {
         context.config.nominatim,
         context.config.photon,
         undefined,
+        expect.anything(),
         expect.anything()
       );
     });
@@ -233,6 +236,7 @@ describe("Address Search API Route", () => {
         context.config.nominatim,
         context.config.photon,
         undefined,
+        expect.anything(),
         expect.anything()
       );
     });

@@ -1,6 +1,7 @@
-# 0.0.5 (2026-02-04)
+# 0.0.5 (2026-02-05)
 
 * [Technical] Add a rate limiter by IP to search addresses (use Cloudfare's KV)
+* [Technical] Add a cache on the address searches to prevent too many calls to the underlying APIs.
 
 # 0.0.4 (2026-02-03)
 

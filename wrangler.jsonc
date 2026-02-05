@@ -114,6 +114,10 @@
     // RATE LIMITING CONFIGURATION
     // -------------------------------------------------------------------------
     "BROULETTE_ADDRESS_SEARCH_RATE_LIMIT": "30",
-    "BROULETTE_ADDRESS_SEARCH_RATE_WINDOW_SECONDS": "60"
+    "BROULETTE_ADDRESS_SEARCH_RATE_WINDOW_SECONDS": "60",
+    // -------------------------------------------------------------------------
+    // ADDRESS SEARCH CACHE CONFIGURATION
+    // -------------------------------------------------------------------------
+    "BROULETTE_ADDRESS_SEARCH_CACHE_TTL_SECONDS": "3600"
   }
 }

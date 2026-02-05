@@ -41,6 +41,18 @@ export function computeDistanceInMeters(from: Coordinates, to: Coordinates): num
   return Math.round(EARTH_RADIUS * c);
 }
 
+// "fractionalDigits=2" is approximately 1km
+export function roundCoordinates(coordinates: Coordinates | undefined, fractionalDigits: number = 2): Coordinates | undefined {
+  if (coordinates) {
+    return {
+      latitude: Number(coordinates.latitude.toFixed(fractionalDigits)),
+      longitude: Number(coordinates.longitude.toFixed(fractionalDigits))
+    };
+  } else {
+    return undefined;
+  }
+}
+
 function toRad(value: number) {
   return (value * Math.PI) / 180;
 }
