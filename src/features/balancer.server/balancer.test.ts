@@ -3,10 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import { LoadBalancer } from "./balancer";
 import type { ServiceStrategy } from "./types";
 
-vi.mock("@features/utils/error", () => ({
-  isAbortError: (error: unknown) => error instanceof Error && error.name === "AbortError"
-}));
-
 function createMockProvider<TArgs extends unknown[], TResult>(
   name: string,
   execute: (...args: TArgs) => Promise<TResult>

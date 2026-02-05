@@ -11,12 +11,20 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
-      include: ["src/features/**/*.ts", "src/features/**/*.tsx"],
+      include: [
+        "src/features/**/*.ts",
+        "src/features/**/*.tsx",
+        "src/routes/**/*.ts",
+        "src/routes/**/*.tsx",
+        "src/components/**/*.ts",
+        "src/components/**/*.tsx"
+      ],
       exclude: [
-        "src/features/**/index.ts",
-        "src/features/**/types.ts",
-        "src/features/**/*.test.ts",
-        "src/features/**/*.test.tsx"
+        "src/**/index.ts",
+        "src/**/types.ts",
+        "src/**/*.test.ts",
+        "src/**/*.test.tsx",
+        "src/routes/+types/**"
       ]
     }
   },

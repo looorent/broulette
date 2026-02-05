@@ -369,19 +369,13 @@ If searches are slow:
 2. Increase service timeouts for slow networks
 3. Check circuit breaker status in logs (look for "Circuit opened")
 
-## License
-
-Proprietary - All rights reserved.
-
-
 ## Next steps?
 
 * Haptics do not work on Android?
 * Use KV for circuit breaker? https://community.cloudflare.com/t/session-management/46770/4
 * Preference form:
     * Use localstorage
-* Add some cache on Nominatim
 * Some restaurants "Pizza chez toi" are mismatched with "Pizza Hut".
 * Add an option to avoid fast foods
 * Move the default range to "by foot" (short range) and offer the capability to extend if nothing has been found.
-
+* Move all the code about "cache" to a dedicated module?
