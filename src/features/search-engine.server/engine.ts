@@ -1,7 +1,7 @@
-import { RestaurantDiscoveryScanner, type DiscoveredRestaurantProfile } from "@features/discovery.server";
+import { RestaurantDiscoveryScanner, type DiscoveredRestaurantProfile, type DiscoveryRestaurantIdentity } from "@features/discovery.server";
 import { enrichRestaurant } from "@features/matching.server";
 import { logger } from "@features/utils/logger";
-import { type CandidateRepository, type DistanceRange, type RestaurantProfile, type Search, type SearchCandidate, type SearchRepository } from "@persistence";
+import { type CandidateRepository, type DistanceRange, type Search, type SearchCandidate, type SearchRepository } from "@persistence";
 
 import { SearchNotFoundError } from "./error";
 import { randomize } from "./randomizer";
@@ -59,7 +59,8 @@ async function* simulateFastChecking(
   restaurants: DiscoveredRestaurantProfile[],
   maxToShow: number = 10
 ): AsyncGenerator<SearchStreamEvent, void, unknown> {
-  const fakeRestaurantsToShow = restaurants.slice(0, Math.min(restaurants.length, maxToShow))
+  const randomized = randomize(restaurants);
+  const fakeRestaurantsToShow = randomized.slice(0, Math.min(randomized.length, maxToShow))
     .map(restaurant => restaurant.name!)
     .filter(Boolean) || [];
   if (fakeRestaurantsToShow.length > 0) {
@@ -189,7 +190,7 @@ function createDiscoveryScanner(
     distanceRange: DistanceRange;
     candidates: {
       restaurant: {
-        profiles: RestaurantProfile[]
+        profiles: DiscoveryRestaurantIdentity[]
       } | undefined | null
     }[] | undefined
   },
