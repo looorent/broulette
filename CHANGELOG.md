@@ -1,3 +1,7 @@
+# 0.0.6 (2026-02-06)
+
+* [Technical] Move the circuit breakers' states from isolated workers to Cloudflare's KeyStore
+
 # 0.0.5 (2026-02-05)
 
 * [Technical] Add a rate limiter by IP to search addresses (use Cloudfare's KV)

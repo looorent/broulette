@@ -372,7 +372,6 @@ If searches are slow:
 ## Next steps?
 
 * Haptics do not work on Android?
-* Use KV for circuit breaker? https://community.cloudflare.com/t/session-management/46770/4
 * Preference form:
     * Use localstorage
 * Some restaurants "Pizza chez toi" are mismatched with "Pizza Hut".

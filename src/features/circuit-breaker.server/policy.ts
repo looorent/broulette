@@ -1,6 +1,13 @@
 import { isAbortError } from "@features/utils/error";
 import { logger } from "@features/utils/logger";
 
+import {
+  DEFAULT_CIRCUIT_BREAKER_CACHE_TTL_SECONDS,
+  readCircuitBreakerState,
+  writeCircuitBreakerState,
+  type CircuitBreakerCacheOptions,
+  type CircuitBreakerState
+} from "./cache";
 import { CircuitBreakerError, CircuitOpenError } from "./error";
 import type { FailingOperation, FailoverConfiguration } from "./types";
 
@@ -8,17 +15,25 @@ export class CircuitBreaker {
   private failures = 0;
   private nextAttempt = 0;
   private state: "CLOSED" | "OPEN" | "HALF_OPEN" = "CLOSED";
+  private hydrated = false;
 
   constructor(
     private readonly name: string,
-    private readonly configuration: FailoverConfiguration
+    private readonly configuration: FailoverConfiguration,
+    private cache?: CircuitBreakerCacheOptions
   ) { }
 
   async execute<T>(operation: FailingOperation<T>, parentSignal?: AbortSignal): Promise<T> {
     return this.withRetry((signal) => this.withCircuitBreaker((s) => this.withTimeout(operation, s), signal), parentSignal);
   }
 
+  withCache(cache: CircuitBreakerCacheOptions | undefined): this {
+    this.cache = cache;
+    return this;
+  }
+
   private async withCircuitBreaker<T>(op: FailingOperation<T>, signal: AbortSignal): Promise<T> {
+    await this.hydrateFromCache();
     const now = Date.now();
 
     if (this.state === "OPEN") {
@@ -41,9 +56,36 @@ export class CircuitBreaker {
     }
   }
 
+  private async hydrateFromCache(): Promise<void> {
+    if (!this.hydrated && this.cache) {
+      const cached = await readCircuitBreakerState(this.cache.keyStore, this.name);
+      if (cached) {
+        this.failures = cached.failures;
+        this.nextAttempt = cached.nextAttempt;
+        this.state = cached.state;
+        logger.trace("[CircuitBreaker] Hydrated '%s' from cache: state=%s, failures=%d", this.name, this.state, this.failures);
+      }
+      this.hydrated = true;
+    }
+  }
+
+  private persistToCache(): void {
+    if (this.cache) {
+      const state: CircuitBreakerState = {
+        failures: this.failures,
+        nextAttempt: this.nextAttempt,
+        state: this.state
+      };
+
+      const ttl = this.cache.ttlSeconds ?? DEFAULT_CIRCUIT_BREAKER_CACHE_TTL_SECONDS;
+      writeCircuitBreakerState(this.cache.keyStore, this.name, state, ttl);
+    }
+  }
+
   private onSuccess() {
     this.failures = 0;
     this.state = "CLOSED";
+    this.persistToCache();
   }
 
   private onFailure() {
@@ -53,6 +95,7 @@ export class CircuitBreaker {
       this.nextAttempt = Date.now() + this.configuration.halfOpenAfterInMs;
       logger.warn("[CircuitBreaker] Circuit '%s' opened! Next attempt in %dms", this.name, this.configuration.halfOpenAfterInMs);
     }
+    this.persistToCache();
   }
 
   private async withTimeout<T>(
