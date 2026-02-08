@@ -135,7 +135,7 @@ function parseRestaurantFromResponse(
       latitude: latitude,
       longitude: longitude,
       amenity: tags["amenity"],
-      cuisine: tags["cuisine"]?.split(",") || [],
+      cuisine: tags["cuisine"]?.split(/[;,]/).map((cuisine: string) => cuisine.trim()).filter(Boolean) || [],
       vegan: tags["diet:vegan"] || undefined,
       vegetarian: tags["diet:vegetarian"] || undefined,
       countryCode: countryCode?.toLowerCase(),

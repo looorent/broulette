@@ -15,6 +15,13 @@
       "when": 1767970922559,
       "tag": "0001_lazy_abomination",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1770550986868,
+      "tag": "0002_furry_zuras",
+      "breakpoints": true
     }
   ]
 }

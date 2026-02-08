@@ -375,6 +375,5 @@ If searches are slow:
 * Preference form:
     * Use localstorage
 * Some restaurants "Pizza chez toi" are mismatched with "Pizza Hut".
-* Add an option to avoid fast foods
 * Move the default range to "by foot" (short range) and offer the capability to extend if nothing has been found.
 * Move all the code about "cache" to a dedicated module?

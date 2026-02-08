@@ -8,7 +8,7 @@ import type { DistanceRange, Search, SearchCandidateStatus, SearchWithCandidateC
 import { searches } from "./schema";
 
 export interface SearchRepository {
-  create(latitude: number,longitude: number,date: Date,timeslot: ServiceTimeslot, distanceRange: DistanceRange): Promise<Search>;
+  create(latitude: number,longitude: number,date: Date,timeslot: ServiceTimeslot, distanceRange: DistanceRange, avoidFastFood: boolean): Promise<Search>;
   findWithLatestCandidateId(searchId: string | undefined | null, candidateStatus?: SearchCandidateStatus | undefined): Promise<{
     searchId: string;
     exhausted: boolean;
@@ -17,6 +17,7 @@ export interface SearchRepository {
     order: number;
     distanceRange: DistanceRange;
     latestCandidateId: string | undefined;
+    avoidFastFood: boolean;
   } | undefined>;
   findByIdWithCandidateContext(searchId: string): Promise<SearchWithCandidateContext | undefined>;
   markSearchAsExhausted(searchId: string): Promise<void>;
@@ -30,7 +31,8 @@ export class SearchRepositoryDrizzle implements SearchRepository {
     longitude: number,
     date: Date,
     timeslot: ServiceTimeslot,
-    distanceRange: DistanceRange
+    distanceRange: DistanceRange,
+    avoidFastFood: boolean
   ): Promise<Search> {
     logger.trace("[Drizzle] creating Search...");
     const [newSearch] = await this.db.insert(searches).values({
@@ -41,7 +43,8 @@ export class SearchRepositoryDrizzle implements SearchRepository {
       serviceInstant: createServiceDatetime(date, timeslot),
       serviceEnd: createServiceEnd(date, timeslot),
       distanceRange: distanceRange,
-      exhausted: false
+      exhausted: false,
+      avoidFastFood: avoidFastFood
     }).returning();
     return newSearch;
   }
@@ -57,6 +60,7 @@ export class SearchRepositoryDrizzle implements SearchRepository {
     order: number;
     distanceRange: DistanceRange;
     latestCandidateId: string | undefined;
+    avoidFastFood: boolean;
   } | undefined> {
     if (searchId) {
       const search = await this.db.query.searches.findFirst({
@@ -66,7 +70,8 @@ export class SearchRepositoryDrizzle implements SearchRepository {
           exhausted: true,
           serviceTimeslot: true,
           serviceInstant: true,
-          distanceRange: true
+          distanceRange: true,
+          avoidFastFood: true
         },
         with: {
           candidates: {
@@ -89,7 +94,8 @@ export class SearchRepositoryDrizzle implements SearchRepository {
           serviceInstant: search.serviceInstant,
           distanceRange: search.distanceRange as DistanceRange,
           latestCandidateId: latestId,
-          order: latestCandidate?.order ?? 0
+          order: latestCandidate?.order ?? 0,
+          avoidFastFood: search.avoidFastFood
         };
       } else {
         logger.trace("[Drizzle] findWithLatestCandidateId: Search '%s' not found", searchId);

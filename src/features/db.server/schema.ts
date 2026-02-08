@@ -19,7 +19,7 @@ export const searchCandidateStatusEnum = (name: string) => text(name, {
   enum: CANDIDATE_STATUSES
 });
 
-export const CANDIDATE_REJECTION_REASONS = ["missing_coordinates", "unknown_opening_hours", "closed", "no_image", "no_restaurant_found"] as const;
+export const CANDIDATE_REJECTION_REASONS = ["missing_coordinates", "unknown_opening_hours", "closed", "no_image", "no_restaurant_found", "fast_food"] as const;
 export const searchCandidateRejectionReasonEnum = (name: string) => text(name, {
   length: 40,
   enum: CANDIDATE_REJECTION_REASONS
@@ -82,7 +82,8 @@ export const searches = sqliteTable("search", {
   serviceEnd: integer("service_end", { mode: "timestamp_ms" }).notNull(),
   serviceTimeslot: serviceTimeslotEnum("service_timeslot").notNull(),
   distanceRange: distanceRangeEnum("distance_range").notNull(),
-  exhausted: integer("exhausted", { mode: "boolean" }).default(false).notNull()
+  exhausted: integer("exhausted", { mode: "boolean" }).default(false).notNull(),
+  avoidFastFood: integer("avoid_fast_food", { mode: "boolean" }).default(true).notNull()
 }, (table) => [
   index("idx_search_coordinates").on(table.latitude, table.longitude)
 ]);

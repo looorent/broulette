@@ -49,7 +49,8 @@ function createMockSearch(): Search {
     serviceEnd: new Date(2024, 2, 15, 14, 30),
     serviceTimeslot: "Lunch",
     distanceRange: "MidRange",
-    exhausted: false
+    exhausted: false,
+    avoidFastFood: true
   };
 }
 

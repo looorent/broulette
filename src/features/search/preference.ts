@@ -12,16 +12,19 @@ function buildPreference(
   service: ServicePreference,
   location: LocationPreference,
   isDeviceLocationAttempted: boolean,
-  range: DistanceRangeOption): Preference {
+  range: DistanceRangeOption,
+  avoidFastFood: boolean = true
+): Preference {
 
   const hasValidLocation = hasCoordinates(location);
   const isValid = service && range && hasValidLocation;
   return {
-    id: `svc_${service?.id ?? 'null'}_loc_${JSON.stringify(location)}_rng_${range?.id ?? 'null'}_atmpt_${isDeviceLocationAttempted}`,
+    id: `svc_${service?.id ?? 'null'}_loc_${JSON.stringify(location)}_rng_${range?.id ?? 'null'}_atmpt_${isDeviceLocationAttempted}_aff_${avoidFastFood}`,
     service: service,
     location: location,
     isDeviceLocationAttempted: isDeviceLocationAttempted,
     range: range,
+    avoidFastFood: avoidFastFood,
     isValid: isValid,
     hasValidLocation
   };
@@ -33,6 +36,7 @@ export interface Preference {
   location: LocationPreference;
   isDeviceLocationAttempted: boolean;
   range: DistanceRangeOption;
+  avoidFastFood: boolean;
   isValid: boolean;
   hasValidLocation: boolean;
 }
@@ -44,7 +48,8 @@ export const preferenceFactory = {
         preference.service,
         location,
         preference.isDeviceLocationAttempted,
-        preference.range
+        preference.range,
+        preference.avoidFastFood
       );
     } else {
       return preference;
@@ -57,7 +62,8 @@ export const preferenceFactory = {
         service,
         preference.location,
         preference.isDeviceLocationAttempted,
-        preference.range
+        preference.range,
+        preference.avoidFastFood
       );
     } else {
       return preference;
@@ -72,7 +78,8 @@ export const preferenceFactory = {
         preference.service,
         preference.location,
         true,
-        preference.range
+        preference.range,
+        preference.avoidFastFood
       );
     }
   },
@@ -83,7 +90,22 @@ export const preferenceFactory = {
         preference.service,
         preference.location,
         preference.isDeviceLocationAttempted,
-        range
+        range,
+        preference.avoidFastFood
+      );
+    } else {
+      return preference;
+    }
+  },
+
+  withAvoidFastFood: (preference: Preference, avoidFastFood: boolean) => {
+    if (preference.avoidFastFood !== avoidFastFood) {
+      return buildPreference(
+        preference.service,
+        preference.location,
+        preference.isDeviceLocationAttempted,
+        preference.range,
+        avoidFastFood
       );
     } else {
       return preference;
@@ -95,7 +117,8 @@ export const preferenceFactory = {
       services[1],
       createDeviceLocation(coordinates),
       false,
-      ranges[1]
+      ranges[1],
+      true
     );
   }
 };

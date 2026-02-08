@@ -374,7 +374,7 @@ describe("Overpass Client", () => {
         50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
       );
 
-      expect(result!.restaurants[0].cuisine).toEqual([""]);
+      expect(result!.restaurants[0].cuisine).toEqual([]);
     });
 
     it("includes exclusion query when IDs to exclude are provided", async () => {

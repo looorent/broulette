@@ -5,6 +5,15 @@ const SUCCESS = {
   valid: true
 };
 
+const FAST_FOOD_TAGS = new Set([
+  "fast_food",
+  "fastfood",
+  "friture",
+  "friterie",
+  "kebab",
+  "sandwich_shop"
+]);
+
 function failed(reason: SearchCandidateRejectionReason | null = null): RestaurantValidation {
   return {
     valid: false,
@@ -33,6 +42,8 @@ export async function validateRestaurant(
         return failed("closed");
       } else if (!model.imageUrl) {
         return failed("no_image");
+      } else if (search.avoidFastFood && model.tags.some(tag => FAST_FOOD_TAGS.has(tag.id))) {
+        return failed("fast_food");
       } else {
         return SUCCESS;
       }

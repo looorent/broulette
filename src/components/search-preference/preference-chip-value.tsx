@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
 interface PreferenceChipValueProps {
   label?: string | undefined;
@@ -7,6 +8,7 @@ interface PreferenceChipValueProps {
   isValid?: boolean;
   isBuzzing?: boolean;
   icon?: LucideIcon | undefined;
+  children?: ReactNode;
 }
 
 export function PreferenceChipValue({
@@ -16,6 +18,7 @@ export function PreferenceChipValue({
   iconClassName = "h-4 w-4",
   isValid = true,
   isBuzzing = false,
+  children,
 }: PreferenceChipValueProps) {
   return (
     <div className="group/tag relative">
@@ -34,7 +37,7 @@ export function PreferenceChipValue({
         ${isBuzzing ? 'animate-buzz' : ''}
         ${className}
       `}>
-        { Icon ? (
+        { children ? children : Icon ? (
           <Icon className={iconClassName} />
         ) : null}
 

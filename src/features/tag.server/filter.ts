@@ -4,7 +4,7 @@ export function filterTags(
   tags: string[] | undefined,
   configuration: RestaurantTagConfiguration
 ): string[] {
-  let processedTags = tags ? [...tags] : [];
+  let processedTags = tags ? splitCompoundTags(tags) : [];
   if (processedTags.length > 0) {
     processedTags = removeHiddenTags(processedTags, configuration.hiddenTags);
     processedTags = removeSuffixes(processedTags);
@@ -46,5 +46,11 @@ function limitTagCount(tags: string[], maxTags?: number): string[] {
 
 function removeSuffixes(tags: string[]): string[] {
   return tags.map(tag => tag.replace("_restaurant", "")).filter(tag => tag.trim()).filter(Boolean);
+}
+
+function splitCompoundTags(tags: string[]): string[] {
+  return tags.flatMap(tag => tag.split(";")
+    .map(tag => tag.trim())
+    .filter(Boolean));
 }
 

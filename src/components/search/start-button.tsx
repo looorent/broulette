@@ -44,6 +44,7 @@ export function SearchSubmitButton({
         locationLatitude: preferences.location.coordinates!.latitude,
         locationLongitude: preferences.location.coordinates!.longitude,
         distanceRangeId: preferences.range.id,
+        avoidFastFood: String(preferences.avoidFastFood),
         csrf: session?.csrfToken ?? ""
       }, {
         action: "/searches",

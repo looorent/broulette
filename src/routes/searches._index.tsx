@@ -21,7 +21,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   const data = parseAndValidate(formData);
   logger.log("[POST /searches] Saving new search in database...", data);
   try {
-    const createdSearch = await context.repositories.search.create(data.latitude, data.longitude, data.date, data.timeslot, data.distanceRange);
+    const createdSearch = await context.repositories.search.create(data.latitude, data.longitude, data.date, data.timeslot, data.distanceRange, data.avoidFastFood);
     logger.log("[POST /searches] Search created with id:", createdSearch.id);
     return redirect(href("/searches/:searchId", { searchId: createdSearch.id }));
   } catch(e) {
@@ -38,6 +38,7 @@ function parseAndValidate(formData: FormData) {
   const rawLongitude = Number(formData.get("locationLongitude"))?.toString() ?? "";
   const rawTimeslot = formData.get("serviceTimeslot")?.toString();
   const rawDistanceRange = formData.get("distanceRangeId")?.toString();
+  const avoidFastFood = formData.get("avoidFastFood")?.toString() === "true";
 
   const date = new Date(Date.parse(rawDate))
   const latitude = parseFloat(rawLatitude);
@@ -71,7 +72,8 @@ function parseAndValidate(formData: FormData) {
       latitude,
       longitude,
       timeslot: rawTimeslot as ServiceTimeslot,
-      distanceRange: rawDistanceRange as DistanceRange
+      distanceRange: rawDistanceRange as DistanceRange,
+      avoidFastFood
     };
   }
 }

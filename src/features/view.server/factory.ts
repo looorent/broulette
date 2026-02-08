@@ -33,7 +33,7 @@ export function buildViewModelOfCandidate(
       reRollEnabled: !candidate.search.exhausted && !hasExpired,
       search: {
         id: candidate.search.id,
-        label: formatSearchLabel(candidate.search.serviceTimeslot, candidate.search.serviceInstant, candidate.search.distanceRange, locale),
+        label: formatSearchLabel(candidate.search.serviceTimeslot, candidate.search.serviceInstant, candidate.search.distanceRange, locale, candidate.search.avoidFastFood),
         redirectRequired: false
       },
       restaurant: buildViewModelOfRestaurant(candidate.restaurant, candidate.search, locale)
@@ -50,6 +50,7 @@ export function buildViewModelOfSearch(search: {
   serviceInstant: Date;
   distanceRange: DistanceRange;
   latestCandidateId: string | undefined;
+  avoidFastFood?: boolean;
 } | undefined, locale: string): SearchRedirect | SearchView | undefined {
   if (search) {
     if (search.latestCandidateId) {
@@ -62,7 +63,7 @@ export function buildViewModelOfSearch(search: {
       return {
         redirectRequired: false,
         id: search.searchId,
-        label: formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale)
+        label: formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale, search.avoidFastFood)
       };
     }
   } else {
@@ -254,17 +255,19 @@ function formatSearchLabel(
   serviceTimeslot: ServiceTimeslot,
   serviceInstant: Date,
   distanceRange: DistanceRange,
-  locale: string
+  locale: string,
+  avoidFastFood?: boolean
 ): string {
   return [
     formatServiceTime(serviceTimeslot, serviceInstant, locale),
-    formatDistance(distanceRange)
+    formatDistance(distanceRange),
+    avoidFastFood ? "No fast food" : undefined
   ].filter(Boolean).join(" - ");
 }
 
 function formatCandidateLabel(restaurant: Restaurant | undefined | null, search: Search, locale: string): string {
   return [
-    formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale),
+    formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale, search.avoidFastFood),
     restaurant?.name
   ].filter(Boolean).join(" - ");
 }

@@ -26,7 +26,8 @@ function createMockSearch(): Search {
     serviceEnd: new Date(),
     serviceTimeslot: "Lunch",
     distanceRange: "MidRange",
-    exhausted: false
+    exhausted: false,
+    avoidFastFood: true
   };
 }
 
@@ -150,6 +151,58 @@ describe("validateRestaurant", () => {
 
     expect(result.valid).toBe(false);
     expect(result.rejectionReason).toBe("no_image");
+  });
+
+  it("returns failed with fast_food when avoidFastFood is true and restaurant has fast_food tag", async () => {
+    mockedBuildViewModel.mockReturnValue({
+      id: "restaurant-1",
+      name: "Test Restaurant",
+      description: undefined,
+      priceRange: undefined,
+      imageUrl: "https://example.com/image.jpg",
+      source: "test",
+      rating: undefined,
+      tags: [{ id: "fast_food", label: "Fast Food" }],
+      phoneNumber: undefined,
+      internationalPhoneNumber: undefined,
+      openingHoursOfTheDay: { unknown: false, open: true, dayLabel: "Mon", hoursLabel: "12:00-22:00" },
+      address: undefined,
+      urls: [],
+      mapUrl: undefined
+    });
+
+    const restaurant = createMockRestaurant();
+    const search = createMockSearch();
+    const result = await validateRestaurant(restaurant, search, "en-US");
+
+    expect(result.valid).toBe(false);
+    expect(result.rejectionReason).toBe("fast_food");
+  });
+
+  it("returns valid when avoidFastFood is false even if restaurant has fast_food tag", async () => {
+    mockedBuildViewModel.mockReturnValue({
+      id: "restaurant-1",
+      name: "Test Restaurant",
+      description: undefined,
+      priceRange: undefined,
+      imageUrl: "https://example.com/image.jpg",
+      source: "test",
+      rating: undefined,
+      tags: [{ id: "fast_food", label: "Fast Food" }],
+      phoneNumber: undefined,
+      internationalPhoneNumber: undefined,
+      openingHoursOfTheDay: { unknown: false, open: true, dayLabel: "Mon", hoursLabel: "12:00-22:00" },
+      address: undefined,
+      urls: [],
+      mapUrl: undefined
+    });
+
+    const restaurant = createMockRestaurant();
+    const search = { ...createMockSearch(), avoidFastFood: false };
+    const result = await validateRestaurant(restaurant, search, "en-US");
+
+    expect(result.valid).toBe(true);
+    expect(result.rejectionReason).toBeUndefined();
   });
 
   it("returns valid when restaurant passes all checks", async () => {

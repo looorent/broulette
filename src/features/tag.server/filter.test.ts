@@ -28,6 +28,23 @@ describe("filterTags", () => {
     });
   });
 
+  describe("semicolon-separated tags splitting", () => {
+    it("splits semicolon-separated tags into individual tags", () => {
+      const result = filterTags(["italian;french", "pizza"], defaultConfig);
+      expect(result).toEqual(["italian", "french", "pizza"]);
+    });
+
+    it("trims whitespace around split tags", () => {
+      const result = filterTags(["italian ; french"], defaultConfig);
+      expect(result).toEqual(["italian", "french"]);
+    });
+
+    it("filters out empty segments", () => {
+      const result = filterTags(["italian;;french", ";pizza;"], defaultConfig);
+      expect(result).toEqual(["italian", "french", "pizza"]);
+    });
+  });
+
   describe("hidden tags removal", () => {
     it("removes hidden tags", () => {
       const config: RestaurantTagConfiguration = {

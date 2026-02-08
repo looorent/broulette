@@ -38,6 +38,7 @@ function createMockPreference(overrides: Partial<Preference> = {}): Preference {
     location: createMockLocation(),
     isDeviceLocationAttempted: false,
     range: createMockRange(),
+    avoidFastFood: true,
     isValid: true,
     hasValidLocation: true,
     ...overrides
@@ -176,6 +177,25 @@ describe("preferenceFactory", () => {
     });
   });
 
+  describe("withAvoidFastFood", () => {
+    it("returns a new preference with updated avoidFastFood", () => {
+      const original = createMockPreference({ avoidFastFood: true });
+
+      const result = preferenceFactory.withAvoidFastFood(original, false);
+
+      expect(result).not.toBe(original);
+      expect(result.avoidFastFood).toBe(false);
+    });
+
+    it("returns the same preference if avoidFastFood is unchanged", () => {
+      const original = createMockPreference({ avoidFastFood: true });
+
+      const result = preferenceFactory.withAvoidFastFood(original, true);
+
+      expect(result).toBe(original);
+    });
+  });
+
   describe("createDefaultPreference", () => {
     it("creates a preference with the second service and range options", () => {
       const services = [createMockService("service-0"), createMockService("service-1")];
@@ -208,6 +228,16 @@ describe("preferenceFactory", () => {
       expect(result.location.coordinates).toBeNull();
       expect(result.hasValidLocation).toBe(false);
       expect(result.isValid).toBe(false);
+    });
+
+    it("sets avoidFastFood to true by default", () => {
+      const services = [createMockService("service-0"), createMockService("service-1")];
+      const ranges = [createMockRange("Close"), createMockRange("MidRange")];
+      const coordinates = { latitude: 48.8566, longitude: 2.3522 };
+
+      const result = preferenceFactory.createDefaultPreference(services, ranges, coordinates);
+
+      expect(result.avoidFastFood).toBe(true);
     });
 
     it("sets isDeviceLocationAttempted to false", () => {

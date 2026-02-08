@@ -33,7 +33,8 @@ describe("SearchRepositoryDrizzle", () => {
         2.3522,
         new Date(2024, 2, 15),
         "Lunch",
-        "MidRange"
+        "MidRange",
+        true
       );
 
       expect(result).toEqual(newSearch);

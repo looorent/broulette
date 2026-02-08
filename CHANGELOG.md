@@ -1,3 +1,7 @@
+# 0.0.7 (2026-02-08)
+
+* [Feature] Filter to avoid fast foods
+
 # 0.0.6 (2026-02-06)
 
 * [Technical] Move the circuit breakers' states from isolated workers to Cloudflare's KeyStore
