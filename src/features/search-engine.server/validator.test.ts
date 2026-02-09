@@ -27,7 +27,8 @@ function createMockSearch(): Search {
     serviceTimeslot: "Lunch",
     distanceRange: "MidRange",
     exhausted: false,
-    avoidFastFood: true
+    avoidFastFood: true,
+    avoidTakeaway: true
   };
 }
 
@@ -199,6 +200,84 @@ describe("validateRestaurant", () => {
 
     const restaurant = createMockRestaurant();
     const search = { ...createMockSearch(), avoidFastFood: false };
+    const result = await validateRestaurant(restaurant, search, "en-US");
+
+    expect(result.valid).toBe(true);
+    expect(result.rejectionReason).toBeUndefined();
+  });
+
+  it("returns failed with takeaway when avoidTakeaway is true and restaurant has meal_takeaway tag", async () => {
+    mockedBuildViewModel.mockReturnValue({
+      id: "restaurant-1",
+      name: "Test Restaurant",
+      description: undefined,
+      priceRange: undefined,
+      imageUrl: "https://example.com/image.jpg",
+      source: "test",
+      rating: undefined,
+      tags: [{ id: "meal_takeaway", label: "Takeaway" }],
+      phoneNumber: undefined,
+      internationalPhoneNumber: undefined,
+      openingHoursOfTheDay: { unknown: false, open: true, dayLabel: "Mon", hoursLabel: "12:00-22:00" },
+      address: undefined,
+      urls: [],
+      mapUrl: undefined
+    });
+
+    const restaurant = createMockRestaurant();
+    const search = createMockSearch();
+    const result = await validateRestaurant(restaurant, search, "en-US");
+
+    expect(result.valid).toBe(false);
+    expect(result.rejectionReason).toBe("takeaway");
+  });
+
+  it("returns failed with takeaway when avoidTakeaway is true and restaurant has meal_delivery tag", async () => {
+    mockedBuildViewModel.mockReturnValue({
+      id: "restaurant-1",
+      name: "Test Restaurant",
+      description: undefined,
+      priceRange: undefined,
+      imageUrl: "https://example.com/image.jpg",
+      source: "test",
+      rating: undefined,
+      tags: [{ id: "meal_delivery", label: "Delivery" }],
+      phoneNumber: undefined,
+      internationalPhoneNumber: undefined,
+      openingHoursOfTheDay: { unknown: false, open: true, dayLabel: "Mon", hoursLabel: "12:00-22:00" },
+      address: undefined,
+      urls: [],
+      mapUrl: undefined
+    });
+
+    const restaurant = createMockRestaurant();
+    const search = createMockSearch();
+    const result = await validateRestaurant(restaurant, search, "en-US");
+
+    expect(result.valid).toBe(false);
+    expect(result.rejectionReason).toBe("takeaway");
+  });
+
+  it("returns valid when avoidTakeaway is false even if restaurant has meal_takeaway tag", async () => {
+    mockedBuildViewModel.mockReturnValue({
+      id: "restaurant-1",
+      name: "Test Restaurant",
+      description: undefined,
+      priceRange: undefined,
+      imageUrl: "https://example.com/image.jpg",
+      source: "test",
+      rating: undefined,
+      tags: [{ id: "meal_takeaway", label: "Takeaway" }],
+      phoneNumber: undefined,
+      internationalPhoneNumber: undefined,
+      openingHoursOfTheDay: { unknown: false, open: true, dayLabel: "Mon", hoursLabel: "12:00-22:00" },
+      address: undefined,
+      urls: [],
+      mapUrl: undefined
+    });
+
+    const restaurant = createMockRestaurant();
+    const search = { ...createMockSearch(), avoidTakeaway: false };
     const result = await validateRestaurant(restaurant, search, "en-US");
 
     expect(result.valid).toBe(true);

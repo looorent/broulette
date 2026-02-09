@@ -1,5 +1,5 @@
 import { useDrag } from "@use-gesture/react";
-import { BadgeQuestionMark, Ban, Car, Footprints, Hamburger, MapPin, Rocket, type LucideIcon } from "lucide-react";
+import { BadgeQuestionMark, Car, Footprints, Hamburger, MapPin, Rocket, ShoppingBag, type LucideIcon } from "lucide-react";
 import { forwardRef, useImperativeHandle, useState } from "react";
 
 import { findIconFor, type DistanceRangeOption, type Preference } from "@features/search";
@@ -81,23 +81,13 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
                 mt-1.5 rotate-2 p-1
                 hover:rotate-0
               `}
-              iconClassName="h-5 w-5"
-              icon={distanceIcon}
-            />
-
-            {preferences?.avoidFastFood && (
-              <PreferenceChipValue
-                className={`
-                  mt-0.5 rotate-3 p-1
-                  hover:rotate-0
-                `}
-              >
-                <div className="relative">
-                  <Hamburger className="h-5 w-5" />
-                  <Ban className={`absolute inset-0 m-auto h-5 w-5 text-fun-red`} />
-                </div>
-              </PreferenceChipValue>
-            )}
+            >
+              <div className="flex items-center gap-1.5">
+                <DistanceIcon icon={distanceIcon} />
+                {!preferences?.avoidFastFood && <Hamburger className="h-5 w-5" />}
+                {!preferences?.avoidTakeaway && <ShoppingBag className="h-5 w-5" />}
+              </div>
+            </PreferenceChipValue>
 
             <PreferenceChipValue
               label={preferences?.service?.label?.compact}
@@ -114,6 +104,10 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
   }
 );
 PreferenceChip.displayName = "PreferenceChip";
+
+function DistanceIcon({ icon: Icon }: { icon: LucideIcon }) {
+  return <Icon className="h-5 w-5" />;
+}
 
 function findDistanceIcon(range: DistanceRangeOption | undefined): LucideIcon {
   switch(range?.id) {

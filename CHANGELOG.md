@@ -1,6 +1,7 @@
 # 0.0.7 (2026-02-08)
 
 * [Feature] Filter to avoid fast foods
+* [Feature] Filter to avoid takeaways
 
 # 0.0.6 (2026-02-06)
 

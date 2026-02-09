@@ -1,5 +1,5 @@
 
-import { Hamburger } from "lucide-react";
+import { Hamburger, ShoppingBag } from "lucide-react";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 
 import { areLocationEquals, DISTANCE_RANGES, type DistanceRangeOption, type LocationPreference, type Preference, type ServicePreference } from "@features/search";
@@ -16,6 +16,7 @@ interface PreferencesFormProps {
   onDistanceRangeChange: (newDistanceRange: DistanceRangeOption) => void;
   onServiceChange: (newService: ServicePreference) => void;
   onAvoidFastFoodChange: (value: boolean) => void;
+  onAvoidTakeawayChange: (value: boolean) => void;
 }
 
 export interface PreferencesFormHandle {
@@ -23,7 +24,7 @@ export interface PreferencesFormHandle {
 }
 
 export const PreferencesForm = forwardRef<PreferencesFormHandle, PreferencesFormProps>(
-  ({ services, preferences, onLocationChange, onDistanceRangeChange, onServiceChange, onAvoidFastFoodChange }, ref) => {
+  ({ services, preferences, onLocationChange, onDistanceRangeChange, onServiceChange, onAvoidFastFoodChange, onAvoidTakeawayChange }, ref) => {
     const locationSelectorRef = useRef<LocationSelectorHandle>(null);
       useImperativeHandle(ref, () => ({
         handleClose: () => {
@@ -73,12 +74,13 @@ export const PreferencesForm = forwardRef<PreferencesFormHandle, PreferencesForm
             }} />
 
           <fieldset className={`
-            relative m-0 w-full max-w-full min-w-0 space-y-3 border-none p-0
+            relative m-0 flex w-full max-w-full min-w-0 flex-col gap-1 space-y-3
+            border-none p-0
           `}>
             <legend className={`
-              mb-2 block font-pop text-2xl tracking-wide text-fun-dark
+              block font-pop text-2xl tracking-wide text-fun-dark
             `}>
-              Filters
+              Picky?
             </legend>
 
             <ToggleSelector
@@ -86,6 +88,13 @@ export const PreferencesForm = forwardRef<PreferencesFormHandle, PreferencesForm
               checked={preferences?.avoidFastFood ?? true}
               onChange={onAvoidFastFoodChange}
               icon={Hamburger}
+            />
+
+            <ToggleSelector
+              label="Avoid takeaway"
+              checked={preferences?.avoidTakeaway ?? true}
+              onChange={onAvoidTakeawayChange}
+              icon={ShoppingBag}
             />
           </fieldset>
         </form>

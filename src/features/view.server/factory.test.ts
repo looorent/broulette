@@ -50,7 +50,8 @@ function createMockSearch(): Search {
     serviceTimeslot: "Lunch",
     distanceRange: "MidRange",
     exhausted: false,
-    avoidFastFood: true
+    avoidFastFood: true,
+    avoidTakeaway: true
   };
 }
 

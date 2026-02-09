@@ -128,7 +128,8 @@ function HomeContent() {
           onServiceChange={newService => setPreferences(preferenceFactory.withService(preferences, newService))}
           onDistanceRangeChange={newDistanceRange => setPreferences(preferenceFactory.withRange(preferences, newDistanceRange)) }
           onLocationChange={newLocation => setPreferences(preferenceFactory.withLocation(preferences, newLocation)) }
-          onAvoidFastFoodChange={value => setPreferences(preferenceFactory.withAvoidFastFood(preferences, value))} />
+          onAvoidFastFoodChange={value => setPreferences(preferenceFactory.withAvoidFastFood(preferences, value))}
+          onAvoidTakeawayChange={value => setPreferences(preferenceFactory.withAvoidTakeaway(preferences, value))} />
       </BottomSheet>
 
       <AlertBox

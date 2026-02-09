@@ -51,7 +51,8 @@ describe("POST /searches — input validation", () => {
     locationLongitude: "2.3522",
     serviceTimeslot: "Lunch",
     distanceRangeId: "Close",
-    avoidFastFood: "true"
+    avoidFastFood: "true",
+    avoidTakeaway: "true"
   };
 
   async function expectValidationError(fields: Record<string, string>, expectedErrorKey: string) {
@@ -278,6 +279,7 @@ describe("POST /searches — input validation", () => {
         expect.any(Date),
         "Lunch",
         "Close",
+        true,
         true
       );
       expect(response.status).toBe(302);

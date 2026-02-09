@@ -14,6 +14,14 @@ const FAST_FOOD_TAGS = new Set([
   "sandwich_shop"
 ]);
 
+const TAKEAWAY_TAGS = new Set([
+  "meal_takeaway",
+  "meal_delivery",
+  "food_delivery",
+  "takeaway",
+  "delivery"
+]);
+
 function failed(reason: SearchCandidateRejectionReason | null = null): RestaurantValidation {
   return {
     valid: false,
@@ -44,6 +52,8 @@ export async function validateRestaurant(
         return failed("no_image");
       } else if (search.avoidFastFood && model.tags.some(tag => FAST_FOOD_TAGS.has(tag.id))) {
         return failed("fast_food");
+      } else if (search.avoidTakeaway && model.tags.some(tag => TAKEAWAY_TAGS.has(tag.id))) {
+        return failed("takeaway");
       } else {
         return SUCCESS;
       }

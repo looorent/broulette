@@ -9,7 +9,7 @@ interface ToggleSelectorProps {
 
 export function ToggleSelector({ label, checked, onChange, icon: Icon }: ToggleSelectorProps) {
   return (
-    <label className="group cursor-pointer" aria-label={label}>
+    <label className="group mr-1 cursor-pointer" aria-label={label}>
       <input
         type="checkbox"
         checked={checked}
@@ -18,7 +18,7 @@ export function ToggleSelector({ label, checked, onChange, icon: Icon }: ToggleS
       />
       <div className={`
         flex items-center justify-between rounded-2xl border-4
-        border-fun-dark/10 bg-white px-5 py-4 transition-all
+        border-fun-dark/10 bg-white px-5 py-3 transition-all
         group-hover:border-fun-dark/30
         peer-checked:border-fun-dark peer-checked:bg-fun-yellow
         peer-checked:shadow-hard

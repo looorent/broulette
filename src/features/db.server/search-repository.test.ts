@@ -34,6 +34,7 @@ describe("SearchRepositoryDrizzle", () => {
         new Date(2024, 2, 15),
         "Lunch",
         "MidRange",
+        true,
         true
       );
 

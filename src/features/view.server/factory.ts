@@ -33,7 +33,7 @@ export function buildViewModelOfCandidate(
       reRollEnabled: !candidate.search.exhausted && !hasExpired,
       search: {
         id: candidate.search.id,
-        label: formatSearchLabel(candidate.search.serviceTimeslot, candidate.search.serviceInstant, candidate.search.distanceRange, locale, candidate.search.avoidFastFood),
+        label: formatSearchLabel(candidate.search.serviceTimeslot, candidate.search.serviceInstant, candidate.search.distanceRange, locale, candidate.search.avoidFastFood, candidate.search.avoidTakeaway),
         redirectRequired: false
       },
       restaurant: buildViewModelOfRestaurant(candidate.restaurant, candidate.search, locale)
@@ -51,6 +51,7 @@ export function buildViewModelOfSearch(search: {
   distanceRange: DistanceRange;
   latestCandidateId: string | undefined;
   avoidFastFood?: boolean;
+  avoidTakeaway?: boolean;
 } | undefined, locale: string): SearchRedirect | SearchView | undefined {
   if (search) {
     if (search.latestCandidateId) {
@@ -63,7 +64,7 @@ export function buildViewModelOfSearch(search: {
       return {
         redirectRequired: false,
         id: search.searchId,
-        label: formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale, search.avoidFastFood)
+        label: formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale, search.avoidFastFood, search.avoidTakeaway)
       };
     }
   } else {
@@ -256,18 +257,20 @@ function formatSearchLabel(
   serviceInstant: Date,
   distanceRange: DistanceRange,
   locale: string,
-  avoidFastFood?: boolean
+  avoidFastFood?: boolean,
+  avoidTakeaway?: boolean
 ): string {
   return [
     formatServiceTime(serviceTimeslot, serviceInstant, locale),
     formatDistance(distanceRange),
-    avoidFastFood ? "No fast food" : undefined
+    avoidFastFood ? "No fast food" : undefined,
+    avoidTakeaway ? "No takeaway" : undefined
   ].filter(Boolean).join(" - ");
 }
 
 function formatCandidateLabel(restaurant: Restaurant | undefined | null, search: Search, locale: string): string {
   return [
-    formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale, search.avoidFastFood),
+    formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale, search.avoidFastFood, search.avoidTakeaway),
     restaurant?.name
   ].filter(Boolean).join(" - ");
 }
