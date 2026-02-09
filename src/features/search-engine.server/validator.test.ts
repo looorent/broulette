@@ -284,6 +284,40 @@ describe("validateRestaurant", () => {
     expect(result.rejectionReason).toBeUndefined();
   });
 
+  it.each([
+    "Pizza Hut",
+    "PIZZA HUT",
+    "pizza hut",
+    "PizzaHut",
+    "O'Tacos",
+    "O\u2019Tacos",
+    "O Tacos",
+    "otacos",
+  ])("returns failed with blocklisted_name for '%s'", async (name) => {
+    mockedBuildViewModel.mockReturnValue({
+      id: "restaurant-1",
+      name,
+      description: undefined,
+      priceRange: undefined,
+      imageUrl: "https://example.com/image.jpg",
+      source: "test",
+      rating: undefined,
+      tags: [],
+      phoneNumber: undefined,
+      internationalPhoneNumber: undefined,
+      openingHoursOfTheDay: { unknown: false, open: true, dayLabel: "Mon", hoursLabel: "12:00-22:00" },
+      address: undefined,
+      urls: [],
+      mapUrl: undefined
+    });
+
+    const restaurant = createMockRestaurant();
+    const result = await validateRestaurant(restaurant, createMockSearch(), "en-US");
+
+    expect(result.valid).toBe(false);
+    expect(result.rejectionReason).toBe("blocklisted_name");
+  });
+
   it("returns valid when restaurant passes all checks", async () => {
     mockedBuildViewModel.mockReturnValue({
       id: "restaurant-1",

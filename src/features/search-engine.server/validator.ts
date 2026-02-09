@@ -22,6 +22,11 @@ const TAKEAWAY_TAGS = new Set([
   "delivery"
 ]);
 
+const BLOCKLISTED_NAME_PATTERNS = [
+  /pizza\s*hut/i,
+  /o[''\u2019]?\s*tacos/i,
+];
+
 function failed(reason: SearchCandidateRejectionReason | null = null): RestaurantValidation {
   return {
     valid: false,
@@ -44,7 +49,9 @@ export async function validateRestaurant(
       return failed("missing_coordinates");
     } else {
       const model = buildViewModelOfRestaurant(restaurant, search, locale)!;
-      if (model.openingHoursOfTheDay?.unknown === true) {
+      if (BLOCKLISTED_NAME_PATTERNS.some(pattern => pattern.test(model.name))) {
+        return failed("blocklisted_name");
+      } else if (model.openingHoursOfTheDay?.unknown === true) {
         return failed("unknown_opening_hours");
       } else if (model.openingHoursOfTheDay?.open === false) {
         return failed("closed");

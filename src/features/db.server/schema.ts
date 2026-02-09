@@ -19,7 +19,16 @@ export const searchCandidateStatusEnum = (name: string) => text(name, {
   enum: CANDIDATE_STATUSES
 });
 
-export const CANDIDATE_REJECTION_REASONS = ["missing_coordinates", "unknown_opening_hours", "closed", "no_image", "no_restaurant_found", "fast_food", "takeaway"] as const;
+export const CANDIDATE_REJECTION_REASONS = [
+  "missing_coordinates",
+  "unknown_opening_hours",
+  "closed",
+  "no_image",
+  "no_restaurant_found",
+  "fast_food",
+  "takeaway",
+  "blocklisted_name"
+] as const;
 export const searchCandidateRejectionReasonEnum = (name: string) => text(name, {
   length: 40,
   enum: CANDIDATE_REJECTION_REASONS

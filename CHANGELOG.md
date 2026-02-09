@@ -1,3 +1,7 @@
+# 0.0.8 (2026-02-09)
+
+* [Feature] Blocklist of restaurants
+
 # 0.0.7 (2026-02-08)
 
 * [Feature] Filter to avoid fast foods
