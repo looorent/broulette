@@ -372,8 +372,5 @@ If searches are slow:
 ## Next steps?
 
 * Haptics do not work on Android?
-* Preference form:
-    * Use localstorage
-* Some restaurants "Pizza chez toi" are mismatched with "Pizza Hut".
 * Move the default range to "by foot" (short range) and offer the capability to extend if nothing has been found.
 * Move all the code about "cache" to a dedicated module?

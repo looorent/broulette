@@ -9,7 +9,7 @@ import { SearchSubmitButton } from "@components/search";
 import { PreferenceChip, type PreferenceChipHandle } from "@components/search-preference";
 import { PreferencesForm, type PreferencesFormHandle } from "@components/search-preference-form";
 import { APP_CONFIG } from "@config/server";
-import { getDeviceLocation, getGeolocationPermissionStatus } from "@features/browser.client";
+import { getDeviceLocation, getGeolocationPermissionStatus, loadPreferences, savePreferences } from "@features/browser.client";
 import { createDeviceLocation, createNextServices, DISTANCE_RANGES, preferenceFactory, type LocationPreference, type Preference } from "@features/search";
 import { logger } from "@features/utils/logger";
 
@@ -39,7 +39,14 @@ async function fetchLocation(): Promise<LocationPreference | undefined> {
 function HomeContent() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { services, defaultPreferences, configuration } = useLoaderData<typeof loader>();
-  const [preferences, setPreferences] = useState<Preference>(defaultPreferences);
+  const [preferences, setPreferences] = useState<Preference>(() => {
+    const stored = loadPreferences();
+    if (stored) {
+      return preferenceFactory.createFromStored(stored, services, DISTANCE_RANGES);
+    } else {
+      return defaultPreferences;
+    }
+  });
   const preferenceFormRef = useRef<PreferencesFormHandle>(null);
   const preferenceChipRef = useRef<PreferenceChipHandle>(null);
   const { isAlertOpen, closeAlert, alertOptions } = useAlertContext();
@@ -70,6 +77,10 @@ function HomeContent() {
       return undefined;
     }
   }, [preferences?.id, preferences?.location?.coordinates, preferences.isDeviceLocationAttempted]);
+
+  useEffect(() => {
+    savePreferences(preferences);
+  }, [preferences]);
 
   const closeModal = () => {
     setSearchParams(previous => {

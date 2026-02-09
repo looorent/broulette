@@ -11,7 +11,7 @@ import { DEFAULT_TRIPADVISOR_CONFIGURATION, parseTripAdvisorPhotoSize, type Trip
 
 export const APP_CONFIG = {
   name: "BiteRoulette",
-  version: "0.0.7",
+  version: "0.0.8",
   privacy: {
     updatedAt: "January 8th, 2026",
     contactEmail: "hello@biteroulette.com"

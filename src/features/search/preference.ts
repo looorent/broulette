@@ -144,5 +144,37 @@ export const preferenceFactory = {
       true,
       true
     );
+  },
+
+  createFromStored: (
+    stored: {
+      distanceRangeId: string;
+      avoidFastFood: boolean;
+      avoidTakeaway: boolean;
+      location:
+        | { type: "device" }
+        | { type: "address"; label: { display: string; compact: string }; coordinates: { latitude: number; longitude: number } };
+    },
+    services: ServicePreference[],
+    ranges: DistanceRangeOption[]
+  ) => {
+    const range = ranges.find(r => r.id === stored.distanceRangeId) ?? ranges[1];
+
+    const location: LocationPreference = stored.location.type === "device"
+      ? createDeviceLocation(null)
+      : {
+          label: stored.location.label,
+          coordinates: stored.location.coordinates,
+          isDeviceLocation: false,
+        };
+
+    return buildPreference(
+      services[1],
+      location,
+      false,
+      range,
+      stored.avoidFastFood,
+      stored.avoidTakeaway
+    );
   }
 };

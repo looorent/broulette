@@ -39,7 +39,7 @@
     // -------------------------------------------------------------------------
     "BROULETTE_NOMINATIM_ENABLED": "true",
     "BROULETTE_NOMINATIM_INSTANCE_URLS": "https://nominatim.openstreetmap.org/search",
-    "BROULETTE_NOMINATIM_USER_AGENT": "BiteRoulette/0.0.7",
+    "BROULETTE_NOMINATIM_USER_AGENT": "BiteRoulette/0.0.8",
     "BROULETTE_NOMINATIM_BOTTOM_NOTE": "by OpenStreetMap",
     "BROULETTE_NOMINATIM_NUMBER_OF_ADDRESSES": "5",
     "BROULETTE_NOMINATIM_API_RETRIES": "3",

@@ -1,6 +1,7 @@
 # 0.0.8 (2026-02-09)
 
 * [Feature] Blocklist of restaurants
+* [Feature] Keep the latest search preferences in local storage
 
 # 0.0.7 (2026-02-08)
 
