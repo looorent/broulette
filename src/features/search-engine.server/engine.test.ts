@@ -108,6 +108,8 @@ describe("searchCandidate", () => {
         serviceTimeslot: "Lunch" as const,
         distanceRange: "MidRange" as const,
         createdAt: new Date(),
+        avoidFastFood: true,
+        avoidTakeaway: true,
         candidates: []
       };
 
@@ -119,6 +121,8 @@ describe("searchCandidate", () => {
         serviceInstant: new Date(),
         distanceRange: "MidRange",
         latestCandidateId: "candidate-1",
+        avoidFastFood: true,
+        avoidTakeaway: true,
         order: 1
       });
       vi.mocked(candidateRepository.findById).mockResolvedValue({
@@ -173,6 +177,8 @@ describe("searchCandidate", () => {
         serviceEnd: new Date(),
         serviceTimeslot: "Lunch" as const,
         distanceRange: "MidRange" as const,
+        avoidFastFood: true,
+        avoidTakeaway: true,
         createdAt: new Date(),
         candidates: []
       };
@@ -185,7 +191,9 @@ describe("searchCandidate", () => {
         serviceInstant: new Date(),
         distanceRange: "MidRange",
         latestCandidateId: undefined,
-        order: 0
+        order: 0,
+        avoidFastFood: true,
+        avoidTakeaway: true
       });
       vi.mocked(candidateRepository.findById).mockResolvedValue(undefined);
 

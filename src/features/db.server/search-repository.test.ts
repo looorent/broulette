@@ -87,7 +87,9 @@ describe("SearchRepositoryDrizzle", () => {
         latitude: 48.8566,
         longitude: 2.3522,
         serviceDate: new Date(2024, 2, 15),
-        serviceEnd: new Date(2024, 2, 15, 14, 30)
+        serviceEnd: new Date(2024, 2, 15, 14, 30),
+        avoidFastFood: true,
+        avoidTakeaway: true,
       };
       vi.mocked(mockDb.query.searches.findFirst).mockResolvedValue(mockSearch);
       const repository = new SearchRepositoryDrizzle(mockDb);
@@ -113,7 +115,9 @@ describe("SearchRepositoryDrizzle", () => {
         latitude: 48.8566,
         longitude: 2.3522,
         serviceDate: new Date(2024, 2, 15),
-        serviceEnd: new Date(2024, 2, 15, 14, 30)
+        serviceEnd: new Date(2024, 2, 15, 14, 30),
+        avoidFastFood: true,
+        avoidTakeaway: true,
       };
       vi.mocked(mockDb.query.searches.findFirst).mockResolvedValue(mockSearch);
       const repository = new SearchRepositoryDrizzle(mockDb);
@@ -147,7 +151,9 @@ describe("SearchRepositoryDrizzle", () => {
         serviceEnd: new Date(2024, 2, 15, 14, 30),
         serviceTimeslot: "Lunch" as const,
         serviceInstant: new Date(2024, 2, 15, 12, 30),
-        distanceRange: "MidRange" as const
+        distanceRange: "MidRange" as const,
+        avoidFastFood: true,
+        avoidTakeaway: true,
       };
       vi.mocked(mockDb.query.searches.findFirst).mockResolvedValue(mockSearch);
       const repository = new SearchRepositoryDrizzle(mockDb);
