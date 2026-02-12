@@ -362,13 +362,6 @@ Enable detailed logging by checking the browser console or Cloudflare Workers lo
 npx wrangler tail
 ```
 
-### Performance Issues
-
-If searches are slow:
-1. Reduce `BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS`
-2. Increase service timeouts for slow networks
-3. Check circuit breaker status in logs (look for "Circuit opened")
-
 ## Next steps?
 
 * Haptics do not work on Android?
