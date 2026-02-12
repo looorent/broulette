@@ -2,13 +2,14 @@ import type { Preference } from "@features/search";
 import { logger } from "@features/utils/logger";
 
 const STORAGE_KEY = "broulette_preferences";
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 2;
 
 interface StoredPreferences {
   version: number;
   distanceRangeId: string;
   avoidFastFood: boolean;
   avoidTakeaway: boolean;
+  onlyHighRated: boolean;
   location:
     | { type: "device" }
     | { type: "address"; label: { display: string; compact: string }; coordinates: { latitude: number; longitude: number } };
@@ -44,6 +45,7 @@ function createStoredPreferences(preference: Preference): StoredPreferences {
     distanceRangeId: preference.range.id,
     avoidFastFood: preference.avoidFastFood,
     avoidTakeaway: preference.avoidTakeaway,
+    onlyHighRated: preference.onlyHighRated,
     location: preference.location.isDeviceLocation
       ? { type: "device" }
       : {

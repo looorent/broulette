@@ -2,11 +2,12 @@
 
 * [Feature] Blocklist of restaurants
 * [Feature] Keep the latest search preferences in local storage
+* [Feature] Preference filter to avoid low-rated restaurants
 
 # 0.0.7 (2026-02-08)
 
-* [Feature] Filter to avoid fast foods
-* [Feature] Filter to avoid takeaways
+* [Feature] Preference filter to avoid fast foods
+* [Feature] Preference filter to avoid takeaways
 
 # 0.0.6 (2026-02-06)
 

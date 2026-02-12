@@ -37,6 +37,11 @@ describe("POST /searches — input validation", () => {
   function createContext() {
     return {
       sessionStorage,
+      config: {
+        search: {
+          minimumRating: 4.0
+        }
+      },
       repositories: {
         search: {
           create: mockCreate
@@ -280,10 +285,37 @@ describe("POST /searches — input validation", () => {
         "Lunch",
         "Close",
         true,
-        true
+        true,
+        0
       );
       expect(response.status).toBe(302);
       expect(response.headers.get("Location")).toContain("/searches/new-search-123");
+    });
+
+    it("passes minimum rating from config when onlyHighRated is true", async () => {
+      mockCreate.mockResolvedValue({ id: "search-1" });
+
+      await action({
+        request: createRequest({ ...validFields, onlyHighRated: "true" }),
+        context: createContext(),
+        params: {}
+      } as any);
+
+      const minimumRating = mockCreate.mock.calls[0][7];
+      expect(minimumRating).toBe(4.0);
+    });
+
+    it("passes 0 as minimum rating when onlyHighRated is false", async () => {
+      mockCreate.mockResolvedValue({ id: "search-1" });
+
+      await action({
+        request: createRequest({ ...validFields, onlyHighRated: "false" }),
+        context: createContext(),
+        params: {}
+      } as any);
+
+      const minimumRating = mockCreate.mock.calls[0][7];
+      expect(minimumRating).toBe(0);
     });
 
     it("passes parsed date to repository", async () => {

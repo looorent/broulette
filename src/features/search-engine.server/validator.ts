@@ -61,6 +61,8 @@ export async function validateRestaurant(
         return failed("fast_food");
       } else if (search.avoidTakeaway && model.tags.some(tag => TAKEAWAY_TAGS.has(tag.id))) {
         return failed("takeaway");
+      } else if (search.minimumRating > 0 && (!model.rating || model.rating.score < search.minimumRating)) {
+        return failed("low_rating");
       } else {
         return SUCCESS;
       }

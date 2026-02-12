@@ -40,6 +40,7 @@ function createMockPreference(overrides: Partial<Preference> = {}): Preference {
     range: createMockRange(),
     avoidFastFood: true,
     avoidTakeaway: true,
+    onlyHighRated: false,
     isValid: true,
     hasValidLocation: true,
     ...overrides

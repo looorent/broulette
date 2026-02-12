@@ -35,7 +35,8 @@ describe("SearchRepositoryDrizzle", () => {
         "Lunch",
         "MidRange",
         true,
-        true
+        true,
+        0
       );
 
       expect(result).toEqual(newSearch);
@@ -90,6 +91,7 @@ describe("SearchRepositoryDrizzle", () => {
         serviceEnd: new Date(2024, 2, 15, 14, 30),
         avoidFastFood: true,
         avoidTakeaway: true,
+        minimumRating: 0,
       };
       vi.mocked(mockDb.query.searches.findFirst).mockResolvedValue(mockSearch);
       const repository = new SearchRepositoryDrizzle(mockDb);
@@ -118,6 +120,7 @@ describe("SearchRepositoryDrizzle", () => {
         serviceEnd: new Date(2024, 2, 15, 14, 30),
         avoidFastFood: true,
         avoidTakeaway: true,
+        minimumRating: 0,
       };
       vi.mocked(mockDb.query.searches.findFirst).mockResolvedValue(mockSearch);
       const repository = new SearchRepositoryDrizzle(mockDb);
@@ -154,6 +157,7 @@ describe("SearchRepositoryDrizzle", () => {
         distanceRange: "MidRange" as const,
         avoidFastFood: true,
         avoidTakeaway: true,
+        minimumRating: 0,
       };
       vi.mocked(mockDb.query.searches.findFirst).mockResolvedValue(mockSearch);
       const repository = new SearchRepositoryDrizzle(mockDb);

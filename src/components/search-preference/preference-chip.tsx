@@ -1,5 +1,5 @@
 import { useDrag } from "@use-gesture/react";
-import { BadgeQuestionMark, Car, Footprints, Hamburger, MapPin, Rocket, ShoppingBag, type LucideIcon } from "lucide-react";
+import { BadgeQuestionMark, Car, Footprints, Hamburger, MapPin, Rocket, ShoppingBag, Star, type LucideIcon } from "lucide-react";
 import { forwardRef, useImperativeHandle, useState } from "react";
 
 import { findIconFor, type DistanceRangeOption, type Preference } from "@features/search";
@@ -86,6 +86,7 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
                 <DistanceIcon icon={distanceIcon} />
                 {!preferences?.avoidFastFood && <Hamburger className="h-5 w-5" />}
                 {!preferences?.avoidTakeaway && <ShoppingBag className="h-5 w-5" />}
+                {preferences?.onlyHighRated && <Star className="h-5 w-5" />}
               </div>
             </PreferenceChipValue>
 

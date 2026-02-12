@@ -19,9 +19,10 @@ export async function action({ request, context }: Route.ActionArgs) {
   logger.log("[POST /searches] Creating search with payload...", formData);
   await validateCSRF(formData, request.headers, context.sessionStorage);
   const data = parseAndValidate(formData);
+  const minimumRating = data.onlyHighRated ? context.config.search.minimumRating : 0;
   logger.log("[POST /searches] Saving new search in database...", data);
   try {
-    const createdSearch = await context.repositories.search.create(data.latitude, data.longitude, data.date, data.timeslot, data.distanceRange, data.avoidFastFood, data.avoidTakeaway);
+    const createdSearch = await context.repositories.search.create(data.latitude, data.longitude, data.date, data.timeslot, data.distanceRange, data.avoidFastFood, data.avoidTakeaway, minimumRating);
     logger.log("[POST /searches] Search created with id:", createdSearch.id);
     return redirect(href("/searches/:searchId", { searchId: createdSearch.id }));
   } catch(e) {
@@ -40,6 +41,7 @@ function parseAndValidate(formData: FormData) {
   const rawDistanceRange = formData.get("distanceRangeId")?.toString();
   const avoidFastFood = formData.get("avoidFastFood")?.toString() === "true";
   const avoidTakeaway = formData.get("avoidTakeaway")?.toString() === "true";
+  const onlyHighRated = formData.get("onlyHighRated")?.toString() === "true";
 
   const date = new Date(Date.parse(rawDate))
   const latitude = parseFloat(rawLatitude);
@@ -75,7 +77,8 @@ function parseAndValidate(formData: FormData) {
       timeslot: rawTimeslot as ServiceTimeslot,
       distanceRange: rawDistanceRange as DistanceRange,
       avoidFastFood,
-      avoidTakeaway
+      avoidTakeaway,
+      onlyHighRated
     };
   }
 }

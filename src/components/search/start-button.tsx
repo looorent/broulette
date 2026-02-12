@@ -46,6 +46,7 @@ export function SearchSubmitButton({
         distanceRangeId: preferences.range.id,
         avoidFastFood: String(preferences.avoidFastFood),
         avoidTakeaway: String(preferences.avoidTakeaway),
+        onlyHighRated: String(preferences.onlyHighRated),
         csrf: session?.csrfToken ?? ""
       }, {
         action: "/searches",

@@ -33,7 +33,7 @@ export function buildViewModelOfCandidate(
       reRollEnabled: !candidate.search.exhausted && !hasExpired,
       search: {
         id: candidate.search.id,
-        label: formatSearchLabel(candidate.search.serviceTimeslot, candidate.search.serviceInstant, candidate.search.distanceRange, locale, candidate.search.avoidFastFood, candidate.search.avoidTakeaway),
+        label: formatSearchLabel(candidate.search.serviceTimeslot, candidate.search.serviceInstant, candidate.search.distanceRange, locale, candidate.search.avoidFastFood, candidate.search.avoidTakeaway, candidate.search.minimumRating),
         redirectRequired: false
       },
       restaurant: buildViewModelOfRestaurant(candidate.restaurant, candidate.search, locale)
@@ -52,6 +52,7 @@ export function buildViewModelOfSearch(search: {
   latestCandidateId: string | undefined;
   avoidFastFood?: boolean;
   avoidTakeaway?: boolean;
+  minimumRating?: number;
 } | undefined, locale: string): SearchRedirect | SearchView | undefined {
   if (search) {
     if (search.latestCandidateId) {
@@ -64,7 +65,7 @@ export function buildViewModelOfSearch(search: {
       return {
         redirectRequired: false,
         id: search.searchId,
-        label: formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale, search.avoidFastFood, search.avoidTakeaway)
+        label: formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale, search.avoidFastFood, search.avoidTakeaway, search.minimumRating)
       };
     }
   } else {
@@ -258,19 +259,21 @@ function formatSearchLabel(
   distanceRange: DistanceRange,
   locale: string,
   avoidFastFood?: boolean,
-  avoidTakeaway?: boolean
+  avoidTakeaway?: boolean,
+  minimumRating?: number
 ): string {
   return [
     formatServiceTime(serviceTimeslot, serviceInstant, locale),
     formatDistance(distanceRange),
     avoidFastFood ? "No fast food" : undefined,
-    avoidTakeaway ? "No takeaway" : undefined
+    avoidTakeaway ? "No takeaway" : undefined,
+    minimumRating && minimumRating > 0 ? "High rated" : undefined
   ].filter(Boolean).join(" - ");
 }
 
 function formatCandidateLabel(restaurant: Restaurant | undefined | null, search: Search, locale: string): string {
   return [
-    formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale, search.avoidFastFood, search.avoidTakeaway),
+    formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale, search.avoidFastFood, search.avoidTakeaway, search.minimumRating),
     restaurant?.name
   ].filter(Boolean).join(" - ");
 }

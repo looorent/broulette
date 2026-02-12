@@ -1,0 +1,1 @@
+ALTER TABLE `search` ADD `minimum_rating` real DEFAULT 0 NOT NULL;

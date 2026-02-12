@@ -8,7 +8,7 @@ import type { DistanceRange, Search, SearchCandidateStatus, SearchWithCandidateC
 import { searches } from "./schema";
 
 export interface SearchRepository {
-  create(latitude: number,longitude: number,date: Date,timeslot: ServiceTimeslot, distanceRange: DistanceRange, avoidFastFood: boolean, avoidTakeaway: boolean): Promise<Search>;
+  create(latitude: number,longitude: number,date: Date,timeslot: ServiceTimeslot, distanceRange: DistanceRange, avoidFastFood: boolean, avoidTakeaway: boolean, minimumRating: number): Promise<Search>;
   findWithLatestCandidateId(searchId: string | undefined | null, candidateStatus?: SearchCandidateStatus | undefined): Promise<{
     searchId: string;
     exhausted: boolean;
@@ -19,6 +19,7 @@ export interface SearchRepository {
     latestCandidateId: string | undefined;
     avoidFastFood: boolean;
     avoidTakeaway: boolean;
+    minimumRating: number;
   } | undefined>;
   findByIdWithCandidateContext(searchId: string): Promise<SearchWithCandidateContext | undefined>;
   markSearchAsExhausted(searchId: string): Promise<void>;
@@ -34,7 +35,8 @@ export class SearchRepositoryDrizzle implements SearchRepository {
     timeslot: ServiceTimeslot,
     distanceRange: DistanceRange,
     avoidFastFood: boolean,
-    avoidTakeaway: boolean
+    avoidTakeaway: boolean,
+    minimumRating: number
   ): Promise<Search> {
     logger.trace("[Drizzle] creating Search...");
     const [newSearch] = await this.db.insert(searches).values({
@@ -47,7 +49,8 @@ export class SearchRepositoryDrizzle implements SearchRepository {
       distanceRange: distanceRange,
       exhausted: false,
       avoidFastFood: avoidFastFood,
-      avoidTakeaway: avoidTakeaway
+      avoidTakeaway: avoidTakeaway,
+      minimumRating: minimumRating
     }).returning();
     return newSearch;
   }
@@ -65,6 +68,7 @@ export class SearchRepositoryDrizzle implements SearchRepository {
     latestCandidateId: string | undefined;
     avoidFastFood: boolean;
     avoidTakeaway: boolean;
+    minimumRating: number;
   } | undefined> {
     if (searchId) {
       const search = await this.db.query.searches.findFirst({
@@ -76,7 +80,8 @@ export class SearchRepositoryDrizzle implements SearchRepository {
           serviceInstant: true,
           distanceRange: true,
           avoidFastFood: true,
-          avoidTakeaway: true
+          avoidTakeaway: true,
+          minimumRating: true
         },
         with: {
           candidates: {
@@ -101,7 +106,8 @@ export class SearchRepositoryDrizzle implements SearchRepository {
           latestCandidateId: latestId,
           order: latestCandidate?.order ?? 0,
           avoidFastFood: search.avoidFastFood,
-          avoidTakeaway: search.avoidTakeaway
+          avoidTakeaway: search.avoidTakeaway,
+          minimumRating: search.minimumRating
         };
       } else {
         logger.trace("[Drizzle] findWithLatestCandidateId: Search '%s' not found", searchId);

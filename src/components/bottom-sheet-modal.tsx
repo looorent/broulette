@@ -99,7 +99,7 @@ export function BottomSheet({
 
           {/* Body of the modal */}
           <div className={`
-            min-h-0 w-full flex-1 overflow-y-auto overscroll-contain pb-10
+            min-h-0 w-full flex-1 overflow-y-auto overscroll-contain
           `}>
             {children}
           </div>

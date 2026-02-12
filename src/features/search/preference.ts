@@ -14,19 +14,21 @@ function buildPreference(
   isDeviceLocationAttempted: boolean,
   range: DistanceRangeOption,
   avoidFastFood: boolean = true,
-  avoidTakeaway: boolean = true
+  avoidTakeaway: boolean = true,
+  onlyHighRated: boolean = false
 ): Preference {
 
   const hasValidLocation = hasCoordinates(location);
   const isValid = service && range && hasValidLocation;
   return {
-    id: `svc_${service?.id ?? 'null'}_loc_${JSON.stringify(location)}_rng_${range?.id ?? 'null'}_atmpt_${isDeviceLocationAttempted}_aff_${avoidFastFood}_at_${avoidTakeaway}`,
+    id: `svc_${service?.id ?? 'null'}_loc_${JSON.stringify(location)}_rng_${range?.id ?? 'null'}_atmpt_${isDeviceLocationAttempted}_aff_${avoidFastFood}_at_${avoidTakeaway}_ohr_${onlyHighRated}`,
     service: service,
     location: location,
     isDeviceLocationAttempted: isDeviceLocationAttempted,
     range: range,
     avoidFastFood: avoidFastFood,
     avoidTakeaway: avoidTakeaway,
+    onlyHighRated: onlyHighRated,
     isValid: isValid,
     hasValidLocation
   };
@@ -40,6 +42,7 @@ export interface Preference {
   range: DistanceRangeOption;
   avoidFastFood: boolean;
   avoidTakeaway: boolean;
+  onlyHighRated: boolean;
   isValid: boolean;
   hasValidLocation: boolean;
 }
@@ -53,7 +56,8 @@ export const preferenceFactory = {
         preference.isDeviceLocationAttempted,
         preference.range,
         preference.avoidFastFood,
-        preference.avoidTakeaway
+        preference.avoidTakeaway,
+        preference.onlyHighRated
       );
     } else {
       return preference;
@@ -68,7 +72,8 @@ export const preferenceFactory = {
         preference.isDeviceLocationAttempted,
         preference.range,
         preference.avoidFastFood,
-        preference.avoidTakeaway
+        preference.avoidTakeaway,
+        preference.onlyHighRated
       );
     } else {
       return preference;
@@ -85,7 +90,8 @@ export const preferenceFactory = {
         true,
         preference.range,
         preference.avoidFastFood,
-        preference.avoidTakeaway
+        preference.avoidTakeaway,
+        preference.onlyHighRated
       );
     }
   },
@@ -98,7 +104,8 @@ export const preferenceFactory = {
         preference.isDeviceLocationAttempted,
         range,
         preference.avoidFastFood,
-        preference.avoidTakeaway
+        preference.avoidTakeaway,
+        preference.onlyHighRated
       );
     } else {
       return preference;
@@ -113,7 +120,8 @@ export const preferenceFactory = {
         preference.isDeviceLocationAttempted,
         preference.range,
         avoidFastFood,
-        preference.avoidTakeaway
+        preference.avoidTakeaway,
+        preference.onlyHighRated
       );
     } else {
       return preference;
@@ -128,7 +136,24 @@ export const preferenceFactory = {
         preference.isDeviceLocationAttempted,
         preference.range,
         preference.avoidFastFood,
-        avoidTakeaway
+        avoidTakeaway,
+        preference.onlyHighRated
+      );
+    } else {
+      return preference;
+    }
+  },
+
+  withOnlyHighRated: (preference: Preference, onlyHighRated: boolean) => {
+    if (preference.onlyHighRated !== onlyHighRated) {
+      return buildPreference(
+        preference.service,
+        preference.location,
+        preference.isDeviceLocationAttempted,
+        preference.range,
+        preference.avoidFastFood,
+        preference.avoidTakeaway,
+        onlyHighRated
       );
     } else {
       return preference;
@@ -142,7 +167,8 @@ export const preferenceFactory = {
       false,
       ranges[1],
       true,
-      true
+      true,
+      false
     );
   },
 
@@ -151,6 +177,7 @@ export const preferenceFactory = {
       distanceRangeId: string;
       avoidFastFood: boolean;
       avoidTakeaway: boolean;
+      onlyHighRated: boolean;
       location:
         | { type: "device" }
         | { type: "address"; label: { display: string; compact: string }; coordinates: { latitude: number; longitude: number } };
@@ -174,7 +201,8 @@ export const preferenceFactory = {
       false,
       range,
       stored.avoidFastFood,
-      stored.avoidTakeaway
+      stored.avoidTakeaway,
+      stored.onlyHighRated
     );
   }
 };

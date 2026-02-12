@@ -47,6 +47,7 @@ function createMockContext(overrides: Partial<SearchContext> = {}): SearchContex
     config: overrides.config ?? {
       discovery: { rangeIncreaseMeters: 5000, maxDiscoveryIterations: 1 },
       matching: { tags: { hiddenTags: [], priorityTags: [], maxTags: 5 } },
+      minimumRating: 4.0,
       range: {
         close: { rangeInMeters: 1500, timeoutInMs: 5000 },
         midRange: { rangeInMeters: 12000, timeoutInMs: 10000 },
@@ -110,6 +111,7 @@ describe("searchCandidate", () => {
         createdAt: new Date(),
         avoidFastFood: true,
         avoidTakeaway: true,
+        minimumRating: 0,
         candidates: []
       };
 
@@ -123,6 +125,7 @@ describe("searchCandidate", () => {
         latestCandidateId: "candidate-1",
         avoidFastFood: true,
         avoidTakeaway: true,
+        minimumRating: 0,
         order: 1
       });
       vi.mocked(candidateRepository.findById).mockResolvedValue({
@@ -179,6 +182,7 @@ describe("searchCandidate", () => {
         distanceRange: "MidRange" as const,
         avoidFastFood: true,
         avoidTakeaway: true,
+        minimumRating: 0,
         createdAt: new Date(),
         candidates: []
       };
@@ -193,7 +197,8 @@ describe("searchCandidate", () => {
         latestCandidateId: undefined,
         order: 0,
         avoidFastFood: true,
-        avoidTakeaway: true
+        avoidTakeaway: true,
+        minimumRating: 0
       });
       vi.mocked(candidateRepository.findById).mockResolvedValue(undefined);
 

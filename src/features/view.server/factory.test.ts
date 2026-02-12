@@ -51,7 +51,8 @@ function createMockSearch(): Search {
     distanceRange: "MidRange",
     exhausted: false,
     avoidFastFood: true,
-    avoidTakeaway: true
+    avoidTakeaway: true,
+    minimumRating: 0
   };
 }
 

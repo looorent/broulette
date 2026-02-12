@@ -27,7 +27,8 @@ export const CANDIDATE_REJECTION_REASONS = [
   "no_restaurant_found",
   "fast_food",
   "takeaway",
-  "blocklisted_name"
+  "blocklisted_name",
+  "low_rating"
 ] as const;
 export const searchCandidateRejectionReasonEnum = (name: string) => text(name, {
   length: 40,
@@ -93,7 +94,8 @@ export const searches = sqliteTable("search", {
   distanceRange: distanceRangeEnum("distance_range").notNull(),
   exhausted: integer("exhausted", { mode: "boolean" }).default(false).notNull(),
   avoidFastFood: integer("avoid_fast_food", { mode: "boolean" }).default(true).notNull(),
-  avoidTakeaway: integer("avoid_takeaway", { mode: "boolean" }).default(true).notNull()
+  avoidTakeaway: integer("avoid_takeaway", { mode: "boolean" }).default(true).notNull(),
+  minimumRating: real("minimum_rating").default(0).notNull()
 }, (table) => [
   index("idx_search_coordinates").on(table.latitude, table.longitude)
 ]);

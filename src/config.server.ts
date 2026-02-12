@@ -5,7 +5,7 @@ import { DEFAULT_NOMINATIM_CONFIGURATION, type NominatimConfiguration } from "@f
 import { DEFAULT_OVERPASS_CONFIGURATION, type OverpassConfiguration } from "@features/overpass.server";
 import { DEFAULT_PHOTON_CONFIGURATION, type PhotonConfiguration } from "@features/photon.server";
 import { DEFAULT_RATE_LIMIT_CONFIGURATION, type RateLimitConfiguration } from "@features/rate-limit.server";
-import { DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration } from "@features/search-engine.server";
+import { DEFAULT_MINIMUM_RATING, DEFAULT_SEARCH_ENGINE_CONFIGURATION, type SearchEngineConfiguration } from "@features/search-engine.server";
 import { DEFAULT_TAG_CONFIGURATION } from "@features/tag.server";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, parseTripAdvisorPhotoSize, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
 
@@ -99,6 +99,7 @@ interface Env {
   BROULETTE_SEARCH_ENGINE_MID_TIMEOUT_IN_MS?: string;
   BROULETTE_SEARCH_ENGINE_FAR_RANGE_IN_METERS?: string;
   BROULETTE_SEARCH_ENGINE_FAR_TIMEOUT_IN_MS?: string;
+  BROULETTE_HIGH_RATING_THRESHOLD?: string;
 }
 
 function parseNumber(value: string | undefined, fallback: number): number {
@@ -284,6 +285,7 @@ function searchEngineConfig(env: Env): SearchEngineConfiguration {
         rangeIncreaseMeters: parseNumber(env.BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS, DEFAULT_DISCOVERY_CONFIGURATION.rangeIncreaseMeters),
         maxDiscoveryIterations: parseNumber(env.BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS, DEFAULT_DISCOVERY_CONFIGURATION.maxDiscoveryIterations)
       },
+      minimumRating: parseNumber(env.BROULETTE_HIGH_RATING_THRESHOLD, DEFAULT_MINIMUM_RATING),
       matching: {
         tags: {
           hiddenTags: parseArray(env.BROULETTE_TAGS_TO_EXCLUDE, DEFAULT_TAG_CONFIGURATION.hiddenTags),

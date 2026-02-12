@@ -10,9 +10,12 @@ export interface SearchEngineRange {
   timeoutInMs: number;
 }
 
+export const DEFAULT_MINIMUM_RATING = 4.0;
+
 export const DEFAULT_SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
   discovery: DEFAULT_DISCOVERY_CONFIGURATION,
   matching: DEFAULT_MATCHING_CONFIGURATION,
+  minimumRating: DEFAULT_MINIMUM_RATING,
   range: {
     close: {
       rangeInMeters: 1_500,
@@ -33,6 +36,7 @@ export const DEFAULT_SEARCH_ENGINE_CONFIGURATION: SearchEngineConfiguration = {
 export interface SearchEngineConfiguration {
   discovery: DiscoveryConfiguration;
   matching: RestaurantMatchingConfiguration;
+  minimumRating: number;
   range: {
     close: SearchEngineRange;
     midRange: SearchEngineRange;
