@@ -1,3 +1,8 @@
+# 0.0.9 (2026-02-12)
+
+* [Feature] When looking for a restaurant in a close range, offer the capability to search within a mid-range area if there are not other candidates to provide.
+* [Technical] Serve empty `apple-app-site-association` and `assetlinks.json` to reduce false-positive logs in Production.
+
 # 0.0.8 (2026-02-09)
 
 * [Feature] Blocklist of restaurants

@@ -1,4 +1,5 @@
 import type { TagView } from "@features/tag";
+import type { DistanceRange } from "@persistence";
 
 export interface RestaurantView {
   id: string;
@@ -24,6 +25,7 @@ export interface RestaurantView {
 export interface SearchView {
   id: string;
   label: string;
+  distanceRange: DistanceRange;
   redirectRequired: false;
 }
 

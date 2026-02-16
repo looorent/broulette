@@ -9,9 +9,11 @@ import { DEFAULT_MINIMUM_RATING, DEFAULT_SEARCH_ENGINE_CONFIGURATION, type Searc
 import { DEFAULT_TAG_CONFIGURATION } from "@features/tag.server";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, parseTripAdvisorPhotoSize, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
 
+import { version } from "../package-lock.json";
+
 export const APP_CONFIG = {
   name: "BiteRoulette",
-  version: "0.0.8",
+  version: version,
   privacy: {
     updatedAt: "January 8th, 2026",
     contactEmail: "hello@biteroulette.com"

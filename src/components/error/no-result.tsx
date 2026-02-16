@@ -1,12 +1,20 @@
 import { SearchX } from "lucide-react";
+import { Form, href } from "react-router";
+
+import type { DistanceRange } from "@persistence";
 
 import { BackButton } from "./back-button";
 
 interface NoResultsProps {
   momentLabel: string;
+  searchId: string;
+  distanceRange: DistanceRange;
+  csrfToken: string;
 }
 
-export function NoResults({ momentLabel }: NoResultsProps) {
+export function NoResults({ momentLabel, searchId, distanceRange, csrfToken }: NoResultsProps) {
+  const canWiden = distanceRange === "Close";
+
   return (
     <>
       <main
@@ -92,11 +100,39 @@ export function NoResults({ momentLabel }: NoResultsProps) {
             font-display text-xs leading-relaxed font-bold uppercase
             md:text-sm
           `}>
-            We looked everywhere, but zero matching spots are open for that slot: {momentLabel}
+            {canWiden
+              ? "Nothing nearby? Let's look a bit further!"
+              : `We looked everywhere, but zero matching spots are open for that slot: ${momentLabel}`
+            }
           </p>
         </div>
 
-        <BackButton />
+        {canWiden ? (
+          <div className="z-10 flex items-center gap-3">
+            <Form
+              method="post"
+              action={href("/searches/:searchId/widen", { searchId })}
+            >
+              <input type="hidden" name="csrf" value={csrfToken} />
+              <button
+                type="submit"
+                className={`
+                  mt-8 flex animate-slide-in-from-top-right cursor-pointer
+                  items-center justify-center gap-2 rounded-md border-[3px]
+                  border-fun-dark bg-fun-yellow p-4 font-pop text-xl font-bold
+                  tracking-wide text-fun-dark shadow-hard-hover backdrop-blur-md
+                  hover:rotate-0 hover:brightness-115
+                  active:scale-120
+                `}
+              >
+                Search further!
+              </button>
+            </Form>
+            <BackButton />
+          </div>
+        ) : (
+          <BackButton />
+        )}
       </main>
 
       {/* Decorative Footer */}

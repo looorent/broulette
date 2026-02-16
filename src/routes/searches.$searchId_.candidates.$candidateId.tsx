@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { href, redirect } from "react-router";
+import { href, redirect, useRouteLoaderData } from "react-router";
 
 import { BackToHomeButton } from "@components/back-to-home-button";
 import { AddressLink, NoImageBox, OpenMapButton, RerollButton, RestaurantPrice, RestaurantRating, RestaurantTags, ShareButton, SourceBadge, WebsiteLink } from "@components/candidate";
@@ -11,6 +11,7 @@ import { triggerHaptics } from "@features/browser.client";
 import { getLocale } from "@features/utils/locale.server";
 import { logger } from "@features/utils/logger";
 import { findCandidateViewModel } from "@features/view.server";
+import type { loader as rootLoader } from "src/root";
 
 import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId";
 
@@ -36,6 +37,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
 
 export default function CandidatePage({ loaderData }: Route.ComponentProps) {
   const { reRollEnabled, restaurant, search, candidate } = loaderData;
+  const session = useRouteLoaderData<typeof rootLoader>("root");
 
   useEffect(() => {
     triggerHaptics();
@@ -43,7 +45,12 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
 
   if (candidate.rejected || !restaurant) {
     return (
-      <NoResults momentLabel={search.label} />
+      <NoResults
+        momentLabel={search.label}
+        searchId={search.id}
+        distanceRange={search.distanceRange}
+        csrfToken={session?.csrfToken ?? ""}
+      />
     );
   } else {
     return (

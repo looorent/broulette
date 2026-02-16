@@ -365,5 +365,4 @@ npx wrangler tail
 ## Next steps?
 
 * Haptics do not work on Android?
-* Move the default range to "by foot" (short range) and offer the capability to extend if nothing has been found.
 * Move all the code about "cache" to a dedicated module?

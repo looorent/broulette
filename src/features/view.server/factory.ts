@@ -34,6 +34,7 @@ export function buildViewModelOfCandidate(
       search: {
         id: candidate.search.id,
         label: formatSearchLabel(candidate.search.serviceTimeslot, candidate.search.serviceInstant, candidate.search.distanceRange, locale, candidate.search.avoidFastFood, candidate.search.avoidTakeaway, candidate.search.minimumRating),
+        distanceRange: candidate.search.distanceRange,
         redirectRequired: false
       },
       restaurant: buildViewModelOfRestaurant(candidate.restaurant, candidate.search, locale)
@@ -65,7 +66,8 @@ export function buildViewModelOfSearch(search: {
       return {
         redirectRequired: false,
         id: search.searchId,
-        label: formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale, search.avoidFastFood, search.avoidTakeaway, search.minimumRating)
+        label: formatSearchLabel(search.serviceTimeslot, search.serviceInstant, search.distanceRange, locale, search.avoidFastFood, search.avoidTakeaway, search.minimumRating),
+        distanceRange: search.distanceRange
       };
     }
   } else {
