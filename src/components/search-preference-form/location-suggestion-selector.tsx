@@ -25,7 +25,7 @@ export function LocationSuggestionSelector({ suggestions, note, error, isSearchi
         ) : error ? (
           <div className="p-4 text-center">
             <div className="mb-2 flex items-center justify-center gap-2">
-              <TriangleAlert className="h-5 w-5 text-fun-red" />
+              <TriangleAlert className="size-5 text-fun-red" />
               <p className="font-sans text-sm font-bold text-fun-dark">
                 {error}
               </p>
@@ -41,7 +41,7 @@ export function LocationSuggestionSelector({ suggestions, note, error, isSearchi
                 active:scale-95
               `}
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="size-4" />
               Try again
             </button>
           </div>
@@ -62,7 +62,7 @@ export function LocationSuggestionSelector({ suggestions, note, error, isSearchi
                         active:bg-fun-yellow/50
                       `}
                     >
-                      <History className="h-4 w-4 truncate text-fun-dark/50" />
+                      <History className="size-4 truncate text-fun-dark/50" />
                       {suggestion.label.display}
                     </button>
                   </li>

@@ -9,22 +9,21 @@ export function QuotaExceeded() {
   return (
     <main
       className={`
-        relative z-10 flex h-full w-full flex-col items-center justify-center
-        p-6
+        relative z-10 flex size-full flex-col items-center justify-center p-6
       `}
     >
       <AmbientPulse />
 
       <div className="relative z-10 mb-8 animate-float">
         <div className={`
-          absolute top-0 left-0 -mt-2 -ml-2 h-4 w-4 rounded-full border-2
+          absolute top-0 left-0 -mt-2 -ml-2 size-4 rounded-full border-2
           border-fun-dark bg-fun-blue
         `}></div>
         <div className={`
           rotate-3 rounded-2xl border-[3px] border-fun-dark bg-fun-cream p-4
           text-fun-dark shadow-hard
         `}>
-          <PiggyBank className="h-12 w-12" />
+          <PiggyBank className="size-12" />
         </div>
       </div>
 
@@ -77,14 +76,13 @@ export function QuotaExceeded() {
         `}
       >
         <p className={`
-          mb-2 font-display text-xs leading-relaxed font-bold text-fun-yellow
-          uppercase
+          mb-2 font-display text-xs/relaxed font-bold text-fun-yellow uppercase
           md:text-sm
         `}>
           We hit our API limits.
         </p>
         <p className={`
-          font-sans text-xs leading-relaxed opacity-90
+          font-sans text-xs/relaxed opacity-90
           md:text-sm
         `}>
           This is a free project running on limited Google/TripAdvisor quotas.

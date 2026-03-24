@@ -7,7 +7,7 @@ export function PhoneLink({ nationalPhoneNumber, internationalPhoneNumber }: {
   if (nationalPhoneNumber && nationalPhoneNumber.length > 0 || internationalPhoneNumber && internationalPhoneNumber.length > 0) {
     return (
       <div id="candidate-address" className="flex items-center gap-2">
-        <Phone className="h-5 w-5 shrink-0 text-fun-blue" />
+        <Phone className="size-5 shrink-0 text-fun-blue" />
         <a
           id="candidate-phone"
           href={`tel:${internationalPhoneNumber ?? nationalPhoneNumber}`}

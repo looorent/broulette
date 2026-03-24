@@ -52,7 +52,7 @@ export function PreferenceChipValue({
 
         {!isValid && (
           <span className={`
-            absolute -top-1 -right-1 h-3 w-3 rounded-full border-2
+            absolute -top-1 -right-1 size-3 rounded-full border-2
             border-fun-cream bg-fun-red
             ${isBuzzing ? "animate-buzz" : ""}
           `} />

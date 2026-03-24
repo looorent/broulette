@@ -73,10 +73,9 @@ export function SearchSubmitButton({
         type="submit"
         aria-label={hasErrors ? "Form incomplete, click for details" : "Start Search"}
         className={`
-          group relative z-20 flex h-48 w-48 flex-col items-center
-          justify-center rounded-full border-[6px] transition-all duration-300
-          ease-out
-          md:h-40 md:w-40
+          group relative z-20 flex size-48 flex-col items-center justify-center
+          rounded-full border-[6px] transition-all duration-300 ease-out
+          md:size-40
           ${isBuzzing ? `
             animate-buzz border-2 border-dashed border-fun-cream bg-fun-red
           ` : ""}
@@ -108,7 +107,7 @@ export function SearchSubmitButton({
             group-hover:scale-110 group-hover:rotate-25
           `}>
             <TriangleAlert className={`
-              h-14 w-14 fill-fun-yellow stroke-[2.5px] text-fun-dark
+              size-14 fill-fun-yellow stroke-[2.5px] text-fun-dark
               drop-shadow-md
             `} />
           </div>

@@ -14,7 +14,7 @@ export function SearchLoaderSpinner() {
           border-fun-dark bg-fun-yellow shadow-hard
         `}>
           <div className={`
-            absolute top-1/2 left-1/2 -mt-2 -ml-2 h-4 w-4 animate-spin-orbit
+            absolute top-1/2 left-1/2 -mt-2 -ml-2 size-4 animate-spin-orbit
             rounded-full border-[3px] border-fun-dark bg-fun-cream
           `}></div>
         </div>

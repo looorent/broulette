@@ -27,7 +27,7 @@ export function ToggleSelector({ label, checked, onChange, icon: Icon }: ToggleS
           flex items-center gap-2 font-sans text-base font-bold tracking-tight
           text-fun-dark uppercase
         `}>
-          {Icon && <Icon className="h-5 w-5 stroke-[2.5px]" />}
+          {Icon && <Icon className="size-5 stroke-[2.5px]" />}
           {label}
         </span>
 
@@ -39,7 +39,7 @@ export function ToggleSelector({ label, checked, onChange, icon: Icon }: ToggleS
           }
         `}>
           <div className={`
-            absolute top-0.5 h-5 w-5 rounded-full border-2 bg-white
+            absolute top-0.5 size-5 rounded-full border-2 bg-white
             transition-all
             ${checked
               ? "left-[calc(100%-1.375rem)] border-fun-dark"

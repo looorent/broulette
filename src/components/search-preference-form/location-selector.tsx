@@ -126,8 +126,8 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
               rounded-md border-2 border-fun-dark bg-fun-red px-4 py-2 font-pop
               text-sm font-bold tracking-wider text-fun-cream uppercase
               shadow-hard transition-all duration-150 ease-out
-              hover:translate-x-0.5 hover:translate-y-0.5 hover:scale-105
-              hover:rotate-0 hover:shadow-none
+              hover:translate-0.5 hover:scale-105 hover:rotate-0
+              hover:shadow-none
               sm:ml-3 sm:w-auto
             `}>
             Dismiss
@@ -216,11 +216,11 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
             <div className="mr-3 ml-2 shrink-0">
               {isLocating ? (
                 <LoaderCircle className={`
-                  h-6 w-6 animate-spin stroke-3 text-fun-dark transition-colors
+                  size-6 animate-spin stroke-3 text-fun-dark transition-colors
                 `} />
               ) : (
                 <MapPin className={`
-                  h-6 w-6 stroke-3 text-fun-dark transition-colors
+                  size-6 stroke-3 text-fun-dark transition-colors
                 `} />
               )}
             </div>
@@ -268,7 +268,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
                   `}
                   aria-label="Use my current device location"
                 >
-                  <Crosshair className="h-5 w-5 stroke-[2.5px]" />
+                  <Crosshair className="size-5 stroke-[2.5px]" />
                 </button>
               ) : (
                 <button
@@ -286,7 +286,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
                   `}
                   aria-label="Change location"
                 >
-                  <CircleX className="h-5 w-5 stroke-3 text-fun-dark" />
+                  <CircleX className="size-5 stroke-3 text-fun-dark" />
                 </button>
               )}
             </div>

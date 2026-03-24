@@ -88,8 +88,7 @@ function CloseButton({ onClick }: { onClick: () => void }) {
         border-2 border-fun-dark bg-fun-dark px-4 py-2 font-pop text-sm
         font-bold tracking-wider text-fun-cream uppercase shadow-hard
         transition-all duration-150 ease-out
-        hover:translate-x-0.5 hover:translate-y-0.5 hover:scale-105
-        hover:rotate-0 hover:shadow-none
+        hover:translate-0.5 hover:scale-105 hover:rotate-0 hover:shadow-none
         sm:ml-3 sm:w-auto
       `}
     >
@@ -101,7 +100,7 @@ function CloseButton({ onClick }: { onClick: () => void }) {
 function RecipeTab() {
   return (
     <section className="space-y-6 text-center">
-      <p className="text-left text-sm leading-relaxed text-fun-dark">
+      <p className="text-left text-sm/relaxed text-fun-dark">
         <strong>BiteRoulette</strong> eliminates the paradox of choice.
         We don't waste time looking for the "best" rated spot; we embrace the chaos of chance. We cut through the noise of reviews to serve you one completely random destination near you.
       </p>
@@ -129,7 +128,7 @@ function RecipeTab() {
           <span>
             Original idea by <em>Natacha</em>
           </span>
-          <Lightbulb className="h-4 w-4" />
+          <Lightbulb className="size-4" />
         </div>
       </div>
     </section>
@@ -140,21 +139,21 @@ function DietTab({ configuration }: { configuration: AppConfiguration }) {
   return (
     <section className="space-y-5 text-left">
       <h3 className="hidden">Privacy</h3>
-      <p className="text-left text-sm leading-relaxed text-fun-dark">
+      <p className="text-left text-sm/relaxed text-fun-dark">
         We treat your data with the same respect we treat your dinner plans: strictly private and to the point.
       </p>
 
       <div className="flex items-start gap-3">
         <div className="mt-1 shrink-0 rounded-lg bg-fun-red/10 p-2">
-          <Cookie className="h-5 w-5 text-fun-red" />
+          <Cookie className="size-5 text-fun-red" />
         </div>
         <div>
           <h4 className="mb-1 text-sm font-bold tracking-wide uppercase">The Zero-Tracking Diet</h4>
-          <p className="mb-2 text-xs leading-relaxed">
+          <p className="mb-2 text-xs/relaxed">
             We are here to feed you, not your browser. We do not use tracking cookies or marketing pixels.
           </p>
           <p className={`
-            rounded border border-fun-dark/10 bg-fun-dark/5 p-2 text-xs
+            rounded-sm border border-fun-dark/10 bg-fun-dark/5 p-2 text-xs
             text-fun-dark/80
           `}>
             <strong>Security Note:</strong> We use cookies strictly for protection, not profit. Our cookies are just there to prevent unauthorized activity and keep the site secure.
@@ -164,7 +163,7 @@ function DietTab({ configuration }: { configuration: AppConfiguration }) {
 
       <div className="flex items-start gap-3">
         <div className="mt-1 shrink-0 rounded-lg bg-blue-100 p-2">
-          <MapPin className="h-5 w-5 text-blue-600" />
+          <MapPin className="size-5 text-blue-600" />
         </div>
         <div>
           <h4 className="mb-1 text-sm font-bold tracking-wide uppercase">Your Location Data</h4>
@@ -178,11 +177,11 @@ function DietTab({ configuration }: { configuration: AppConfiguration }) {
 
       <div className="flex items-start gap-3">
         <div className="mt-1 shrink-0 rounded-lg bg-indigo-100 p-2">
-          <DatabaseZap className="h-5 w-5 text-indigo-600" />
+          <DatabaseZap className="size-5 text-indigo-600" />
         </div>
         <div>
           <h4 className="mb-1 text-sm font-bold tracking-wide uppercase">European Edge</h4>
-          <p className="text-xs leading-relaxed opacity-80">
+          <p className="text-xs/relaxed opacity-80">
             Your data is stored in <strong>Western Europe</strong> and delivered via the secure Cloudflare Edge network.
           </p>
         </div>
@@ -202,12 +201,12 @@ function IngredientsTab({ configuration }: { configuration: AppConfiguration }) 
         flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50
         p-4
       `}>
-        <TriangleAlert className="h-6 w-6 shrink-0 text-orange-500" />
+        <TriangleAlert className="size-6 shrink-0 text-orange-500" />
         <div>
           <h4 className={`
             mb-1 text-sm font-bold tracking-wide text-orange-800 uppercase
           `}>Disclaimer: We Pick, You Verify</h4>
-          <p className="text-xs leading-relaxed text-orange-900/80">
+          <p className="text-xs/relaxed text-orange-900/80">
             BiteRoulette provides random suggestions based on third-party data. We do not guarantee the quality, safety, or operating hours of any location. Always check open times and reviews before you travel. Eat responsibly.
           </p>
         </div>
@@ -215,11 +214,11 @@ function IngredientsTab({ configuration }: { configuration: AppConfiguration }) 
 
       <div className="flex items-start gap-3">
         <div className="mt-1 shrink-0 rounded-lg bg-fun-cream p-2">
-          <Map className="h-5 w-5 text-gray-600" />
+          <Map className="size-5 text-gray-600" />
         </div>
         <div>
           <h4 className="mb-1 text-sm font-bold tracking-wide uppercase">Data Sources</h4>
-          <p className="text-xs leading-relaxed opacity-80">
+          <p className="text-xs/relaxed opacity-80">
             Powered by <strong>Google Maps Platform</strong>, <strong>TripAdvisor</strong> and <strong>OpenStreetMap</strong>. <br />
             Icons provided by <strong>Lucide</strong> and <strong>SimpleIcons</strong>.
           </p>
@@ -229,11 +228,11 @@ function IngredientsTab({ configuration }: { configuration: AppConfiguration }) 
       {/* Feedback Loop */}
       <div className="flex items-start gap-3">
         <div className="mt-1 shrink-0 rounded-lg bg-purple-100 p-2">
-          <Mail className="h-5 w-5 text-purple-600" />
+          <Mail className="size-5 text-purple-600" />
         </div>
         <div>
           <h4 className="mb-1 text-sm font-bold tracking-wide uppercase">Feedback & Rights</h4>
-          <p className="mb-2 text-xs leading-relaxed opacity-80">
+          <p className="mb-2 text-xs/relaxed opacity-80">
             Found a bug? The dice got stuck? Or wish to request a data purge?
           </p>
           <a href={"mailto:" + configuration.privacy.contactEmail} className={`

@@ -29,7 +29,7 @@ export function ShareButton({ searchId, candidateId, restaurantName, restaurantD
       title="Share"
       aria-label="Share Restaurant"
     >
-      <Share2 className="h-6 w-6 stroke-[2.5px]" />
+      <Share2 className="size-6 stroke-[2.5px]" />
     </button>
   );
 }

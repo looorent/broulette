@@ -39,15 +39,15 @@ export function DistanceRangeSelector({ selectedRange, ranges, onChange, classNa
             relative z-10 m-0 h-10 w-full cursor-pointer appearance-none
             bg-transparent
             focus:outline-none
-            [&::-moz-range-thumb]:h-8 [&::-moz-range-thumb]:w-8
-            [&::-moz-range-thumb]:cursor-pointer
+            [&::-moz-range-thumb]:size-8 [&::-moz-range-thumb]:cursor-pointer
             [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-4
             [&::-moz-range-thumb]:border-fun-dark
             [&::-moz-range-thumb]:bg-fun-yellow
             [&::-moz-range-thumb]:shadow-hard-hover
             [&::-moz-range-thumb]:transition-transform
-            [&::-moz-range-thumb:hover]:scale-110 [&::-moz-range-track]:h-2
-            [&::-moz-range-track]:w-full [&::-moz-range-track]:cursor-pointer
+            [&::-moz-range-thumb:hover]:scale-110
+            [&::-moz-range-track]:h-2 [&::-moz-range-track]:w-full
+            [&::-moz-range-track]:cursor-pointer
             [&::-moz-range-track]:rounded-full [&::-moz-range-track]:border-2
             [&::-moz-range-track]:border-fun-dark
             [&::-moz-range-track]:bg-fun-cream
@@ -58,8 +58,7 @@ export function DistanceRangeSelector({ selectedRange, ranges, onChange, classNa
             [&::-webkit-slider-runnable-track]:border-2
             [&::-webkit-slider-runnable-track]:border-fun-dark
             [&::-webkit-slider-runnable-track]:bg-fun-cream
-            [&::-webkit-slider-thumb]:-mt-3 [&::-webkit-slider-thumb]:h-8
-            [&::-webkit-slider-thumb]:w-8
+            [&::-webkit-slider-thumb]:-mt-3 [&::-webkit-slider-thumb]:size-8
             [&::-webkit-slider-thumb]:cursor-pointer
             [&::-webkit-slider-thumb]:appearance-none
             [&::-webkit-slider-thumb]:rounded-full

@@ -26,7 +26,7 @@ export function TabButton({ id, label, icon: Icon, activeTab, onSelected }: TabB
         }
       `}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="size-4" />
       {label}
     </button>
   );

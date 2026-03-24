@@ -82,7 +82,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
                   <img
                     id="candidate-image"
                     src={restaurant.imageUrl}
-                    className="h-full w-full animate-image-zoom object-cover"
+                    className="size-full animate-image-zoom object-cover"
                     alt={`Restaurant named '${restaurant.name}'`}
                     loading="lazy"
                     decoding="async"
@@ -107,7 +107,7 @@ export default function CandidatePage({ loaderData }: Route.ComponentProps) {
 
             <div className={`flex flex-1 flex-col overflow-y-auto p-6`}>
               <h3 id="candidate-name" className={`
-                mt-2 mb-0 font-pop text-2xl leading-tight text-fun-dark
+                mt-2 mb-0 font-pop text-2xl/tight text-fun-dark
               `}>
                 {restaurant.name}
               </h3>

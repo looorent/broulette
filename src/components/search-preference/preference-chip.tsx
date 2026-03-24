@@ -84,9 +84,9 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
             >
               <div className="flex items-center gap-1.5">
                 <DistanceIcon icon={distanceIcon} />
-                {!preferences?.avoidFastFood && <Hamburger className="h-5 w-5" />}
-                {!preferences?.avoidTakeaway && <ShoppingBag className="h-5 w-5" />}
-                {preferences?.onlyHighRated && <Star className="h-5 w-5" />}
+                {!preferences?.avoidFastFood && <Hamburger className="size-5" />}
+                {!preferences?.avoidTakeaway && <ShoppingBag className="size-5" />}
+                {preferences?.onlyHighRated && <Star className="size-5" />}
               </div>
             </PreferenceChipValue>
 
@@ -107,7 +107,7 @@ export const PreferenceChip = forwardRef<PreferenceChipHandle, PreferenceChipPro
 PreferenceChip.displayName = "PreferenceChip";
 
 function DistanceIcon({ icon: Icon }: { icon: LucideIcon }) {
-  return <Icon className="h-5 w-5" />;
+  return <Icon className="size-5" />;
 }
 
 function findDistanceIcon(range: DistanceRangeOption | undefined): LucideIcon {

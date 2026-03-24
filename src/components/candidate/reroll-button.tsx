@@ -38,7 +38,7 @@ export function RerollButton({ enabled, searchId }: RerollButtonProps) {
         title="Reroll"
         aria-label="Reroll"
       >
-        <RefreshCw className="h-8 w-8 stroke-[3px] text-fun-dark" />
+        <RefreshCw className="size-8 stroke-[3px] text-fun-dark" />
       </button>
     );
   } else {

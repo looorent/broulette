@@ -20,7 +20,7 @@ export function OpenMapButton({ mapUrl } : {
         <span className={`
           font-pop text-2xl tracking-wide text-fun-dark uppercase
         `}>Let's Eat!</span>
-        <Navigation className="h-6 w-6 stroke-[3px] text-fun-dark" />
+        <Navigation className="size-6 stroke-[3px] text-fun-dark" />
       </a>
     )
   } else {

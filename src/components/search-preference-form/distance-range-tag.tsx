@@ -10,7 +10,7 @@ export function DistanceRangeTag({ text, className = "" }: DistanceRangeTagProps
       ${className}
     `}>
       <svg
-        className="h-full w-full overflow-visible"
+        className="size-full overflow-visible"
         viewBox="0 0 100 45"
         aria-hidden="true"
       >

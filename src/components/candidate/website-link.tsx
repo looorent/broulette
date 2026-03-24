@@ -86,7 +86,7 @@ export function WebsiteLink({ url }: { url: string | null | undefined }) {
     return (
       <div className="flex items-center gap-2">
         <Icon className={`
-          h-5 w-5 shrink-0
+          size-5 shrink-0
           ${colorClass}
         `} />
         <a href={url}

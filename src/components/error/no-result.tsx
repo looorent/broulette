@@ -19,14 +19,13 @@ export function NoResults({ momentLabel, searchId, distanceRange, csrfToken }: N
     <>
       <main
         className={`
-          relative z-10 flex h-full w-full flex-col items-center justify-center
-          p-6
+          relative z-10 flex size-full flex-col items-center justify-center p-6
         `}
       >
         {/* Background Atmosphere */}
         <div
           className={`
-            pointer-events-none absolute z-0 h-96 w-96 animate-pulse-mega
+            pointer-events-none absolute z-0 size-96 animate-pulse-mega
             rounded-full bg-fun-cream/10
           `}
           aria-hidden="true"
@@ -36,11 +35,11 @@ export function NoResults({ momentLabel, searchId, distanceRange, csrfToken }: N
         <div className="relative z-10 mb-8 animate-float">
           {/* Decorative elements behind the icon */}
           <div className={`
-            absolute top-0 right-0 -mt-2 -mr-2 h-4 w-4 rounded-full border-2
+            absolute top-0 right-0 -mt-2 -mr-2 size-4 rounded-full border-2
             border-fun-dark bg-fun-green
           `}></div>
           <div className={`
-            absolute bottom-0 left-0 -mb-1 -ml-3 h-3 w-3 rounded-full border-2
+            absolute bottom-0 left-0 -mb-1 -ml-3 size-3 rounded-full border-2
             border-fun-dark bg-fun-yellow
           `}></div>
 
@@ -48,7 +47,7 @@ export function NoResults({ momentLabel, searchId, distanceRange, csrfToken }: N
             -rotate-6 rounded-2xl border-[3px] border-fun-dark bg-fun-cream p-4
             text-fun-dark shadow-hard
           `}>
-            <SearchX className="h-12 w-12" />
+            <SearchX className="size-12" />
           </div>
         </div>
 
@@ -97,7 +96,7 @@ export function NoResults({ momentLabel, searchId, distanceRange, csrfToken }: N
           `}
         >
           <p className={`
-            font-display text-xs leading-relaxed font-bold uppercase
+            font-display text-xs/relaxed font-bold uppercase
             md:text-sm
           `}>
             {canWiden

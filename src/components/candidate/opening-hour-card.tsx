@@ -26,11 +26,11 @@ export function OpeningHoursCard({
     >
       {
         openingHoursOfTheDay.unknown ? (
-          <CircleQuestionMark className="h-5 w-5 stroke-[2.5px]" />
+          <CircleQuestionMark className="size-5 stroke-[2.5px]" />
         ) : openingHoursOfTheDay.open ? (
-          <Clock className="h-5 w-5 stroke-[2.5px]" />
+          <Clock className="size-5 stroke-[2.5px]" />
         ) : (
-          <ClockAlert className="h-5 w-5 stroke-[2.5px]" />
+          <ClockAlert className="size-5 stroke-[2.5px]" />
         )
       }
 

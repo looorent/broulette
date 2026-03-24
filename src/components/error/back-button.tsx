@@ -16,7 +16,7 @@ export function BackButton() {
         active:scale-120
       `}
     >
-      <ArrowLeft className="h-8 w-8 stroke-[3px]" />
+      <ArrowLeft className="size-8 stroke-[3px]" />
       <span>Back</span>
     </button>
   );

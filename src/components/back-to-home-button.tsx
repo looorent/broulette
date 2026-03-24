@@ -14,7 +14,7 @@ export function BackToHomeButton({
       className={`
         absolute top-2 right-2 z-100 flex animate-slide-in-from-top-right
         cursor-pointer items-center justify-center gap-2 rounded-md border-[3px]
-        border-fun-dark bg-fun-cream/95 px-2 py-2 font-pop text-sm font-bold
+        border-fun-dark bg-fun-cream/95 p-2 font-pop text-sm font-bold
         tracking-wide text-fun-dark uppercase shadow-hard-hover backdrop-blur-md
         transition-transform duration-500
         hover:rotate-0 hover:brightness-115
@@ -22,7 +22,7 @@ export function BackToHomeButton({
         ${className}
       `}
     >
-      <ArrowLeft className="h-4 w-4" />
+      <ArrowLeft className="size-4" />
       <span>Lobby</span>
     </a>
   );

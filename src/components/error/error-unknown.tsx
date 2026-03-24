@@ -9,8 +9,8 @@ export function ErrorUnknown() {
     <main
       id="unexpected-error-page"
       className={`
-        relative z-10 flex h-full w-full flex-col items-center justify-center
-        gap-6 p-6
+        relative z-10 flex size-full flex-col items-center justify-center gap-6
+        p-6
       `}
     >
       <AmbientPulse />
@@ -21,7 +21,7 @@ export function ErrorUnknown() {
           rotate-12 rounded-full border-[3px] border-fun-dark bg-fun-cream p-3
           text-fun-dark shadow-hard
         `}>
-          <OctagonAlert className="h-10 w-10" />
+          <OctagonAlert className="size-10" />
         </div>
       </div>
 

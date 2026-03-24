@@ -70,9 +70,8 @@ export function AlertBox({
     return (
       <dialog
         className={`
-          absolute inset-0 z-50 m-0 flex h-full w-full items-center
-          justify-center border-none bg-transparent p-4 transition-all
-          duration-300 ease-in-out
+          absolute inset-0 z-50 m-0 flex size-full items-center justify-center
+          border-none bg-transparent p-4 transition-all duration-300 ease-in-out
           ${showContent ? "visible backdrop-blur-sm" : `
             invisible backdrop-blur-none
           `}
@@ -84,7 +83,7 @@ export function AlertBox({
         <button
           type="button"
           className={`
-            absolute inset-0 h-full w-full cursor-default bg-fun-dark/50
+            absolute inset-0 size-full cursor-default bg-fun-dark/50
             transition-opacity duration-300
             ${showContent ? "opacity-100" : "opacity-0"}
             focus:outline-none
@@ -127,7 +126,7 @@ export function AlertBox({
                 aria-label="Close"
               >
                 <CircleX className={`
-                  h-8 w-8 stroke-[2.5px] transition-transform
+                  size-8 stroke-[2.5px] transition-transform
                   hover:scale-110
                 `} />
               </button>
@@ -144,9 +143,9 @@ export function AlertBox({
             `}>
               {Icon && (
                 <div className={`
-                  mx-auto flex h-12 w-12 shrink-0 items-center justify-center
+                  mx-auto flex size-12 shrink-0 items-center justify-center
                   rounded-full border-2 bg-fun-cream
-                  sm:mx-0 sm:h-10 sm:w-10
+                  sm:mx-0 sm:size-10
                   ${styles.iconBorder}
                   ${styles.iconText}
                 `}>
@@ -158,7 +157,7 @@ export function AlertBox({
                 mt-3 text-center
                 sm:mt-0 sm:text-left
                 ${Icon ? 'sm:ml-4' : ''}
-                flex h-full w-full flex-col
+                flex size-full flex-col
               `}>
                 {title && (
                   <h3 className={`

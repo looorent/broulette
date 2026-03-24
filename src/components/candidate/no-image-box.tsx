@@ -1,8 +1,8 @@
 export function NoImageBox() {
   return (
     <div className={`
-      group relative flex h-full w-full items-center justify-center
-      overflow-hidden bg-gray-200
+      group relative flex size-full items-center justify-center overflow-hidden
+      bg-gray-200
     `}>
       <div className={`
         pointer-events-none absolute inset-0
@@ -13,8 +13,7 @@ export function NoImageBox() {
 
       <h2 className={`
         flex flex-col items-center font-display text-5xl leading-[0.9]
-        tracking-tighter
-        [-webkit-text-stroke:2px_#2d3436]
+        tracking-tighter [-webkit-text-stroke:2px_#2d3436]
         [text-shadow:4px_4px_0px_#2d3436]
       `}>
         <span className={`

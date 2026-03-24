@@ -27,7 +27,7 @@ export function SearchLoader({ title, visible }: SearchLoaderProps) {
         id="search-loader"
         onAnimationEnd={handleAnimationEnd}
         className={`
-          relative h-full w-full overflow-hidden
+          relative size-full overflow-hidden
           ${visible ? "animate-bounce-in" : "animate-bounce-out"}
         `}
       >

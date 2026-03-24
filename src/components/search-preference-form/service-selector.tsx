@@ -49,8 +49,7 @@ export default function ServiceSelector({ services, selectedService, className =
         mb-2 block font-pop text-2xl tracking-wide text-fun-dark
       `}>When?</legend>
       <div className={`
-        pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-24
-        rounded-r-xl
+        pointer-events-none absolute inset-y-0 right-0 z-10 w-24 rounded-r-xl
       `} aria-hidden="true"></div>
       <div id="time-scroll-container"
         ref={ref}
@@ -58,8 +57,7 @@ export default function ServiceSelector({ services, selectedService, className =
         className={`
           flex max-w-full cursor-grab touch-pan-x touch-pan-y snap-x
           snap-mandatory gap-4 overflow-x-auto p-1 pr-24 select-none
-          [-ms-overflow-style:none]
-          [scrollbar-width:none]
+          [-ms-overflow-style:none] [scrollbar-width:none]
           active:cursor-grabbing
           [&::-webkit-scrollbar]:hidden
         `} role="radiogroup">
@@ -87,7 +85,7 @@ export default function ServiceSelector({ services, selectedService, className =
                 peer-checked:shadow-hard
               `}>
                   { Icon && (<Icon className={`
-                    h-8 w-8 stroke-[2.5px] text-fun-dark
+                    size-8 stroke-[2.5px] text-fun-dark
                   `} />) }
                   <span className={`
                     text-center font-sans leading-none font-bold tracking-tight
@@ -100,7 +98,7 @@ export default function ServiceSelector({ services, selectedService, className =
                   transition-opacity duration-200
                   peer-checked:scale-100 peer-checked:opacity-100
                 `}>
-                  <Check className="h-4 w-4 stroke-[4px] text-fun-cream" />
+                  <Check className="size-4 stroke-[4px] text-fun-cream" />
                 </div>
 
                 {!service.isAvailable && (

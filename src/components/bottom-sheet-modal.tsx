@@ -93,7 +93,7 @@ export function BottomSheet({
               `}
               aria-label="Close"
             >
-              <CircleX className="h-8 w-8 stroke-[2.5px]" />
+              <CircleX className="size-8 stroke-[2.5px]" />
             </button>
           </div>
 

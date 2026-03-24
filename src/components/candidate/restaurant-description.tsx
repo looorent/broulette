@@ -12,8 +12,7 @@ export function RestaurantDescription({
     return (
       <p id="candidate-description"
         className={`
-          mb-4 line-clamp-3 font-sans text-sm leading-snug font-medium
-          text-fun-dark/70
+          mb-4 line-clamp-3 font-sans text-sm/snug font-medium text-fun-dark/70
           ${className}
         `}>
         {description}

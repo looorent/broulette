@@ -9,8 +9,8 @@ export function SearchLoaderTitle({ title }: SearchLoaderTitleProps) {
     `}>
       <h3 id="loading-title"
           className={`
-            animate-pulse text-center font-pop text-3xl leading-tight
-            tracking-wide text-fun-cream uppercase
+            animate-pulse text-center font-pop text-3xl/tight tracking-wide
+            text-fun-cream uppercase
             md:text-4xl
           `}>
         {title}
