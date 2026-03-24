@@ -1,5 +1,5 @@
 import { useDrag } from "@use-gesture/react";
-import { XCircle } from "lucide-react";
+import { CircleX } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 interface BottomSheetProps {
@@ -93,7 +93,7 @@ export function BottomSheet({
               `}
               aria-label="Close"
             >
-              <XCircle className="h-8 w-8 stroke-[2.5px]" />
+              <CircleX className="h-8 w-8 stroke-[2.5px]" />
             </button>
           </div>
 

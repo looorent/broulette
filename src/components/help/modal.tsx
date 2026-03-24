@@ -1,5 +1,4 @@
 import {
-  AlertTriangle,
   Cookie,
   DatabaseZap,
   Lightbulb,
@@ -8,7 +7,8 @@ import {
   MapPin,
   Scroll,
   ShieldCheck,
-  Sparkles
+  Sparkles,
+  TriangleAlert
 } from "lucide-react";
 import { useState } from "react";
 
@@ -202,7 +202,7 @@ function IngredientsTab({ configuration }: { configuration: AppConfiguration }) 
         flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50
         p-4
       `}>
-        <AlertTriangle className="h-6 w-6 shrink-0 text-orange-500" />
+        <TriangleAlert className="h-6 w-6 shrink-0 text-orange-500" />
         <div>
           <h4 className={`
             mb-1 text-sm font-bold tracking-wide text-orange-800 uppercase

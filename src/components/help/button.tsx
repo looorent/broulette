@@ -1,4 +1,4 @@
-import { HelpCircle } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 
 interface HelpButtonProps {
   onOpen: () => void;
@@ -17,7 +17,7 @@ export function HelpButton({ onOpen }: HelpButtonProps) {
       title="Get Help"
       aria-label="Get Help"
       onClick={onOpen}>
-      <HelpCircle />
+      <CircleHelp />
     </button>
   );
 }

@@ -1,4 +1,4 @@
-import { Crosshair, Loader2, MapPin, XCircle } from "lucide-react";
+import { CircleX, Crosshair, LoaderCircle, MapPin } from "lucide-react";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useFetcher, useRouteLoaderData } from "react-router";
 
@@ -215,7 +215,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
             {/* Left Icon */}
             <div className="mr-3 ml-2 shrink-0">
               {isLocating ? (
-                <Loader2 className={`
+                <LoaderCircle className={`
                   h-6 w-6 animate-spin stroke-3 text-fun-dark transition-colors
                 `} />
               ) : (
@@ -286,7 +286,7 @@ export const LocationSelector = forwardRef<LocationSelectorHandle, LocationSelec
                   `}
                   aria-label="Change location"
                 >
-                  <XCircle className="h-5 w-5 stroke-3 text-fun-dark" />
+                  <CircleX className="h-5 w-5 stroke-3 text-fun-dark" />
                 </button>
               )}
             </div>

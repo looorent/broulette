@@ -1,3 +1,9 @@
+# 0.0.10 (2026-03-24)
+
+* [Technical] Upgrade `lucide-react` from 0.574.0 to 1.0.1.
+* [Technical] Upgrade `eslint-plugin-better-tailwindcss` from 3.8.0 to 4.3.2.
+* [Technical] Upgrade `jsdom` from 28.1.0 to 29.0.1.
+
 # 0.0.9 (2026-02-12)
 
 * [Feature] When looking for a restaurant in a close range, offer the capability to search within a mid-range area if there are not other candidates to provide.

@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { Form, useRouteLoaderData, useSubmit } from "react-router";
 
@@ -107,7 +107,7 @@ export function SearchSubmitButton({
             absolute -top-1 -right-1 rotate-12 transition-all duration-200
             group-hover:scale-110 group-hover:rotate-25
           `}>
-            <AlertTriangle className={`
+            <TriangleAlert className={`
               h-14 w-14 fill-fun-yellow stroke-[2.5px] text-fun-dark
               drop-shadow-md
             `} />

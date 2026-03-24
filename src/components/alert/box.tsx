@@ -1,4 +1,4 @@
-import { XCircle } from "lucide-react";
+import { CircleX } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import type { AlertBoxOptions, AlertVariant } from "./types";
@@ -126,7 +126,7 @@ export function AlertBox({
                 `}
                 aria-label="Close"
               >
-                <XCircle className={`
+                <CircleX className={`
                   h-8 w-8 stroke-[2.5px] transition-transform
                   hover:scale-110
                 `} />

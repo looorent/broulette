@@ -1,4 +1,4 @@
-import { AlertTriangle, History, RefreshCw } from "lucide-react";
+import { History, RefreshCw, TriangleAlert } from "lucide-react";
 
 import type { LocationPreference } from "@features/search";
 
@@ -25,7 +25,7 @@ export function LocationSuggestionSelector({ suggestions, note, error, isSearchi
         ) : error ? (
           <div className="p-4 text-center">
             <div className="mb-2 flex items-center justify-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-fun-red" />
+              <TriangleAlert className="h-5 w-5 text-fun-red" />
               <p className="font-sans text-sm font-bold text-fun-dark">
                 {error}
               </p>

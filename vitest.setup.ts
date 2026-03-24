@@ -27,7 +27,7 @@ const mockCryptoKey = {
 
 Object.defineProperty(globalThis, "crypto", {
   value: {
-    randomUUID: () => "test-uuid-" + Math.random().toString(36).substring(2, 9),
+    randomUUID: () => `test-uuid-${Math.random().toString(36).substring(2, 9)}`,
     getRandomValues: <T extends ArrayBufferView>(array: T): T => {
       if (array instanceof Uint8Array) {
         for (let i = 0; i < array.length; i++) {
