@@ -65,7 +65,7 @@ export const restaurantProfiles = sqliteTable("restaurant_profile", {
   countryCode: text("country_code", { length: 20 }),
   state: text("state", { length: 50 }),
   description: text("description"),
-  imageUrl: text("image_url"),
+  photoId: uuid("photo_id"),
   mapUrl: text("map_url"),
   rating: real("rating"),
   ratingCount: integer("rating_count"),

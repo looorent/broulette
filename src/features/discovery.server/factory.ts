@@ -16,7 +16,7 @@ export function fromOverpass(overpass: OverpassRestaurant): DiscoveredRestaurant
     countryCode: overpass.countryCode || null,
     state: overpass.addressState || null,
     description: overpass.description || null,
-    imageUrl: overpass.imageUrl || null,
+    photoId: null,
     mapUrl: overpass.openStreetMapUrl || null,
     rating: null,
     ratingCount: null,

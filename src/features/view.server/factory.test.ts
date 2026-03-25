@@ -21,7 +21,7 @@ function createMockProfile(source: string, overrides: Partial<RestaurantProfile>
     countryCode: null,
     state: null,
     description: null,
-    imageUrl: null,
+    photoId: null,
     mapUrl: null,
     rating: null,
     ratingCount: null,
@@ -89,40 +89,40 @@ describe("buildViewModelOfRestaurant", () => {
 
   it("prioritizes Google profile data over others", () => {
     const profiles = [
-      createMockProfile("osm", { description: "Overpass desc", imageUrl: "overpass.jpg" }),
-      createMockProfile("tripadvisor", { description: "TripAdvisor desc", imageUrl: "tripadvisor.jpg" }),
-      createMockProfile("google_place", { description: "Google desc", imageUrl: "google.jpg" })
+      createMockProfile("osm", { description: "Overpass desc", photoId: "overpass-uuid" }),
+      createMockProfile("tripadvisor", { description: "TripAdvisor desc", photoId: "tripadvisor-uuid" }),
+      createMockProfile("google_place", { description: "Google desc", photoId: "google-uuid" })
     ];
     const restaurant = createMockRestaurant(profiles);
 
-    const result = buildViewModelOfRestaurant(restaurant, createMockSearch(), "en-US");
+    const result = buildViewModelOfRestaurant(restaurant, createMockSearch(), "en-US", "https://images.test.com");
 
     expect(result!.description).toBe("TripAdvisor desc");
-    expect(result!.imageUrl).toBe("google.jpg");
+    expect(result!.imageUrl).toBe("https://images.test.com/photos/google-uuid.jpg");
     expect(result!.source).toBe("google_place");
   });
 
   it("falls back to TripAdvisor when Google data is missing", () => {
     const profiles = [
-      createMockProfile("osm", { imageUrl: "overpass.jpg" }),
-      createMockProfile("tripadvisor", { imageUrl: "tripadvisor.jpg" })
+      createMockProfile("osm", { photoId: "overpass-uuid" }),
+      createMockProfile("tripadvisor", { photoId: "tripadvisor-uuid" })
     ];
     const restaurant = createMockRestaurant(profiles);
 
-    const result = buildViewModelOfRestaurant(restaurant, createMockSearch(), "en-US");
+    const result = buildViewModelOfRestaurant(restaurant, createMockSearch(), "en-US", "https://images.test.com");
 
-    expect(result!.imageUrl).toBe("tripadvisor.jpg");
+    expect(result!.imageUrl).toBe("https://images.test.com/photos/tripadvisor-uuid.jpg");
   });
 
   it("falls back to Overpass when other sources are missing", () => {
     const profiles = [
-      createMockProfile("osm", { imageUrl: "overpass.jpg", description: "Overpass description" })
+      createMockProfile("osm", { photoId: "overpass-uuid", description: "Overpass description" })
     ];
     const restaurant = createMockRestaurant(profiles);
 
-    const result = buildViewModelOfRestaurant(restaurant, createMockSearch(), "en-US");
+    const result = buildViewModelOfRestaurant(restaurant, createMockSearch(), "en-US", "https://images.test.com");
 
-    expect(result!.imageUrl).toBe("overpass.jpg");
+    expect(result!.imageUrl).toBe("https://images.test.com/photos/overpass-uuid.jpg");
     expect(result!.description).toBe("Overpass description");
   });
 
@@ -293,7 +293,7 @@ describe("buildViewModelOfCandidate", () => {
       search: createMockSearch(),
       restaurant: createMockRestaurant([
         createMockProfile("google_place", {
-          imageUrl: "https://example.com/image.jpg",
+          photoId: "google-photo-uuid",
           openingHours: "Mo-Su 10:00-22:00"
         })
       ])

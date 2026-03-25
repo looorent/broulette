@@ -17,7 +17,7 @@ import type { Route } from "./+types/searches.$searchId_.candidates.$candidateId
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const { searchId, candidateId } = params;
-  const view = await findCandidateViewModel(searchId, candidateId, new Date(), await getLocale(request), context.repositories.search, context.repositories.candidate);
+  const view = await findCandidateViewModel(searchId, candidateId, new Date(), await getLocale(request), context.repositories.search, context.repositories.candidate, context.cloudflare.env.BROULETTE_R2_PUBLIC_URL);
   if (view) {
     if (view.redirectRequired) {
       return redirect(

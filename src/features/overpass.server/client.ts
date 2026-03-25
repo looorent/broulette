@@ -148,7 +148,7 @@ function parseRestaurantFromResponse(
       website: tags["website"] || tags["contact:website"] || tags["contact:facebook"] || tags["url"],
       openingHours: tags["opening_hours"],
       description: tags["description"],
-      imageUrl: tags["image"] || tags["mapillary"],
+      photoId: undefined,
       openStreetMapUrl: buildOpenStreetMapUrl(body.id, body.type),
       operational: true // otherwise Overpass would not return it with the requested
     }

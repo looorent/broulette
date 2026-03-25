@@ -1,5 +1,6 @@
 import type { DiscoveredRestaurantProfile } from "@features/discovery.server";
 import { DEFAULT_GOOGLE_PLACE_CONFIGURATION, GOOGLE_PLACE_SOURCE_NAME, type GooglePlaceConfiguration } from "@features/google.server";
+import type { ImageUploader } from "@features/image-storage.server";
 import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
 import { filterTags } from "@features/tag.server";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
@@ -16,6 +17,7 @@ export async function enrichRestaurant(
   language: string,
   restaurantRepository: RestaurantRepository,
   matchingRepository: MatchingRepository,
+  imageUploader: ImageUploader,
   configuration: RestaurantMatchingConfiguration = DEFAULT_MATCHING_CONFIGURATION,
   google: GooglePlaceConfiguration | undefined = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
   tripAdvisor: TripAdvisorConfiguration | undefined = DEFAULT_TRIPADVISOR_CONFIGURATION,
@@ -23,7 +25,7 @@ export async function enrichRestaurant(
 ): Promise<RestaurantAndProfiles | undefined> {
   if (discovered) {
     const restaurant = await restaurantRepository.findRestaurantWithExternalIdentity(discovered.externalId, discovered.externalType, discovered.source) || await restaurantRepository.createRestaurantFromDiscovery(discovered, filterTags(discovered.tags, configuration.tags));
-    return await enrich(restaurant, language, restaurantRepository, matchingRepository, configuration, google, tripAdvisor, signal);
+    return await enrich(restaurant, language, restaurantRepository, matchingRepository, imageUploader, configuration, google, tripAdvisor, signal);
   } else {
     return undefined;
   }
@@ -34,16 +36,17 @@ async function enrich(
   language: string,
   restaurantRepository: RestaurantRepository,
   matchingRepository: MatchingRepository,
+  imageUploader: ImageUploader,
   configuration: RestaurantMatchingConfiguration,
-  google?: GooglePlaceConfiguration | undefined,
-  tripAdvisor?: TripAdvisorConfiguration | undefined,
+  google: GooglePlaceConfiguration | undefined,
+  tripAdvisor: TripAdvisorConfiguration | undefined,
   signal?: AbortSignal | undefined
 ): Promise<RestaurantAndProfiles> {
   if (signal?.aborted) {
     throw signal.reason;
   }
 
-  const matchers = registeredMatchers(google, tripAdvisor);
+  const matchers = registeredMatchers(google, tripAdvisor, imageUploader);
 
   const eligibility = await Promise.all(
     matchers.map(matcher => shouldBeMatched(restaurant, matcher, matchingRepository))
@@ -59,9 +62,13 @@ async function enrich(
       )
     );
 
-    const allProfiles = matchings.flatMap(matching => matching.restaurant.profiles);
+    const matchedProfiles = matchings.flatMap((matching, index) =>
+      matching.matched
+        ? matching.restaurant.profiles.filter(p => p.source === eligibleMatchers[index].source)
+        : []
+    );
     const mergedProfiles = Object.values(
-      Object.fromEntries([...restaurant.profiles, ...allProfiles].map(p => [p.id, p]))
+      Object.fromEntries([...restaurant.profiles, ...matchedProfiles].map(p => [p.id, p]))
     );
 
     return completeRestaurantFromProfiles({ ...restaurant, profiles: mergedProfiles });

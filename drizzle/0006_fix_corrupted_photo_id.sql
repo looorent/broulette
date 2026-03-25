@@ -1,0 +1,1 @@
+UPDATE `restaurant_profile` SET `photo_id` = NULL WHERE `photo_id` = 'photo_id';

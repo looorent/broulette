@@ -137,9 +137,9 @@ async function processRestaurant(
   context: SearchContext
 ): Promise<SearchCandidate | undefined> {
   logger.trace("[SearchEngine] Enriching and validating restaurant...");
-  const restaurant = await enrichRestaurant(discovered, locale, context.repositories.restaurant, context.repositories.matching, context.config.matching, context.services.google, context.services.tripAdvisor, context.signal);
+  const restaurant = await enrichRestaurant(discovered, locale, context.repositories.restaurant, context.repositories.matching, context.services.imageUploader, context.config.matching, context.services.google, context.services.tripAdvisor, context.signal);
 
-  const validation = await validateRestaurant(restaurant, search, locale);
+  const validation = await validateRestaurant(restaurant, search, locale, context.services.imagePublicBaseUrl);
   if (!validation.valid) {
     logger.log("[SearchEngine] Restaurant rejected. Reason: %s", validation.rejectionReason);
   }

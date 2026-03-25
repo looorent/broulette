@@ -39,7 +39,7 @@ export interface OverpassRestaurant {
   website: string | undefined;
   openingHours: string | undefined;
   description: string | undefined;
-  imageUrl: string | undefined;
+  photoId: string | undefined;
   openStreetMapUrl: string;
   operational: boolean;
 }

@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DiscoveredRestaurantProfile } from "@features/discovery.server";
+import type { ImageUploader } from "@features/image-storage.server";
 import type { RestaurantAndProfiles, RestaurantProfile } from "@persistence";
-
 
 import { enrichRestaurant } from "./enrich";
 import { registeredMatchers } from "./matchers/registry";
 import type { Matcher, Matching } from "./matchers/types";
+
+const mockImageUploader: ImageUploader = vi.fn(async () => undefined);
 
 
 vi.mock("@features/tag.server", async (importOriginal) => {
@@ -33,7 +35,7 @@ function createDiscoveredProfile(overrides: Partial<DiscoveredRestaurantProfile>
     countryCode: null,
     state: null,
     description: null,
-    imageUrl: null,
+    photoId: null,
     mapUrl: null,
     rating: null,
     ratingCount: null,
@@ -67,7 +69,7 @@ function createMockProfile(source: string, overrides: Partial<RestaurantProfile>
     countryCode: null,
     state: null,
     description: null,
-    imageUrl: null,
+    photoId: null,
     mapUrl: null,
     rating: null,
     ratingCount: null,
@@ -132,7 +134,8 @@ describe("enrichRestaurant", () => {
         undefined,
         "en",
         createMockRestaurantRepository() as never,
-        createMockMatchingRepository() as never
+        createMockMatchingRepository() as never,
+        mockImageUploader
       );
 
       expect(result).toBeUndefined();
@@ -153,7 +156,8 @@ describe("enrichRestaurant", () => {
         discovered,
         "en",
         restaurantRepo as never,
-        createMockMatchingRepository() as never
+        createMockMatchingRepository() as never,
+        mockImageUploader
       );
 
       expect(restaurantRepo.findRestaurantWithExternalIdentity).toHaveBeenCalledWith("123", "node", "osm");
@@ -179,7 +183,8 @@ describe("enrichRestaurant", () => {
         discovered,
         "en",
         restaurantRepo as never,
-        createMockMatchingRepository() as never
+        createMockMatchingRepository() as never,
+        mockImageUploader
       );
 
       expect(restaurantRepo.findRestaurantWithExternalIdentity).toHaveBeenCalled();
@@ -205,6 +210,7 @@ describe("enrichRestaurant", () => {
           "en",
           restaurantRepo as never,
           createMockMatchingRepository() as never,
+          vi.fn(),
           undefined,
           undefined,
           undefined,
@@ -236,7 +242,8 @@ describe("shouldBeMatched (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      createMockMatchingRepository() as never
+      createMockMatchingRepository() as never,
+      mockImageUploader
     );
 
     expect(matcher.matchAndEnrich).toHaveBeenCalled();
@@ -261,7 +268,8 @@ describe("shouldBeMatched (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      createMockMatchingRepository() as never
+      createMockMatchingRepository() as never,
+      mockImageUploader
     );
 
     expect(matcher.matchAndEnrich).toHaveBeenCalled();
@@ -287,7 +295,8 @@ describe("shouldBeMatched (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      createMockMatchingRepository() as never
+      createMockMatchingRepository() as never,
+      mockImageUploader
     );
 
     expect(matcher.matchAndEnrich).not.toHaveBeenCalled();
@@ -310,7 +319,8 @@ describe("shouldBeMatched (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      createMockMatchingRepository() as never
+      createMockMatchingRepository() as never,
+      mockImageUploader
     );
 
     expect(matcher.matchAndEnrich).not.toHaveBeenCalled();
@@ -334,7 +344,8 @@ describe("shouldBeMatched (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      matchingRepo as never
+      matchingRepo as never,
+      mockImageUploader
     );
 
     expect(matcher.matchAndEnrich).not.toHaveBeenCalled();
@@ -351,14 +362,14 @@ describe("shouldBeMatched (via enrichRestaurant)", () => {
     const restaurantRepo = createMockRestaurantRepository();
     restaurantRepo.findRestaurantWithExternalIdentity.mockResolvedValue(existingRestaurant);
 
-
     const discovered = createDiscoveredProfile({ name: "Test" });
 
     await enrichRestaurant(
       discovered,
       "en",
       restaurantRepo as never,
-      createMockMatchingRepository() as never
+      createMockMatchingRepository() as never,
+      mockImageUploader
     );
 
     expect(googleMatcher.matchAndEnrich).toHaveBeenCalled();
@@ -387,7 +398,8 @@ describe("completeRestaurantFromProfiles (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      createMockMatchingRepository() as never
+      createMockMatchingRepository() as never,
+      mockImageUploader
     );
 
     expect(result?.name).toBe("Google Name");
@@ -409,7 +421,8 @@ describe("completeRestaurantFromProfiles (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      createMockMatchingRepository() as never
+      createMockMatchingRepository() as never,
+      mockImageUploader
     );
 
     expect(result?.name).toBe("TripAdvisor Name");
@@ -430,7 +443,8 @@ describe("completeRestaurantFromProfiles (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      createMockMatchingRepository() as never
+      createMockMatchingRepository() as never,
+      mockImageUploader
     );
 
     expect(result?.name).toBe("Overpass Name");
@@ -449,7 +463,8 @@ describe("completeRestaurantFromProfiles (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      createMockMatchingRepository() as never
+      createMockMatchingRepository() as never,
+      mockImageUploader
     );
 
     expect(result?.name).toBe("Test Restaurant");
@@ -471,7 +486,8 @@ describe("completeRestaurantFromProfiles (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      createMockMatchingRepository() as never
+      createMockMatchingRepository() as never,
+      mockImageUploader
     );
 
     // Google name is null, falls back to Overpass
@@ -513,7 +529,8 @@ describe("profile merging (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      createMockMatchingRepository() as never
+      createMockMatchingRepository() as never,
+      mockImageUploader
     );
 
     expect(result?.profiles).toHaveLength(2);
@@ -557,7 +574,8 @@ describe("profile merging (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      matchingRepo as never
+      matchingRepo as never,
+      mockImageUploader
     );
 
     // Should have only one profile with id "shared-id"
@@ -593,7 +611,8 @@ describe("profile merging (via enrichRestaurant)", () => {
       discovered,
       "en",
       restaurantRepo as never,
-      createMockMatchingRepository() as never
+      createMockMatchingRepository() as never,
+      mockImageUploader
     );
 
     expect(result?.profiles).toHaveLength(2);

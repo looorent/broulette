@@ -1,5 +1,6 @@
 import { circuitBreaker } from "@features/circuit-breaker.server";
 import { computeViewportFromCircle } from "@features/coordinate";
+import type { ImageUploader } from "@features/image-storage.server";
 import { isAbortError } from "@features/utils/error";
 import { logger } from "@features/utils/logger";
 
@@ -40,6 +41,7 @@ const CIRCUIT_BREAKER_NAME = "google";
 export async function findGoogleRestaurantById(
   placeId: string,
   configuration: GooglePlaceConfiguration = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
+  imageUploader: ImageUploader,
   signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
   logger.log("[Google Place] findGoogleRestaurantById: Processing request for placeId='%s'", placeId);
@@ -53,7 +55,7 @@ export async function findGoogleRestaurantById(
 
   if (place) {
     logger.log("[Google Place] findGoogleRestaurantById: Place found. Converting and fetching photos.");
-    return addPhotoUriOn(convertGooglePlaceToRestaurant(place), configuration, signal);
+    return addPhotoOn(convertGooglePlaceToRestaurant(place), configuration, imageUploader, signal);
   } else {
     logger.log("[Google Place] findGoogleRestaurantById: No place found for id='%s'", placeId);
     return undefined;
@@ -101,6 +103,7 @@ export async function searchGoogleRestaurantByText(
   latitude: number,
   longitude: number,
   configuration: GooglePlaceConfiguration = DEFAULT_GOOGLE_PLACE_CONFIGURATION,
+  imageUploader: ImageUploader,
   signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
   logger.log("[Google Place] searchGoogleRestaurantByText: Searching for '%s' near [%f, %f]", searchableText, latitude, longitude);
@@ -126,7 +129,7 @@ export async function searchGoogleRestaurantByText(
 
   if (bestMatch) {
     logger.log("[Google Place] searchGoogleRestaurantByText: Match found for '%s'", searchableText);
-    return await addPhotoUriOn(bestMatch.restaurant, configuration, signal);
+    return await addPhotoOn(bestMatch.restaurant, configuration, imageUploader, signal);
   } else {
     logger.log("[Google Place] searchGoogleRestaurantByText: No suitable match found for '%s'", searchableText);
     return bestMatch;
@@ -253,30 +256,31 @@ function convertGooglePlaceToRestaurant(
       operational: convertBusinessStatusToOperational(place.businessStatus?.toString()),
       priceLevel: priceLevel,
       priceLabel: priceLabel,
-      photoIds: place.photos?.map(photo => photo.name)?.filter(Boolean)?.map(id => id!) || [],
-      photoUrl: undefined
+      googlePhotoIds: place.photos?.map(photo => photo.name)?.filter(Boolean)?.map(id => id!) || [],
+      photoId: undefined
     }
   } else {
     return undefined;
   }
 }
 
-async function addPhotoUriOn(
+async function addPhotoOn(
   restaurant: GoogleRestaurant | undefined,
   configuration: GooglePlaceConfiguration,
+  imageUploader: ImageUploader,
   signal?: AbortSignal | undefined
 ): Promise<GoogleRestaurant | undefined> {
-  const photoId = restaurant?.photoIds?.[0];
-  if (photoId) {
-    const photoUrl = await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
+  const googlePhotoId = restaurant?.googlePhotoIds?.[0];
+  if (googlePhotoId) {
+    const sourceUrl = await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
       if (combinedSignal?.aborted) {
         throw combinedSignal.reason;
       }
-      return findGoogleImageUrl(photoId, configuration.apiKey, configuration.photo.maxWidthInPx, configuration.photo.maxHeightInPx, configuration.baseUrl, combinedSignal);
+      return findGoogleImageUrl(googlePhotoId, configuration.apiKey, configuration.photo.maxWidthInPx, configuration.photo.maxHeightInPx, configuration.baseUrl, combinedSignal);
     }, signal);
 
-    if (photoUrl) {
-      restaurant.photoUrl = photoUrl;
+    if (sourceUrl) {
+      restaurant.photoId = await imageUploader(sourceUrl);
     }
     return restaurant;
   } else {

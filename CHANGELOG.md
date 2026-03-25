@@ -1,8 +1,9 @@
-# 0.0.10 (2026-03-24)
+# 0.0.10 (2026-03-25)
 
 * [Technical] Upgrade `lucide-react` from 0.574.0 to 1.0.1.
 * [Technical] Upgrade `eslint-plugin-better-tailwindcss` from 3.8.0 to 4.3.2.
 * [Technical] Upgrade `jsdom` from 28.1.0 to 29.0.1.
+* [Bug] Some image URLs return HTTP 403
 
 # 0.0.9 (2026-02-12)
 

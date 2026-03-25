@@ -1,5 +1,6 @@
 import { href, redirect } from "react-router";
 
+import { createImageUploader } from "@features/image-storage.server";
 import { searchCandidate, type SearchStreamEvent } from "@features/search-engine.server";
 import { validateCSRF } from "@features/session.server";
 import { getLocale } from "@features/utils/locale.server";
@@ -94,6 +95,8 @@ async function streamSearchResults(
       }
     };
 
+    const imageUploader = createImageUploader(context.cloudflare.env.IMAGES, signal);
+
     const generator = searchCandidate(
       data.searchId,
       data.locale,
@@ -104,6 +107,8 @@ async function streamSearchResults(
           overpass: context.config!.overpass,
           google: context.config!.google,
           tripAdvisor: context.config!.tripAdvisor,
+          imageUploader,
+          imagePublicBaseUrl: context.cloudflare.env.BROULETTE_R2_PUBLIC_URL,
         },
         signal,
       }

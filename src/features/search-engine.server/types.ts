@@ -1,5 +1,6 @@
 import { DEFAULT_DISCOVERY_CONFIGURATION, type DiscoveryConfiguration } from "@features/discovery.server";
 import type { GooglePlaceConfiguration } from "@features/google.server";
+import type { ImageUploader } from "@features/image-storage.server";
 import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantMatchingConfiguration } from "@features/matching.server";
 import type { OverpassConfiguration } from "@features/overpass.server";
 import type { TripAdvisorConfiguration } from "@features/tripadvisor.server";
@@ -56,6 +57,8 @@ export interface SearchContext {
     overpass?: OverpassConfiguration;
     google?: GooglePlaceConfiguration;
     tripAdvisor?: TripAdvisorConfiguration;
+    imageUploader: ImageUploader;
+    imagePublicBaseUrl?: string;
   };
   signal?: AbortSignal;
 }

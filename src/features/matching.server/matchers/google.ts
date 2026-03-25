@@ -1,5 +1,6 @@
 
 import { findGoogleRestaurantById, GOOGLE_PLACE_SOURCE_NAME, searchGoogleRestaurantByText, type GooglePlaceConfiguration, type GoogleRestaurant } from "@features/google.server";
+import type { ImageUploader } from "@features/image-storage.server";
 import { filterTags } from "@features/tag.server";
 import { type Restaurant, type RestaurantProfile, type MatchingRepository, type RestaurantAndProfiles, type RestaurantProfilePayload, type RestaurantRepository } from "@persistence";
 
@@ -9,7 +10,7 @@ import { type Matcher, type Matching } from "./types";
 export class GoogleMatcher implements Matcher {
   readonly source = GOOGLE_PLACE_SOURCE_NAME;
 
-  constructor(readonly configuration: GooglePlaceConfiguration) {}
+  constructor(readonly configuration: GooglePlaceConfiguration, private readonly imageUploader: ImageUploader) {}
 
   async matchAndEnrich(
     restaurant: RestaurantAndProfiles,
@@ -47,7 +48,7 @@ export class GoogleMatcher implements Matcher {
     signal?: AbortSignal | undefined
   ): Promise<GoogleRestaurant | undefined> {
     if (existingProfile) {
-      const found = await findGoogleRestaurantById(existingProfile.externalId, this.configuration, signal);
+      const found = await findGoogleRestaurantById(existingProfile.externalId, this.configuration, this.imageUploader, signal);
       await matchingRepository.registerAttemptToFindAMatch(existingProfile.externalId, "id", this.source, restaurant.id, found !== null && found !== undefined)
       return found;
     } else {
@@ -58,6 +59,7 @@ export class GoogleMatcher implements Matcher {
           restaurant.latitude,
           restaurant.longitude,
           this.configuration,
+          this.imageUploader,
           signal
         );
         await matchingRepository.registerAttemptToFindAMatch(textQuery, "text", this.source, restaurant.id, found !== null && found !== undefined, restaurant.latitude, restaurant.longitude, this.configuration.search.radiusInMeters);
@@ -87,7 +89,7 @@ export class GoogleMatcher implements Matcher {
       countryCode: google.countryCode || profile?.countryCode || null,
       state: profile?.state || null, // undefined at google
       description: profile?.description || null,
-      imageUrl: google.photoUrl || profile?.imageUrl || null,
+      photoId: google.photoId || profile?.photoId || null,
       mapUrl: google.googleMapsUri || profile?.mapUrl || null,
       rating: google.rating || profile?.rating || null,
       ratingCount: google.userRatingCount || profile?.ratingCount || null,

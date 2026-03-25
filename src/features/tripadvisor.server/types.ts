@@ -69,7 +69,7 @@ export interface TripAdvisorLocation {
   openingHours: string | undefined;
   features: string[];
   tripTypes: TripType[];
-  imageUrl: string | undefined;
+  photoId: string | undefined;
   awards: Award[];
 }
 

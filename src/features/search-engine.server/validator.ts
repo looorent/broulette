@@ -42,13 +42,14 @@ export interface RestaurantValidation {
 export async function validateRestaurant(
   restaurant: RestaurantAndProfiles | undefined,
   search: Search,
-  locale: string
+  locale: string,
+  imagePublicBaseUrl?: string
 ): Promise<RestaurantValidation> {
   if (restaurant) {
     if (restaurant.latitude === null || restaurant.latitude === undefined || restaurant.longitude === null || restaurant.longitude === undefined) {
       return failed("missing_coordinates");
     } else {
-      const model = buildViewModelOfRestaurant(restaurant, search, locale)!;
+      const model = buildViewModelOfRestaurant(restaurant, search, locale, imagePublicBaseUrl)!;
       if (BLOCKLISTED_NAME_PATTERNS.some(pattern => pattern.test(model.name))) {
         return failed("blocklisted_name");
       } else if (model.openingHoursOfTheDay?.unknown === true) {

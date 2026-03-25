@@ -1,5 +1,6 @@
 
 import { GOOGLE_PLACE_SOURCE_NAME } from "@features/google.server";
+import { photoIdToUrl } from "@features/image-storage.server";
 import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
 import { DISTANCE_RANGES } from "@features/search";
 import type { TagView } from "@features/tag";
@@ -19,7 +20,8 @@ interface RestaurantProfiles {
 export function buildViewModelOfCandidate(
   candidate: CandidateAndRestaurantAndProfileAndSearch | undefined | null,
   locale: string,
-  now: Date
+  now: Date,
+  imagePublicBaseUrl?: string
 ): CandidateRedirect | CandidateView | undefined {
   if (candidate) {
     const hasExpired = now > candidate.search.serviceEnd;
@@ -37,7 +39,7 @@ export function buildViewModelOfCandidate(
         distanceRange: candidate.search.distanceRange,
         redirectRequired: false
       },
-      restaurant: buildViewModelOfRestaurant(candidate.restaurant, candidate.search, locale)
+      restaurant: buildViewModelOfRestaurant(candidate.restaurant, candidate.search, locale, imagePublicBaseUrl)
     };
   } else {
     return undefined;
@@ -78,7 +80,8 @@ export function buildViewModelOfSearch(search: {
 export function buildViewModelOfRestaurant(
   restaurant: RestaurantAndProfiles | undefined | null,
   search: Search,
-  locale: string
+  locale: string,
+  imagePublicBaseUrl?: string
 ): RestaurantView | undefined {
   if (restaurant) {
     const profiles: RestaurantProfiles = {
@@ -93,7 +96,7 @@ export function buildViewModelOfRestaurant(
       description: buildDescription(profiles),
       source: buildSource(profiles),
       priceRange: buildPriceRange(profiles),
-      imageUrl: buildImageUrl(profiles),
+      imageUrl: buildImageUrl(profiles, imagePublicBaseUrl),
       rating: computeRating(profiles),
       tags: buildTags(profiles),
       phoneNumber: buildPhoneNumber(profiles),
@@ -132,8 +135,9 @@ function buildPriceRange({ overpass, tripAdvisor, google }: RestaurantProfiles):
   return pickFirst("priceLabel", google, tripAdvisor, overpass) || undefined;
 }
 
-function buildImageUrl({ overpass, tripAdvisor, google }: RestaurantProfiles): string | undefined {
-  return pickFirst("imageUrl", google, tripAdvisor, overpass) || undefined;
+function buildImageUrl({ overpass, tripAdvisor, google }: RestaurantProfiles, imagePublicBaseUrl?: string): string | undefined {
+  const photoId = pickFirst("photoId", google, tripAdvisor, overpass);
+  return photoId && imagePublicBaseUrl ? photoIdToUrl(photoId, imagePublicBaseUrl) : undefined;
 }
 
 function computeRating(profiles: RestaurantProfiles): {

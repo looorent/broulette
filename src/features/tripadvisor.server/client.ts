@@ -1,4 +1,5 @@
 import { circuitBreaker } from "@features/circuit-breaker.server";
+import type { ImageUploader } from "@features/image-storage.server";
 import { convertLocaleToSnakecase, DEFAULT_LANGUAGE } from "@features/utils/locale";
 import { logger } from "@features/utils/logger";
 
@@ -12,6 +13,7 @@ export async function findTripAdvisorLocationByIdWithRetry(
   locationId: string,
   locale: string = "en",
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
+  imageUploader: ImageUploader,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocation | undefined> {
   logger.log("[TripAdvisor] findTripAdvisorLocationByIdWithRetry: Processing request for locationId='%s'", locationId);
@@ -23,7 +25,7 @@ export async function findTripAdvisorLocationByIdWithRetry(
     return await findTripAdvisorLocationById(locationId, locale, configuration, combinedSignal);
   }, signal);
 
-  return addPhotoUriOn(location, locale, configuration, signal);
+  return addPhotoOn(location, locale, configuration, imageUploader, signal);
 }
 
 export async function searchTripAdvisorLocationNearbyWithRetry(
@@ -33,16 +35,19 @@ export async function searchTripAdvisorLocationNearbyWithRetry(
   radiusInMeters: number,
   locale: string = "en",
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
+  imageUploader: ImageUploader,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocation | undefined> {
   logger.log("[TripAdvisor] searchTripAdvisorLocationNearbyWithRetry: Searching for '%s' near [%f, %f]", name, latitude, longitude);
 
-  return await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
+  const location = await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
     return await searchTripAdvisorLocationNearby(name, latitude, longitude, radiusInMeters, locale, configuration, combinedSignal);
   }, signal);
+
+  return addPhotoOn(location, locale, configuration, imageUploader, signal);
 }
 
 export async function findBestTripAdvisorLocationPictureWithRetry(
@@ -204,16 +209,20 @@ async function findBestTripAdvisorLocationPicture(
   }
 }
 
-async function addPhotoUriOn(
+async function addPhotoOn(
   location: TripAdvisorLocation | undefined,
   locale: string,
   configuration: TripAdvisorConfiguration,
+  imageUploader: ImageUploader,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocation | undefined> {
   if (location) {
     const photo = await findBestTripAdvisorLocationPictureWithRetry(location.id, locale, configuration, signal);
     if (photo) {
-      location.imageUrl = (photo.images[configuration.photo] || photo.images.large || photo.images.original || photo.images.medium || photo.images.small)?.url;
+      const sourceUrl = (photo.images[configuration.photo] || photo.images.large || photo.images.original || photo.images.medium || photo.images.small)?.url;
+      if (sourceUrl) {
+        location.photoId = await imageUploader(sourceUrl);
+      }
     }
     return location;
   } else {
@@ -312,7 +321,7 @@ function parseLocationDetails(
       openingHours: convertTripAdvisorHoursToOpeningHours(hours),
       features: body.features || [],
       tripTypes: parseTripTypes(body.trip_types),
-      imageUrl: undefined, // will be populated later on (with the TripAdvisor API)
+      photoId: undefined, // will be populated later on (with the TripAdvisor API)
       awards: parseAwards(body.awards)
     };
   } else {

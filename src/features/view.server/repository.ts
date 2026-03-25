@@ -24,7 +24,8 @@ export async function findCandidateViewModel(
   now: Date,
   locale: string,
   searchRepository: SearchRepository,
-  candidateRepository: CandidateRepository
+  candidateRepository: CandidateRepository,
+  imagePublicBaseUrl?: string
 ): Promise<CandidateRedirect | CandidateView | undefined> {
   if (searchId && candidateId) {
     if (candidateId === LATEST) {
@@ -40,7 +41,7 @@ export async function findCandidateViewModel(
       }
     } else {
       const candidate = await candidateRepository.findById(candidateId, searchId);
-      return buildViewModelOfCandidate(candidate, locale, now);
+      return buildViewModelOfCandidate(candidate, locale, now, imagePublicBaseUrl);
     }
   } else {
     return undefined;

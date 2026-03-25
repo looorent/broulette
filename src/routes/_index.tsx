@@ -40,11 +40,13 @@ function HomeContent() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { services, defaultPreferences, configuration } = useLoaderData<typeof loader>();
   const [preferences, setPreferences] = useState<Preference>(() => {
-    const stored = loadPreferences();
-    if (stored) {
-      return preferenceFactory.createFromStored(stored, services, DISTANCE_RANGES);
-    } else {
+    if (typeof window === "undefined") {
       return defaultPreferences;
+    } else {
+      const stored = loadPreferences();
+      return stored
+        ? preferenceFactory.createFromStored(stored, services, DISTANCE_RANGES)
+        : defaultPreferences;
     }
   });
   const preferenceFormRef = useRef<PreferencesFormHandle>(null);

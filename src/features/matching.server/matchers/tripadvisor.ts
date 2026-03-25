@@ -1,4 +1,5 @@
 
+import type { ImageUploader } from "@features/image-storage.server";
 import { filterTags } from "@features/tag.server";
 import { findTripAdvisorLocationByIdWithRetry, searchTripAdvisorLocationNearbyWithRetry, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration, type TripAdvisorLocation } from "@features/tripadvisor.server";
 import { type Restaurant, type RestaurantProfile , type MatchingRepository, type RestaurantAndProfiles, type RestaurantProfilePayload, type RestaurantRepository } from "@persistence";
@@ -9,7 +10,7 @@ import { type Matcher, type Matching } from "./types";
 export class TripAdvisorMatcher implements Matcher {
   readonly source = TRIPADVISOR_SOURCE_NAME;
 
-  constructor(readonly configuration: TripAdvisorConfiguration) { }
+  constructor(readonly configuration: TripAdvisorConfiguration, private readonly imageUploader: ImageUploader) { }
 
   async matchAndEnrich(
     restaurant: RestaurantAndProfiles,
@@ -48,7 +49,7 @@ export class TripAdvisorMatcher implements Matcher {
     signal?: AbortSignal | undefined
   ): Promise<TripAdvisorLocation | undefined> {
     if (existingProfile) {
-      const found = await findTripAdvisorLocationByIdWithRetry(existingProfile.externalId, language, this.configuration, signal);
+      const found = await findTripAdvisorLocationByIdWithRetry(existingProfile.externalId, language, this.configuration, this.imageUploader, signal);
       await matchingRepository.registerAttemptToFindAMatch(existingProfile.externalId, "id", this.source, restaurant.id, found !== null && found !== undefined)
       return found;
     } else {
@@ -61,6 +62,7 @@ export class TripAdvisorMatcher implements Matcher {
           this.configuration.search.radiusInMeters,
           language,
           this.configuration,
+          this.imageUploader,
           signal
         );
         await matchingRepository.registerAttemptToFindAMatch(textQuery, "nearby", this.source, restaurant.id, found !== null && found !== undefined, restaurant.latitude, restaurant.longitude, this.configuration.search.radiusInMeters);
@@ -90,10 +92,10 @@ export class TripAdvisorMatcher implements Matcher {
       countryCode: tripAdvisor.address?.country || profile?.countryCode || null,
       state: tripAdvisor.address?.state || profile?.state || null, // undefined at tripAdvisor
       description: tripAdvisor.description || profile?.description || null,
-      imageUrl: tripAdvisor.imageUrl || profile?.imageUrl || null,
+      photoId: tripAdvisor.photoId || profile?.photoId || null,
       mapUrl: profile?.mapUrl || null,
       rating: tripAdvisor.rating || profile?.rating || null,
-      ratingCount: tripAdvisor.rating || profile?.ratingCount || null,
+      ratingCount: tripAdvisor.numberOfReviews || profile?.ratingCount || null,
       phoneNumber: tripAdvisor.phone || profile?.phoneNumber || null,
       internationalPhoneNumber: tripAdvisor.phone || profile?.internationalPhoneNumber || null,
       priceRange: profile?.priceRange || null,

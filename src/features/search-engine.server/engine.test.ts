@@ -60,7 +60,7 @@ function createMockContext(overrides: Partial<SearchContext> = {}): SearchContex
       restaurant: createMockRestaurantRepository(),
       matching: createMockMatchingRepository(),
     },
-    services: overrides.services ?? {},
+    services: overrides.services ?? { imageUploader: vi.fn(async () => undefined) },
     signal: overrides.signal,
   };
 }

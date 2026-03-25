@@ -36,6 +36,20 @@
       "when": 1770657484080,
       "tag": "0004_medical_loners",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1774474267686,
+      "tag": "0005_omniscient_mister_fear",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1774778400000,
+      "tag": "0006_fix_corrupted_photo_id",
+      "breakpoints": true
     }
   ]
 }

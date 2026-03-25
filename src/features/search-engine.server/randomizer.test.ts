@@ -16,7 +16,7 @@ function createMockRestaurant(id: string): DiscoveredRestaurantProfile {
     countryCode: null,
     state: null,
     description: null,
-    imageUrl: null,
+    photoId: null,
     mapUrl: null,
     rating: null,
     ratingCount: null,

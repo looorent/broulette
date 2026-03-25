@@ -60,8 +60,8 @@ export interface GoogleRestaurant {
   operational: boolean | undefined;
   priceLevel: number | undefined | null;
   priceLabel: string | undefined | null;
-  photoIds: string[];
-  photoUrl: string | undefined;
+  googlePhotoIds: string[];
+  photoId: string | undefined;
 }
 
 

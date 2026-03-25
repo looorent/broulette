@@ -110,7 +110,6 @@ export default function App() {
         title={loaderState.message} />
 
       <div
-        aria-hidden={loaderState.visible}
         inert={loaderState.visible ? true : undefined}
         className={`
           size-full
