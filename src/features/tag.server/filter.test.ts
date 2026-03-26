@@ -43,6 +43,16 @@ describe("filterTags", () => {
       const result = filterTags(["italian;;french", ";pizza;"], defaultConfig);
       expect(result).toEqual(["italian", "french", "pizza"]);
     });
+
+    it("strips surrounding double quotes from tags", () => {
+      const result = filterTags(["\"steak_house\"", "\"italian\""], defaultConfig);
+      expect(result).toEqual(["steak_house", "italian"]);
+    });
+
+    it("strips quotes from semicolon-separated tags", () => {
+      const result = filterTags(["\"italian\";\"french\""], defaultConfig);
+      expect(result).toEqual(["italian", "french"]);
+    });
   });
 
   describe("hidden tags removal", () => {

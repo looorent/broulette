@@ -50,7 +50,7 @@ function removeSuffixes(tags: string[]): string[] {
 
 function splitCompoundTags(tags: string[]): string[] {
   return tags.flatMap(tag => tag.split(";")
-    .map(tag => tag.trim())
+    .map(tag => tag.trim().replace(/^"+|"+$/g, ""))
     .filter(Boolean));
 }
 
