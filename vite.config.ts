@@ -1,10 +1,10 @@
+import { createHash } from "crypto";
 import path from "path";
 
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "vite";
-import devtoolsJson from "vite-plugin-devtools-json";
+import { defineConfig, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 export const baseConfigurationAlias = {
@@ -15,6 +15,31 @@ export const baseConfigurationAlias = {
   "@config/server": path.resolve(__dirname, "./src/config.server.ts"),
   "@config": path.resolve(__dirname, "./src/config.ts")
 };
+
+// Minimal inline replacement for vite-plugin-devtools-json (no Vite 8 release yet).
+// Serves /.well-known/appspecific/com.chrome.devtools.json during `npm run dev` so
+// Chrome DevTools can set up Automatic Workspace Folders.
+function devtoolsJson(): Plugin {
+  const endpoint = "/.well-known/appspecific/com.chrome.devtools.json";
+  return {
+    name: "devtools-json",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (!req.url || new URL(req.url, "http://localhost").pathname !== endpoint) {
+          next();
+          return;
+        }
+        const root = server.config.root;
+        // Stable per-workspace UUID derived from the root (RFC 4122 v4 layout).
+        const h = createHash("sha256").update(root).digest("hex");
+        const uuid = `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-${((parseInt(h[16], 16) & 0x3) | 0x8).toString(16)}${h.slice(17, 20)}-${h.slice(20, 32)}`;
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ workspace: { root, uuid } }));
+      });
+    },
+  };
+}
 
 export default defineConfig({
   logLevel: "info",
