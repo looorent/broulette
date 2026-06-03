@@ -40,7 +40,7 @@ function registerOverpass(configuration: OverpassConfiguration | undefined) {
 
           logger.trace("[Discovery] Executing %s | Center: [%f, %f] | Radius: %dm | Excluded: %d", instanceUrl, nearBy.latitude, nearBy.longitude, distanceRangeInMeters, idsToExclude.length);
 
-          const response = await fetchAllRestaurantsNearbyWithRetry(nearBy.latitude, nearBy.longitude, distanceRangeInMeters, instanceUrl, timeoutInSeconds, idsToExclude, configuration.failover, signal);
+          const response = await fetchAllRestaurantsNearbyWithRetry(nearBy.latitude, nearBy.longitude, distanceRangeInMeters, instanceUrl, configuration.userAgent, timeoutInSeconds, idsToExclude, configuration.failover, signal);
 
           const results = (response?.restaurants || []).map(fromOverpass).filter(Boolean);
           logger.trace("[Discovery] Finished %s | Found: %d restaurants", instanceUrl, results.length);

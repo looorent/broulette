@@ -77,6 +77,7 @@ interface Env {
   // Overpass
   BROULETTE_OVERPASS_ENABLED?: string;
   BROULETTE_OVERPASS_API_INSTANCE_URLS?: string;
+  BROULETTE_OVERPASS_API_USER_AGENT?: string;
   BROULETTE_OVERPASS_API_RETRIES?: string;
   BROULETTE_OVERPASS_API_TIMEOUT?: string;
   BROULETTE_OVERPASS_API_HALF_OPEN_AFTER_MS?: string;
@@ -267,6 +268,7 @@ function overpassConfig(env: Env): OverpassConfiguration {
     OVERPASS_CONFIG = {
       enabled: parseBoolean(env.BROULETTE_OVERPASS_ENABLED),
       instanceUrls: parseArray(env.BROULETTE_OVERPASS_API_INSTANCE_URLS, DEFAULT_OVERPASS_CONFIGURATION.instanceUrls),
+      userAgent: env.BROULETTE_OVERPASS_API_USER_AGENT ?? `${APP_CONFIG.name}/${APP_CONFIG.version}`,
       failover: parseFailover(
         env.BROULETTE_OVERPASS_API_RETRIES,
         env.BROULETTE_OVERPASS_API_TIMEOUT,

@@ -10,12 +10,14 @@ export const DEFAULT_OVERPASS_CONFIGURATION: OverpassConfiguration = {
     "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
     "https://overpass.private.coffee/api/interpreter"
   ],
+  userAgent: "Any/App",
   failover: DEFAULT_FAILOVER
 };
 
 export interface OverpassConfiguration {
   enabled: boolean;
   instanceUrls: string[];
+  userAgent: string;
   failover: FailoverConfiguration;
 }
 

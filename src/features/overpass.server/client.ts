@@ -10,6 +10,7 @@ export async function fetchAllRestaurantsNearbyWithRetry(
   longitude: number,
   distanceRangeInMeters: number,
   instanceUrl: string,
+  userAgent: string,
   timeoutInSeconds: number,
   idsToExclude: { osmId: string; osmType: string }[],
   failoverConfiguration: FailoverConfiguration,
@@ -21,7 +22,7 @@ export async function fetchAllRestaurantsNearbyWithRetry(
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
-    return fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, instanceUrl, timeoutInSeconds, combinedSignal);
+    return fetchAllRestaurantsNearby(latitude, longitude, distanceRangeInMeters, idsToExclude, instanceUrl, userAgent, timeoutInSeconds, combinedSignal);
   }, signal);
 }
 
@@ -31,6 +32,7 @@ async function fetchAllRestaurantsNearby(
   distanceRangeInMeters: number,
   idsToExclude: { osmId: string; osmType: string }[],
   instanceUrl: string,
+  userAgent: string,
   timeoutInSeconds: number,
   signal: AbortSignal
 ): Promise<OverpassResponse | undefined> {
@@ -41,7 +43,9 @@ async function fetchAllRestaurantsNearby(
   const response = await fetch(instanceUrl, {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+      "User-Agent": userAgent,
+      "Accept": "application/json"
     },
     body: `data=${encodeURIComponent(query)}`,
     signal: signal

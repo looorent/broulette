@@ -39,7 +39,7 @@ describe("Overpass Client", () => {
       }));
 
       const result = await fetchAllRestaurantsNearbyWithRetry(
-        50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+        50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
       );
 
       expect(result?.restaurants).toEqual([]);
@@ -85,7 +85,7 @@ describe("Overpass Client", () => {
       }));
 
       const result = await fetchAllRestaurantsNearbyWithRetry(
-        50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+        50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
       );
 
       expect(result?.restaurants).toHaveLength(1);
@@ -136,7 +136,7 @@ describe("Overpass Client", () => {
       }));
 
       const result = await fetchAllRestaurantsNearbyWithRetry(
-        50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+        50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
       );
 
       expect(result?.restaurants).toHaveLength(1);
@@ -166,7 +166,7 @@ describe("Overpass Client", () => {
       }));
 
       const result = await fetchAllRestaurantsNearbyWithRetry(
-        50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+        50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
       );
 
       expect(result!.restaurants[0].openStreetMapUrl).toBe("https://www.openstreetmap.org/node/12345");
@@ -205,7 +205,7 @@ describe("Overpass Client", () => {
       }));
 
       const result = await fetchAllRestaurantsNearbyWithRetry(
-        50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+        50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
       );
 
       expect(result?.restaurants).toHaveLength(1);
@@ -240,7 +240,7 @@ describe("Overpass Client", () => {
       }));
 
       const result = await fetchAllRestaurantsNearbyWithRetry(
-        50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+        50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
       );
 
       // Euro style: street, housenumber, postcode city
@@ -275,7 +275,7 @@ describe("Overpass Client", () => {
       }));
 
       const result = await fetchAllRestaurantsNearbyWithRetry(
-        40.71, -74.01, 1000, "https://overpass.test.com", 30, [], mockFailover
+        40.71, -74.01, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
       );
 
       // Non-Euro style: street, housenumber, city postcode
@@ -306,7 +306,7 @@ describe("Overpass Client", () => {
       }));
 
       const result = await fetchAllRestaurantsNearbyWithRetry(
-        50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+        50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
       );
 
       expect(result!.restaurants[0].phoneNumber).toBe("+32 999 888");
@@ -340,7 +340,7 @@ describe("Overpass Client", () => {
         }));
 
         const result = await fetchAllRestaurantsNearbyWithRetry(
-          50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+          50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
         );
 
         expect(result!.restaurants[0].website).toBe(testCase.expected);
@@ -371,7 +371,7 @@ describe("Overpass Client", () => {
       }));
 
       const result = await fetchAllRestaurantsNearbyWithRetry(
-        50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+        50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
       );
 
       expect(result!.restaurants[0].cuisine).toEqual([]);
@@ -388,7 +388,7 @@ describe("Overpass Client", () => {
       }));
 
       await fetchAllRestaurantsNearbyWithRetry(
-        50.85, 4.35, 1000, "https://overpass.test.com", 30,
+        50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30,
         [
           { osmId: "123", osmType: "node" },
           { osmId: "456", osmType: "way" }
@@ -415,7 +415,7 @@ describe("Overpass Client", () => {
       }));
 
       await fetchAllRestaurantsNearbyWithRetry(
-        50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+        50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
       );
 
       const fetchCall = vi.mocked(fetch).mock.calls[0];
@@ -441,7 +441,7 @@ describe("Overpass Client", () => {
       }));
 
       const result = await fetchAllRestaurantsNearbyWithRetry(
-        50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+        50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
       );
 
       expect(result?.generator).toBe("Overpass API 12345");
@@ -460,7 +460,7 @@ describe("Overpass Client", () => {
 
       await expect(
         fetchAllRestaurantsNearbyWithRetry(
-          50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+          50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
         )
       ).rejects.toThrow();
     });
@@ -472,12 +472,15 @@ describe("Overpass Client", () => {
       }));
 
       await fetchAllRestaurantsNearbyWithRetry(
-        50.85, 4.35, 1000, "https://overpass.test.com", 30, [], mockFailover
+        50.85, 4.35, 1000, "https://overpass.test.com", "TestApp/1.0", 30, [], mockFailover
       );
 
       const fetchCall = vi.mocked(fetch).mock.calls[0];
+      const headers = fetchCall[1]!.headers as Record<string, string>;
       expect(fetchCall[1]!.method).toBe("POST");
-      // expect(fetchCall[1]!.headers["Content-Type"]).toBe("application/x-www-form-urlencoded;charset=UTF-8");
+      expect(headers["Content-Type"]).toBe("application/x-www-form-urlencoded;charset=UTF-8");
+      expect(headers["User-Agent"]).toBe("TestApp/1.0");
+      expect(headers["Accept"]).toBe("application/json");
     });
   });
 });
