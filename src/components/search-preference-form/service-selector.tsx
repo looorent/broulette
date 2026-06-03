@@ -1,6 +1,6 @@
 import { useDrag } from "@use-gesture/react";
 import { Check } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import { findIconFor, type ServicePreference } from "@features/search";
 
@@ -28,9 +28,11 @@ export default function ServiceSelector({ services, selectedService, className =
   });
 
   const [serviceId, setServiceId] = useState(selectedService?.id);
-  useEffect(() => {
+  const [prevSelectedId, setPrevSelectedId] = useState(selectedService?.id);
+  if (selectedService?.id !== prevSelectedId) {
+    setPrevSelectedId(selectedService?.id);
     setServiceId(selectedService?.id);
-  }, [selectedService?.id]);
+  }
 
   const updateValue = (newServiceId: string) => {
     if (newServiceId?.length > 0 && newServiceId !== selectedService?.id) {

@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { matchPath, useLocation, useNavigation, type Navigation } from "react-router";
+import { matchPath, useLocation, useNavigation } from "react-router";
 
 import { SearchLoaderContext } from "./hook";
 
 const MIN_STAY_VISIBLE_MS = 3000;
 const HIDE_DEBOUNCE_MS = 100;
 
-function detectRawVisibility(navigation: Navigation, pathname: string, isStreaming: boolean): boolean {
+function detectRawVisibility(navigation: ReturnType<typeof useNavigation>, pathname: string, isStreaming: boolean): boolean {
   const isOnAPageStreaming = !!matchPath("/searches/:searchId", pathname) ||
     !!matchPath("/searches/:searchId/candidates/:candidateId", pathname);
 
