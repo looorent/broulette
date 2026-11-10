@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createAppSessionStorage } from "@features/session.server";
 
+import { createTestRouterContext } from "../request-context.test-helpers";
 import { action, loader } from "./searches.$searchId.widen";
 
 vi.mock("@features/session.server", async (importOriginal) => {
@@ -35,7 +36,7 @@ describe("POST /searches/:searchId/widen", () => {
   }
 
   function createContext() {
-    return {
+    return createTestRouterContext({
       sessionStorage,
       repositories: {
         search: {
@@ -43,7 +44,7 @@ describe("POST /searches/:searchId/widen", () => {
           findByIdWithCandidateContext: mockFindByIdWithCandidateContext
         }
       }
-    };
+    });
   }
 
   const closeSearch = {

@@ -7,16 +7,19 @@ import { validateCSRF } from "@features/session.server";
 import { logger } from "@features/utils/logger";
 import { getClientIp } from "@features/utils/request";
 
+import { requestContext } from "../request-context.server";
+
 export async function action({ request, context }: ActionFunctionArgs) {
+  const app = context.get(requestContext);
   if (request.method !== "POST") {
     throw new Response("Method Not Allowed", { status: 405 });
   }
 
   const formData = await request.formData();
   const query = formData.get("query");
-  await validateCSRF(formData, request.headers, context.sessionStorage);
+  await validateCSRF(formData, request.headers, app.sessionStorage);
 
-  if (!context.config) {
+  if (!app.config) {
     logger.error("Address lookup failed: AppContext is not initialized.");
     return {
       locations: [],
@@ -28,9 +31,9 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const ip = getClientIp(request.headers);
 
   const rateLimit = await checkRateLimit(
-    context.cloudflare.env.KV,
+    app.cloudflare.env.KV,
     `ratelimit:address-search:${ip}`,
-    context.config.addressSearchRateLimit
+    app.config.addressSearchRateLimit
   );
 
   if (!rateLimit.allowed) {
@@ -49,13 +52,13 @@ export async function action({ request, context }: ActionFunctionArgs) {
       const locationBias = parseLocationBias(formData);
       return await searchLocations(
         query,
-        context.config.nominatim,
-        context.config.photon,
+        app.config.nominatim,
+        app.config.photon,
         locationBias,
         request.signal,
         {
-          keyStore: context.cloudflare.env.KV,
-          ttlSeconds: context.config.addressSearchCache.ttlSeconds
+          keyStore: app.cloudflare.env.KV,
+          ttlSeconds: app.config.addressSearchCache.ttlSeconds
         }
       );
     } catch (error) {

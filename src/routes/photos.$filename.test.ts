@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 
+import { requestContext } from "../request-context.server";
+import { createTestRouterContext } from "../request-context.test-helpers";
 import { loader } from "./photos.$filename";
 
 function createRequest(filename: string, origin = "http://localhost:5173") {
@@ -7,7 +9,7 @@ function createRequest(filename: string, origin = "http://localhost:5173") {
 }
 
 function createContext(r2PublicUrl: string, r2Object?: { body: ReadableStream; httpMetadata?: { contentType?: string } } | null) {
-  return {
+  return createTestRouterContext({
     cloudflare: {
       env: {
         BROULETTE_R2_PUBLIC_URL: r2PublicUrl,
@@ -16,7 +18,7 @@ function createContext(r2PublicUrl: string, r2Object?: { body: ReadableStream; h
         }
       }
     }
-  };
+  });
 }
 
 function createR2Object(content: string, contentType = "image/jpeg") {
@@ -40,7 +42,7 @@ describe("GET /photos/:filename", () => {
       context
     } as never);
 
-    expect(context.cloudflare.env.IMAGES.get).toHaveBeenCalledWith("photos/abc-123.jpg");
+    expect(context.get(requestContext).cloudflare.env.IMAGES.get).toHaveBeenCalledWith("photos/abc-123.jpg");
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Type")).toBe("image/jpeg");
     expect(response.headers.get("Cache-Control")).toBe("public, max-age=31536000, immutable");
@@ -95,7 +97,7 @@ describe("GET /photos/:filename", () => {
       expect.unreachable("Should have thrown");
     } catch (error) {
       expect((error as Response).status).toBe(404);
-      expect(context.cloudflare.env.IMAGES.get).not.toHaveBeenCalled();
+      expect(context.get(requestContext).cloudflare.env.IMAGES.get).not.toHaveBeenCalled();
     }
   });
 

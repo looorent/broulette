@@ -1,27 +1,11 @@
-import { createRequestHandler } from "react-router";
+import { createRequestHandler, RouterContextProvider } from "react-router";
 
 import { createAppSessionStorage, createCSRFToken } from "@features/session.server";
 import { getLocale } from "@features/utils/locale.server";
-import { createRepositories, type DatabaseRepositories } from "@persistence";
+import { createRepositories } from "@persistence";
 
 import { createAppContext } from "../src/config.server";
-
-declare module "react-router" {
-  interface AppLoadContext {
-    config: ReturnType<typeof createAppContext>;
-    sessionStorage: ReturnType<typeof createAppSessionStorage>;
-    repositories: DatabaseRepositories,
-    locale: string;
-    csrf: {
-      token: string;
-      headers: HeadersInit | undefined;
-    };
-    cloudflare: {
-      env: Env;
-      ctx: ExecutionContext;
-    };
-  }
-}
+import { requestContext } from "../src/request-context.server";
 
 const requestHandler = createRequestHandler(
   () => import("virtual:react-router/server-build"),
@@ -37,7 +21,8 @@ export default {
 
     const { token, headers: csrfHeaders } = await createCSRFToken(request.headers, sessionStorage);
 
-    return requestHandler(request, {
+    const context = new RouterContextProvider();
+    context.set(requestContext, {
       config: createAppContext(env),
       sessionStorage: sessionStorage,
       cloudflare: { env, ctx },
@@ -48,5 +33,7 @@ export default {
       },
       repositories: await createRepositories(env)
     });
+
+    return requestHandler(request, context);
   },
 } satisfies ExportedHandler<Env>;

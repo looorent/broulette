@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createAppSessionStorage } from "@features/session.server";
 
+import { requestContext } from "../request-context.server";
+import { createTestRouterContext } from "../request-context.test-helpers";
 import { action } from "./_.api.address-searches";
 
 vi.mock("@features/session.server", async (importOriginal) => {
@@ -50,7 +52,7 @@ describe("Address Search API Route", () => {
   }
 
   function createContext(config: any = { nominatim: { enabled: true }, photon: { enabled: true }, addressSearchRateLimit: { limit: 30, windowSeconds: 60 }, addressSearchCache: { ttlSeconds: 3600 } }) {
-    return {
+    return createTestRouterContext({
       sessionStorage,
       config,
       cloudflare: {
@@ -61,7 +63,7 @@ describe("Address Search API Route", () => {
           }
         }
       }
-    };
+    });
   }
 
   describe("HTTP method validation", () => {
@@ -171,8 +173,8 @@ describe("Address Search API Route", () => {
 
       expect(searchLocations).toHaveBeenCalledWith(
         "Namur",
-        context.config.nominatim,
-        context.config.photon,
+        context.get(requestContext).config.nominatim,
+        context.get(requestContext).config.photon,
         { latitude: 50.85, longitude: 4.35 },
         expect.anything(),
         expect.anything()
@@ -192,8 +194,8 @@ describe("Address Search API Route", () => {
 
       expect(searchLocations).toHaveBeenCalledWith(
         "Namur",
-        context.config.nominatim,
-        context.config.photon,
+        context.get(requestContext).config.nominatim,
+        context.get(requestContext).config.photon,
         undefined,
         expect.anything(),
         expect.anything()
@@ -213,8 +215,8 @@ describe("Address Search API Route", () => {
 
       expect(searchLocations).toHaveBeenCalledWith(
         "Namur",
-        context.config.nominatim,
-        context.config.photon,
+        context.get(requestContext).config.nominatim,
+        context.get(requestContext).config.photon,
         undefined,
         expect.anything(),
         expect.anything()
@@ -233,8 +235,8 @@ describe("Address Search API Route", () => {
 
       expect(searchLocations).toHaveBeenCalledWith(
         "Namur",
-        context.config.nominatim,
-        context.config.photon,
+        context.get(requestContext).config.nominatim,
+        context.get(requestContext).config.photon,
         undefined,
         expect.anything(),
         expect.anything()

@@ -3,6 +3,7 @@ import { href, redirect } from "react-router";
 import { validateCSRF } from "@features/session.server";
 import { logger } from "@features/utils/logger";
 
+import { requestContext } from "../request-context.server";
 import type { Route } from "./+types/searches.$searchId.widen";
 
 export async function loader() {
@@ -10,15 +11,16 @@ export async function loader() {
 }
 
 export async function action({ params, request, context }: Route.ActionArgs) {
+  const app = context.get(requestContext);
   if (request.method !== "POST") {
     throw new Response("Method Not Allowed", { status: 405 });
   }
 
   const formData = await request.formData();
-  await validateCSRF(formData, request.headers, context.sessionStorage);
+  await validateCSRF(formData, request.headers, app.sessionStorage);
 
   const { searchId } = params;
-  const originalSearch = await context.repositories.search.findByIdWithCandidateContext(searchId);
+  const originalSearch = await app.repositories.search.findByIdWithCandidateContext(searchId);
 
   if (!originalSearch) {
     logger.error("[POST /searches/%s/widen] Search not found", searchId);
@@ -32,7 +34,7 @@ export async function action({ params, request, context }: Route.ActionArgs) {
 
   logger.log("[POST /searches/%s/widen] Widening search to MidRange", searchId);
 
-  const widenedSearch = await context.repositories.search.create(
+  const widenedSearch = await app.repositories.search.create(
     originalSearch.latitude,
     originalSearch.longitude,
     originalSearch.serviceDate,

@@ -13,6 +13,7 @@ import { SearchLoader, SearchLoaderProvider, useSearchLoader } from "@components
 
 
 import type { Route } from "./+types/root";
+import { requestContext } from "./request-context.server";
 import "./app.css";
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({
@@ -33,11 +34,12 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 };
 
 export async function loader({ context }: Route.LoaderArgs) {
+  const app = context.get(requestContext);
   return data({
-    locale: context.locale,
-    csrfToken: context.csrf.token
+    locale: app.locale,
+    csrfToken: app.csrf.token
   }, {
-    headers: context.csrf.headers
+    headers: app.csrf.headers
   });
 }
 

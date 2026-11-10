@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createAppSessionStorage } from "@features/session.server";
 
+import { createTestRouterContext } from "../request-context.test-helpers";
 import { action, loader } from "./searches._index";
 
 vi.mock("@features/session.server", async (importOriginal) => {
@@ -35,7 +36,7 @@ describe("POST /searches — input validation", () => {
   }
 
   function createContext() {
-    return {
+    return createTestRouterContext({
       sessionStorage,
       config: {
         search: {
@@ -47,7 +48,7 @@ describe("POST /searches — input validation", () => {
           create: mockCreate
         }
       }
-    };
+    });
   }
 
   const validFields = {

@@ -30,12 +30,12 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@persistence": path.resolve(__dirname, "./src/features/db.server/index.ts"),
-      "@features": path.resolve(__dirname, "./src/features"),
-      "@routes": path.resolve(__dirname, "./src/routes"),
-      "@components": path.resolve(__dirname, "./src/components"),
-      "@config/server": path.resolve(__dirname, "./src/config.server.ts"),
-      "@config": path.resolve(__dirname, "./src/config.ts")
+      "@persistence": path.resolve(import.meta.dirname, "./src/features/db.server/index.ts"),
+      "@features": path.resolve(import.meta.dirname, "./src/features"),
+      "@routes": path.resolve(import.meta.dirname, "./src/routes"),
+      "@components": path.resolve(import.meta.dirname, "./src/components"),
+      "@config/server": path.resolve(import.meta.dirname, "./src/config.server.ts"),
+      "@config": path.resolve(import.meta.dirname, "./src/config.ts")
     }
   }
 });

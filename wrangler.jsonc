@@ -2,7 +2,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "broulette",
 	"main": "./workers/app.ts",
-	"compatibility_date": "2025-04-04",
+	"compatibility_date": "2026-11-01",
 	"observability": {
 		"enabled": true
 	},

@@ -7,6 +7,7 @@ import { getLocale } from "@features/utils/locale.server";
 import { logger } from "@features/utils/logger";
 import { sleep } from "@features/utils/time";
 
+import { requestContext, type RequestContext } from "../request-context.server";
 import type { Route } from "./+types/searches.$searchId_.candidates._index";
 
 export async function action({
@@ -15,17 +16,18 @@ export async function action({
   context
 }: Route.ActionArgs) {
   try {
-    if (!context.config) {
+    const app = context.get(requestContext);
+    if (!app.config) {
       throw new Error("AppContext is not initialized.");
     }
     const formData = await request.formData();
-    await validateCSRF(formData, request.headers, context.sessionStorage);
+    await validateCSRF(formData, request.headers, app.sessionStorage);
     const data = parseAndValidate(formData, params, await getLocale(request));
 
     const { readable, writable } = new TransformStream<Uint8Array>();
     const writer = writable.getWriter();
 
-    streamSearchResults(writer, request.signal, data, context);
+    streamSearchResults(writer, request.signal, data, app);
 
     return new Response(readable, {
       headers: {
@@ -82,7 +84,7 @@ async function streamSearchResults(
   writer: WritableStreamDefaultWriter<Uint8Array>,
   signal: AbortSignal,
   data: { searchId: string; locale: string; },
-  context: Route.LoaderArgs["context"]
+  app: RequestContext
 ) {
   const encoder = new TextEncoder();
   const startTime = Date.now();
@@ -95,20 +97,20 @@ async function streamSearchResults(
       }
     };
 
-    const imageUploader = createImageUploader(context.cloudflare.env.IMAGES, signal);
+    const imageUploader = createImageUploader(app.cloudflare.env.IMAGES, signal);
 
     const generator = searchCandidate(
       data.searchId,
       data.locale,
       {
-        config: context.config!.search,
-        repositories: context.repositories,
+        config: app.config!.search,
+        repositories: app.repositories,
         services: {
-          overpass: context.config!.overpass,
-          google: context.config!.google,
-          tripAdvisor: context.config!.tripAdvisor,
+          overpass: app.config!.overpass,
+          google: app.config!.google,
+          tripAdvisor: app.config!.tripAdvisor,
           imageUploader,
-          imagePublicBaseUrl: context.cloudflare.env.BROULETTE_R2_PUBLIC_URL,
+          imagePublicBaseUrl: app.cloudflare.env.BROULETTE_R2_PUBLIC_URL,
         },
         signal,
       }

@@ -6,6 +6,7 @@ import { validateCSRF } from "@features/session.server";
 import { logger } from "@features/utils/logger";
 import { type DistanceRange, type ServiceTimeslot } from "@persistence";
 
+import { requestContext } from "../request-context.server";
 import type { Route } from "./+types/searches._index";
 
 // GET -> noop
@@ -15,14 +16,15 @@ export async function loader() {
 
 // POST
 export async function action({ request, context }: Route.ActionArgs) {
+  const app = context.get(requestContext);
   const formData = await request.formData();
   logger.log("[POST /searches] Creating search with payload...", formData);
-  await validateCSRF(formData, request.headers, context.sessionStorage);
+  await validateCSRF(formData, request.headers, app.sessionStorage);
   const data = parseAndValidate(formData);
-  const minimumRating = data.onlyHighRated ? context.config.search.minimumRating : 0;
+  const minimumRating = data.onlyHighRated ? app.config.search.minimumRating : 0;
   logger.log("[POST /searches] Saving new search in database...", data);
   try {
-    const createdSearch = await context.repositories.search.create(data.latitude, data.longitude, data.date, data.timeslot, data.distanceRange, data.avoidFastFood, data.avoidTakeaway, minimumRating);
+    const createdSearch = await app.repositories.search.create(data.latitude, data.longitude, data.date, data.timeslot, data.distanceRange, data.avoidFastFood, data.avoidTakeaway, minimumRating);
     logger.log("[POST /searches] Search created with id:", createdSearch.id);
     return redirect(href("/searches/:searchId", { searchId: createdSearch.id }));
   } catch(e) {

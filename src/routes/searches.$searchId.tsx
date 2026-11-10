@@ -9,10 +9,12 @@ import { logger } from "@features/utils/logger";
 import { findSearchViewModel } from "@features/view.server";
 import type { loader as rootLoader } from "src/root";
 
+import { requestContext } from "../request-context.server";
 import type { Route } from "./+types/searches.$searchId";
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
-  const view = await findSearchViewModel(params.searchId, await getLocale(request), context.repositories.search);
+  const app = context.get(requestContext);
+  const view = await findSearchViewModel(params.searchId, await getLocale(request), app.repositories.search);
   if (view) {
     if (view.redirectRequired) {
       return redirect(href("/searches/:searchId/candidates/:candidateId", { searchId: view.searchId, candidateId: view.latestCandidateId }));
