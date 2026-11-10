@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { href, redirect, useRouteLoaderData } from "react-router";
 
 import { ErrorUnknown } from "@components/error/error-unknown";
@@ -35,13 +35,15 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
   const { streamSearch } = useSearchStream();
   const session = useRouteLoaderData<typeof rootLoader>("root");
   const { view, newCandidateUrl } = loaderData;
+  const [searchFailed, setSearchFailed] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
 
-    const timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(async () => {
       setLoaderStreaming(false);
-      streamSearch(newCandidateUrl, session?.csrfToken ?? "", abortController.signal);
+      const outcome = await streamSearch(newCandidateUrl, session?.csrfToken ?? "", abortController.signal);
+      setSearchFailed(outcome === "failed");
     }, 50);
 
     return () => {
@@ -49,6 +51,10 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
       abortController.abort();
     };
   }, [newCandidateUrl, session?.csrfToken, setLoaderStreaming, streamSearch]);
+
+  if (searchFailed) {
+    return <ErrorUnknown />;
+  }
 
   return (
     <title>{`BiteRoulette - ${view.label} - Searching...`}</title>

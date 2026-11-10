@@ -6,11 +6,13 @@ import type { SearchStreamEvent } from "@features/search-engine.server";
 import { logger } from "@features/utils/logger";
 import { sleep } from "@features/utils/time";
 
+export type SearchStreamOutcome = "redirected" | "failed" | "aborted";
+
 export function useSearchStream() {
   const navigate = useNavigate();
   const { setLoaderMessage, setLoaderStreaming } = useSearchLoader();
 
-  const streamSearch = useCallback(async (url: string, csrfToken: string, signal?: AbortSignal) => {
+  const streamSearch = useCallback(async (url: string, csrfToken: string, signal?: AbortSignal): Promise<SearchStreamOutcome> => {
     try {
       const formData = new FormData();
       formData.append("csrf", csrfToken);
@@ -33,16 +35,22 @@ export function useSearchStream() {
         () => setLoaderStreaming(false)
       );
 
+      setLoaderStreaming(false);
       if (redirectUrl) {
-        setLoaderStreaming(false);
         navigate(redirectUrl, { viewTransition: true, replace: true });
+        return "redirected";
+      } else {
+        logger.error("[Search engine] Stream ended without a result");
+        return "failed";
       }
     } catch (error: unknown) {
       setLoaderStreaming(false);
       if (error instanceof Error && error.name === "AbortError") {
         logger.log("[Search engine] Stream aborted (cleanup)");
+        return "aborted";
       } else {
         logger.error("Streaming failed", error);
+        return "failed";
       }
     }
   }, [navigate, setLoaderMessage, setLoaderStreaming]);
