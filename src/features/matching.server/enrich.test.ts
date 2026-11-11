@@ -100,6 +100,7 @@ function createMockRestaurant(profiles: RestaurantProfile[] = []): RestaurantAnd
 function createMockMatcher(source: string, overrides: Partial<Matcher> = {}): Matcher {
   return {
     source,
+    onlyAsFallback: false,
     matchAndEnrich: vi.fn(async (restaurant): Promise<Matching> => ({
       restaurant,
       matched: false
@@ -668,5 +669,94 @@ describe("profile merging (via enrichRestaurant)", () => {
       createMockMatchingRepository() as never,
       mockImageUploader
     )).rejects.toThrow("Aborted");
+  });
+});
+
+describe("fallback matchers (via enrichRestaurant)", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  function primaryMatcher(matched: boolean, calls: string[] = []) {
+    return createMockMatcher("google_place", {
+      matchAndEnrich: vi.fn(async (restaurant): Promise<Matching> => {
+        calls.push("google_place");
+        return matched
+          ? { restaurant: { ...restaurant, profiles: [...restaurant.profiles, createMockProfile("google_place", { id: "google-profile" })] }, matched: true }
+          : { restaurant, matched: false };
+      })
+    });
+  }
+
+  function fallbackMatcher(calls: string[] = []) {
+    return createMockMatcher("tripadvisor", {
+      onlyAsFallback: true,
+      matchAndEnrich: vi.fn(async (restaurant): Promise<Matching> => {
+        calls.push("tripadvisor");
+        return { restaurant: { ...restaurant, profiles: [...restaurant.profiles, createMockProfile("tripadvisor", { id: "tripadvisor-profile" })] }, matched: true };
+      })
+    });
+  }
+
+  async function enrichWith(matchers: Matcher[], existingProfiles: RestaurantProfile[] = []) {
+    vi.mocked(registeredMatchers).mockReturnValue(matchers);
+    const restaurantRepo = createMockRestaurantRepository();
+    restaurantRepo.findRestaurantWithExternalIdentity.mockResolvedValue(createMockRestaurant(existingProfiles));
+    return enrichRestaurant(
+      createDiscoveredProfile({ name: "Discovered" }),
+      "en",
+      restaurantRepo as never,
+      createMockMatchingRepository() as never,
+      mockImageUploader
+    );
+  }
+
+  it("skips the fallback matcher when the primary one matched", async () => {
+    const fallback = fallbackMatcher();
+
+    const result = await enrichWith([primaryMatcher(true), fallback]);
+
+    expect(fallback.matchAndEnrich).not.toHaveBeenCalled();
+    expect(result?.profiles.map(p => p.id)).toEqual(["google-profile"]);
+  });
+
+  it("calls the fallback matcher only after the primary one found nothing", async () => {
+    const calls: string[] = [];
+
+    const result = await enrichWith([fallbackMatcher(calls), primaryMatcher(false, calls)]);
+
+    expect(calls).toEqual(["google_place", "tripadvisor"]);
+    expect(result?.profiles.map(p => p.id)).toEqual(["tripadvisor-profile"]);
+  });
+
+  it("calls the fallback matcher when the primary one fails", async () => {
+    const fallback = fallbackMatcher();
+    const failing = createMockMatcher("google_place", {
+      matchAndEnrich: vi.fn(async (): Promise<Matching> => {
+        throw new Error("Google is down");
+      })
+    });
+
+    await enrichWith([failing, fallback]);
+
+    expect(fallback.matchAndEnrich).toHaveBeenCalled();
+  });
+
+  it("skips the fallback matcher when the restaurant already has a profile from a primary source", async () => {
+    const primary = primaryMatcher(false);
+    const fallback = fallbackMatcher();
+
+    await enrichWith([primary, fallback], [createMockProfile("google_place", { updatedAt: new Date() })]);
+
+    expect(primary.matchAndEnrich).not.toHaveBeenCalled();
+    expect(fallback.matchAndEnrich).not.toHaveBeenCalled();
+  });
+
+  it("calls the fallback matcher when it is the only one available", async () => {
+    const fallback = fallbackMatcher();
+
+    await enrichWith([fallback]);
+
+    expect(fallback.matchAndEnrich).toHaveBeenCalled();
   });
 });

@@ -9,6 +9,7 @@ import { type Matcher, type Matching } from "./types";
 
 export class TripAdvisorMatcher implements Matcher {
   readonly source = TRIPADVISOR_SOURCE_NAME;
+  readonly onlyAsFallback = true;
 
   constructor(readonly configuration: TripAdvisorConfiguration, private readonly imageUploader: ImageUploader) { }
 

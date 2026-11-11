@@ -49,32 +49,49 @@ async function enrich(
   }
 
   const matchers = registeredMatchers(google, tripAdvisor, imageUploader);
+  const primaryMatchers = matchers.filter(matcher => !matcher.onlyAsFallback);
+  const fallbackMatchers = matchers.filter(matcher => matcher.onlyAsFallback);
+  const primarySources = primaryMatchers.map(matcher => matcher.source);
 
+  const enriched = await matchWith(primaryMatchers, restaurant, restaurantRepository, matchingRepository, configuration, language, signal);
+  const hasPrimaryProfile = enriched.profiles.some(profile => primarySources.includes(profile.source));
+
+  return completeRestaurantFromProfiles(hasPrimaryProfile
+    ? enriched
+    : await matchWith(fallbackMatchers, enriched, restaurantRepository, matchingRepository, configuration, language, signal));
+}
+
+/** Runs the eligible matchers concurrently and returns the restaurant with the profiles they matched. */
+async function matchWith(
+  matchers: Matcher[],
+  restaurant: RestaurantAndProfiles,
+  restaurantRepository: RestaurantRepository,
+  matchingRepository: MatchingRepository,
+  configuration: RestaurantMatchingConfiguration,
+  language: string,
+  signal?: AbortSignal | undefined
+): Promise<RestaurantAndProfiles> {
   const eligibility = await Promise.all(
     matchers.map(matcher => shouldBeMatched(restaurant, matcher, matchingRepository))
   );
   const eligibleMatchers = matchers.filter((_, index) => eligibility[index]);
 
-  if (eligibleMatchers.length === 0) {
-    return completeRestaurantFromProfiles(restaurant);
-  } else {
-    const matchings = await Promise.all(
-      eligibleMatchers.map(matcher =>
-        matchAndEnrichOrSkip(matcher, restaurant, restaurantRepository, matchingRepository, configuration, language, signal)
-      )
-    );
+  const matchings = await Promise.all(
+    eligibleMatchers.map(matcher =>
+      matchAndEnrichOrSkip(matcher, restaurant, restaurantRepository, matchingRepository, configuration, language, signal)
+    )
+  );
 
-    const matchedProfiles = matchings.flatMap((matching, index) =>
-      matching.matched
-        ? matching.restaurant.profiles.filter(p => p.source === eligibleMatchers[index].source)
-        : []
-    );
-    const mergedProfiles = Object.values(
-      Object.fromEntries([...restaurant.profiles, ...matchedProfiles].map(p => [p.id, p]))
-    );
+  const matchedProfiles = matchings.flatMap((matching, index) =>
+    matching.matched
+      ? matching.restaurant.profiles.filter(p => p.source === eligibleMatchers[index].source)
+      : []
+  );
+  const mergedProfiles = Object.values(
+    Object.fromEntries([...restaurant.profiles, ...matchedProfiles].map(p => [p.id, p]))
+  );
 
-    return completeRestaurantFromProfiles({ ...restaurant, profiles: mergedProfiles });
-  }
+  return { ...restaurant, profiles: mergedProfiles };
 }
 
 // Enrichment is best effort: an unavailable source must not prevent the restaurant from being proposed.

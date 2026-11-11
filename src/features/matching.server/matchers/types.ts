@@ -10,6 +10,8 @@ export interface Matching {
 
 export interface Matcher {
   source: string;
+  /** A fallback matcher is only called when no other matcher provides a profile for the restaurant, e.g. because each call is billed. */
+  onlyAsFallback: boolean;
   matchAndEnrich(
     restaurant: RestaurantAndProfiles,
     restaurantRepository: RestaurantRepository,

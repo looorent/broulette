@@ -9,6 +9,7 @@ import { type Matcher, type Matching } from "./types";
 
 export class GoogleMatcher implements Matcher {
   readonly source = GOOGLE_PLACE_SOURCE_NAME;
+  readonly onlyAsFallback = false;
 
   constructor(readonly configuration: GooglePlaceConfiguration, private readonly imageUploader: ImageUploader) {}
 
