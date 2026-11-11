@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useLoaderData, useSearchParams } from "react-router";
 
 import { AlertBox, AlertProvider, useAlertContext } from "@components/alert";
@@ -10,7 +10,7 @@ import { PreferenceChip, type PreferenceChipHandle } from "@components/search-pr
 import { PreferencesForm, type PreferencesFormHandle } from "@components/search-preference-form";
 import { APP_CONFIG } from "@config/server";
 import { getDeviceLocation, getGeolocationPermissionStatus, loadPreferences, savePreferences } from "@features/browser.client";
-import { createDeviceLocation, createNextServices, DISTANCE_RANGES, preferenceFactory, type LocationPreference, type Preference } from "@features/search";
+import { createDeviceLocation, createNextServices, DISTANCE_RANGES, preferenceFactory, type LocationPreference, type Preference, type ServicePreference } from "@features/search";
 import { logger } from "@features/utils/logger";
 
 export async function loader() {
@@ -20,6 +20,15 @@ export async function loader() {
     defaultPreferences: preferenceFactory.createDefaultPreference(services, DISTANCE_RANGES, null),
     configuration: APP_CONFIG
   } as const;
+}
+
+function subscribeToNothing(): () => void {
+  return () => {};
+}
+
+function restoreStoredPreferences(services: ServicePreference[], defaultPreferences: Preference): Preference {
+  const stored = loadPreferences();
+  return stored ? preferenceFactory.createFromStored(stored, services, DISTANCE_RANGES) : defaultPreferences;
 }
 
 async function fetchLocation(): Promise<LocationPreference | undefined> {
@@ -39,22 +48,26 @@ async function fetchLocation(): Promise<LocationPreference | undefined> {
 function HomeContent() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { services, defaultPreferences, configuration } = useLoaderData<typeof loader>();
-  const [preferences, setPreferences] = useState<Preference>(() => {
-    if (typeof window === "undefined") {
-      return defaultPreferences;
-    } else {
-      const stored = loadPreferences();
-      return stored
-        ? preferenceFactory.createFromStored(stored, services, DISTANCE_RANGES)
-        : defaultPreferences;
-    }
-  });
+  // The server knows nothing about stored preferences: they are only read once hydrated, so that both renders match.
+  const isHydrated = useSyncExternalStore(subscribeToNothing, () => true, () => false);
+  const restoredPreferences = useMemo(
+    () => isHydrated ? restoreStoredPreferences(services, defaultPreferences) : defaultPreferences,
+    [isHydrated, services, defaultPreferences]
+  );
+  const [editedPreferences, setEditedPreferences] = useState<Preference | null>(null);
+  const preferences = editedPreferences ?? restoredPreferences;
+  const setPreferences = useCallback(
+    (update: Preference | ((previous: Preference) => Preference)) => setEditedPreferences(previous =>
+      typeof update === "function" ? update(previous ?? restoredPreferences) : update
+    ),
+    [restoredPreferences]
+  );
   const preferenceFormRef = useRef<PreferencesFormHandle>(null);
   const preferenceChipRef = useRef<PreferenceChipHandle>(null);
   const { isAlertOpen, closeAlert, alertOptions } = useAlertContext();
 
   useEffect(() => {
-    const needsLocation = !preferences.location.coordinates && !preferences.isDeviceLocationAttempted;
+    const needsLocation = isHydrated && !preferences.location.coordinates && !preferences.isDeviceLocationAttempted;
     if (needsLocation) {
       let isMounted = true;
       const initializeLocation = async () => {
@@ -78,11 +91,13 @@ function HomeContent() {
     } else {
       return undefined;
     }
-  }, [preferences?.id, preferences?.location?.coordinates, preferences.isDeviceLocationAttempted]);
+  }, [isHydrated, setPreferences, preferences?.id, preferences?.location?.coordinates, preferences.isDeviceLocationAttempted]);
 
   useEffect(() => {
-    savePreferences(preferences);
-  }, [preferences]);
+    if (isHydrated) {
+      savePreferences(preferences);
+    }
+  }, [isHydrated, preferences]);
 
   const closeModal = () => {
     setSearchParams(previous => {
