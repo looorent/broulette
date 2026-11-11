@@ -1,69 +1,79 @@
 import { circuitBreaker } from "@features/circuit-breaker.server";
 import type { ImageUploader } from "@features/image-storage.server";
-import { convertLocaleToSnakecase, DEFAULT_LANGUAGE } from "@features/utils/locale";
 import { logger } from "@features/utils/logger";
 
 import { TripAdvisorAuthorizationError, TripAdvisorEmptyResponseError, TripAdvisorError, TripAdvisorHttpError, TripAdvisorServerError } from "./error";
 import { convertTripAdvisorHoursToOpeningHours } from "./opening-hours";
 import { findBestTripAdvisorMatch } from "./similarity";
-import { DEFAULT_TRIPADVISOR_CONFIGURATION, TRIPADVISOR_DEFAULT_PHOTO_SIZE, TRIPADVISOR_PHOTO_SIZES, type AddressInfo, type Award, type LocalizedName, type LocationHours, type OperatingPeriod, type RankingData, type TripAdvisorConfiguration, type TripAdvisorImageSet, type TripAdvisorImageVariant, type TripAdvisorLocation, type TripAdvisorLocationNearby, type TripAdvisorPhoto, type TripAdvisorPhotoSize, type TripAdvisorRawAddress, type TripAdvisorRawAward, type TripAdvisorRawErrorResponse, type TripAdvisorRawHours, type TripAdvisorRawImageSet, type TripAdvisorRawImageVariant, type TripAdvisorRawLocalizedName, type TripAdvisorRawLocationDetails, type TripAdvisorRawLocationNearby, type TripAdvisorRawNearbyResponse, type TripAdvisorRawPeriod, type TripAdvisorRawPhoto, type TripAdvisorRawPhotoResponse, type TripAdvisorRawRankingData, type TripAdvisorRawTripType, type TripType } from "./types";
+import { DEFAULT_TRIPADVISOR_CONFIGURATION, TRIPADVISOR_DEFAULT_PHOTO_SIZE, TRIPADVISOR_PHOTO_SIZES, type AddressInfo, type LocalizedName, type LocationHours, type OperatingPeriod, type TerraAddress, type TerraLocation, type TerraNearbyLocation, type TerraNearbyResponse, type TerraPeriod, type TerraPhoto, type TerraProblemDetail, type TerraTranslation, type TripAdvisorConfiguration, type TripAdvisorLocation, type TripAdvisorLocationNearby, type TripAdvisorPhotoSize } from "./types";
 
 const CIRCUIT_BREAKER_NAME = "tripadvisor";
+const API_VERSION = "1";
+const MAX_SEARCH_RADIUS_IN_KILOMETERS = 8;
+const MAX_SEARCH_RESULTS = 20;
+const PHOTO_CDN_URL = "https://media-cdn.tripadvisor.com/media";
+const RESIZED_PHOTO_CDN_URL = "https://dynamic-media-cdn.tripadvisor.com/media";
+const PHOTO_WIDTH_IN_PIXELS: Record<TripAdvisorPhotoSize, number | undefined> = {
+  thumbnail: 50,
+  small: 150,
+  medium: 250,
+  large: 550,
+  original: undefined
+};
+
+/** Returns the location without photo: an existing profile keeps the photo it already has. */
 export async function findTripAdvisorLocationByIdWithRetry(
   locationId: string,
-  locale: string = "en",
+  locale: string = "en-US",
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
-  imageUploader: ImageUploader,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocation | undefined> {
   logger.log("[TripAdvisor] findTripAdvisorLocationByIdWithRetry: Processing request for locationId='%s'", locationId);
 
-  const location = await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
+  return await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
     return await findTripAdvisorLocationById(locationId, locale, configuration, combinedSignal);
   }, signal);
-
-  return addPhotoOn(location, locale, configuration, imageUploader, signal);
 }
 
+/** Finds the location best matching `name` around the coordinates, with its representative photo uploaded through `imageUploader`. */
 export async function searchTripAdvisorLocationNearbyWithRetry(
   name: string,
   latitude: number,
   longitude: number,
   radiusInMeters: number,
-  locale: string = "en",
+  locale: string = "en-US",
   configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
   imageUploader: ImageUploader,
   signal?: AbortSignal | undefined
 ): Promise<TripAdvisorLocation | undefined> {
   logger.log("[TripAdvisor] searchTripAdvisorLocationNearbyWithRetry: Searching for '%s' near [%f, %f]", name, latitude, longitude);
 
-  const location = await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
+  const nearbyLocations = await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
     if (combinedSignal?.aborted) {
       throw combinedSignal.reason;
     }
-    return await searchTripAdvisorLocationNearby(name, latitude, longitude, radiusInMeters, locale, configuration, combinedSignal);
+    return await findTripAdvisorLocationsNearby(latitude, longitude, radiusInMeters, locale, configuration, combinedSignal);
   }, signal);
 
-  return addPhotoOn(location, locale, configuration, imageUploader, signal);
-}
+  logger.log("[TripAdvisor] searchTripAdvisorLocationNearby: Found %d candidates. Calculating best match for '%s'...", nearbyLocations.length, name);
+  const bestMatch = findBestTripAdvisorMatch(name, nearbyLocations.map(toLocationNearby), configuration.similarity);
+  const matched = nearbyLocations.find(nearby => nearby.location.id.toString() === bestMatch?.locationId);
 
-export async function findBestTripAdvisorLocationPictureWithRetry(
-  locationId: string,
-  locale: string = "en",
-  configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
-  signal?: AbortSignal | undefined
-): Promise<TripAdvisorPhoto | undefined> {
-  logger.log("[TripAdvisor] findBestTripAdvisorLocationPictureWithRetry: Fetching photo for locationId='%s'", locationId);
-
-  return await circuitBreaker(CIRCUIT_BREAKER_NAME, configuration.failover).execute(async combinedSignal => {
-    if (combinedSignal?.aborted) {
-      throw combinedSignal.reason;
+  if (matched) {
+    logger.log("[TripAdvisor] searchTripAdvisorLocationNearby: Match found (ID: %s).", matched.location.id);
+    const location = parseLocation(matched.location);
+    const photoUrl = buildPhotoUrl(matched.photo, configuration.photo);
+    if (photoUrl) {
+      location.photoId = await imageUploader(photoUrl);
     }
-    return await findBestTripAdvisorLocationPicture(locationId, locale, configuration, combinedSignal);
-  }, signal);
+    return location;
+  } else {
+    logger.log("[TripAdvisor] searchTripAdvisorLocationNearby: No suitable match found for '%s'.", name);
+    return undefined;
+  }
 }
 
 export function parseTripAdvisorPhotoSize(value: string | undefined): TripAdvisorPhotoSize | undefined {
@@ -81,548 +91,179 @@ export function parseTripAdvisorPhotoSize(value: string | undefined): TripAdviso
 
 async function findTripAdvisorLocationById(
   locationId: string,
-  locale: string = "en",
-  configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
-  signal?: AbortSignal | undefined
+  locale: string,
+  configuration: TripAdvisorConfiguration,
+  signal: AbortSignal
 ): Promise<TripAdvisorLocation | undefined> {
-  logger.log("[TripAdvisor] findTripAdvisorLocationById: Fetching details for id='%s'...", locationId);
-  const url = buildUrlToFindLocationById(locationId, locale, configuration);
-  const authenticatedUrl = addAuthenticationOn(url, configuration);
-  const start = Date.now();
-
-  const response = await fetch(authenticatedUrl, {
-    method: "get",
-    signal: signal
-  });
-
-  const durationInMs = Date.now() - start;
-  if (response.ok) {
-    logger.log("[TripAdvisor] findTripAdvisorLocationById: Success. Done in %dms.", durationInMs);
-    const body = await response.json() as TripAdvisorRawLocationDetails;
-    if (body) {
-      return parseLocationDetails(body);
-    } else {
-      throw new TripAdvisorEmptyResponseError(
-        url,
-        response.status,
-        durationInMs
-      );
-    }
-  } else {
-    throw await parseError(url, response, durationInMs);
-  }
-}
-
-async function searchTripAdvisorLocationNearby(
-  name: string,
-  latitude: number,
-  longitude: number,
-  radiusInMeters: number,
-  locale: string = "en",
-  configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
-  signal?: AbortSignal | undefined
-): Promise<TripAdvisorLocation | undefined> {
-  const locationsNearby = await findTripAdvisorLocationsNearby(latitude, longitude, radiusInMeters, locale, configuration, signal);
-
-  logger.log("[TripAdvisor] searchTripAdvisorLocationNearby: Found %d candidates. Calculating best match for '%s'...", locationsNearby.length, name);
-  const bestLocation = findBestTripAdvisorMatch(name, locationsNearby, configuration.similarity);
-
-  if (bestLocation) {
-    logger.log("[TripAdvisor] searchTripAdvisorLocationNearby: Match found (ID: %s). Fetching details...", bestLocation.locationId);
-    return findTripAdvisorLocationById(bestLocation.locationId, locale, configuration, signal);
-  } else {
-    logger.log("[TripAdvisor] searchTripAdvisorLocationNearby: No suitable match found for '%s'.", name);
-    return undefined;
-  }
+  const url = buildUrl(configuration, `/locations/${encodeURIComponent(locationId)}`, { locale });
+  const body = await fetchTerra<TerraLocation>(url, configuration, signal);
+  return body.id ? parseLocation(body) : undefined;
 }
 
 async function findTripAdvisorLocationsNearby(
   latitude: number,
   longitude: number,
   radiusInMeters: number,
-  locale: string = "en",
-  configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
-  signal?: AbortSignal | undefined
-): Promise<TripAdvisorLocationNearby[]> {
-  logger.log("[TripAdvisor] findTripAdvisorLocationsNearby: Querying radius %dm around [%f,%f]...", radiusInMeters, latitude, longitude);
-  const url = buildUrlToFindLocationNearby(latitude, longitude, radiusInMeters, locale, configuration);
-  const authenticatedUrl = addAuthenticationOn(url, configuration);
-  const start = Date.now();
-
-  const response = await fetch(authenticatedUrl, {
-    method: "get",
-    signal: signal
-  });
-
-  const durationInMs = Date.now() - start;
-  if (response.ok) {
-    const body = await response.json() as TripAdvisorRawNearbyResponse;
-    const count = Array.isArray(body?.data) ? body.data.length : 0;
-    logger.log("[TripAdvisor] findTripAdvisorLocationsNearby: Success. Found %d raw results in %dms.", count, durationInMs);
-
-    if (body) {
-      return parseLocationsNearby(body.data);
-    } else {
-      throw new TripAdvisorEmptyResponseError(
-        url,
-        response.status,
-        durationInMs
-      );
-    }
-  } else {
-    throw await parseError(url, response, durationInMs);
-  }
-}
-
-async function findBestTripAdvisorLocationPicture(
-  locationId: string,
-  locale: string = "en",
-  configuration: TripAdvisorConfiguration = DEFAULT_TRIPADVISOR_CONFIGURATION,
-  signal?: AbortSignal | undefined
-): Promise<TripAdvisorPhoto | undefined> {
-  logger.log("[TripAdvisor] findBestTripAdvisorLocationPicture: Fetching photos for id='%s'...", locationId);
-  const url = buildUrlToFindPhotoForLocation(locationId, locale, configuration);
-  const authenticatedUrl = addAuthenticationOn(url, configuration);
-  const start = Date.now();
-
-  const response = await fetch(authenticatedUrl, {
-    method: "get",
-    signal: signal
-  });
-
-  const durationInMs = Date.now() - start;
-  if (response.ok) {
-    logger.log("[TripAdvisor] findBestTripAdvisorLocationPicture: Success. Done in %dms.", durationInMs);
-    const body = await response.json() as TripAdvisorRawPhotoResponse;
-    if (body) {
-      const photos = parseLocationPhotos(body.data);
-      return findBestPhotoIn(photos);
-    } else {
-      throw new TripAdvisorEmptyResponseError(
-        url,
-        response.status,
-        durationInMs
-      );
-    }
-  } else {
-    throw await parseError(url, response, durationInMs);
-  }
-}
-
-async function addPhotoOn(
-  location: TripAdvisorLocation | undefined,
   locale: string,
   configuration: TripAdvisorConfiguration,
-  imageUploader: ImageUploader,
-  signal?: AbortSignal | undefined
-): Promise<TripAdvisorLocation | undefined> {
-  if (location) {
-    const photo = await findBestTripAdvisorLocationPictureWithRetry(location.id, locale, configuration, signal);
-    if (photo) {
-      const sourceUrl = (photo.images[configuration.photo] || photo.images.large || photo.images.original || photo.images.medium || photo.images.small)?.url;
-      if (sourceUrl) {
-        location.photoId = await imageUploader(sourceUrl);
-      }
-    }
-    return location;
-  } else {
-    return undefined;
-  }
-}
-
-const MANAGEMENT = "management";
-const EXPERT = "expert";
-function findBestPhotoIn(photos: TripAdvisorPhoto[]): TripAdvisorPhoto | undefined {
-  if (photos && photos?.length > 0) {
-    return photos.filter(photo => photo.blessed)?.[0]
-      || photos.filter(photo => photo.source?.name?.toLowerCase() === MANAGEMENT)?.[0]
-      || photos.filter(photo => photo.source?.name?.toLowerCase() === EXPERT)?.[0]
-      || photos?.[0]
-      || undefined;
-  } else {
-    return undefined;
-  }
-}
-
-function buildUrlToFindLocationById(
-  locationId: string,
-  locale: string,
-  configuration: TripAdvisorConfiguration
-): string {
-  const params = new URLSearchParams({
-    language: convertLocaleToLanguage(locale)
+  signal: AbortSignal
+): Promise<TerraNearbyLocation[]> {
+  const url = buildUrl(configuration, "/locations/nearby", {
+    lat: latitude.toString(),
+    lon: longitude.toString(),
+    radius: Math.min(radiusInMeters / 1_000, MAX_SEARCH_RADIUS_IN_KILOMETERS).toString(),
+    unit: "KM",
+    category: "RESTAURANT",
+    sort: "distance,asc",
+    size: Math.min(Math.max(configuration.search.maxResults, 1), MAX_SEARCH_RESULTS).toString(),
+    include_photo: "true",
+    locale
   });
-  return `${configuration.instanceUrl}/location/${locationId}/details?${params.toString()}`;
+  const body = await fetchTerra<TerraNearbyResponse>(url, configuration, signal);
+  return Array.isArray(body.data) ? body.data.filter(nearby => nearby?.location?.id) : [];
 }
 
-function buildUrlToFindLocationNearby(
-  latitude: number,
-  longitude: number,
-  radiusInMeters: number,
-  locale: string,
-  configuration: TripAdvisorConfiguration
-): string {
-  const params = new URLSearchParams({
-    locale: locale,
-    latLong: `${latitude},${longitude}`,
-    category: "restaurants",
-    radius: radiusInMeters.toString(),
-    radiusUnit: "m"
+async function fetchTerra<T>(url: string, configuration: TripAdvisorConfiguration, signal: AbortSignal): Promise<T> {
+  const start = Date.now();
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "X-API-Key": configuration.apiKey,
+      "Accept": "application/json"
+    },
+    signal
   });
-  return `${configuration.instanceUrl}/location/nearby_search?${params.toString()}`;
-}
+  const durationInMs = Date.now() - start;
 
-function buildUrlToFindPhotoForLocation(
-  locationId: string,
-  locale: string,
-  configuration: TripAdvisorConfiguration
-): string {
-  const params = new URLSearchParams({
-    language: convertLocaleToLanguage(locale)
-  });
-  return `${configuration.instanceUrl}/location/${locationId}/details?${params.toString()}`;
-}
-
-function addAuthenticationOn(url: string, configuration: TripAdvisorConfiguration): string {
-  return `${url}&key=${configuration.apiKey}`;
-}
-
-function parseLocationDetails(
-  body: TripAdvisorRawLocationDetails,
-): TripAdvisorLocation | undefined {
-  if (body) {
-    const hours = parseHours(body.hours);
-    return {
-      id: body.location_id,
-      name: body.name,
-      description: body.description || undefined,
-      latitude: typeof body.latitude === "string" ? parseFloat(body.latitude) : body.latitude || undefined,
-      longitude: typeof body.longitude === "string" ? parseFloat(body.longitude) : body.longitude || undefined,
-      address: parseAddress(body.address_obj),
-      timezone: body.timezone,
-      tripAdvisorUrl: body.web_url,
-      website: body.website || undefined,
-      phone: body.phone || undefined,
-      rankingData: parseRankingData(body.ranking_data),
-      rating: typeof body.rating === "string" ? parseFloat(body.rating) : body.rating || undefined,
-      numberOfReviews: parseInt(body.num_reviews || "0", 10),
-      numberOfReviewsPerRating: body.review_rating_count
-        ? Object.entries(body.review_rating_count).reduce((perRating, [rating, numberOfReviews]) => {
-          perRating[parseInt(rating)] = parseInt(numberOfReviews as string, 10);
-          return perRating;
-        }, {} as { [rating: number]: number })
-        : {},
-      photoCount: typeof body.photo_count === "string" ? parseInt(body.photo_count) : (body.photo_count ?? 0),
-      priceLevel: body.price_level || undefined,
-      cuisine: parseLocalizedNames(body.cuisine),
-      category: parseLocalizedName(body.category),
-      subcategories: parseLocalizedNames(body.subcategory),
-      hours: hours,
-      openingHours: convertTripAdvisorHoursToOpeningHours(hours),
-      features: body.features || [],
-      tripTypes: parseTripTypes(body.trip_types),
-      photoId: undefined, // will be populated later on (with the TripAdvisor API)
-      awards: parseAwards(body.awards)
-    };
-  } else {
-    return undefined;
-  }
-}
-
-function parseLocationNearby(body: TripAdvisorRawLocationNearby): TripAdvisorLocationNearby | undefined {
-  if (body) {
-    return {
-      locationId: body.location_id,
-      name: body.name,
-      distanceInMeters: parseDistanceInMeters(body.distance),
-      bearing: body.bearing,
-      address: parseAddress(body.address_obj)
-    };
-  } else {
-    return undefined;
-  }
-}
-
-function parseLocationsNearby(body: TripAdvisorRawLocationNearby[] | undefined): TripAdvisorLocationNearby[] {
-  if (!Array.isArray(body)) {
-    logger.warn("[TripAdvisor] parseLocationsNearby: Received non-array body", body);
-    return [];
-  } else {
-    return body.map(parseLocationNearby).filter(Boolean).map(location => location!);
-  }
-}
-
-function parseLocationPhotos(body: TripAdvisorRawPhoto[] | undefined): TripAdvisorPhoto[] {
-  if (body && Array.isArray(body)) {
-    return body.map(parseLocationPhoto).filter(Boolean).map(photo => photo!);
-  } else {
-    return [];
-  }
-}
-
-function parseLocationPhoto(body: TripAdvisorRawPhoto): TripAdvisorPhoto | undefined {
-  if (body) {
-    return {
-      id: body.id,
-      blessed: body.is_blessed,
-      caption: body.caption,
-      source: parseLocalizedName(body.source),
-      images: parseImageSet(body.images)
-    };
-  } else {
-    return undefined;
-  }
-}
-
-function parseImageSet(body: TripAdvisorRawImageSet | undefined): TripAdvisorImageSet {
-  if (body) {
-    return {
-      thumbnail: parseImageVariant(body.thumbnail),
-      small: parseImageVariant(body.small),
-      medium: parseImageVariant(body.medium),
-      large: parseImageVariant(body.large),
-      original: parseImageVariant(body.original)
-    }
-  } else {
-    return {};
-  }
-}
-
-function parseImageVariant(body: TripAdvisorRawImageVariant | undefined): TripAdvisorImageVariant | undefined {
-  if (body) {
-    return {
-      height: body.height,
-      width: body.width,
-      url: body.url
-    }
-  } else {
-    return undefined;
-  }
-}
-
-
-function parseAddress(body: TripAdvisorRawAddress | undefined): AddressInfo | undefined {
-  if (body) {
-    const street1 = body?.street1 || undefined;
-    const street2 = body?.street2 || undefined;
-    const city = body?.city || undefined;
-    const state = body?.state || undefined;
-    const country = body?.country || undefined;
-    const postalcode = body?.postalcode || undefined;
-    const addressString = body?.address_string || undefined;
-    if (street1 || street2 || city || state || country || postalcode || addressString) {
-      return {
-        street1: street1,
-        street2: street2,
-        city: city,
-        state: state,
-        country: country,
-        postalcode: postalcode,
-        addressString: addressString
-      };
+  if (response.ok) {
+    logger.log("[TripAdvisor] Request succeeded in %dms. URL: %s", durationInMs, url);
+    const body = await response.json() as T | null;
+    if (body) {
+      return body;
     } else {
-      return undefined;
+      throw new TripAdvisorEmptyResponseError(url, response.status, durationInMs);
     }
   } else {
+    throw await parseError(url, response, durationInMs);
+  }
+}
+
+function buildUrl(configuration: TripAdvisorConfiguration, path: string, parameters: Record<string, string>): string {
+  const query = new URLSearchParams({ version: API_VERSION, ...parameters });
+  return `${configuration.instanceUrl}${path}?${query.toString()}`;
+}
+
+function buildPhotoUrl(photo: TerraPhoto | undefined, size: TripAdvisorPhotoSize): string | undefined {
+  const key = photo?.photo?.key;
+  if (key) {
+    const width = PHOTO_WIDTH_IN_PIXELS[size];
+    return width ? `${RESIZED_PHOTO_CDN_URL}/${key}?w=${width}&h=-1&s=1` : `${PHOTO_CDN_URL}/${key}`;
+  } else {
     return undefined;
   }
 }
 
-function parseRankingData(body: TripAdvisorRawRankingData | undefined): RankingData | undefined {
+function toLocationNearby(nearby: TerraNearbyLocation): TripAdvisorLocationNearby {
+  return {
+    locationId: nearby.location.id.toString(),
+    name: primaryTranslationOf(nearby.location.names) || "",
+    distanceInMeters: (nearby.distance_kilometers ?? 0) * 1_000,
+    bearing: nearby.bearing?.toString() ?? "",
+    address: parseAddress(nearby.location.addresses?.[0])
+  };
+}
+
+function parseLocation(body: TerraLocation): TripAdvisorLocation {
+  const rating = body.traveler_ratings?.overall;
+  return {
+    id: body.id.toString(),
+    name: primaryTranslationOf(body.names) || "",
+    description: primaryTranslationOf(body.descriptions),
+    latitude: body.coordinates?.latitude,
+    longitude: body.coordinates?.longitude,
+    address: parseAddress(body.addresses?.[0]),
+    tripAdvisorUrl: body.urls?.tripadvisor?.main || undefined,
+    website: body.urls?.official || undefined,
+    phone: body.phone_numbers?.[0]?.value || undefined,
+    rating: rating?.rating || undefined,
+    numberOfReviews: rating?.count ?? 0,
+    priceLevel: body.price_level || undefined,
+    cuisine: parseCuisine(body.categories),
+    openingHours: convertTripAdvisorHoursToOpeningHours(parseHours(body.opening_hours?.periods)),
+    photoId: undefined
+  };
+}
+
+function primaryTranslationOf(translations: TerraTranslation[] | undefined): string | undefined {
+  return (translations?.find(translation => translation.primary) ?? translations?.[0])?.value || undefined;
+}
+
+function parseAddress(body: TerraAddress | undefined): AddressInfo | undefined {
   if (body) {
-    return {
-      geoLocationId: body.geo_location_id,
-      rankingString: body.ranking_string,
-      geoLocationName: body.geo_location_name,
-      rankingOutOf: parseInt(body.ranking_out_of || "0", 10),
-      ranking: parseInt(body.ranking || "0", 10),
+    const address: AddressInfo = {
+      street1: body.street_address || undefined,
+      street2: body.street_address2 || undefined,
+      city: body.city || undefined,
+      state: body.state || undefined,
+      country: body.country_code || undefined,
+      postalcode: body.postal_code || undefined,
+      addressString: body.formatted || undefined
     };
+    return Object.values(address).some(Boolean) ? address : undefined;
   } else {
     return undefined;
   }
 }
 
-function parseLocalizedNames(body: TripAdvisorRawLocalizedName[] | undefined): LocalizedName[] {
-  if (body && Array.isArray(body)) {
-    return body.map(parseLocalizedName).filter(Boolean).map(name => name!);
-  } else {
-    return [];
-  }
+function parseCuisine(categories: TerraLocation["categories"]): LocalizedName[] {
+  return (categories ?? [])
+    .filter(category => category.display_name)
+    .map(category => ({ name: category.display_name!, localizedName: category.display_name! }));
 }
 
-function parseLocalizedName(body: TripAdvisorRawLocalizedName | undefined): LocalizedName | undefined {
-  if (body) {
+const DAY_NUMBERS: Record<string, number> = {
+  Monday: 1,
+  Tuesday: 2,
+  Wednesday: 3,
+  Thursday: 4,
+  Friday: 5,
+  Saturday: 6,
+  Sunday: 7
+};
+
+function parseHours(periods: TerraPeriod[] | undefined): LocationHours | undefined {
+  if (Array.isArray(periods)) {
     return {
-      name: body.name,
-      localizedName: body.localized_name
-    };
-  } else {
-    return undefined;
-  }
-}
-
-function parseTripTypes(body: TripAdvisorRawTripType[] | undefined): TripType[] {
-  if (Array.isArray(body)) {
-    return body.map(parseTripType).filter(Boolean).map(trip => trip!);
-  } else {
-    return [];
-  }
-}
-
-function parseTripType(body: TripAdvisorRawTripType): TripType | undefined {
-  if (body) {
-    return {
-      name: body.name,
-      localizedName: body.localized_name,
-      value: typeof body.value === "string" ? parseInt(body.value) : body.value || undefined
-    };
-  } else {
-    return undefined;
-  }
-}
-
-function parseHours(body: TripAdvisorRawHours | undefined): LocationHours | undefined {
-  if (body && Array.isArray(body.periods)) {
-    const periods: OperatingPeriod[] = body.periods.map((item: TripAdvisorRawPeriod) => {
-      if (!item.open) {
-        return undefined;
-      } else {
-        const period: OperatingPeriod = {
-          open: {
-            day: typeof item.open.day === "number" ? item.open.day : parseInt(item.open.day || "-1", 10),
-            time: item.open.time || "0000"
-          }
-        };
-
-        if (item.close) {
-          period.close = {
-            day: typeof item.close.day === "number" ? item.close.day : parseInt(item.close.day || "-1", 10),
-            time: item.close.time || "0000"
+      periods: periods
+        .filter(period => period.day_of_week && DAY_NUMBERS[period.day_of_week] && period.opens)
+        .map((period): OperatingPeriod => {
+          const day = DAY_NUMBERS[period.day_of_week!];
+          return {
+            open: { day, time: toCompactTime(period.opens!) },
+            close: period.closes ? { day, time: toCompactTime(period.closes) } : undefined
           };
-        }
-
-        return period;
-      }
-    }).filter(Boolean).map(period => period!);
-
-    return {
-      periods: periods,
-      weekdayText: Array.isArray(body.weekday_text) ? body.weekday_text : []
+        })
     };
   } else {
     return undefined;
   }
 }
 
-function parseAwards(body: TripAdvisorRawAward[] | undefined): Award[] {
-  if (body && Array.isArray(body)) {
-    return body.map(parseAward).filter(Boolean).map(award => award!);
-  } else {
-    return [];
-  }
-}
-
-function parseAward(body: TripAdvisorRawAward): Award | undefined {
-  if (body) {
-    return {
-      type: body.award_type,
-      year: typeof body.year === "string" ? parseInt(body.year) : body.year,
-      categories: body.categories,
-      displayName: body.display_name
-    };
-  } else {
-    return undefined;
-  }
-}
-
-const MILES_TO_METERS_FACTOR = 1609.34;
-function parseDistanceInMeters(distance: string | number | undefined): number {
-  const distanceInMiles = typeof distance === "string" ? parseFloat(distance) : (distance ?? 0);
-  return distanceInMiles * MILES_TO_METERS_FACTOR;
+function toCompactTime(time: string): string {
+  return time.replace(":", "");
 }
 
 async function parseError(url: string, response: Response, durationInMs: number): Promise<TripAdvisorError> {
-  const body = (await response.json() as TripAdvisorRawErrorResponse)?.error;
+  const body = await response.json().catch(() => undefined) as TerraProblemDetail | undefined;
 
-  logger.error("[TripAdvisor] Request failed after %dms. Status: %d. URL: %s", durationInMs, response.status, url);
+  logger.error("[TripAdvisor] Request failed after %dms. Status: %d. Reason: %s. URL: %s", durationInMs, response.status, body?.detail || body?.message || body?.title, url);
 
   if (response.status >= 500) {
-    return new TripAdvisorServerError(
-      url,
-      response.status,
-      body,
-      durationInMs
-    );
+    return new TripAdvisorServerError(url, response.status, body, durationInMs);
   } else if (response.status === 401) {
-    return new TripAdvisorAuthorizationError(
-      url,
-      response.status,
-      body,
-      durationInMs
-    );
+    return new TripAdvisorAuthorizationError(url, response.status, body, durationInMs);
   } else {
-    return new TripAdvisorHttpError(
-      url,
-      response.status,
-      body,
-      durationInMs
-    );
+    // Includes 429: Terra asks not to retry right away, which would only extend the rate limit window.
+    return new TripAdvisorHttpError(url, response.status, body, durationInMs);
   }
 }
-
-function convertLocaleToLanguage(locale: string): string {
-  const language = convertLocaleToSnakecase(locale);
-  if (ALLOWED_LANGUAGES.includes(language)) {
-    return language;
-  } else {
-    return DEFAULT_LANGUAGE;
-  }
-}
-
-const ALLOWED_LANGUAGES = [
-  "ar",
-  "zh",
-  "zh_TW",
-  "da",
-  "nl",
-  "en_AU",
-  "en_CA",
-  "en_HK",
-  "en_IN",
-  "en_IE",
-  "en_MY",
-  "en_NZ",
-  "en_PH",
-  "en_SG",
-  "en_ZA",
-  "en_UK",
-  "en",
-  "fr",
-  "fr_BE",
-  "fr_CA",
-  "fr_CH",
-  "de_AT",
-  "de",
-  "el",
-  "iw",
-  "in",
-  "it",
-  "it_CH",
-  "ja",
-  "ko",
-  "no",
-  "pt_PT",
-  "pt",
-  "ru",
-  "es_AR",
-  "es_CO",
-  "es_MX",
-  "es_PE",
-  "es",
-  "es_VE",
-  "es_CL",
-  "sv",
-  "th",
-  "tr",
-  "vi"
-];

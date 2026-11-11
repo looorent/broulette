@@ -49,7 +49,7 @@ export class TripAdvisorMatcher implements Matcher {
     signal?: AbortSignal | undefined
   ): Promise<TripAdvisorLocation | undefined> {
     if (existingProfile) {
-      const found = await findTripAdvisorLocationByIdWithRetry(existingProfile.externalId, language, this.configuration, this.imageUploader, signal);
+      const found = await findTripAdvisorLocationByIdWithRetry(existingProfile.externalId, language, this.configuration, signal);
       await matchingRepository.registerAttemptToFindAMatch(existingProfile.externalId, "id", this.source, restaurant.id, found !== null && found !== undefined)
       return found;
     } else {
@@ -101,7 +101,7 @@ export class TripAdvisorMatcher implements Matcher {
       priceRange: profile?.priceRange || null,
       priceLabel: tripAdvisor.priceLevel || profile?.priceLabel || null,
       openingHours: tripAdvisor.openingHours || profile?.openingHours || null,
-      tags: filterTags(tripAdvisor.cuisine?.map(c => c.name) || profile?.tags, matchingConfiguration.tags) || [],
+      tags: filterTags(tripAdvisor.cuisine.length > 0 ? tripAdvisor.cuisine.map(c => c.name) : profile?.tags, matchingConfiguration.tags) || [],
       operational: profile?.operational ?? null,
       website: tripAdvisor.website || profile?.website || null,
       sourceUrl: tripAdvisor.tripAdvisorUrl || profile?.sourceUrl || null

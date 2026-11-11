@@ -1,11 +1,13 @@
 import { CircuitBreakerError } from "@features/circuit-breaker.server";
 
+import type { TerraProblemDetail } from "./types";
+
 export abstract class TripAdvisorError extends CircuitBreakerError {
   constructor(
     message: string,
     readonly query: string,
     readonly responseStatusCode: number,
-    readonly responseBody: TripAdvisorErrorPayload | undefined,
+    readonly responseBody: TerraProblemDetail | undefined,
     readonly durationInMs: number
   ) {
     super(message);
@@ -21,7 +23,7 @@ export class TripAdvisorServerError extends TripAdvisorError {
   constructor(
     query: string,
     responseStatusCode: number,
-    responseBody: TripAdvisorErrorPayload | undefined,
+    responseBody: TerraProblemDetail | undefined,
     durationInMs: number
   ) {
     super(
@@ -42,7 +44,7 @@ export class TripAdvisorAuthorizationError extends TripAdvisorError {
   constructor(
     query: string,
     responseStatusCode: number,
-    responseBody: TripAdvisorErrorPayload | undefined,
+    responseBody: TerraProblemDetail | undefined,
     durationInMs: number
   ) {
     super(
@@ -63,7 +65,7 @@ export class TripAdvisorHttpError extends TripAdvisorError {
   constructor(
     query: string,
     responseStatusCode: number,
-    responseBody: TripAdvisorErrorPayload | undefined,
+    responseBody: TerraProblemDetail | undefined,
     durationInMs: number
   ) {
     super(
@@ -98,10 +100,4 @@ export class TripAdvisorEmptyResponseError extends TripAdvisorError {
   override isRetriable(): boolean {
     return true;
   }
-}
-
-export interface TripAdvisorErrorPayload {
-  message: string;
-  type: string;
-  code: number;
 }

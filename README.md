@@ -234,8 +234,9 @@ npx wrangler d1 execute broulette-eu --remote --file=./data.sql
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `BROULETTE_TRIPADVISOR_INSTANCE_URL` | `https://api.content.tripadvisor.com/api/v1` | API base URL |
+| `BROULETTE_TRIPADVISOR_INSTANCE_URL` | `https://terra.tripadvisor.com/api` | API base URL |
 | `BROULETTE_TRIPADVISOR_API_SEARCH_RADIUS_IN_METERS` | `100` | Search radius for matching |
+| `BROULETTE_TRIPADVISOR_API_SEARCH_MAX_RESULTS` | `5` | Maximum locations returned by a nearby search (each one is billed by Tripadvisor Terra) |
 | `BROULETTE_TRIPADVISOR_API_PHOTO_SIZE` | `medium` | Photo size (`small`, `medium`, `large`) |
 | `BROULETTE_TRIPADVISOR_API_MAX_NUMBER_OF_ATTEMPTS_PER_MONTH` | `5000` | Rate limiting threshold |
 

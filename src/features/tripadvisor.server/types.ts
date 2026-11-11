@@ -9,14 +9,15 @@ export type TripAdvisorPhotoSize = typeof TRIPADVISOR_PHOTO_SIZES[number];
 export const TRIPADVISOR_DEFAULT_PHOTO_SIZE: TripAdvisorPhotoSize = "large";
 
 export const DEFAULT_TRIPADVISOR_CONFIGURATION: TripAdvisorConfiguration = {
-  instanceUrl: "https://api.content.tripadvisor.com/api/v1",
+  instanceUrl: "https://terra.tripadvisor.com/api",
   enabled: false,
   apiKey: "",
   rateLimiting: {
     maxNumberOfAttemptsPerMonth: 200
   },
   search: {
-    radiusInMeters: 50
+    radiusInMeters: 50,
+    maxResults: 5
   },
   similarity: {
     weight: {
@@ -39,6 +40,8 @@ export interface TripAdvisorConfiguration {
   };
   search: {
     radiusInMeters: number;
+    /** Every location returned by a nearby search is billed, so keep it small. */
+    maxResults: number;
   };
   similarity: TripAdvisorSimilarityConfiguration;
   photo: TripAdvisorPhotoSize;
@@ -52,25 +55,15 @@ export interface TripAdvisorLocation {
   tripAdvisorUrl: string | undefined;
   latitude: number | undefined;
   longitude: number | undefined;
-  timezone: string;
   address: AddressInfo | undefined;
   website: string | undefined;
   phone: string | undefined;
-  rankingData: RankingData | undefined;
   rating: number | undefined;
   numberOfReviews: number;
-  numberOfReviewsPerRating: {[rating: number]: number};
-  photoCount: number;
   priceLevel: string | undefined;
   cuisine: LocalizedName[];
-  category: LocalizedName | undefined;
-  subcategories: LocalizedName[];
-  hours: LocationHours | undefined;
   openingHours: string | undefined;
-  features: string[];
-  tripTypes: TripType[];
   photoId: string | undefined;
-  awards: Award[];
 }
 
 export interface TripAdvisorLocationNearby {
@@ -81,21 +74,6 @@ export interface TripAdvisorLocationNearby {
   address: AddressInfo | undefined;
 }
 
-export interface TripAdvisorPhoto {
-  id: number;
-  blessed: boolean;
-  caption: string;
-  source: LocalizedName | undefined;
-  images: TripAdvisorImageSet;
-}
-
-export interface Award {
-  type: string;
-  year: number;
-  categories: string[];
-  displayName: string;
-}
-
 export interface AddressInfo {
   street1: string | undefined;
   street2: string | undefined;
@@ -104,14 +82,6 @@ export interface AddressInfo {
   country: string | undefined;
   postalcode: string | undefined;
   addressString: string | undefined;
-}
-
-export interface RankingData {
-  geoLocationId: string | undefined;
-  geoLocationName: string | undefined;
-  ranking: number;
-  rankingString: string | undefined;
-  rankingOutOf: number;
 }
 
 export interface LocalizedName {
@@ -131,143 +101,71 @@ export interface OperatingPeriod {
 
 export interface LocationHours {
   periods: OperatingPeriod[];
-  weekdayText?: string[];
 }
 
-export interface TripType {
-  name: string;
-  localizedName: string;
-  value: number | undefined;
-}
+// Terra API payloads (https://docs.terra.tripadvisor.com), restricted to the fields in use.
 
-export interface TripAdvisorImageVariant {
-  height: number;
-  width: number;
-  url: string;
-}
-
-export interface TripAdvisorImageSet {
-  thumbnail?: TripAdvisorImageVariant | undefined;
-  small?: TripAdvisorImageVariant | undefined;
-  medium?: TripAdvisorImageVariant | undefined;
-  large?: TripAdvisorImageVariant | undefined;
-  original?: TripAdvisorImageVariant | undefined;
-}
-
-export interface TripAdvisorRawLocationDetails {
-  location_id: string;
-  name: string;
-  description?: string;
-  latitude?: string | number;
-  longitude?: string | number;
-  timezone: string;
-  web_url?: string;
-  website?: string;
-  phone?: string;
-  address_obj?: TripAdvisorRawAddress;
-  ranking_data?: TripAdvisorRawRankingData;
-  rating?: string | number;
-  num_reviews?: string;
-  review_rating_count?: Record<string, string>;
-  photo_count?: string | number;
+export interface TerraLocation {
+  id: number;
+  names?: TerraTranslation[];
+  descriptions?: TerraTranslation[];
+  addresses?: TerraAddress[];
+  coordinates?: { latitude: number; longitude: number };
+  phone_numbers?: { type: string; value: string }[];
+  urls?: {
+    official?: string;
+    tripadvisor?: { main?: string };
+  };
+  traveler_ratings?: {
+    overall?: { rating?: number; count?: number };
+  };
   price_level?: string;
-  cuisine?: TripAdvisorRawLocalizedName[];
-  category?: TripAdvisorRawLocalizedName;
-  subcategory?: TripAdvisorRawLocalizedName[];
-  hours?: TripAdvisorRawHours;
-  features?: string[];
-  trip_types?: TripAdvisorRawTripType[];
-  awards?: TripAdvisorRawAward[];
+  categories?: { id: string; display_name?: string }[];
+  opening_hours?: {
+    periods?: TerraPeriod[];
+  };
 }
 
-export interface TripAdvisorRawAddress {
-  street1?: string;
-  street2?: string;
+export interface TerraTranslation {
+  language: string;
+  value: string;
+  primary?: boolean;
+}
+
+export interface TerraAddress {
+  street_address?: string;
+  street_address2?: string;
   city?: string;
   state?: string;
-  country?: string;
-  postalcode?: string;
-  address_string?: string;
+  country_code?: string;
+  postal_code?: string;
+  formatted?: string;
 }
 
-export interface TripAdvisorRawRankingData {
-  geo_location_id?: string;
-  geo_location_name?: string;
-  ranking_string?: string;
-  ranking_out_of?: string;
-  ranking?: string;
+export interface TerraPeriod {
+  day_of_week?: string;
+  opens?: string;
+  closes?: string;
 }
 
-export interface TripAdvisorRawLocalizedName {
-  name: string;
-  localized_name: string;
+export interface TerraNearbyLocation {
+  location: TerraLocation;
+  distance_kilometers?: number;
+  bearing?: number;
+  photo?: TerraPhoto;
 }
 
-export interface TripAdvisorRawTripType {
-  name: string;
-  localized_name: string;
-  value?: string | number;
+export interface TerraNearbyResponse {
+  data?: TerraNearbyLocation[];
 }
 
-export interface TripAdvisorRawHours {
-  periods?: TripAdvisorRawPeriod[];
-  weekday_text?: string[];
+export interface TerraPhoto {
+  photo?: { key?: string };
 }
 
-export interface TripAdvisorRawPeriod {
-  open?: { day: number | string; time?: string };
-  close?: { day: number | string; time?: string };
-}
-
-export interface TripAdvisorRawAward {
-  award_type: string;
-  year: string | number;
-  categories: string[];
-  display_name: string;
-}
-
-export interface TripAdvisorRawLocationNearby {
-  location_id: string;
-  name: string;
-  distance?: string | number;
-  bearing: string;
-  address_obj?: TripAdvisorRawAddress;
-}
-
-export interface TripAdvisorRawNearbyResponse {
-  data: TripAdvisorRawLocationNearby[];
-}
-
-export interface TripAdvisorRawPhoto {
-  id: number;
-  is_blessed: boolean;
-  caption: string;
-  source?: TripAdvisorRawLocalizedName;
-  images?: TripAdvisorRawImageSet;
-}
-
-export interface TripAdvisorRawImageSet {
-  thumbnail?: TripAdvisorRawImageVariant;
-  small?: TripAdvisorRawImageVariant;
-  medium?: TripAdvisorRawImageVariant;
-  large?: TripAdvisorRawImageVariant;
-  original?: TripAdvisorRawImageVariant;
-}
-
-export interface TripAdvisorRawImageVariant {
-  height: number;
-  width: number;
-  url: string;
-}
-
-export interface TripAdvisorRawPhotoResponse {
-  data: TripAdvisorRawPhoto[];
-}
-
-export interface TripAdvisorRawErrorResponse {
-  error?: {
-    message: string;
-    type: string;
-    code: number
-  };
+export interface TerraProblemDetail {
+  status?: number;
+  title?: string;
+  detail?: string;
+  message?: string;
 }
