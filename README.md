@@ -253,6 +253,8 @@ npx wrangler d1 execute broulette-eu --remote --file=./data.sql
 |----------|---------|-------------|
 | `BROULETTE_SEARCH_ENGINE_DISCOVERY_RANGE_INCREASE_METERS` | `500` | Range increase per iteration |
 | `BROULETTE_SEARCH_ENGINE_MAX_DISCOVERY_ITERATIONS` | `10` | Maximum discovery iterations |
+| `BROULETTE_SEARCH_ENGINE_DISCOVERY_CACHE_FRESH_SECONDS` | `604800` | Age under which a cached discovery is served without calling Overpass |
+| `BROULETTE_SEARCH_ENGINE_DISCOVERY_CACHE_KEPT_SECONDS` | `7776000` | How long a cached discovery is kept to be served when Overpass is down |
 | `BROULETTE_SEARCH_ENGINE_CLOSE_RANGE_IN_METERS` | `1500` | "Close" distance range |
 | `BROULETTE_SEARCH_ENGINE_CLOSE_TIMEOUT_IN_MS` | `30000` | Timeout for close searches |
 | `BROULETTE_SEARCH_ENGINE_MID_RANGE_IN_METERS` | `5000` | "Mid-range" distance |

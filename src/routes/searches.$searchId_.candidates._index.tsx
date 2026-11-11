@@ -111,6 +111,7 @@ async function streamSearchResults(
           tripAdvisor: app.config!.tripAdvisor,
           imageUploader,
           imagePublicBaseUrl: app.cloudflare.env.BROULETTE_R2_PUBLIC_URL,
+          discoveryCacheStore: app.cloudflare.env.KV,
         },
         signal,
       }

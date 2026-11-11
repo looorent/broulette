@@ -1,10 +1,11 @@
-import { eq, exists } from "drizzle-orm";
+import { and, between, eq, exists } from "drizzle-orm";
 
+import type { MapRectangleViewPort } from "@features/coordinate";
 import type { DiscoveredRestaurantProfile } from "@features/discovery.server";
 import { logger } from "@features/utils/logger";
 
 import type { DrizzleClient } from "./drizzle";
-import type { RestaurantAndProfiles, RestaurantProfilePayload } from "./drizzle.types";
+import type { RestaurantAndProfiles, RestaurantProfile, RestaurantProfilePayload } from "./drizzle.types";
 import { restaurantProfiles, restaurants } from "./schema";
 
 export interface RestaurantRepository {
@@ -12,6 +13,7 @@ export interface RestaurantRepository {
   updateProfile(profileId: string, profile: RestaurantProfilePayload, restaurant: RestaurantAndProfiles): Promise<RestaurantAndProfiles>;
   findRestaurantWithExternalIdentity(externalId: string, externalType: string, source: string): Promise<RestaurantAndProfiles | undefined>;
   createRestaurantFromDiscovery(discovered: DiscoveredRestaurantProfile, tags: string[]): Promise<RestaurantAndProfiles>;
+  findProfilesWithin(viewport: MapRectangleViewPort, source: string, limit: number): Promise<RestaurantProfile[]>;
 }
 
 export class RestaurantRepositoryDrizzle implements RestaurantRepository {
@@ -99,5 +101,18 @@ export class RestaurantRepositoryDrizzle implements RestaurantRepository {
       ...newRestaurant,
       profiles: [newProfile]
     };
+  }
+
+  async findProfilesWithin(viewport: MapRectangleViewPort, source: string, limit: number): Promise<RestaurantProfile[]> {
+    const rows = await this.db.select({ profile: restaurantProfiles })
+      .from(restaurants)
+      .innerJoin(restaurantProfiles, eq(restaurantProfiles.restaurantId, restaurants.id))
+      .where(and(
+        between(restaurants.latitude, viewport.bottomLeft.latitude, viewport.topRight.latitude),
+        between(restaurants.longitude, viewport.bottomLeft.longitude, viewport.topRight.longitude),
+        eq(restaurantProfiles.source, source)
+      ))
+      .limit(limit);
+    return rows.map(row => row.profile);
   }
 }

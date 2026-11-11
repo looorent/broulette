@@ -29,7 +29,8 @@ function createMockRestaurantRepository(): RestaurantRepository {
     createProfile: vi.fn(),
     updateProfile: vi.fn(),
     findRestaurantWithExternalIdentity: vi.fn(),
-    createRestaurantFromDiscovery: vi.fn()
+    createRestaurantFromDiscovery: vi.fn(),
+    findProfilesWithin: vi.fn().mockResolvedValue([])
   };
 }
 
@@ -45,7 +46,7 @@ function createMockMatchingRepository(): MatchingRepository {
 function createMockContext(overrides: Partial<SearchContext> = {}): SearchContext {
   return {
     config: overrides.config ?? {
-      discovery: { rangeIncreaseMeters: 5000, maxDiscoveryIterations: 1 },
+      discovery: { rangeIncreaseMeters: 5000, maxDiscoveryIterations: 1, cacheFreshForSeconds: 60, cacheKeptForSeconds: 120 },
       matching: { tags: { hiddenTags: [], priorityTags: [], maxTags: 5 } },
       minimumRating: 4.0,
       range: {

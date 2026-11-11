@@ -1,4 +1,5 @@
 import { OVERPASS_SOURCE_NAME, type OverpassRestaurant } from "@features/overpass.server";
+import type { RestaurantProfile } from "@persistence";
 
 import type { DiscoveredRestaurantProfile } from "./types";
 
@@ -30,6 +31,11 @@ export function fromOverpass(overpass: OverpassRestaurant): DiscoveredRestaurant
     website: overpass.website || null,
     sourceUrl: overpass.openStreetMapUrl || null
   };
+}
+
+export function fromKnownProfile(profile: RestaurantProfile): DiscoveredRestaurantProfile {
+  const { id, createdAt, updatedAt, version, restaurantId, ...discovered } = profile;
+  return discovered;
 }
 
 function buildTagsFrom(overpass: OverpassRestaurant): string[] {

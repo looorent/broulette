@@ -59,6 +59,7 @@ export interface SearchContext {
     tripAdvisor?: TripAdvisorConfiguration;
     imageUploader: ImageUploader;
     imagePublicBaseUrl?: string;
+    discoveryCacheStore?: KVNamespace;
   };
   signal?: AbortSignal;
 }

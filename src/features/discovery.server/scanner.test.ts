@@ -15,7 +15,9 @@ const mockedLoadBalancer = vi.mocked(loadBalancer);
 function createMockConfiguration(): DiscoveryConfiguration {
   return {
     maxDiscoveryIterations: 3,
-    rangeIncreaseMeters: 500
+    rangeIncreaseMeters: 500,
+    cacheFreshForSeconds: 60,
+    cacheKeptForSeconds: 120
   };
 }
 
@@ -85,8 +87,8 @@ describe("RestaurantDiscoveryScanner", () => {
       await scanner.nextRestaurants(undefined);
 
       expect(mockExecute).toHaveBeenCalledWith(
-        { latitude: 48.8566, longitude: 2.3522 },
-        1000,
+        { latitude: 48.855, longitude: 2.35 },
+        1400,
         30,
         [],
         undefined
@@ -111,8 +113,8 @@ describe("RestaurantDiscoveryScanner", () => {
       await scanner.nextRestaurants(undefined);
 
       expect(mockExecute).toHaveBeenNthCalledWith(2,
-        { latitude: 48.8566, longitude: 2.3522 },
-        1500,
+        { latitude: 48.855, longitude: 2.35 },
+        1900,
         30,
         [],
         undefined
@@ -203,19 +205,18 @@ describe("RestaurantDiscoveryScanner", () => {
         sourceUrl: null
       };
 
-      scanner.addIdentityToExclude(identity);
-      await scanner.nextRestaurants(undefined);
+      mockExecute.mockResolvedValue([
+        { name: "Excluded", latitude: 48.8566, longitude: 2.3522, source: "osm", externalId: "123", externalType: "node" },
+        { name: "Kept", latitude: 48.8566, longitude: 2.3522, source: "osm", externalId: "456", externalType: "node" }
+      ]);
 
-      expect(mockExecute).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.anything(),
-        expect.anything(),
-        expect.arrayContaining([expect.objectContaining({ externalId: "123" })]),
-        undefined
-      );
+      scanner.addIdentityToExclude(identity);
+      const result = await scanner.nextRestaurants(undefined);
+
+      expect(result.map(restaurant => restaurant.externalId)).toEqual(["456"]);
     });
 
-    it("does not add duplicate identities", async () => {
+    it("ignores duplicate identities", async () => {
       const mockExecute = vi.fn().mockResolvedValue([]);
       mockedLoadBalancer.mockReturnValue({ execute: mockExecute } as any);
 
@@ -259,12 +260,16 @@ describe("RestaurantDiscoveryScanner", () => {
         sourceUrl: null
       };
 
-      scanner.addIdentityToExclude(identity);
-      scanner.addIdentityToExclude(identity);
-      await scanner.nextRestaurants(undefined);
+      mockExecute.mockResolvedValue([
+        { name: "Excluded", latitude: 48.8566, longitude: 2.3522, source: "osm", externalId: "123", externalType: "node" },
+        { name: "Kept", latitude: 48.8566, longitude: 2.3522, source: "osm", externalId: "456", externalType: "node" }
+      ]);
 
-      const callArg = mockExecute.mock.calls[0][3];
-      expect(callArg.filter((i: any) => i.externalId === "123")).toHaveLength(1);
+      scanner.addIdentityToExclude(identity);
+      scanner.addIdentityToExclude(identity);
+      const result = await scanner.nextRestaurants(undefined);
+
+      expect(result.map(restaurant => restaurant.externalId)).toEqual(["456"]);
     });
 
     it("returns this for chaining", () => {
@@ -367,6 +372,110 @@ describe("RestaurantDiscoveryScanner", () => {
       );
 
       expect(scanner.timeoutInSeconds).toBe(30);
+    });
+  });
+
+  describe("fallbacks", () => {
+    const nearBy = { latitude: 48.8566, longitude: 2.3522 };
+    const cacheKey = "discovery:v1:48.855:2.350:1400";
+    const nearbyRestaurant = { name: "Nearby", latitude: 48.8570, longitude: 2.3525, source: "osm", externalId: "1", externalType: "node" };
+    const farRestaurant = { name: "Far", latitude: 48.8700, longitude: 2.3522, source: "osm", externalId: "2", externalType: "node" };
+
+    function createKeyStore(entries: Record<string, unknown> = {}) {
+      const store = new Map(Object.entries(entries).map(([key, value]) => [key, JSON.stringify(value)]));
+      return {
+        store,
+        get: vi.fn(async (key: string) => store.has(key) ? JSON.parse(store.get(key)!) : null),
+        put: vi.fn(async (key: string, value: string) => {
+          store.set(key, value);
+        })
+      };
+    }
+
+    function createScanner(keyStore: ReturnType<typeof createKeyStore> | undefined, findKnownRestaurants = vi.fn().mockResolvedValue([])) {
+      return new RestaurantDiscoveryScanner(nearBy, 1000, 30000, createMockConfiguration(), undefined, [], {
+        cache: keyStore ? { keyStore: keyStore as unknown as KVNamespace, freshForSeconds: 60, keptForSeconds: 120 } : undefined,
+        findKnownRestaurants
+      });
+    }
+
+    function overpassReturns(result: Promise<unknown>) {
+      const mockExecute = vi.fn().mockReturnValue(result);
+      mockedLoadBalancer.mockReturnValue({ execute: mockExecute } as any);
+      return mockExecute;
+    }
+
+    it("serves a fresh cache entry without calling overpass", async () => {
+      const mockExecute = overpassReturns(Promise.resolve([]));
+      const keyStore = createKeyStore({ [cacheKey]: { storedAt: Date.now(), restaurants: [nearbyRestaurant] } });
+
+      const result = await createScanner(keyStore).nextRestaurants(undefined);
+
+      expect(result).toEqual([nearbyRestaurant]);
+      expect(mockExecute).not.toHaveBeenCalled();
+    });
+
+    it("stores overpass results in the cache", async () => {
+      overpassReturns(Promise.resolve([nearbyRestaurant]));
+      const keyStore = createKeyStore();
+
+      await createScanner(keyStore).nextRestaurants(undefined);
+
+      expect(JSON.parse(keyStore.store.get(cacheKey)!).restaurants).toEqual([nearbyRestaurant]);
+    });
+
+    it("refreshes a stale cache entry from overpass", async () => {
+      const mockExecute = overpassReturns(Promise.resolve([nearbyRestaurant]));
+      const keyStore = createKeyStore({ [cacheKey]: { storedAt: Date.now() - 61_000, restaurants: [] } });
+
+      const result = await createScanner(keyStore).nextRestaurants(undefined);
+
+      expect(mockExecute).toHaveBeenCalled();
+      expect(result).toEqual([nearbyRestaurant]);
+    });
+
+    it("serves a stale cache entry when overpass fails", async () => {
+      overpassReturns(Promise.reject(new Error("All providers failed.")));
+      const keyStore = createKeyStore({ [cacheKey]: { storedAt: Date.now() - 61_000, restaurants: [nearbyRestaurant] } });
+
+      const result = await createScanner(keyStore).nextRestaurants(undefined);
+
+      expect(result).toEqual([nearbyRestaurant]);
+    });
+
+    it("serves known restaurants when overpass fails and nothing is cached", async () => {
+      overpassReturns(Promise.reject(new Error("All providers failed.")));
+      const findKnownRestaurants = vi.fn().mockResolvedValue([nearbyRestaurant]);
+
+      const result = await createScanner(createKeyStore(), findKnownRestaurants).nextRestaurants(undefined);
+
+      expect(result).toEqual([nearbyRestaurant]);
+      expect(findKnownRestaurants).toHaveBeenCalledWith({ center: { latitude: 48.855, longitude: 2.35 }, rangeInMeters: 1400 });
+    });
+
+    it("rethrows the overpass error when no fallback has restaurants", async () => {
+      overpassReturns(Promise.reject(new Error("All providers failed.")));
+
+      await expect(createScanner(createKeyStore()).nextRestaurants(undefined)).rejects.toThrow("All providers failed.");
+    });
+
+    it("keeps only restaurants within the requested range", async () => {
+      overpassReturns(Promise.resolve([nearbyRestaurant, farRestaurant]));
+
+      const result = await createScanner(undefined).nextRestaurants(undefined);
+
+      expect(result).toEqual([nearbyRestaurant]);
+    });
+
+    it("keeps working when the cache is unavailable", async () => {
+      overpassReturns(Promise.resolve([nearbyRestaurant]));
+      const keyStore = createKeyStore();
+      keyStore.get.mockRejectedValue(new Error("KV down"));
+      keyStore.put.mockRejectedValue(new Error("KV down"));
+
+      const result = await createScanner(keyStore).nextRestaurants(undefined);
+
+      expect(result).toEqual([nearbyRestaurant]);
     });
   });
 });

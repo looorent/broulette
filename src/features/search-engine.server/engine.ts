@@ -1,5 +1,7 @@
-import { RestaurantDiscoveryScanner, type DiscoveredRestaurantProfile, type DiscoveryRestaurantIdentity } from "@features/discovery.server";
+import { computeViewportFromCircle } from "@features/coordinate";
+import { fromKnownProfile, RestaurantDiscoveryScanner, type DiscoveredRestaurantProfile, type DiscoveryFallbacks, type DiscoveryRestaurantIdentity } from "@features/discovery.server";
 import { enrichRestaurant } from "@features/matching.server";
+import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
 import { logger } from "@features/utils/logger";
 import { type CandidateRepository, type DistanceRange, type Search, type SearchCandidate, type SearchRepository } from "@persistence";
 
@@ -203,8 +205,29 @@ function createDiscoveryScanner(
     timeoutInMs,
     context.config.discovery,
     context.services.overpass,
-    (search.candidates || []).flatMap(candidate => candidate?.restaurant?.profiles || [])
+    (search.candidates || []).flatMap(candidate => candidate?.restaurant?.profiles || []),
+    createDiscoveryFallbacks(context)
   );
+}
+
+const MAX_KNOWN_RESTAURANTS_TO_DISCOVER = 300;
+
+function createDiscoveryFallbacks(context: SearchContext): DiscoveryFallbacks {
+  const { discoveryCacheStore } = context.services;
+  return {
+    cache: discoveryCacheStore
+      ? {
+        keyStore: discoveryCacheStore,
+        freshForSeconds: context.config.discovery.cacheFreshForSeconds,
+        keptForSeconds: context.config.discovery.cacheKeptForSeconds
+      }
+      : undefined,
+    findKnownRestaurants: async (area) => {
+      const viewport = computeViewportFromCircle(area.center, area.rangeInMeters);
+      const profiles = await context.repositories.restaurant.findProfilesWithin(viewport, OVERPASS_SOURCE_NAME, MAX_KNOWN_RESTAURANTS_TO_DISCOVER);
+      return profiles.map(fromKnownProfile);
+    }
+  };
 }
 
 async function findSearchOrThrow(searchId: string, searchRepository: SearchRepository) {
