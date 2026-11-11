@@ -5,10 +5,12 @@ import { OVERPASS_SOURCE_NAME } from "@features/overpass.server";
 import { filterTags } from "@features/tag.server";
 import { DEFAULT_TRIPADVISOR_CONFIGURATION, TRIPADVISOR_SOURCE_NAME, type TripAdvisorConfiguration } from "@features/tripadvisor.server";
 import { isOlderThanTwoMonths, sixtyDaysAgo } from "@features/utils/date";
+import { isAbortError } from "@features/utils/error";
+import { logger } from "@features/utils/logger";
 import { type MatchingRepository, type RestaurantAndProfiles, type RestaurantRepository } from "@persistence";
 
 import { registeredMatchers } from "./matchers/registry";
-import type { Matcher } from "./matchers/types";
+import type { Matcher, Matching } from "./matchers/types";
 import { DEFAULT_MATCHING_CONFIGURATION, type RestaurantMatchingConfiguration } from "./types";
 
 // TODO we should find the best language based on the location?
@@ -58,7 +60,7 @@ async function enrich(
   } else {
     const matchings = await Promise.all(
       eligibleMatchers.map(matcher =>
-        matcher.matchAndEnrich(restaurant, restaurantRepository, matchingRepository, configuration, language, signal)
+        matchAndEnrichOrSkip(matcher, restaurant, restaurantRepository, matchingRepository, configuration, language, signal)
       )
     );
 
@@ -72,6 +74,27 @@ async function enrich(
     );
 
     return completeRestaurantFromProfiles({ ...restaurant, profiles: mergedProfiles });
+  }
+}
+
+// Enrichment is best effort: an unavailable source must not prevent the restaurant from being proposed.
+async function matchAndEnrichOrSkip(
+  matcher: Matcher,
+  restaurant: RestaurantAndProfiles,
+  restaurantRepository: RestaurantRepository,
+  matchingRepository: MatchingRepository,
+  configuration: RestaurantMatchingConfiguration,
+  language: string,
+  signal?: AbortSignal | undefined
+): Promise<Matching> {
+  try {
+    return await matcher.matchAndEnrich(restaurant, restaurantRepository, matchingRepository, configuration, language, signal);
+  } catch (error) {
+    if (isAbortError(error)) {
+      throw error;
+    }
+    logger.warn("[Matching] %s enrichment failed for restaurant %s. Skipping it. %s", matcher.source, restaurant.id, error);
+    return { matched: false, restaurant, error: "unavailable" };
   }
 }
 

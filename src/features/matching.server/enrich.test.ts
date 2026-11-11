@@ -619,4 +619,54 @@ describe("profile merging (via enrichRestaurant)", () => {
     expect(result?.profiles.map(p => p.id)).toContain("google-profile");
     expect(result?.profiles.map(p => p.id)).toContain("tripadvisor-profile");
   });
+
+  it("keeps the results of other matchers when one of them fails", async () => {
+    const googleProfile = createMockProfile("google_place", { id: "google-profile" });
+
+    const googleMatcher = createMockMatcher("google_place", {
+      matchAndEnrich: vi.fn(async (restaurant): Promise<Matching> => ({
+        restaurant: { ...restaurant, profiles: [googleProfile] },
+        matched: true
+      }))
+    });
+    const tripAdvisorMatcher = createMockMatcher("tripadvisor", {
+      matchAndEnrich: vi.fn(async (): Promise<Matching> => {
+        throw new Error("[TripAdvisor] Request failed. Status: 403.");
+      })
+    });
+    vi.mocked(registeredMatchers).mockReturnValue([googleMatcher, tripAdvisorMatcher]);
+
+    const restaurantRepo = createMockRestaurantRepository();
+    restaurantRepo.findRestaurantWithExternalIdentity.mockResolvedValue(createMockRestaurant([]));
+
+    const result = await enrichRestaurant(
+      createDiscoveredProfile({ name: "Discovered" }),
+      "en",
+      restaurantRepo as never,
+      createMockMatchingRepository() as never,
+      mockImageUploader
+    );
+
+    expect(result?.profiles.map(p => p.id)).toEqual(["google-profile"]);
+  });
+
+  it("stops when a matcher is aborted", async () => {
+    const matcher = createMockMatcher("google_place", {
+      matchAndEnrich: vi.fn(async (): Promise<Matching> => {
+        throw Object.assign(new Error("Aborted"), { name: "AbortError" });
+      })
+    });
+    vi.mocked(registeredMatchers).mockReturnValue([matcher]);
+
+    const restaurantRepo = createMockRestaurantRepository();
+    restaurantRepo.findRestaurantWithExternalIdentity.mockResolvedValue(createMockRestaurant([]));
+
+    await expect(enrichRestaurant(
+      createDiscoveredProfile({ name: "Discovered" }),
+      "en",
+      restaurantRepo as never,
+      createMockMatchingRepository() as never,
+      mockImageUploader
+    )).rejects.toThrow("Aborted");
+  });
 });
